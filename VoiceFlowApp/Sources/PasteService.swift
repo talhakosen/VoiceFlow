@@ -3,35 +3,34 @@ import Carbon
 
 class PasteService {
     func pasteText(_ text: String) {
+        print("PasteService: Pasting text: \(text)")
+
         // Copy to clipboard
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
 
-        // Simulate Cmd+V to paste
-        simulatePaste()
-    }
-
-    private func simulatePaste() {
-        // Small delay to ensure clipboard is ready
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.sendKeyEvent(keyCode: 9, modifiers: .maskCommand) // 9 = 'V' key
+        // Simulate Cmd+V using AppleScript after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.simulatePasteWithAppleScript()
         }
     }
 
-    private func sendKeyEvent(keyCode: CGKeyCode, modifiers: CGEventFlags) {
-        let source = CGEventSource(stateID: .hidSystemState)
+    private func simulatePasteWithAppleScript() {
+        let script = """
+        tell application "System Events"
+            keystroke "v" using command down
+        end tell
+        """
 
-        // Key down
-        if let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true) {
-            keyDown.flags = modifiers
-            keyDown.post(tap: .cghidEventTap)
-        }
-
-        // Key up
-        if let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) {
-            keyUp.flags = modifiers
-            keyUp.post(tap: .cghidEventTap)
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            appleScript.executeAndReturnError(&error)
+            if let error = error {
+                print("PasteService: AppleScript error: \(error)")
+            } else {
+                print("PasteService: Paste command sent via AppleScript")
+            }
         }
     }
 

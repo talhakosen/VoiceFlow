@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WhisperFlow setup script
+# VoiceFlow setup script
 
 set -e
 
@@ -42,5 +42,5 @@ pip install -e ".[dev]"
 echo ""
 echo "Setup complete!"
 echo ""
-echo "To run CLI:    cd backend && source .venv/bin/activate && python -m whisperflow.cli"
-echo "To run API:    cd backend && source .venv/bin/activate && python -m whisperflow.main"
+echo "To run CLI:    cd backend && source .venv/bin/activate && python -m voiceflow.cli"
+echo "To run API:    cd backend && source .venv/bin/activate && python -m voiceflow.main"
