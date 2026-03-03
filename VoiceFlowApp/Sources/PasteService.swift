@@ -2,36 +2,47 @@ import AppKit
 import Carbon
 
 class PasteService {
+    var hasAccessibility: Bool {
+        AXIsProcessTrusted()
+    }
+
     func pasteText(_ text: String) {
-        print("PasteService: Pasting text: \(text)")
+        NSLog("VoiceFlow PasteService: Pasting text: '%@'", text)
+
+        // Check accessibility permission
+        if !hasAccessibility {
+            NSLog("VoiceFlow PasteService: WARNING - No accessibility permission! CGEvent paste will fail.")
+            NSLog("VoiceFlow PasteService: Go to System Settings > Privacy & Security > Accessibility > Enable VoiceFlow")
+        }
 
         // Copy to clipboard
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        let success = pasteboard.setString(text, forType: .string)
+        NSLog("VoiceFlow PasteService: Clipboard set: %@", success ? "YES" : "NO")
 
-        // Simulate Cmd+V using AppleScript after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.simulatePasteWithAppleScript()
+        // Simulate Cmd+V using CGEvent
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.simulatePasteWithCGEvent()
         }
     }
 
-    private func simulatePasteWithAppleScript() {
-        let script = """
-        tell application "System Events"
-            keystroke "v" using command down
-        end tell
-        """
+    private func simulatePasteWithCGEvent() {
+        let src = CGEventSource(stateID: .hidSystemState)
 
-        if let appleScript = NSAppleScript(source: script) {
-            var error: NSDictionary?
-            appleScript.executeAndReturnError(&error)
-            if let error = error {
-                print("PasteService: AppleScript error: \(error)")
-            } else {
-                print("PasteService: Paste command sent via AppleScript")
-            }
+        guard let keyDown = CGEvent(keyboardEventSource: src, virtualKey: 0x09, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: src, virtualKey: 0x09, keyDown: false) else {
+            NSLog("VoiceFlow PasteService: ERROR - Failed to create CGEvent")
+            return
         }
+
+        keyDown.flags = .maskCommand
+        keyDown.post(tap: .cghidEventTap)
+
+        keyUp.flags = .maskCommand
+        keyUp.post(tap: .cghidEventTap)
+
+        NSLog("VoiceFlow PasteService: Cmd+V sent via CGEvent (accessibility: %@)", hasAccessibility ? "YES" : "NO")
     }
 
     func copyToClipboard(_ text: String) {

@@ -11,6 +11,7 @@ dependencies = [
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
     "pyperclip>=1.8.2",
+    "mlx-lm>=0.21.0",
 ]
 
 [project.optional-dependencies]

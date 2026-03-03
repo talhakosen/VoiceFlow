@@ -2,8 +2,18 @@ import Foundation
 
 struct TranscriptionResult: Codable {
     let text: String
+    let rawText: String?
+    let corrected: Bool?
     let language: String?
     let duration: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case text
+        case rawText = "raw_text"
+        case corrected
+        case language
+        case duration
+    }
 }
 
 struct StatusResponse: Codable {
@@ -75,6 +85,32 @@ actor BackendService {
             return true
         } catch {
             return false
+        }
+    }
+
+    func updateConfig(language: String?, task: String, correctionEnabled: Bool? = nil) async throws {
+        let url = URL(string: "\(baseURL)/config")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        var body: [String: Any] = ["task": task]
+        if let language = language {
+            body["language"] = language
+        } else {
+            body["language"] = NSNull()
+        }
+        if let correctionEnabled = correctionEnabled {
+            body["correction_enabled"] = correctionEnabled
+        }
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (_, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw BackendError.requestFailed
         }
     }
 }

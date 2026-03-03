@@ -2,22 +2,21 @@ import AppKit
 import Carbon
 
 class HotkeyManager {
-    var onDoubleTapFn: (() -> Void)?
-    var onFnKeyDown: (() -> Void)?
-    var onFnKeyUp: (() -> Void)?
+    /// Called when recording should start
+    var onStartRecording: (() -> Void)?
+    /// Called when recording should stop
+    var onStopRecording: (() -> Void)?
 
     private var globalMonitor: Any?
     private var localMonitor: Any?
 
-    private var lastFnPressTime: Date?
+    private var lastFnDownTime: Date?
     private var isFnPressed = false
-    private var isInPushToTalkMode = false
+    private var isRecordingActive = false
 
-    private let doubleTapThreshold: TimeInterval = 0.3
-    private let holdThreshold: TimeInterval = 0.15
+    private let doubleTapThreshold: TimeInterval = 0.4
 
     func start() {
-        // Monitor for flagsChanged events (modifier keys including Fn)
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
             self?.handleFlagsChanged(event)
         }
@@ -27,7 +26,7 @@ class HotkeyManager {
             return event
         }
 
-        print("Hotkey manager started - Double-tap Fn for push-to-talk")
+        NSLog("HotkeyManager: started - Double-tap Fn to toggle recording")
     }
 
     func stop() {
@@ -42,52 +41,54 @@ class HotkeyManager {
     }
 
     private func handleFlagsChanged(_ event: NSEvent) {
-        // Check if Fn key state changed
-        // Fn key is detected via the function key flag
         let fnPressed = event.modifierFlags.contains(.function)
 
         if fnPressed && !isFnPressed {
-            // Fn key pressed down
-            handleFnKeyDown()
+            handleFnDown()
         } else if !fnPressed && isFnPressed {
-            // Fn key released
-            handleFnKeyUp()
+            handleFnUp()
         }
 
         isFnPressed = fnPressed
     }
 
-    private func handleFnKeyDown() {
+    private func handleFnDown() {
         let now = Date()
 
-        // Check for double-tap
-        if let lastPress = lastFnPressTime,
-           now.timeIntervalSince(lastPress) < doubleTapThreshold {
-            // Double-tap detected - enter push-to-talk mode
-            isInPushToTalkMode = true
-            onDoubleTapFn?()
-            onFnKeyDown?()
-            lastFnPressTime = nil
-        } else {
-            lastFnPressTime = now
+        if let last = lastFnDownTime,
+           now.timeIntervalSince(last) < doubleTapThreshold {
+            // Double-tap detected
+            lastFnDownTime = nil
 
-            // Schedule check for hold (single tap followed by hold)
-            DispatchQueue.main.asyncAfter(deadline: .now() + holdThreshold) { [weak self] in
-                guard let self = self else { return }
-                if self.isFnPressed && self.lastFnPressTime != nil {
-                    // Still holding after threshold - this is a hold, not a tap
-                    // Don't trigger anything on single hold without double-tap
-                }
+            if isRecordingActive {
+                // Already recording → stop
+                isRecordingActive = false
+                NSLog("HotkeyManager: DOUBLE-TAP Fn → STOP recording")
+                onStopRecording?()
+            } else {
+                // Not recording → start
+                isRecordingActive = true
+                NSLog("HotkeyManager: DOUBLE-TAP Fn → START recording")
+                onStartRecording?()
             }
+        } else {
+            lastFnDownTime = now
         }
     }
 
-    private func handleFnKeyUp() {
-        if isInPushToTalkMode {
-            // Release after push-to-talk
-            onFnKeyUp?()
-            isInPushToTalkMode = false
+    private func handleFnUp() {
+        // Fn release also stops recording (push-to-talk fallback)
+        if isRecordingActive {
+            isRecordingActive = false
+            NSLog("HotkeyManager: Fn RELEASED → STOP recording")
+            onStopRecording?()
         }
+    }
+
+    func resetState() {
+        isRecordingActive = false
+        isFnPressed = false
+        lastFnDownTime = nil
     }
 
     deinit {

@@ -16,15 +16,19 @@ targets:
     platform: macOS
     sources:
       - Sources
-    resources:
-      - Resources
+      - path: Resources/AppIcon.icns
+        buildPhase: resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.voiceflow.app
         INFOPLIST_FILE: Resources/Info.plist
         CODE_SIGN_ENTITLEMENTS: Resources/VoiceFlowApp.entitlements
         ENABLE_HARDENED_RUNTIME: NO
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_IDENTITY: "Apple Development"
+        DEVELOPMENT_TEAM: "34SJV9BWY6"
+        CODE_SIGN_STYLE: Automatic
         PRODUCT_NAME: VoiceFlow
     entitlements:
       path: Resources/VoiceFlowApp.entitlements

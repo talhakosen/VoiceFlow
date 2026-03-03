@@ -10,16 +10,20 @@
 		26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B6377D077B683525B53452 /* BackendService.swift */; };
 		7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */; };
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
+		B04BAD74A7956463FAD0EC58 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8FFB7AD6817577CB09BEA299 /* AppIcon.icns */; };
 		D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */; };
 		E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5187915534C878EB6507FF9A /* VoiceFlowApp.swift */; };
 		E525F85F34936AB92BF64280 /* PasteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D480057CB89B7229506A72 /* PasteService.swift */; };
+		F2080C60E275605DC45DE3F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E9D82935A7EAB8402805560 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5187915534C878EB6507FF9A /* VoiceFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFlowApp.swift; sourceTree = "<group>"; };
 		72D480057CB89B7229506A72 /* PasteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteService.swift; sourceTree = "<group>"; };
 		85B6377D077B683525B53452 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
+		8FFB7AD6817577CB09BEA299 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		E2021EE246F139A902BD82D3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E568131A7375839168682889 /* VoiceFlowApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceFlowApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -34,9 +38,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2530FF1958B93A2E0EB03E55 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8FFB7AD6817577CB09BEA299 /* AppIcon.icns */,
+				2E9D82935A7EAB8402805560 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		6537AEC927AA1E97E82BAA4D = {
 			isa = PBXGroup;
 			children = (
+				2530FF1958B93A2E0EB03E55 /* Resources */,
 				E335FEB3BE1D7860EE1C8F32 /* Sources */,
 				1D755559898CC32FC1D4A2A4 /* Products */,
 			);
@@ -63,6 +77,7 @@
 			buildConfigurationList = D7F6DE1C044F07C6350A208D /* Build configuration list for PBXNativeTarget "VoiceFlowApp" */;
 			buildPhases = (
 				4AC8C665719BA1F67C7D1967 /* Sources */,
+				D0FB8B7B30E54AE850D29439 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -102,6 +117,18 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D0FB8B7B30E54AE850D29439 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B04BAD74A7956463FAD0EC58 /* AppIcon.icns in Resources */,
+				F2080C60E275605DC45DE3F1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4AC8C665719BA1F67C7D1967 /* Sources */ = {
@@ -244,8 +271,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Resources/VoiceFlowApp.entitlements;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 34SJV9BWY6;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -263,8 +292,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Resources/VoiceFlowApp.entitlements;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 34SJV9BWY6;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -1,9 +1,16 @@
 """FastAPI routes for WhisperFlow."""
 
+import asyncio
+import logging
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+logger = logging.getLogger(__name__)
+
 from ..audio import AudioCapture, AudioConfig
+from ..correction import LLMCorrector, CorrectorConfig
 from ..transcription import WhisperTranscriber, WhisperConfig
 
 router = APIRouter()
@@ -11,6 +18,10 @@ router = APIRouter()
 # Global instances
 _audio_capture: AudioCapture | None = None
 _transcriber: WhisperTranscriber | None = None
+_corrector: LLMCorrector | None = None
+
+# Single-thread executor for MLX operations (Metal GPU is not thread-safe)
+_mlx_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mlx")
 
 
 class StatusResponse(BaseModel):
@@ -20,6 +31,8 @@ class StatusResponse(BaseModel):
 
 class TranscriptionResponse(BaseModel):
     text: str
+    raw_text: str | None = None
+    corrected: bool = False
     language: str | None = None
     duration: float | None = None
 
@@ -27,6 +40,8 @@ class TranscriptionResponse(BaseModel):
 class ConfigRequest(BaseModel):
     model: str | None = None
     language: str | None = None
+    task: str | None = None  # "transcribe" or "translate"
+    correction_enabled: bool | None = None
 
 
 def get_audio_capture() -> AudioCapture:
@@ -41,6 +56,13 @@ def get_transcriber() -> WhisperTranscriber:
     if _transcriber is None:
         _transcriber = WhisperTranscriber(config=WhisperConfig())
     return _transcriber
+
+
+def get_corrector() -> LLMCorrector:
+    global _corrector
+    if _corrector is None:
+        _corrector = LLMCorrector(config=CorrectorConfig())
+    return _corrector
 
 
 @router.get("/status", response_model=StatusResponse)
@@ -79,12 +101,31 @@ async def stop_recording():
     if len(audio_data) == 0:
         return TranscriptionResponse(text="", duration=0)
 
-    # Transcribe
+    # Transcribe in dedicated MLX thread (Metal GPU is not thread-safe)
     transcriber = get_transcriber()
-    result = transcriber.transcribe(audio_data)
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(_mlx_executor, transcriber.transcribe, audio_data)
+
+    # Apply LLM correction if enabled
+    raw_text = result.text
+    was_corrected = False
+    corrector = get_corrector()
+    if corrector.config.enabled and result.text:
+        logger.info("LLM correction enabled, correcting: '%s'", result.text[:80])
+        corrected_text = await loop.run_in_executor(
+            _mlx_executor, corrector.correct, result.text, result.language
+        )
+        if corrected_text != result.text:
+            was_corrected = True
+            logger.info("LLM corrected: '%s' → '%s'", result.text[:80], corrected_text[:80])
+        else:
+            logger.info("LLM correction: no changes needed")
+        result.text = corrected_text
 
     return TranscriptionResponse(
         text=result.text,
+        raw_text=raw_text if was_corrected else None,
+        corrected=was_corrected,
         language=result.language,
         duration=result.duration,
     )
@@ -105,11 +146,19 @@ async def update_config(config: ConfigRequest):
     current = get_transcriber()
     new_config = WhisperConfig(
         model_name=config.model or current.config.model_name,
-        language=config.language if config.language is not None else current.config.language,
+        language=config.language,  # None = auto-detect
+        task=config.task or current.config.task,
     )
     _transcriber = WhisperTranscriber(config=new_config)
+
+    # Update correction config if provided
+    corrector = get_corrector()
+    if config.correction_enabled is not None:
+        corrector.config.enabled = config.correction_enabled
 
     return {
         "model": _transcriber.config.model_name,
         "language": _transcriber.config.language,
+        "task": _transcriber.config.task,
+        "correction_enabled": corrector.config.enabled,
     }

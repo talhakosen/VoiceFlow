@@ -91,9 +91,13 @@ class AudioCapture:
                 self._stream.close()
                 self._stream = None
 
-            # Collect all queued audio
-            while not self._audio_queue.empty():
-                self._recorded_chunks.append(self._audio_queue.get())
+            # Collect all queued audio with timeout to prevent blocking
+            while True:
+                try:
+                    chunk = self._audio_queue.get(timeout=0.1)
+                    self._recorded_chunks.append(chunk)
+                except queue.Empty:
+                    break
 
             if not self._recorded_chunks:
                 return np.array([], dtype=np.float32)
@@ -103,6 +107,9 @@ class AudioCapture:
             # Flatten to 1D if needed
             if audio_data.ndim > 1:
                 audio_data = audio_data.flatten()
+
+            # Clear chunks to prevent memory leak
+            self._recorded_chunks = []
 
             self._state = RecordingState.IDLE
             return audio_data

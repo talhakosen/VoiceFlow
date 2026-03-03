@@ -1,39 +1,61 @@
 # VoiceFlow
 
-Real-time speech-to-text for macOS using mlx-whisper.
+Real-time speech-to-text for macOS using mlx-whisper + mlx-lm.
 
 ## Quick Start
 
 ```bash
-# Backend
-cd backend
-source .venv/bin/activate
-python -m voiceflow.cli  # Terminal mode
-# or
-python -m voiceflow.main  # API server (port 8765)
+./voiceflow.sh start    # Start backend
+./voiceflow.sh stop     # Stop backend
+./voiceflow.sh restart  # Restart backend
+./voiceflow.sh status   # Check status
+```
 
-# App
-open VoiceFlowApp/VoiceFlowApp.xcodeproj
-# Build & Run (Cmd+R)
+### macOS App Build & Deploy
+```bash
+# Build
+xcodebuild -project VoiceFlowApp/VoiceFlowApp.xcodeproj -scheme VoiceFlowApp -configuration Debug clean build
+# Copy to Applications
+cp -R ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*/Build/Products/Debug/VoiceFlow.app /Applications/
+# Launch
+open /Applications/VoiceFlow.app
 ```
 
 ## Usage
 
-1. Double-tap Fn key (push-to-talk mode)
-2. Hold Fn and speak
-3. Release Fn → text is transcribed and auto-pasted
+- Double-tap Fn → start recording
+- Double-tap Fn again OR release Fn → stop recording & transcribe
+- Menu bar: Force Stop (Cmd+S) if stuck
+- Smart Correction: menu toggle, Turkish text auto-correction via LLM
 
 ## Architecture
 
-- `backend/src/voiceflow/` - Python backend (mlx-whisper)
-- `VoiceFlowApp/` - SwiftUI menu bar app
+- `backend/src/voiceflow/` - Python backend (FastAPI, port 8765)
+- `backend/src/voiceflow/transcription/` - mlx-whisper module
+- `backend/src/voiceflow/correction/` - LLM correction module (mlx-lm)
+- `backend/src/voiceflow/audio/` - Audio capture (sounddevice)
+- `VoiceFlowApp/` - Swift menu bar app
 
-## API Endpoints
+## API
 
 - `POST /api/start` - Start recording
-- `POST /api/stop` - Stop & transcribe
+- `POST /api/stop` - Stop & transcribe (+ optional LLM correction)
 - `GET /api/status` - Recording status
+- `POST /api/config` - Config (language, task, correction_enabled)
+- `GET /health` - Health check (model_loaded, llm_loaded)
 
-## Config
+## Key Config
 
-Default model: `mlx-community/whisper-small-mlx` (Turkish)
+- Whisper: `mlx-community/whisper-small-mlx`
+- LLM correction: `mlx-community/Qwen2.5-7B-Instruct-4bit` (~4GB)
+- Python venv: `backend/.venv` (python3.14)
+- MLX executor: single-thread (Metal GPU not thread-safe)
+
+## Dev Notes
+
+- venv path: `backend/.venv/bin/python` - recreate with `python3 -m venv .venv` if broken
+- HF_TOKEN in env speeds up model downloads (unauthenticated = very slow)
+- Fn key release events unreliable on macOS → double-tap toggle + Force Stop as fallbacks
+- Small LLMs (1.5B, 3B) hallucinate on Turkish correction → 7B minimum for quality
+- LLM prompt uses few-shot examples + greedy decoding (temp=0) for deterministic output
+- After Swift changes: always clean build + copy to /Applications
