@@ -24,7 +24,7 @@ class CorrectorConfig:
 
     model_name: str = "mlx-community/Qwen2.5-7B-Instruct-4bit"
     max_tokens: int = 512
-    enabled: bool = True
+    enabled: bool = False
 
 
 @dataclass

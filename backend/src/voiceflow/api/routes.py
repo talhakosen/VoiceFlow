@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, HTTPException
@@ -96,7 +97,10 @@ async def stop_recording():
         raise HTTPException(status_code=400, detail="Not recording")
 
     # Stop and get audio
+    t_start = time.perf_counter()
     audio_data = capture.stop()
+    t_stop = time.perf_counter()
+    logger.info("Audio capture stop: %.3fs, samples: %d", t_stop - t_start, len(audio_data))
 
     if len(audio_data) == 0:
         return TranscriptionResponse(text="", duration=0)
@@ -104,7 +108,10 @@ async def stop_recording():
     # Transcribe in dedicated MLX thread (Metal GPU is not thread-safe)
     transcriber = get_transcriber()
     loop = asyncio.get_event_loop()
+    t_whisper = time.perf_counter()
     result = await loop.run_in_executor(_mlx_executor, transcriber.transcribe, audio_data)
+    t_whisper_done = time.perf_counter()
+    logger.info("Whisper transcription: %.3fs → '%s'", t_whisper_done - t_whisper, result.text[:80])
 
     # Apply LLM correction if enabled
     raw_text = result.text
@@ -112,15 +119,21 @@ async def stop_recording():
     corrector = get_corrector()
     if corrector.config.enabled and result.text:
         logger.info("LLM correction enabled, correcting: '%s'", result.text[:80])
+        t_llm = time.perf_counter()
         corrected_text = await loop.run_in_executor(
             _mlx_executor, corrector.correct, result.text, result.language
         )
+        t_llm_done = time.perf_counter()
+        logger.info("LLM correction: %.3fs", t_llm_done - t_llm)
         if corrected_text != result.text:
             was_corrected = True
             logger.info("LLM corrected: '%s' → '%s'", result.text[:80], corrected_text[:80])
         else:
             logger.info("LLM correction: no changes needed")
         result.text = corrected_text
+
+    t_total = time.perf_counter()
+    logger.info("Total stop→response: %.3fs", t_total - t_start)
 
     return TranscriptionResponse(
         text=result.text,

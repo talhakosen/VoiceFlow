@@ -24,6 +24,157 @@ enum LanguageMode: String, CaseIterable {
     }
 }
 
+struct HistoryEntry: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    let result: TranscriptionResult
+}
+
+class HistoryStore: ObservableObject {
+    @Published var entries: [HistoryEntry] = []
+    private let maxCount = 50
+
+    func add(_ result: TranscriptionResult) {
+        let entry = HistoryEntry(timestamp: Date(), result: result)
+        entries.insert(entry, at: 0)
+        if entries.count > maxCount {
+            entries = Array(entries.prefix(maxCount))
+        }
+    }
+
+    func clear() {
+        entries.removeAll()
+    }
+}
+
+// MARK: - History SwiftUI View
+
+struct HistoryView: View {
+    @ObservedObject var store: HistoryStore
+    @State private var copiedId: UUID?
+
+    private let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Transcription History")
+                    .font(.headline)
+                Spacer()
+                if !store.entries.isEmpty {
+                    Button("Clear All") {
+                        store.clear()
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            Divider()
+
+            if store.entries.isEmpty {
+                Spacer()
+                Text("No transcriptions yet")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                Spacer()
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(store.entries) { entry in
+                            HistoryRow(
+                                entry: entry,
+                                isCopied: copiedId == entry.id,
+                                timeFormatter: timeFormatter,
+                                onCopy: { text in
+                                    NSPasteboard.general.clearContents()
+                                    NSPasteboard.general.setString(text, forType: .string)
+                                    copiedId = entry.id
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                        if copiedId == entry.id {
+                                            copiedId = nil
+                                        }
+                                    }
+                                }
+                            )
+                            Divider().padding(.leading, 16)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 420, height: 480)
+    }
+}
+
+struct HistoryRow: View {
+    let entry: HistoryEntry
+    let isCopied: Bool
+    let timeFormatter: DateFormatter
+    let onCopy: (String) -> Void
+
+    private var wasCorrected: Bool {
+        entry.result.corrected ?? false
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // Top line: badge + time
+            HStack(spacing: 6) {
+                Text(wasCorrected ? "LLM" : "Raw")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(wasCorrected ? Color.green : Color.orange)
+                    .cornerRadius(4)
+
+                Text(timeFormatter.string(from: entry.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button(action: { onCopy(entry.result.text) }) {
+                    Text(isCopied ? "Copied!" : "Copy")
+                        .font(.caption)
+                        .foregroundColor(isCopied ? .green : .accentColor)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Main text
+            Text(entry.result.text)
+                .font(.system(size: 13))
+                .lineLimit(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Raw text if corrected
+            if wasCorrected, let raw = entry.result.rawText, raw != entry.result.text {
+                Text("Raw: \(raw)")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
+        .onTapGesture { onCopy(entry.result.text) }
+    }
+}
+
+// MARK: - MenuBarController
+
 class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
@@ -32,9 +183,12 @@ class MenuBarController: NSObject {
     private let pasteService = PasteService()
 
     private var isRecording = false
-    private var currentMode: LanguageMode = .auto
-    private var isCorrectionEnabled = true
+    private var currentMode: LanguageMode = .turkish
+    private var isCorrectionEnabled = false
     private var activeApp: NSRunningApplication?
+
+    private let historyStore = HistoryStore()
+    private var historyWindow: NSWindow?
 
     override init() {
         super.init()
@@ -75,6 +229,14 @@ class MenuBarController: NSObject {
         lastResultItem.isEnabled = false
         lastResultItem.isHidden = true
         menu.addItem(lastResultItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        // History window button
+        let historyItem = NSMenuItem(title: "History...", action: #selector(showHistory), keyEquivalent: "h")
+        historyItem.target = self
+        historyItem.tag = 400
+        menu.addItem(historyItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -272,6 +434,7 @@ class MenuBarController: NSObject {
                 if !result.text.isEmpty {
                     await MainActor.run {
                         self.updateLastResult(result)
+                        self.historyStore.add(result)
                         if let app = savedApp {
                             NSLog("VoiceFlow: Re-activating: %@ (pid %d)",
                                   app.localizedName ?? "?", app.processIdentifier)
@@ -334,5 +497,35 @@ class MenuBarController: NSObject {
         } else {
             item.toolTip = nil
         }
+    }
+
+    // MARK: - History Window
+
+    @objc private func showHistory() {
+        // If window exists, just bring to front
+        if let window = historyWindow, window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let historyView = HistoryView(store: historyStore)
+        let hostingController = NSHostingController(rootView: historyView)
+
+        let window = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
+            styleMask: [.titled, .closable, .resizable, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        window.contentViewController = hostingController
+        window.title = "VoiceFlow History"
+        window.isFloatingPanel = true
+        window.level = .floating
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        self.historyWindow = window
     }
 }

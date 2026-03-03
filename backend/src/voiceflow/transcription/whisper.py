@@ -21,7 +21,7 @@ class WhisperConfig:
     """Whisper model configuration."""
 
     model_name: str = "mlx-community/whisper-small-mlx"
-    language: str | None = None  # None for auto-detect, or "tr", "en", etc.
+    language: str | None = "tr"  # Default Turkish, None for auto-detect
     task: str = "transcribe"  # "transcribe" = same language, "translate" = to English
 
 
