@@ -1,8 +1,11 @@
 """LLM-based text correction using mlx-lm."""
 
+import gc
 import logging
 from dataclasses import dataclass, field
 from typing import Any
+
+import mlx.core as mx
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +46,16 @@ class LLMCorrector:
             logger.info(f"Loading LLM model: {self.config.model_name}")
             self._model, self._tokenizer = load(self.config.model_name)
             logger.info("LLM model loaded successfully")
+
+    def unload(self) -> None:
+        """Unload model from memory."""
+        if self._model is not None:
+            logger.info("Unloading LLM model")
+            self._model = None
+            self._tokenizer = None
+            gc.collect()
+            mx.metal.clear_cache()
+            logger.info("LLM model unloaded")
 
     def correct(self, text: str, language: str | None = None) -> str:
         """Correct transcription text using LLM.
@@ -87,6 +100,9 @@ class LLMCorrector:
                 max_tokens=self.config.max_tokens,
                 sampler=make_sampler(temp=0.0),
             )
+
+            # Free Metal GPU buffers to prevent memory growth
+            mx.metal.clear_cache()
 
             corrected = corrected.strip()
 

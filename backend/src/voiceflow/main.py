@@ -14,12 +14,11 @@ logger = logging.getLogger(__name__)
 # Track model loading state
 _model_loading = False
 _model_loaded = False
-_llm_loaded = False
 
 
 async def _preload_model_background():
     """Load models in dedicated MLX thread."""
-    global _model_loading, _model_loaded, _llm_loaded
+    global _model_loading, _model_loaded
     _model_loading = True
     loop = asyncio.get_event_loop()
 
@@ -33,15 +32,17 @@ async def _preload_model_background():
     except Exception as e:
         logger.error(f"Failed to load Whisper model: {e}")
 
-    # Then load LLM model (sequentially, same executor)
-    logger.info("Preloading LLM correction model in background...")
-    try:
-        corrector = get_corrector()
-        await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
-        _llm_loaded = True
-        logger.info("LLM correction model loaded successfully")
-    except Exception as e:
-        logger.error(f"Failed to load LLM model: {e}")
+    # Then load LLM model only if correction is enabled
+    corrector = get_corrector()
+    if corrector.config.enabled:
+        logger.info("Preloading LLM correction model in background...")
+        try:
+            await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
+            logger.info("LLM correction model loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to load LLM model: {e}")
+    else:
+        logger.info("LLM correction disabled, skipping model preload (~4GB saved)")
 
     _model_loading = False
 
@@ -71,11 +72,12 @@ async def root():
 
 @app.get("/health")
 async def health():
+    corrector = get_corrector()
     return {
         "status": "healthy",
         "model_loaded": _model_loaded,
         "model_loading": _model_loading,
-        "llm_loaded": _llm_loaded,
+        "llm_loaded": corrector._model is not None,
     }
 
 

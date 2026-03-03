@@ -1,9 +1,13 @@
 """Whisper transcription module using mlx-whisper."""
 
+import logging
 from dataclasses import dataclass, field
 from typing import Any
 
+import mlx.core as mx
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -38,6 +42,18 @@ class WhisperTranscriber:
             # mlx-whisper downloads model on first use
             import mlx_whisper
             self._model_loaded = True
+
+    def unload(self) -> None:
+        """Unload model from memory by clearing mlx-whisper's internal cache."""
+        import gc
+        import mlx_whisper
+        # mlx_whisper caches models internally; clear what we can
+        if hasattr(mlx_whisper, '_cache'):
+            mlx_whisper._cache.clear()
+        self._model_loaded = False
+        gc.collect()
+        mx.metal.clear_cache()
+        logger.info("Whisper model cache cleared")
 
     def transcribe(self, audio: np.ndarray, sample_rate: int = 16000) -> TranscriptionResult:
         """Transcribe audio data.
@@ -76,10 +92,12 @@ class WhisperTranscriber:
         # Transcribe
         result = mlx_whisper.transcribe(audio, **options)
 
+        # Free Metal GPU buffers to prevent memory growth
+        mx.metal.clear_cache()
+
         return TranscriptionResult(
             text=result.get("text", "").strip(),
             language=result.get("language"),
-            segments=result.get("segments"),
             duration=len(audio) / sample_rate,
         )
 
@@ -106,8 +124,10 @@ class WhisperTranscriber:
 
         result = mlx_whisper.transcribe(file_path, **options)
 
+        # Free Metal GPU buffers to prevent memory growth
+        mx.metal.clear_cache()
+
         return TranscriptionResult(
             text=result.get("text", "").strip(),
             language=result.get("language"),
-            segments=result.get("segments"),
         )

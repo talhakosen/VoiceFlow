@@ -1,6 +1,7 @@
 """FastAPI routes for WhisperFlow."""
 
 import asyncio
+import gc
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -162,16 +163,35 @@ async def update_config(config: ConfigRequest):
         language=config.language,  # None = auto-detect
         task=config.task or current.config.task,
     )
-    _transcriber = WhisperTranscriber(config=new_config)
+
+    # Only recreate transcriber if config actually changed
+    if (new_config.model_name != current.config.model_name
+            or new_config.language != current.config.language
+            or new_config.task != current.config.task):
+        current.unload()
+        _transcriber = WhisperTranscriber(config=new_config)
+        gc.collect()
 
     # Update correction config if provided
     corrector = get_corrector()
     if config.correction_enabled is not None:
+        was_enabled = corrector.config.enabled
         corrector.config.enabled = config.correction_enabled
 
+        loop = asyncio.get_event_loop()
+        # Load model on demand when correction is enabled
+        if config.correction_enabled and not was_enabled:
+            logger.info("Correction enabled, loading LLM model...")
+            await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
+        # Unload model when correction is disabled
+        elif not config.correction_enabled and was_enabled:
+            logger.info("Correction disabled, unloading LLM model...")
+            await loop.run_in_executor(_mlx_executor, corrector.unload)
+
+    transcriber = get_transcriber()
     return {
-        "model": _transcriber.config.model_name,
-        "language": _transcriber.config.language,
-        "task": _transcriber.config.task,
+        "model": transcriber.config.model_name,
+        "language": transcriber.config.language,
+        "task": transcriber.config.task,
         "correction_enabled": corrector.config.enabled,
     }
