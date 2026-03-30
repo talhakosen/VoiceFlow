@@ -11,6 +11,7 @@ class MenuBarController: NSObject {
     private let viewModel: AppViewModel
     private var historyWindow: NSWindow?
     private var contextWindow: NSWindow?
+    private var settingsWindow: NSWindow?
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
@@ -68,7 +69,9 @@ class MenuBarController: NSObject {
     private func rebuildMenu() {
         let menu = NSMenu()
 
-        menu.addItem(disabled("VoiceFlow"))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        menu.addItem(disabled("VoiceFlow v0.2 — \(formatter.string(from: Date()))"))
         menu.addItem(.separator())
         menu.addItem(disabled("Ready", tag: 100))
 
@@ -165,8 +168,18 @@ class MenuBarController: NSObject {
     }
 
     @objc private func openSettings() {
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 460, height: 480),
+                             styleMask: [.titled, .closable, .nonactivatingPanel],
+                             backing: .buffered, defer: false)
+        window.contentViewController = NSHostingController(rootView: SettingsView())
+        window.title = "VoiceFlow — Settings"
+        window.isFloatingPanel = true
+        window.level = .floating
+        window.center()
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        settingsWindow = window
     }
 
     @objc private func quit() { NSApplication.shared.terminate(nil) }
