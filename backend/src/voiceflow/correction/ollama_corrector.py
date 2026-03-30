@@ -6,23 +6,37 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
-_SYSTEM_PROMPTS = {
-    "general": (
-        "Convert ASCII Turkish text to proper Turkish with correct characters "
-        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. Keep all words exactly the same."
-    ),
+_BASE_PROMPT = """\
+You are a speech-to-text post-processor. The input is raw output from a speech recognition system (Whisper) — it may contain mishearings, missing punctuation, wrong words, or broken sentences.
+
+Your job:
+1. Detect the language (Turkish or English) and process accordingly.
+2. For Turkish: fix Turkish characters (ç, ş, ğ, ı, ö, ü, İ), add correct punctuation and capitalization.
+3. Correct words that were clearly misheard — use the surrounding context and any provided knowledge base context to determine the intended word.
+4. Fix broken or incomplete sentences so they read naturally.
+5. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
+6. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
+7. Do NOT add new sentences or ideas that were not in the original speech.
+8. Keep the output in the same language as the input.\
+"""
+
+_MODE_SUFFIXES = {
+    "general": "",
     "engineering": (
-        "Convert ASCII Turkish text to proper Turkish with correct characters "
-        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. "
-        "Preserve all technical terms, API names, variable names, and acronyms verbatim. "
-        "Do not translate or expand technical identifiers."
+        "\n\nMode: Engineering. "
+        "Preserve exact technical terms, class names, function names, variable names, API names, "
+        "file paths, and CLI commands. Do not paraphrase or translate identifiers."
     ),
     "office": (
-        "Convert ASCII Turkish text to proper Turkish with correct characters "
-        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. "
+        "\n\nMode: Office/Business. "
         "Use formal register. Expand informal abbreviations (mrhb→merhaba, tşk→teşekkürler). "
-        "Ensure professional tone suitable for business communication."
+        "Ensure professional tone suitable for business correspondence."
     ),
+}
+
+_SYSTEM_PROMPTS = {
+    mode: _BASE_PROMPT + suffix
+    for mode, suffix in _MODE_SUFFIXES.items()
 }
 
 # Tone suffixes appended to the base system prompt based on active app
@@ -58,8 +72,10 @@ _SYSTEM_PROMPT = _SYSTEM_PROMPTS["general"]  # backward compat
 
 _FEW_SHOT_EXAMPLES = [
     ("bugun hava cok guzel", "Bugün hava çok güzel."),
-    ("turkiyede yasiyorum ve cok mutluyum", "Türkiye'de yaşıyorum ve çok mutluyum."),
-    ("ben yarin is toplantisina gidecegim", "Ben yarın iş toplantısına gideceğim."),
+    ("apvyumodel icinde state tutuyoruz", "AppViewModel içinde state tutuyoruz."),
+    ("toplanti saat uc te basliyo hazir ol lutfen", "Toplantı saat üçte başlıyor, hazır ol lütfen."),
+    ("the api endpoint returns a json response we need to parse it", "The API endpoint returns a JSON response, we need to parse it."),
+    ("yani sunu demek istiyorum eger kullanici giris yaparsa token uretmemiz gerekiyor", "Yani şunu demek istiyorum: eğer kullanıcı giriş yaparsa token üretmemiz gerekiyor."),
 ]
 
 
