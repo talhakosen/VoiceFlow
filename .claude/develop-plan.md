@@ -1,111 +1,189 @@
 # VoiceFlow — Development Plan
 
-## Phase 0: Demo Hazırlığı (Hedef: RunPod'da <2s yanıt)
-
-- [DONE 2026-03-30] Backend: `BACKEND_MODE` env flag (local/server)
-- [DONE 2026-03-30] Backend: `faster-whisper` entegrasyonu — numpy → BytesIO adapter, `WHISPER_MODEL` env var
-- [DONE 2026-03-30] Backend: Ollama HTTP client — `correct_async()` ile async, MLX executor'ı bloklamaz
-- [DONE 2026-03-30] Backend: API key auth middleware (`X-API-Key` header, local modda no-op)
-- [DONE 2026-03-30] Backend: `0.0.0.0` bind (server mode için)
-- [DONE 2026-03-30] Mac app: server URL configurable (`@AppStorage("serverURL")`)
-- [DONE 2026-03-30] Mac app: API key ayarı (`SecureField`, `X-API-Key` header inject)
-- [ ] RunPod: deploy et, RTX 4090, uçtan uca test (<2s hedef) — Phase 5'e ertelendi
-
-## Phase 0.5: Architecture Refactor (ÖNCELİKLİ — Phase 2'den önce)
-
-**Hedef:** Test edilebilir, extend edilebilir, SOLID uyumlu yapı. Şimdi yapılmazsa büyüdükçe teknik borç birikir.
-
-### Backend — Layered Architecture
-- [DONE 2026-03-30] api/ — sadece HTTP (routes, schemas, auth)
-- [DONE 2026-03-30] core/interfaces.py — AbstractTranscriber, AbstractCorrector ABC'leri → loose coupling, mock inject edilebilir
-- [DONE 2026-03-30] services/recording.py — RecordingService: tüm iş mantığı buraya (start/stop/transcribe/correct/save)
-- [DONE 2026-03-30] routes.py refactor — ~100 satır, sadece HTTP → RecordingService çağrısı
-- [DONE 2026-03-30] app.state DI — lifespan'de RecordingService oluştur, Depends() ile inject
-
-### Swift — MVVM + Protocol-based DI
-- [DONE 2026-03-30] ViewModels/AppViewModel.swift — @Observable @MainActor, tüm uygulama state'i + iş mantığı
-- [DONE 2026-03-30] BackendServiceProtocol — test/preview için mock inject edilebilir
-- [DONE 2026-03-30] MenuBarController refactor — sadece NSMenu UI, AppViewModel'e delegate (~200 satır)
-- [DONE 2026-03-30] AppDelegate refactor — sadece lifecycle, AppViewModel oluştur + inject
-- [DONE 2026-03-30] AudioCapture.force_reset() metodu — iç stream detayı routes'tan kaldırıldı
-
-## Phase 1: Foundation (Kurumsal Kullanıma Hazır)
-
-- [DONE 2026-03-30] SQLite persistent storage (history + config) — ~/.voiceflow/voiceflow.db, aiosqlite
-- [DONE 2026-03-30] Mod sistemi: Engineering / Office / General — mode-aware LLM prompts, menu submenu
-- [DONE 2026-03-30] Onboarding sihirbazı — NavigationStack, 3-adım, ilk açılış
-- [DONE 2026-03-30] Kullanıcı profili (UUID, ad, departman) — Settings panel + ensureUserID()
-- [DONE 2026-03-30] Multi-user desteği (X-User-ID header per request, transcriptions.user_id)
-- [DONE 2026-03-30] GET /api/history + DELETE /api/history endpoints
-
-## Phase 2: Context Engine (Ürünün Kalbi)
-
-- [ ] ChromaDB entegrasyonu — **multi-tenant hazır**: `PersistentClient(tenant=company_id, database=dept)`
-      Şirket izolasyonu için ayrı tenant/database, ek kod gerekmez
-- [ ] Embedding model (local, hızlı — MiniLM veya benzeri)
-- [ ] Dosya ingestion pipeline (kod, dokümantasyon, email template)
-- [ ] RAG retrieval → LLM prompt injection
-- [ ] Mac app: knowledge base klasör seçimi UI
-- [ ] Bağlam inject edilince kalite testi (7B model yeterli mi?)
-
-## Phase 3: Engineering Package
-
-- [ ] Git repo indexleme (otomatik, FSEvents ile değişiklik takibi)
-- [ ] Teknik terminoloji çıkarma (class/func/servis isimleri)
-- [ ] Engineering prompt template'leri
-- [ ] Çıktı formatları: kod yorumu, PR açıklaması, ticket
-
-## Phase 4: Office Package
-
-- [ ] Alıcı profili sistemi
-- [ ] Email ton belirleme (formal/informal/teknik)
-- [ ] Mail.app entegrasyonu (AppleScript)
-- [ ] Şirket template library import
-
-## Phase 5: Enterprise Distribution
-
-**Dağıtım stratejisi: App Store YOK — DMG, doğrudan şirketlere**
-- Şirket IT'sine DMG/ZIP gönderilir veya kendi web sitesinden indirilir
-- App Store sandbox'ı global hotkey + auto-paste'i kısıtlar → zaten uygun değil
-- B2B lisans, %30 App Store komisyonu yok
-
-- [ ] "Developer ID Application" sertifikası — Xcode → Accounts'tan bir tıkla (mevcut hesap yeterli)
-- [ ] Notarization — `notarytool` ile imzala, "Bilinmeyen geliştirici" uyarısı kalkar
-- [ ] DMG paketleme + web sitesinde yayın
-- [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
-- [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
-- [ ] Admin dashboard (kullanıcı yönetimi)
-- [ ] Offline lisanslama (license key doğrulama)
-- [ ] Kurulum dokümantasyonu (IT için)
-
 ---
 
-## Şu An Çalışan (v0.2 — Phase 0 + 0.5 + 1)
+## Şu An Çalışan (v0.2)
+
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
 - Qwen 7B ile isteğe bağlı Türkçe düzeltme (3 mod: general/engineering/office)
 - Auto-paste (Cmd+V)
 - SQLite persistent history (~/.voiceflow/voiceflow.db)
-- Mod sistemi: General / Engineering / Office (mode-aware LLM prompts)
-- Kullanıcı profili (UUID, ad, departman — Settings panel)
-- Onboarding sihirbazı (ilk açılış, 3 adım)
-- Local mode: tüm işlem Mac'te (Apple Silicon MLX)
-- Server mode: Settings → Server URL + API Key → uzak GPU backend
-- BACKEND_MODE=server: faster-whisper (NVIDIA) + Ollama LLM
-- API key auth middleware (X-API-Key header)
-- Layered Architecture (backend): HTTP → RecordingService → ABCs → Impl → SQLite
-- MVVM + Protocol DI (Swift): AppViewModel @Observable, BackendServiceProtocol
+- Kullanıcı profili (UUID, ad, departman)
+- Knowledge Base (ChromaDB RAG — lazy load, MiniLM embeddings)
+- Local mode (MLX/Mac) + Server mode (faster-whisper + Ollama)
+- API key auth middleware
+- Layered backend (HTTP → RecordingService → ABCs → Impl → SQLite)
+- MVVM + Protocol DI (Swift)
+
+---
+
+## KATMAN 1 — Çekirdek İyileştirme (v0.3)
+
+> Amaç: Mevcut özelliklerin polish'i. Kullanırken "bu sinir bozucu" dedirten şeyleri kapat.
+> Ön koşul yok — hemen başlanabilir.
+
+### 1.1 UI/UX Yenileme
+
+- [ ] **Menü sadeleştirme** — Wispr Flow gibi minimal:
+      Sadece: Status | Toggle Recording | Force Stop | ─ | Settings | Quit
+      Dil, mod, correction → Settings'e taşı
+
+- [ ] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
+      Sol nav: General | Recording | Knowledge Base | Account | About
+      Sağ content:
+        - General: shortcut (fn), dil seçimi, ses efektleri
+        - Recording: mod (general/engineering/office), LLM correction toggle, mikrofon
+        - Knowledge Base: klasör seç, index durumu, chunk sayısı, temizle
+        - Account: ad, departman, kullanıcı ID
+        - About: versiyon, backend durumu, restart/hard reset
+
+- [ ] **Recording overlay — floating pill** (Wispr Flow'un "Flow bar"ı gibi):
+      Kayıt başlayınca ekranın altında/ortasında küçük koyu pill çıkır
+      İçinde sadece waveform animasyonu
+      Kayıt bitince kaybolur — hiçbir şey yapıştırana kadar
+
+- [ ] **Onboarding yenileme** — mevcut 3-adım yeterli, sadece yeni Settings yapısına uyarla
+
+### 1.2 Backend Kararlılık
+
+- [ ] **Phase 2 tamamlama** — ChromaDB entegrasyonu tam test et:
+      Klasör indexleme çalışıyor mu?
+      RAG retrieval LLM'e doğru inject ediliyor mu?
+      Boş KB'de retrieval atlama çalışıyor mu?
+
+- [ ] **Dictionary (Kişisel Sözlük)** — Wispr Flow'daki gibi:
+      Kullanıcı özel kelimeler/jargon ekleyebilir (şirket adları, kısaltmalar)
+      Backend: SQLite'a `user_dictionary` tablosu
+      Whisper post-processing: kelime düzeltme geçişi
+      Mac app: Settings → Dictionary section
+
+- [ ] **Snippets (Sesli Şablonlar)**:
+      "personal email" deyince → email adresi açılır
+      SQLite: `snippets` tablosu (trigger_phrase → expansion)
+      Mac app: Settings → Snippets section
+      Backend: transkript sonrası snippet match → expand
+
+- [ ] **Ses efektleri** — kayıt başlama/bitme sesi (system sound veya custom)
+
+---
+
+## KATMAN 2 — Kurumsal Altyapı (v0.4)
+
+> Amaç: Büyük şirkete satış için şart olan altyapı. Auth, tenant izolasyonu, admin panel.
+> Ön koşul: Katman 1 tamamlanmış olmalı.
+
+### 2.1 Auth Sistemi
+
+- [ ] **Backend: email/şifre login**:
+      `POST /auth/register` — kullanıcı oluştur
+      `POST /auth/login` → JWT token döner
+      `POST /auth/refresh` → token yenile
+      SQLite: `users` tablosu (id, email, password_hash, tenant_id, role)
+      JWT middleware: tüm `/api/*` endpoint'leri için
+
+- [ ] **Tenant izolasyonu**:
+      Her şirket = ayrı tenant_id
+      ChromaDB: `tenant=tenant_id` (zaten hazır)
+      SQLite: tüm sorgularda `WHERE tenant_id = ?` filtresi
+      Transcription history, dictionary, snippets — tenant bazlı izole
+
+- [ ] **Roller**: superadmin | admin | member
+      Admin: kullanıcı ekle/çıkar, istatistik görsün
+      Member: sadece kendi transkriptleri
+
+- [ ] **Mac app: Login ekranı**:
+      İlk açılışta email/şifre formu (onboarding'in önünde)
+      JWT token Keychain'de sakla
+      Her API isteğine `Authorization: Bearer <token>` header
+      Token expire olunca otomatik logout
+
+### 2.2 Admin Panel (Web)
+
+- [ ] **Basit web UI** (FastAPI + Jinja2 veya ayrı React):
+      `/admin` — sadece admin rolü erişebilir
+      Kullanıcı listesi: ad, email, rol, son aktivite, kelime sayısı
+      Kullanıcı davet et (email ile)
+      Kullanıcı deaktive et
+      Tenant genelinde istatistikler (toplam transkript, kelime, aktif kullanıcı)
+
+- [ ] **Usage dashboard**:
+      Günlük/haftalık/aylık aktif kullanıcı
+      En çok kullanılan mod (general/engineering/office)
+      Ortalama WPM
+      Knowledge Base boyutu
+
+### 2.3 Güvenlik & Uyumluluk
+
+- [ ] **KVKK/BDDK hazırlık belgesi** — "Veriler nerede saklanır?" dokümanı
+- [ ] **Data at rest encryption** — SQLite şifreleme (SQLCipher)
+- [ ] **Audit log** — kim ne zaman ne yaptı (admin sildi, config değiştirdi)
+- [ ] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği)
+
+---
+
+## KATMAN 3 — Ürün Farklılaştırması (v0.5+)
+
+> Amaç: Wispr Flow'dan ayrışmak, Türkiye kurumsal pazarına özgü değer.
+> Ön koşul: Katman 2 tamamlanmış, ilk müşteri demosu yapılmış olmalı.
+
+### 3.1 Kurumsal Özelleştirme
+
+- [ ] **Style/ton per-context** (Wispr Flow'daki gibi):
+      Farklı uygulamalar için farklı ton: Mail → formal, Slack → casual, Terminal → teknik
+      Mac app: aktif uygulamayı tespit et (NSWorkspace), ton otomatik seç
+      Admin: şirket genelinde varsayılan ton politikası
+
+- [ ] **Şirket template library**:
+      Admin upload: şirket içi email şablonları, rapor formatları
+      Knowledge Base'e otomatik index
+      Kullanıcılar sesle şablon çağırabilir
+
+- [ ] **Gamification**:
+      Haftalık streak, kelime istatistikleri (Home ekranı)
+      "Bu hafta X kelime dikte ettin" bildirimi
+      Departman sıralaması (opsiyonel, admin açar/kapar)
+
+### 3.2 Engineering Package (Derinleştirme)
+
+- [ ] Git repo indexleme (otomatik, FSEvents ile değişiklik takibi)
+- [ ] Teknik terminoloji çıkarma (class/func/servis isimleri → dictionary'e ekle)
+- [ ] Çıktı formatları: kod yorumu, PR açıklaması, Jira ticket
+- [ ] VS Code / Cursor entegrasyonu (Vibe coding benzeri)
+
+### 3.3 Office Package (Derinleştirme)
+
+- [ ] Alıcı profili sistemi (kişiye göre ton)
+- [ ] Mail.app + Outlook entegrasyonu (AppleScript / URL scheme)
+- [ ] Toplantı notu formatı (otomatik madde işaretleri, action item çıkarma)
+
+### 3.4 Enterprise Distribution
+
+- [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
+- [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
+- [ ] DMG paketleme + notarization (Developer ID Application)
+- [ ] Kurulum dokümantasyonu (IT için — 1 sayfa, adım adım)
+- [ ] Offline lisanslama (license key doğrulama)
+- [ ] SSO/SAML hazırlığı (Katman 2 auth'un üzerine, büyük kurumlar için)
+
+---
 
 ## Mimari Kararlar
-- **Local-first, server optional:** Aynı Mac app her iki modda çalışır, sadece URL değişir
+
+- **Local-first, server optional:** Aynı Mac app her iki modda çalışır
 - **Açık kaynak modeller:** Cloud API yok — Whisper, Qwen/Llama self-hosted
 - **MLX (Mac) + NVIDIA (server):** İki farklı inference engine, env ile seçilir
-- **Birleşik LLM client:** mlx-lm server + Ollama ikisi de `/v1/chat/completions` sunuyor
-  → tek `httpx` client, iki mod. vLLM'e geçiş de trivial.
-- **faster-whisper input:** numpy array değil BytesIO — `soundfile` ile dönüştür
-- **Ollama keep_alive=-1:** Model GPU'da sürekli yüklü, cold start yok
 - **ChromaDB multi-tenancy:** `tenant=company_id` — şirket izolasyonu built-in
-- **Docker Compose:** Şirket IT kurulumu basit olmalı
 - **Mac App Store değil, DMG:** Sandbox global hotkey + paste'i kısıtlar
 - **7B minimum LLM:** 1.5B ve 3B Türkçe'de hallüsinasyon yapıyor (doğrulandı)
-- **RunPod demo:** RTX 4090, mesai saatleri modu, ~$95/ay
+- **faster-whisper input:** numpy array değil BytesIO — soundfile ile dönüştür
+- **Ollama keep_alive=-1:** Model GPU'da sürekli yüklü, cold start yok
+
+---
+
+## Tamamlanan Fazlar
+
+- [DONE] Phase 0: Demo altyapısı (BACKEND_MODE, faster-whisper, Ollama, API key auth)
+- [DONE] Phase 0.5: Architecture refactor (layered backend, MVVM Swift)
+- [DONE] Phase 1: Foundation (SQLite, mod sistemi, onboarding, kullanıcı profili, history)
+- [DONE] Phase 2 (kısmi): Context Engine (ChromaDB RAG, MiniLM, ingestion pipeline, Knowledge Base UI)

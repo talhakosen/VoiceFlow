@@ -24,29 +24,29 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `perf`
-Scopes: `backend`, `app`, `docker`, `ml`, `docs`, `rag`, `context`
+Scopes: `backend`, `app`, `docker`, `ml`, `docs`, `rag`, `auth`, `ui`, `dict`, `snippets`
 
 ## Examples
 
 ```
-feat(backend): add RecordingService with constructor injection
+feat(ui): simplify menu bar and add 2-panel Settings window
 
-- AbstractTranscriber/AbstractCorrector ABCs in core/interfaces.py
-- RecordingService orchestrates transcribe+correct+save pipeline
-- routes.py reduced to ~100 lines, zero business logic
-- app.state DI via Depends(get_service)
+- Menu reduced to 5 items (Status, Toggle, Force Stop, Settings, Quit)
+- Settings: 2-panel with General/Recording/Knowledge Base/Account/About
+- Language, mode, correction moved from menu to Settings
 
-feat(app): add AppViewModel with MVVM pattern
+feat(dict): add user dictionary with post-processing substitution
 
-- @Observable @MainActor AppViewModel owns all state + business logic
-- MenuBarController reduced to UI-only (~200 lines)
-- BackendServiceProtocol for mock injection in tests
+- SQLite user_dictionary table (trigger → replacement, personal/team scope)
+- Dictionary substitution pass after Whisper, before LLM correction
+- Mac app: Settings → General → Dictionary section
 
-feat(rag): add ChromaDB context engine
+feat(auth): add JWT authentication and tenant isolation
 
-- PersistentClient with tenant=company_id isolation
-- MiniLM embeddings, top-3 retrieval
-- RecordingService.stop() injects retrieved context before LLM call
+- POST /auth/login returns JWT access + refresh tokens
+- JWT middleware on all /api/* routes (extracts user_id + tenant_id)
+- SQLite queries filtered by tenant_id from JWT payload
+- Swift: login view, Keychain token storage
 ```
 
 ## After Commit
@@ -55,4 +55,5 @@ Check if `docs/` needs updating:
 - Architecture change? → `docs/architecture.md`
 - New API endpoint? → `docs/backend-architecture.md`
 - New app feature? → `docs/app-architecture.md`
-- New phase complete? → `docs/enterprise-strategy.md` roadmap
+- Katman completed? → `docs/enterprise-strategy.md` roadmap güncelle
+- Competitor positioning changed? → `docs/research-wispr-flow.md`
