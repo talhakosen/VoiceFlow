@@ -47,10 +47,10 @@
 
 ### 1.2 Backend Kararlılık
 
-- [ ] **Phase 2 tamamlama** — ChromaDB entegrasyonu tam test et:
-      Klasör indexleme çalışıyor mu?
-      RAG retrieval LLM'e doğru inject ediliyor mu?
-      Boş KB'de retrieval atlama çalışıyor mu?
+- [DONE 2026-03-30] **Phase 2 tamamlama** — ChromaDB entegrasyonu tam test et:
+      Klasör indexleme çalışıyor mu? ✓ (38 chunk)
+      RAG retrieval LLM'e doğru inject ediliyor mu? ✓ (recording.py pipeline)
+      Boş KB'de retrieval atlama çalışıyor mu? ✓ (is_empty guard)
 
 - [DONE 2026-03-30] **Dictionary (Kişisel Sözlük)** — Wispr Flow'daki gibi:
       Kullanıcı özel kelimeler/jargon ekleyebilir (şirket adları, kısaltmalar)
