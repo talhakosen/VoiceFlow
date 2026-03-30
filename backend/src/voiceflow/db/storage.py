@@ -1,6 +1,7 @@
 """SQLite persistent storage for VoiceFlow."""
 
 import logging
+import os
 import uuid
 from pathlib import Path
 
@@ -8,7 +9,7 @@ import aiosqlite
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = Path.home() / ".voiceflow" / "voiceflow.db"
+DB_PATH = Path(os.getenv("DB_PATH", str(Path.home() / ".voiceflow" / "voiceflow.db")))
 
 
 async def init_db() -> None:

@@ -164,7 +164,7 @@
 
 ### 3.4 Enterprise Distribution
 
-- [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
+- [DONE 2026-03-30] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper) — non-root, GPU, env secrets, healthcheck
 - [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
 - [ ] DMG paketleme + notarization (Developer ID Application)
 - [ ] Kurulum dokümantasyonu (IT için — 1 sayfa, adım adım)

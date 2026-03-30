@@ -5,6 +5,7 @@ PersistentClient stores index at ~/.voiceflow/chroma/
 """
 
 import logging
+import os
 import threading
 from pathlib import Path
 
@@ -12,7 +13,7 @@ from ..core.interfaces import AbstractRetriever
 
 logger = logging.getLogger(__name__)
 
-_CHROMA_PATH = Path.home() / ".voiceflow" / "chroma"
+_CHROMA_PATH = Path(os.getenv("CHROMA_PATH", str(Path.home() / ".voiceflow" / "chroma")))
 _DEFAULT_TENANT = "default"
 
 
