@@ -74,12 +74,13 @@ class LLMCorrector:
             mx.metal.clear_cache()
             logger.info("LLM model unloaded")
 
-    def correct(self, text: str, language: str | None = None) -> str:
+    def correct(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
         """Correct transcription text using LLM.
 
         Args:
             text: Raw transcription text from Whisper
             language: Detected language code (e.g. "tr", "en")
+            context: Optional RAG context chunks to inject into the system prompt.
 
         Returns:
             Corrected text, or original text if correction fails/skipped
@@ -101,6 +102,9 @@ class LLMCorrector:
 
         try:
             system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+            if context:
+                context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
+                system_prompt = system_prompt + f"\n\nRelevant context from company knowledge base:\n{context_block}"
             messages = [{"role": "system", "content": system_prompt}]
             for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
                 messages.append({"role": "user", "content": user_text})

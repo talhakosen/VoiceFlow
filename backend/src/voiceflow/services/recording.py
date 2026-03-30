@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from ..audio import AudioCapture, AudioConfig
 from ..audio.capture import RecordingState
-from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
+from ..core.interfaces import AbstractCorrector, AbstractRetriever, AbstractTranscriber, TranscriptionResult
 from ..db import save_transcription
 
 logger = logging.getLogger(__name__)
@@ -27,10 +27,16 @@ class RecordingService:
     swap out for mocks in tests or for different backend modes.
     """
 
-    def __init__(self, transcriber: AbstractTranscriber, corrector: AbstractCorrector) -> None:
+    def __init__(
+        self,
+        transcriber: AbstractTranscriber,
+        corrector: AbstractCorrector,
+        retriever: AbstractRetriever | None = None,
+    ) -> None:
         self._audio = AudioCapture(config=AudioConfig())
         self._transcriber = transcriber
         self._corrector = corrector
+        self._retriever = retriever
 
     # ------------------------------------------------------------------
     # Status
@@ -85,14 +91,27 @@ class RecordingService:
         was_corrected = False
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
 
+        # Retrieve context (skip if retriever absent or knowledge base empty)
+        context_chunks: list[str] = []
+        if self._retriever is not None and result.text:
+            try:
+                t_retrieval = time.perf_counter()
+                context_chunks = await loop.run_in_executor(
+                    None, self._retriever.retrieve, result.text
+                )
+                if context_chunks:
+                    logger.info("RAG retrieved %d chunks in %.3fs", len(context_chunks), time.perf_counter() - t_retrieval)
+            except Exception as e:
+                logger.warning("RAG retrieval failed, continuing without context: %s", e)
+
         # Correct (if enabled)
         if self._corrector.config.enabled and result.text:
             t_llm = time.perf_counter()
             if hasattr(self._corrector, "correct_async"):
-                corrected = await self._corrector.correct_async(result.text, result.language)
+                corrected = await self._corrector.correct_async(result.text, result.language, context_chunks or None)
             else:
                 corrected = await loop.run_in_executor(
-                    _mlx_executor, self._corrector.correct, result.text, result.language
+                    _mlx_executor, self._corrector.correct, result.text, result.language, context_chunks or None
                 )
             logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
             if corrected != result.text:
@@ -148,6 +167,13 @@ class RecordingService:
     @property
     def corrector(self) -> AbstractCorrector:
         return self._corrector
+
+    @property
+    def retriever(self) -> AbstractRetriever | None:
+        return self._retriever
+
+    def update_retriever(self, retriever: AbstractRetriever | None) -> None:
+        self._retriever = retriever
 
     # ------------------------------------------------------------------
     # Model preload (called at startup)

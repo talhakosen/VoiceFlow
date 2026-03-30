@@ -8,8 +8,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var healthCheckTimer: Timer?
     private var onboardingWindow: NSWindow?
 
-    // Shared app state — created once, injected into MenuBarController
-    private var viewModel: AppViewModel?
+    // Shared app state — created once, injected into MenuBarController and SettingsView
+    var viewModel: AppViewModel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureUserID()

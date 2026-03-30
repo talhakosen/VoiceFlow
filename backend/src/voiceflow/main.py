@@ -6,6 +6,7 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from starlette.requests import Request
 
 from .api import router
 from .db import init_db
@@ -33,6 +34,25 @@ def _build_corrector():
     return LLMCorrector(config=CorrectorConfig())
 
 
+def _build_retriever():
+    """Build ChromaRetriever if chromadb is available and knowledge base exists."""
+    try:
+        from .context.chroma_retriever import ChromaRetriever
+        retriever = ChromaRetriever()
+        # Only attach if already indexed — don't force-load on fresh install
+        if not retriever.is_empty():
+            logger.info("ChromaDB knowledge base found (%d chunks), RAG enabled", retriever.count())
+            return retriever
+        logger.info("ChromaDB knowledge base is empty, RAG disabled until first ingest")
+        return retriever  # attach anyway so /context/status works
+    except ImportError:
+        logger.info("chromadb not installed, RAG disabled (install with: pip install 'voiceflow[context]')")
+        return None
+    except Exception as e:
+        logger.warning("ChromaDB init failed, RAG disabled: %s", e)
+        return None
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -41,6 +61,7 @@ async def lifespan(app: FastAPI):
     service = RecordingService(
         transcriber=_build_transcriber(),
         corrector=_build_corrector(),
+        retriever=_build_retriever(),
     )
     app.state.recording_service = service
 
@@ -64,7 +85,7 @@ async def root():
 
 
 @app.get("/health")
-async def health(request: FastAPI):
+async def health(request: Request):
     svc = request.app.state.recording_service
     corrector = svc.corrector
     return {

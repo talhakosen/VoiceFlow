@@ -56,6 +56,18 @@ struct HistoryResponse: Decodable {
     let count: Int
 }
 
+struct ContextStatus: Decodable {
+    let count: Int
+    let isReady: Bool
+    let isEmpty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case count
+        case isReady  = "is_ready"
+        case isEmpty  = "is_empty"
+    }
+}
+
 struct StatusResponse: Codable {
     let status: String
     let isRecording: Bool
@@ -77,6 +89,9 @@ protocol BackendServiceProtocol: Actor {
     func updateConfig(language: String?, task: String, correctionEnabled: Bool?, mode: String?) async throws
     func getHistory(limit: Int) async throws -> [HistoryItem]
     func clearHistory() async throws
+    func getContextStatus() async throws -> ContextStatus
+    func ingestContext(path: String) async throws
+    func clearContext() async throws
 }
 
 // MARK: - Concrete implementation
@@ -200,6 +215,33 @@ actor BackendService: BackendServiceProtocol {
 
     func clearHistory() async throws {
         let request = makeRequest(path: "history", method: "DELETE")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func getContextStatus() async throws -> ContextStatus {
+        let request = makeRequest(path: "context/status")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(ContextStatus.self, from: data)
+    }
+
+    func ingestContext(path: String) async throws {
+        var request = makeRequest(path: "context/ingest", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["path": path])
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func clearContext() async throws {
+        let request = makeRequest(path: "context", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

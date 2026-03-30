@@ -167,3 +167,67 @@ async def history(limit: int = 100, offset: int = 0, user_id: str | None = None)
 async def delete_history():
     await clear_history()
     return {"status": "cleared"}
+
+
+# ------------------------------------------------------------------
+# Context Engine (Phase 2)
+# ------------------------------------------------------------------
+
+class IngestRequest(BaseModel):
+    path: str
+
+
+@router.post("/context/ingest")
+async def context_ingest(body: IngestRequest, request: Request):
+    """Start background ingestion of a folder into the knowledge base."""
+    from ..context.ingestion import ingest_folder
+    from ..context.chroma_retriever import ChromaRetriever
+
+    loop = asyncio.get_running_loop()
+
+    async def _run():
+        # Reuse or create the retriever so both ingestion and retrieval share the same instance
+        svc = request.app.state.recording_service
+        retriever = svc.retriever
+        if retriever is None:
+            retriever = ChromaRetriever()
+            svc.update_retriever(retriever)
+
+        result = await loop.run_in_executor(None, ingest_folder, body.path, "default", retriever)
+        logger.info(
+            "Ingestion done: %d files, %d chunks, %d errors",
+            result.files_processed, result.chunks_added, len(result.errors),
+        )
+
+    task = asyncio.create_task(_run())
+    # Keep a strong reference so GC doesn't collect the task mid-run
+    request.app.state.ingest_task = task
+    return {"status": "started", "path": body.path, "message": "Indexing in background"}
+
+
+@router.get("/context/status")
+async def context_status(svc=Depends(get_service)):
+    """Return knowledge base stats."""
+    retriever = svc.retriever
+    if retriever is None:
+        return {"count": 0, "is_ready": False, "is_empty": True}
+    try:
+        n = retriever.count()
+        return {"count": n, "is_ready": True, "is_empty": n == 0}
+    except Exception as e:
+        logger.warning("Context status check failed: %s", e)
+        return {"count": 0, "is_ready": False, "is_empty": True}
+
+
+@router.delete("/context")
+async def context_clear(svc=Depends(get_service)):
+    """Clear the entire knowledge base."""
+    retriever = svc.retriever
+    if retriever is None:
+        return {"status": "nothing_to_clear"}
+    try:
+        retriever.clear()
+        return {"status": "cleared"}
+    except Exception as e:
+        logger.error("Context clear failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))

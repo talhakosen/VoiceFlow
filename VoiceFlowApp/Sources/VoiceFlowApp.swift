@@ -6,7 +6,7 @@ struct WhisperFlowApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView()
+            SettingsView(viewModel: appDelegate.viewModel)
         }
     }
 }

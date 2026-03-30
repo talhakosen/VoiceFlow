@@ -12,6 +12,7 @@
 		7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */; };
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
 		A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450FCA0C0301B340112E74B /* HistoryView.swift */; };
+		B1C2D3E4F5A6B7C8D9E0F1A2 /* ContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E4F5A6B7C8D9E0F1A2B3 /* ContextView.swift */; };
 		AF9027634AB6A6A011406A4A /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 338849DA661EBF7008B2FC66 /* AppViewModel.swift */; };
 		B04BAD74A7956463FAD0EC58 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8FFB7AD6817577CB09BEA299 /* AppIcon.icns */; };
 		D27A26B4882DE2398DBCAC5F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */; };
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		0450FCA0C0301B340112E74B /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		C2D3E4F5A6B7C8D9E0F1A2B3 /* ContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextView.swift; sourceTree = "<group>"; };
 		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		338849DA661EBF7008B2FC66 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 				E2021EE246F139A902BD82D3 /* AppDelegate.swift */,
 				85B6377D077B683525B53452 /* BackendService.swift */,
 				0450FCA0C0301B340112E74B /* HistoryView.swift */,
+				C2D3E4F5A6B7C8D9E0F1A2B3 /* ContextView.swift */,
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
 				DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */,
 				AD594B581F9EF788F046DF39 /* Models.swift */,
@@ -168,6 +171,7 @@
 				AF9027634AB6A6A011406A4A /* AppViewModel.swift in Sources */,
 				26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */,
 				A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */,
+				B1C2D3E4F5A6B7C8D9E0F1A2 /* ContextView.swift in Sources */,
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
 				E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */,

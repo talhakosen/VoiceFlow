@@ -159,6 +159,52 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Context Engine (Phase 2)
+
+    var contextChunkCount: Int = 0
+    var isIndexing: Bool = false
+    var contextIndexingError: String? = nil
+
+    func loadContextStatus() {
+        Task {
+            if let status = try? await backend.getContextStatus() {
+                contextChunkCount = status.count
+            }
+        }
+    }
+
+    func ingestContext(folderPath: String) {
+        isIndexing = true
+        contextIndexingError = nil
+        Task {
+            do {
+                try await backend.ingestContext(path: folderPath)
+                // Poll until chunk count stabilizes (ingestion runs in background on server)
+                var previousCount = -1
+                for _ in 0..<30 {  // max ~60s
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    if let status = try? await backend.getContextStatus() {
+                        contextChunkCount = status.count
+                        if status.count > 0 && status.count == previousCount {
+                            break  // stable — ingestion complete
+                        }
+                        previousCount = status.count
+                    }
+                }
+            } catch {
+                contextIndexingError = error.localizedDescription
+            }
+            isIndexing = false
+        }
+    }
+
+    func clearContext() {
+        Task {
+            try? await backend.clearContext()
+            contextChunkCount = 0
+        }
+    }
+
     // MARK: - Accessibility
 
     var hasAccessibility: Bool { AXIsProcessTrusted() }

@@ -75,7 +75,7 @@ class OllamaCorrector:
         """No-op — Ollama manages its own lifecycle."""
         pass
 
-    async def correct_async(self, text: str, language: str | None = None) -> str:
+    async def correct_async(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
         """Async version — preferred in server mode to avoid blocking the MLX executor."""
         import httpx
 
@@ -85,6 +85,9 @@ class OllamaCorrector:
             return text
 
         system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        if context:
+            context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
+            system_prompt = system_prompt + f"\n\nRelevant context from company knowledge base:\n{context_block}"
         messages = [{"role": "system", "content": system_prompt}]
         for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
             messages.append({"role": "user", "content": user_text})
@@ -124,12 +127,13 @@ class OllamaCorrector:
             logger.error("Ollama async correction failed: %s", e)
             return text
 
-    def correct(self, text: str, language: str | None = None) -> str:
+    def correct(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
         """Correct transcription text via Ollama.
 
         Args:
             text: Raw transcription from Whisper
             language: Detected language code (only "tr" is corrected)
+            context: Optional RAG context chunks to inject into the system prompt.
 
         Returns:
             Corrected text, or original on failure
@@ -143,6 +147,9 @@ class OllamaCorrector:
             return text
 
         system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        if context:
+            context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
+            system_prompt = system_prompt + f"\n\nRelevant context from company knowledge base:\n{context_block}"
         messages = [{"role": "system", "content": system_prompt}]
         for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
             messages.append({"role": "user", "content": user_text})
