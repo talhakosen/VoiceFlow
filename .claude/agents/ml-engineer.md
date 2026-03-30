@@ -22,14 +22,26 @@ You are the **VoiceFlow ML engineer**. You own the AI pipeline: speech recogniti
 - `vad_filter=True` — removes silence, improves accuracy
 - `BatchedInferencePipeline` available for multi-user throughput
 
-### LLM Inference — Birleşik Client
-- **Local (Mac):** `mlx-lm` in-process (current) OR `mlx_lm.server` HTTP server
-- **Server:** Ollama with Qwen2.5:7b or llama3.1:8b (4-bit)
-- **Both expose:** OpenAI-compatible `/v1/chat/completions` endpoint
-- → Single `httpx` client works for both modes, just change base URL
+### LLM Inference — Mode-Aware Correction
+All correction flows through `RecordingService.stop()` → `corrector.correct(text, language)`.
+
+**Three modes** — system prompt changes, same few-shot examples:
+- `general` — ASCII Turkish → proper Turkish (ç,ş,ğ,ı,ö,ü), punctuation
+- `engineering` — preserve all technical terms (class names, API names, variable names), fix only language artifacts
+- `office` — formal register, expand abbreviations, business writing tone
+
+**Race condition guard:** In `RecordingService.stop()`, capture `active_mode = corrector.config.mode` before any `await`. Concurrent `/api/config` calls can change the mode between reads.
+
+**Backend implementations:**
+- **Local (Mac):** `mlx-lm` in-process — `LLMCorrector`
+- **Server:** Ollama HTTP — `OllamaCorrector` with `correct_async()` using `httpx.AsyncClient`
+- Both implement `AbstractCorrector` ABC — swap transparently
+
+**Model requirements:**
 - Minimum 7B — smaller models hallucinate on Turkish (verified: 1.5B, 3B fail)
 - Always `temperature=0.0` (greedy), `max_tokens=512`, 1.5x length safety check
 - Ollama `keep_alive=-1` — model stays loaded in GPU, zero cold start
+- LLM on-demand in local mode: load when correction enabled, unload when disabled (~4GB freed)
 
 ### RAG / Context Engine (Phase 2)
 - Vector store: ChromaDB `PersistentClient` (embedded, no separate server)
@@ -37,20 +49,22 @@ You are the **VoiceFlow ML engineer**. You own the AI pipeline: speech recogniti
 - Embeddings: `all-MiniLM-L6-v2` — fast, small, good enough
 - Retrieval: top-3 chunks, injected into system prompt before user text
 - Chunk size: 512 tokens with 50 token overlap
+- Integration point: `RecordingService.stop()` — retrieval happens before LLM call
 
 ## Prompt Engineering Rules
 
 1. Few-shot examples always outperform zero-shot for Turkish correction
 2. System prompt must frame task narrowly — "convert ASCII Turkish only, do not add content"
-3. Length safety: reject output if len(output) > 1.5 * len(input)
-4. For context injection: put retrieved chunks BEFORE user text in prompt
+3. Length safety: reject output if `len(output) > 1.5 * len(input)`
+4. For context injection (Phase 2): put retrieved chunks BEFORE user text in system prompt
+5. Mode-specific prompts in `_SYSTEM_PROMPTS` dict — same dict in both `LLMCorrector` and `OllamaCorrector`
 
 ## Performance Targets
 
 | Stage | Target (server, LAN) |
 |---|---|
 | Whisper large-v3 | <0.3s |
-| Embedding query | <0.1s |
+| Embedding query (Phase 2) | <0.1s |
 | LLM correction (7B) | <1s |
 | Total pipeline | <2s |
 
@@ -60,3 +74,4 @@ You are the **VoiceFlow ML engineer**. You own the AI pipeline: speech recogniti
 - Check: does it preserve technical terms (class names, service names)?
 - Check: does it hallucinate extra content?
 - Check: VRAM usage under load (must fit alongside Whisper in same GPU)
+- Test all three modes (general, engineering, office) — engineering mode is hardest

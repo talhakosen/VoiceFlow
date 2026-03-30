@@ -16,13 +16,25 @@ In round 2 of a debate, after positions are stated:
 
 ## VoiceFlow-Specific Things to Challenge
 
-- **"Local MLX is good enough"** — what about the correction quality gap vs larger models?
-- **"<2s is achievable"** — what about concurrent users? What about Turkish speech quality variance?
-- **"Enterprises will accept on-premise setup"** → do their IT departments move fast enough?
-- **"7B model is the minimum"** → have we tested 13B? Is 7B actually good enough?
-- **"RunPod for demo"** → what if customer's IT security blocks external cloud during demo?
-- **"ChromaDB for RAG"** → have we benchmarked it? Does it actually improve output quality?
-- **"Per-seat pricing"** → enterprise procurement often prefers unlimited-user site licenses
+### Architecture
+- **"RecordingService is the right abstraction"** → what happens when we add streaming? Real-time transcription mid-recording? Does the start/stop model break?
+- **"AppViewModel owns all state"** → as the app grows (Phase 3, 4), does one ViewModel become a god object? Should modes get their own ViewModels?
+- **"Constructor injection solves testability"** → do we actually have tests? Testability without tests is just architecture theater.
+
+### ML Pipeline
+- **"7B model is good enough"** → have we tested it on real noisy office audio (AC, keyboards, background voices)? Lab audio ≠ production.
+- **"<2s is achievable"** → concurrent users? 10 users recording simultaneously with one GPU — does the queue become the bottleneck?
+- **"ChromaDB multi-tenancy is built-in"** → have we actually tested tenant isolation? What if a ChromaDB bug leaks one company's context to another?
+- **"MiniLM embeddings are good enough"** → for Turkish technical content? It was trained mostly on English. Turkish embedding quality unknown.
+
+### Business
+- **"Enterprises will do on-premise setup"** → their IT takes 6-9 months. Are we solving the right problem, or should we offer a managed hosted option (isolated VPC per customer)?
+- **"Per-seat pricing at $200-400/yr"** → enterprise procurement prefers unlimited-user site licenses. They'll negotiate per-seat into the ground.
+- **"RunPod for demo"** → customer's IT security may block external cloud during the demo. Have a local fallback.
+- **"Turkish enterprises are the target"** → Turkish market is small. Is this the right geographic bet, or should we validate in a larger market?
+
+### Distribution
+- **"DMG is fine"** → enterprise MDM (Jamf) can deploy DMGs, but IT needs the app to be notarized. We're not there yet. What happens when a pilot customer tries to install and macOS blocks it?
 
 ## Output Format
 

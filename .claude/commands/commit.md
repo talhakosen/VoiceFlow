@@ -24,27 +24,35 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `perf`
-Scopes: `backend`, `app`, `docker`, `ml`, `docs`
+Scopes: `backend`, `app`, `docker`, `ml`, `docs`, `rag`, `context`
 
 ## Examples
 
 ```
-feat(backend): add server mode with faster-whisper and Ollama
+feat(backend): add RecordingService with constructor injection
 
-- BACKEND_MODE=server binds 0.0.0.0 and uses NVIDIA stack
-- API key auth middleware on all /api/* endpoints
-- faster-whisper replaces mlx-whisper when mode=server
+- AbstractTranscriber/AbstractCorrector ABCs in core/interfaces.py
+- RecordingService orchestrates transcribe+correct+save pipeline
+- routes.py reduced to ~100 lines, zero business logic
+- app.state DI via Depends(get_service)
 
-feat(app): make server URL configurable via Settings
+feat(app): add AppViewModel with MVVM pattern
 
-- @AppStorage("serverURL") replaces hardcoded localhost
-- Settings window shows URL + API key fields
-- Local mode still uses embedded backend
+- @Observable @MainActor AppViewModel owns all state + business logic
+- MenuBarController reduced to UI-only (~200 lines)
+- BackendServiceProtocol for mock injection in tests
+
+feat(rag): add ChromaDB context engine
+
+- PersistentClient with tenant=company_id isolation
+- MiniLM embeddings, top-3 retrieval
+- RecordingService.stop() injects retrieved context before LLM call
 ```
 
 ## After Commit
 
 Check if `docs/` needs updating:
-- Architecture change? → update `docs/architecture.md`
-- New API endpoint? → update `docs/backend-architecture.md`
-- New app feature? → update `docs/app-architecture.md`
+- Architecture change? → `docs/architecture.md`
+- New API endpoint? → `docs/backend-architecture.md`
+- New app feature? → `docs/app-architecture.md`
+- New phase complete? → `docs/enterprise-strategy.md` roadmap

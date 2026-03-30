@@ -12,6 +12,24 @@ You are the **VoiceFlow development orchestrator**. Take a task, plan it, build 
 - **Server + local** — every backend change must work in both modes
 - **<2s latency** — performance is a feature, check it after backend changes
 - **No speculation** — if a behavior is uncertain, test it or ask
+- **Layer discipline** — put code in the right layer (see Architecture below)
+
+## Architecture Reference
+
+### Backend layers (respect these boundaries)
+```
+routes.py          ← HTTP only: validate → Depends(get_service) → return response
+RecordingService   ← ALL pipeline logic: start/stop/transcribe/correct/save
+AbstractTranscriber / AbstractCorrector ← interfaces, never concrete types in routes
+db/storage.py      ← aiosqlite CRUD only
+```
+
+### Swift layers (respect these boundaries)
+```
+MenuBarController  ← UI only: syncUI() + rebuildMenu(), all actions → viewModel.method()
+AppViewModel       ← ALL business logic + state (@Observable @MainActor)
+BackendService     ← HTTP client actor, implements BackendServiceProtocol
+```
 
 ## Process
 
@@ -24,8 +42,8 @@ You are the **VoiceFlow development orchestrator**. Take a task, plan it, build 
    RELEVANT CODE: [what you found]
 
    Design the implementation. List files to change, new modules needed,
-   API changes, and deployment implications (local vs server mode).
-   Max 300 words.
+   which layer each change belongs to, API changes, and deployment
+   implications (local vs server mode). Max 300 words.
    ```
 3. Synthesize plan. If scope is ambiguous, ask user before proceeding.
 
@@ -33,17 +51,23 @@ You are the **VoiceFlow development orchestrator**. Take a task, plan it, build 
 
 Execute plan step by step:
 
-1. Write Python code — follow existing dataclass + lazy loading patterns
-2. Write Swift code — actor pattern, `@AppStorage` for config, `@MainActor` for UI
-3. For backend changes: run `ruff check backend/` after each file
-4. For Docker changes: verify `docker compose config` parses cleanly
+1. **Python backend:**
+   - Follow `@dataclass` config + lazy loading patterns (`_ensure_model_loaded()`)
+   - New service methods go in `RecordingService`, not routes
+   - New AI implementations extend `AbstractTranscriber`/`AbstractCorrector`
+   - Run `ruff check backend/src/` after each file change
+2. **Swift:**
+   - New business logic → `AppViewModel` methods
+   - New API calls → `BackendServiceProtocol` + `BackendService`
+   - UI wiring → `MenuBarController.rebuildMenu()` / `syncUI()`
+3. No Docker changes (Phase 5) — don't verify `docker compose config` locally
 
 ### Phase 3: Review
 
 Launch `reviewer` agent:
 ```
 Review these changes for Python/Swift quality and VoiceFlow conventions:
-[list changed files]
+[list changed files with a brief description of what changed]
 ```
 Fix CRITICAL and WARNING items.
 
@@ -51,6 +75,7 @@ Fix CRITICAL and WARNING items.
 
 - Backend: `python -m pytest backend/` (if tests exist)
 - Swift: `xcodebuild test` (if test targets exist)
+- Manual build: `/build-app` command
 - Manual: describe the test scenario and expected outcome
 
 ### Phase 5: Report
@@ -59,7 +84,7 @@ Fix CRITICAL and WARNING items.
 ## Done: [task]
 
 ### Changes
-- [file]: [what changed]
+- [file]: [what changed] [which layer]
 
 ### Both modes verified?
 - Local (MLX): [yes/no]
@@ -78,9 +103,10 @@ Decide autonomously:
 - Implementation details within existing patterns
 - Which existing functions to reuse
 - Error handling specifics
+- Which layer a new piece of logic belongs to
 
 Ask the user:
 - API contract changes (affects both Python and Swift)
-- New dependencies (adds to Docker image size)
-- Changes that affect both local and server mode differently
-- Anything that touches the LLM prompt (quality regression risk)
+- New dependencies (new packages in pyproject.toml or Swift Package)
+- New LLM prompt changes (quality regression risk)
+- Anything that makes the two deployment modes behave differently
