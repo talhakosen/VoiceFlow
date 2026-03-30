@@ -65,6 +65,7 @@ final class AppViewModel {
         isRecording = true
         statusText = "Recording... (Fn×2 to stop)"
         activeApp = NSWorkspace.shared.frontmostApplication
+        onShowRecordingOverlay?()
 
         Task {
             do {
@@ -73,6 +74,7 @@ final class AppViewModel {
                 NSLog("VoiceFlow: startRecording failed: %@", error.localizedDescription)
                 isRecording = false
                 statusText = "Ready"
+                onHideRecordingOverlay?()
             }
         }
     }
@@ -94,6 +96,7 @@ final class AppViewModel {
         do {
             let result = try await backend.stopRecording()
             lastResult = result
+            onHideRecordingOverlay?()
             guard !result.text.isEmpty else {
                 statusText = "Ready"
                 return
@@ -106,6 +109,7 @@ final class AppViewModel {
             statusText = "Ready"
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
+            onHideRecordingOverlay?()
             statusText = "Ready"
         }
     }
@@ -114,6 +118,7 @@ final class AppViewModel {
         isRecording = false
         hotkey.resetState()
         statusText = "Force stopping..."
+        onHideRecordingOverlay?()
         Task {
             try? await backend.forceStop()
             statusText = "Ready"
@@ -221,6 +226,8 @@ final class AppViewModel {
 
     var onRestartBackend: ((@escaping (Bool) -> Void) -> Void)?
     var onHardReset: ((@escaping (Bool) -> Void) -> Void)?
+    var onShowRecordingOverlay: (() -> Void)?
+    var onHideRecordingOverlay: (() -> Void)?
 
     func restartBackend() {
         statusText = "Restarting backend..."

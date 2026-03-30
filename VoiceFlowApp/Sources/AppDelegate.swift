@@ -3,6 +3,7 @@ import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
+    private var recordingOverlay: RecordingOverlayWindow?
     private var backendProcess: Process?
     private let backendPort = 8765
     private var healthCheckTimer: Timer?
@@ -17,6 +18,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let vm = AppViewModel()
         vm.onRestartBackend = { [weak self] completion in self?.restartBackend(completion: completion) }
         vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
+        let overlay = RecordingOverlayWindow()
+        self.recordingOverlay = overlay
+        vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.orderFront(nil) } }
+        vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.orderOut(nil) } }
         self.viewModel = vm
 
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"

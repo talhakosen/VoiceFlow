@@ -38,7 +38,7 @@
         - Account: ad, departman, kullanıcı ID
         - About: versiyon, backend durumu, restart/hard reset
 
-- [ ] **Recording overlay — floating pill** (Wispr Flow'un "Flow bar"ı gibi):
+- [DONE 2026-03-30] **Recording overlay — floating pill** (Wispr Flow'un "Flow bar"ı gibi):
       Kayıt başlayınca ekranın altında/ortasında küçük koyu pill çıkır
       İçinde sadece waveform animasyonu
       Kayıt bitince kaybolur — hiçbir şey yapıştırana kadar
