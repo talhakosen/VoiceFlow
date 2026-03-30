@@ -276,6 +276,16 @@ class MenuBarController: NSObject {
         forceStopItem.tag = 310
         menu.addItem(forceStopItem)
 
+        let restartItem = NSMenuItem(title: "Restart Backend", action: #selector(restartBackendFromMenu), keyEquivalent: "b")
+        restartItem.target = self
+        restartItem.tag = 320
+        menu.addItem(restartItem)
+
+        let hardResetItem = NSMenuItem(title: "Hard Reset Backend", action: #selector(hardResetBackendFromMenu), keyEquivalent: "k")
+        hardResetItem.target = self
+        hardResetItem.tag = 330
+        menu.addItem(hardResetItem)
+
         menu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
@@ -334,13 +344,50 @@ class MenuBarController: NSObject {
         isRecording = false
         hotkeyManager.resetState()
         updateStatusIcon(recording: false)
-        updateStatusText("Stopping...")
+        updateStatusText("Force stopping...")
 
         Task {
-            _ = try? await backendService.stopRecording()
+            // Use force-stop endpoint that always succeeds regardless of backend state
+            do {
+                try await backendService.forceStop()
+                NSLog("VoiceFlow: Force stop succeeded")
+            } catch {
+                NSLog("VoiceFlow: Force stop error: \(error), trying normal stop")
+                _ = try? await backendService.stopRecording()
+            }
             await MainActor.run {
                 updateStatusText("Ready")
             }
+        }
+    }
+
+    @objc private func hardResetBackendFromMenu() {
+        NSLog("VoiceFlow: Hard reset from menu")
+        isRecording = false
+        hotkeyManager.resetState()
+        updateStatusIcon(recording: false)
+        updateStatusText("Hard resetting...")
+        guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
+        appDelegate.hardResetBackend { [weak self] success in
+            self?.updateStatusText(success ? "Ready" : "Hard reset failed")
+        }
+    }
+
+    @objc private func restartBackendFromMenu() {
+        NSLog("VoiceFlow: Restart backend from menu")
+        isRecording = false
+        hotkeyManager.resetState()
+        updateStatusIcon(recording: false)
+        updateStatusText("Restarting backend...")
+
+        guard let appDelegate = NSApp.delegate as? AppDelegate else {
+            NSLog("VoiceFlow: Cannot access AppDelegate for restart")
+            updateStatusText("Restart failed")
+            return
+        }
+
+        appDelegate.restartBackend { [weak self] success in
+            self?.updateStatusText(success ? "Ready" : "Backend restart failed")
         }
     }
 
@@ -409,7 +456,18 @@ class MenuBarController: NSObject {
     }
 
     private func stopRecordingAndTranscribe() {
-        guard isRecording else { return }
+        guard isRecording else {
+            NSLog("VoiceFlow: stopRecordingAndTranscribe called but isRecording=false, checking backend...")
+            // Even if local state says not recording, check backend and force stop if needed
+            Task {
+                if let status = try? await backendService.getStatus(), status.isRecording {
+                    NSLog("VoiceFlow: Backend was still recording! Force stopping.")
+                    try? await backendService.forceStop()
+                    await MainActor.run { updateStatusText("Ready") }
+                }
+            }
+            return
+        }
         isRecording = false
 
         updateStatusIcon(recording: false)

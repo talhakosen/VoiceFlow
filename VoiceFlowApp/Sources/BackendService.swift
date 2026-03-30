@@ -66,6 +66,19 @@ actor BackendService {
         return try decoder.decode(TranscriptionResult.self, from: data)
     }
 
+    func forceStop() async throws {
+        let url = URL(string: "\(baseURL)/force-stop")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        let (_, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
     func getStatus() async throws -> StatusResponse {
         let url = URL(string: "\(baseURL)/status")!
         let (data, response) = try await session.data(from: url)

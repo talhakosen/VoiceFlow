@@ -12,6 +12,7 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 from ..audio import AudioCapture, AudioConfig
+from ..audio.capture import RecordingState
 from ..correction import LLMCorrector, CorrectorConfig
 from ..transcription import WhisperTranscriber, WhisperConfig
 
@@ -143,6 +144,30 @@ async def stop_recording():
         language=result.language,
         duration=result.duration,
     )
+
+
+@router.post("/force-stop")
+async def force_stop():
+    """Force stop recording regardless of state. Always succeeds."""
+    capture = get_audio_capture()
+    was_recording = capture.is_recording
+    if was_recording:
+        capture.stop()
+        logger.info("Force stop: was recording, stopped")
+    else:
+        # Ensure stream is closed even if state is inconsistent
+        if capture._stream is not None:
+            try:
+                capture._stream.stop()
+                capture._stream.close()
+                capture._stream = None
+                logger.warning("Force stop: stream was open despite not recording state")
+            except Exception as e:
+                logger.error("Force stop: error closing stream: %s", e)
+        capture._state = RecordingState.IDLE
+        logger.info("Force stop: was not recording")
+
+    return {"status": "stopped", "was_recording": was_recording}
 
 
 @router.get("/devices")

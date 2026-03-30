@@ -38,34 +38,50 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Backend Lifecycle
 
+    /// Kill all processes on backendPort. SIGTERM first, SIGKILL if still alive after 1s.
+    /// Blocks until port is confirmed free (max 3s).
     private func killExistingBackend() {
-        // Kill any process using our port
+        let pids = pidsOnPort(backendPort)
+        guard !pids.isEmpty else { return }
+
+        for pid in pids {
+            kill(pid, SIGTERM)
+            NSLog("VoiceFlow: SIGTERM → pid %d", pid)
+        }
+
+        // Wait up to 1s for graceful exit, then SIGKILL
+        Thread.sleep(forTimeInterval: 1.0)
+        for pid in pids {
+            if kill(pid, 0) == 0 {  // process still alive
+                kill(pid, SIGKILL)
+                NSLog("VoiceFlow: SIGKILL → pid %d (didn't exit after SIGTERM)", pid)
+            }
+        }
+
+        // Wait until port is actually free (max 2s more)
+        for _ in 0..<20 {
+            if pidsOnPort(backendPort).isEmpty { break }
+            Thread.sleep(forTimeInterval: 0.1)
+        }
+        NSLog("VoiceFlow: Port %d is %@", backendPort, pidsOnPort(backendPort).isEmpty ? "free" : "still in use!")
+    }
+
+    /// Returns PIDs of processes in TCP LISTEN state on the given port.
+    /// Uses -sTCP:LISTEN to avoid matching processes that merely connect to the port.
+    private func pidsOnPort(_ port: Int) -> [Int32] {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/lsof")
-        task.arguments = ["-ti", ":\(backendPort)"]
-
+        task.arguments = ["-nP", "-iTCP:\(port)", "-sTCP:LISTEN", "-t"]
         let pipe = Pipe()
         task.standardOutput = pipe
-
+        task.standardError = Pipe()
         do {
             try task.run()
             task.waitUntilExit()
-
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-               !output.isEmpty {
-                // Kill each PID found
-                for pidStr in output.components(separatedBy: "\n") {
-                    if let pid = Int32(pidStr) {
-                        kill(pid, SIGTERM)
-                        print("Killed existing backend process: \(pid)")
-                    }
-                }
-                // Give it time to die
-                Thread.sleep(forTimeInterval: 0.5)
-            }
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            return output.components(separatedBy: "\n").compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }
         } catch {
-            print("Could not check for existing backend: \(error)")
+            return []
         }
     }
 
@@ -158,18 +174,65 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         task.resume()
     }
 
-    private func stopBackend() {
-        if let process = backendProcess, process.isRunning {
-            process.terminate()
-            // Wait a bit for graceful shutdown
-            DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-                if process.isRunning {
-                    process.interrupt() // Force kill if still running
+    /// Hard reset: SIGKILL everything on backendPort (including voiceflow), then restart fresh.
+    func hardResetBackend(completion: @escaping (Bool) -> Void) {
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            // Kill own process reference first
+            if let p = self.backendProcess, p.isRunning { p.terminate() }
+            self.backendProcess = nil
+            // SIGKILL everything on port — no grace period
+            let pids = self.pidsOnPort(self.backendPort)
+            for pid in pids {
+                kill(pid, SIGKILL)
+                NSLog("VoiceFlow: Hard reset SIGKILL pid %d", pid)
+            }
+            // Wait for port to free
+            for _ in 0..<30 {
+                if self.pidsOnPort(self.backendPort).isEmpty { break }
+                Thread.sleep(forTimeInterval: 0.1)
+            }
+            NSLog("VoiceFlow: Hard reset — port %d %@", self.backendPort,
+                  self.pidsOnPort(self.backendPort).isEmpty ? "free" : "still in use!")
+            DispatchQueue.main.async {
+                self.startBackend()
+                self.waitForBackendReady { success in
+                    DispatchQueue.main.async {
+                        NSLog("VoiceFlow: Hard reset restart %@", success ? "succeeded" : "failed")
+                        completion(success)
+                    }
                 }
             }
         }
+    }
+
+    /// Public restart method — kills existing backend (including port squatters) and starts fresh.
+    /// Runs blocking kill logic on a background thread to avoid freezing the UI.
+    func restartBackend(completion: ((Bool) -> Void)? = nil) {
+        NSLog("VoiceFlow: Restarting backend...")
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            self.stopBackend()   // kills own process + any port squatter (blocks up to 3s)
+            DispatchQueue.main.async {
+                self.startBackend()
+                self.waitForBackendReady { success in
+                    DispatchQueue.main.async {
+                        NSLog("VoiceFlow: Backend restart %@", success ? "succeeded" : "failed")
+                        completion?(success)
+                    }
+                }
+            }
+        }
+    }
+
+    private func stopBackend() {
+        if let process = backendProcess, process.isRunning {
+            process.terminate()
+        }
         backendProcess = nil
-        print("Backend stopped")
+        // Also kill by port to catch externally started backends
+        killExistingBackend()
+        NSLog("VoiceFlow: Backend stopped")
     }
 
     private func findBackendPath() -> String {

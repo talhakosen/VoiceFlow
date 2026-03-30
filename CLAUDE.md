@@ -13,11 +13,11 @@ Real-time speech-to-text for macOS using mlx-whisper + mlx-lm.
 
 ### macOS App Build & Deploy
 ```bash
-# Build
+pkill -f "VoiceFlow.app" 2>/dev/null
+rm -rf ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*
 xcodebuild -project VoiceFlowApp/VoiceFlowApp.xcodeproj -scheme VoiceFlowApp -configuration Debug clean build
-# Copy to Applications
+rm -rf /Applications/VoiceFlow.app
 cp -R ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*/Build/Products/Debug/VoiceFlow.app /Applications/
-# Launch
 open /Applications/VoiceFlow.app
 ```
 
