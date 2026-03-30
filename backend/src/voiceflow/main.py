@@ -6,6 +6,7 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
 from .api import router
@@ -76,6 +77,12 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+
+# Jinja2 templates — backend/templates/
+# __file__ = backend/src/voiceflow/main.py → .parent.parent.parent = backend/
+import pathlib as _pathlib
+_templates_dir = _pathlib.Path(__file__).parent.parent.parent / "templates"
+app.state.templates = Jinja2Templates(directory=str(_templates_dir))
 
 app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")

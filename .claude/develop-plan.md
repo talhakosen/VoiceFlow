@@ -16,6 +16,8 @@
 - Local mode (MLX/Mac) + Server mode (faster-whisper + Ollama)
 - JWT auth (register/login/refresh) — server mode
 - Mac app login ekranı + Keychain token saklama
+- Rol sistemi (superadmin/admin/member) + /admin/* endpoint'leri
+- Admin web UI (Jinja2 Bootstrap 5) + usage dashboard (/admin/)
 - Layered backend (HTTP → RecordingService → ABCs → Impl → SQLite)
 - MVVM + Protocol DI (Swift)
 
@@ -102,14 +104,14 @@
 
 ### 2.2 Admin Panel (Web)
 
-- [ ] **Basit web UI** (FastAPI + Jinja2 veya ayrı React):
+- [DONE 2026-03-30] **Basit web UI** (FastAPI + Jinja2 veya ayrı React):
       `/admin` — sadece admin rolü erişebilir
       Kullanıcı listesi: ad, email, rol, son aktivite, kelime sayısı
       Kullanıcı davet et (email ile)
       Kullanıcı deaktive et
       Tenant genelinde istatistikler (toplam transkript, kelime, aktif kullanıcı)
 
-- [ ] **Usage dashboard**:
+- [DONE 2026-03-30] **Usage dashboard**:
       Günlük/haftalık/aylık aktif kullanıcı
       En çok kullanılan mod (general/engineering/office)
       Ortalama WPM

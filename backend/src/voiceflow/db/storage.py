@@ -308,3 +308,66 @@ async def deactivate_user(user_id: str, tenant_id: str) -> bool:
         )
         await db.commit()
         return cursor.rowcount > 0
+
+
+async def get_tenant_stats(tenant_id: str) -> dict:
+    """Tenant bazlı kullanıcı ve transkripsiyon istatistikleri."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        # Toplam transkripsiyon + kelime + ortalama süre
+        async with db.execute(
+            """SELECT
+                COUNT(*) AS total_transcriptions,
+                SUM(length(text) - length(replace(text, ' ', '')) + 1) AS total_words,
+                AVG(duration) AS avg_duration
+               FROM transcriptions WHERE tenant_id = ?""",
+            (tenant_id,),
+        ) as cur:
+            row = await cur.fetchone()
+            total_transcriptions = row["total_transcriptions"] or 0
+            total_words = int(row["total_words"] or 0)
+            avg_duration = round(row["avg_duration"] or 0.0, 2)
+
+        # Son 7 günde aktif kullanıcı sayısı
+        async with db.execute(
+            """SELECT COUNT(DISTINCT user_id) AS active_users_7d
+               FROM transcriptions
+               WHERE tenant_id = ?
+                 AND user_id IS NOT NULL
+                 AND created_at >= datetime('now', '-7 days')""",
+            (tenant_id,),
+        ) as cur:
+            row = await cur.fetchone()
+            active_users_7d = row["active_users_7d"] or 0
+
+        # Mod dağılımı
+        async with db.execute(
+            """SELECT mode, COUNT(*) AS cnt
+               FROM transcriptions
+               WHERE tenant_id = ?
+               GROUP BY mode""",
+            (tenant_id,),
+        ) as cur:
+            rows = await cur.fetchall()
+        mode_breakdown = {"general": 0, "engineering": 0, "office": 0}
+        for r in rows:
+            key = r["mode"] or "general"
+            mode_breakdown[key] = r["cnt"]
+
+        # Aktif kullanıcı sayısı (users tablosu)
+        async with db.execute(
+            "SELECT COUNT(*) AS total_users FROM users WHERE tenant_id = ? AND is_active = 1",
+            (tenant_id,),
+        ) as cur:
+            row = await cur.fetchone()
+            total_users = row["total_users"] or 0
+
+    return {
+        "total_transcriptions": total_transcriptions,
+        "total_words": total_words,
+        "avg_duration": avg_duration,
+        "active_users_7d": active_users_7d,
+        "total_users": total_users,
+        "mode_breakdown": mode_breakdown,
+    }

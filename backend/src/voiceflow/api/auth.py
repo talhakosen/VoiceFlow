@@ -31,6 +31,7 @@ async def verify_api_key(
     if _BACKEND_MODE != "server":
         request.state.tenant_id = "default"
         request.state.user_id = ""
+        request.state.role = "superadmin"  # local mode: full access
         return
 
     auth_header = request.headers.get("Authorization", "")

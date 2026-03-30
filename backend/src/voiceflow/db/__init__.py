@@ -4,6 +4,7 @@ from .storage import (
     get_snippets, add_snippet, delete_snippet,
     create_user, get_user_by_email, get_user_by_id,
     list_users, update_user_role, deactivate_user,
+    get_tenant_stats,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "get_snippets", "add_snippet", "delete_snippet",
     "create_user", "get_user_by_email", "get_user_by_id",
     "list_users", "update_user_role", "deactivate_user",
+    "get_tenant_stats",
 ]
