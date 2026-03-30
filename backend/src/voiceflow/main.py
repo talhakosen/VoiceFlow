@@ -35,16 +35,15 @@ def _build_corrector():
 
 
 def _build_retriever():
-    """Build ChromaRetriever if chromadb is available and knowledge base exists."""
+    """Build ChromaRetriever if chromadb is available.
+
+    Does NOT initialize the collection at startup — lazy-loaded on first use.
+    This avoids downloading the embedding model on a fresh install.
+    """
     try:
         from .context.chroma_retriever import ChromaRetriever
-        retriever = ChromaRetriever()
-        # Only attach if already indexed — don't force-load on fresh install
-        if not retriever.is_empty():
-            logger.info("ChromaDB knowledge base found (%d chunks), RAG enabled", retriever.count())
-            return retriever
-        logger.info("ChromaDB knowledge base is empty, RAG disabled until first ingest")
-        return retriever  # attach anyway so /context/status works
+        logger.info("chromadb available, RAG enabled (collection lazy-loaded on first use)")
+        return ChromaRetriever()
     except ImportError:
         logger.info("chromadb not installed, RAG disabled (install with: pip install 'voiceflow[context]')")
         return None
