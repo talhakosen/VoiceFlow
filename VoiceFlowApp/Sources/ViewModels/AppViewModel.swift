@@ -189,6 +189,31 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Snippets (Katman 1)
+
+    var snippetEntries: [SnippetEntry] = []
+
+    func loadSnippets() {
+        Task {
+            snippetEntries = (try? await backend.getSnippets()) ?? []
+        }
+    }
+
+    func addSnippet(triggerPhrase: String, expansion: String, scope: String) {
+        Task {
+            if let entry = try? await backend.addSnippet(triggerPhrase: triggerPhrase, expansion: expansion, scope: scope) {
+                snippetEntries.append(entry)
+            }
+        }
+    }
+
+    func deleteSnippet(id: Int) {
+        Task {
+            try? await backend.deleteSnippet(id: id)
+            snippetEntries.removeAll { $0.id == id }
+        }
+    }
+
     // MARK: - Context Engine (Phase 2)
 
     var contextChunkCount: Int = 0

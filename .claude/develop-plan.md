@@ -58,7 +58,7 @@
       Whisper post-processing: kelime düzeltme geçişi
       Mac app: Settings → Dictionary section
 
-- [ ] **Snippets (Sesli Şablonlar)**:
+- [DONE 2026-03-30] **Snippets (Sesli Şablonlar)**:
       "personal email" deyince → email adresi açılır
       SQLite: `snippets` tablosu (trigger_phrase → expansion)
       Mac app: Settings → Snippets section

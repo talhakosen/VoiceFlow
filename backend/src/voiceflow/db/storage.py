@@ -34,6 +34,16 @@ async def init_db() -> None:
             )
         """)
         await db.execute("""
+            CREATE TABLE IF NOT EXISTS snippets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id TEXT NOT NULL DEFAULT 'default',
+                user_id TEXT NOT NULL DEFAULT '',
+                trigger_phrase TEXT NOT NULL,
+                expansion TEXT NOT NULL,
+                scope TEXT NOT NULL DEFAULT 'personal'
+            )
+        """)
+        await db.execute("""
             CREATE TABLE IF NOT EXISTS user_dictionary (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tenant_id TEXT NOT NULL DEFAULT 'default',
@@ -144,6 +154,45 @@ async def add_dictionary_entry(
         )
         await db.commit()
         return cursor.lastrowid
+
+
+async def get_snippets(user_id: str, tenant_id: str = "default") -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """SELECT * FROM snippets
+               WHERE tenant_id = ? AND (scope = 'team' OR user_id = ?)
+               ORDER BY scope, trigger_phrase""",
+            (tenant_id, user_id),
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
+
+
+async def add_snippet(
+    trigger_phrase: str,
+    expansion: str,
+    user_id: str,
+    scope: str = "personal",
+    tenant_id: str = "default",
+) -> int | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "INSERT INTO snippets (tenant_id, user_id, trigger_phrase, expansion, scope) VALUES (?, ?, ?, ?, ?)",
+            (tenant_id, user_id, trigger_phrase.strip(), expansion.strip(), scope),
+        )
+        await db.commit()
+        return cursor.lastrowid
+
+
+async def delete_snippet(snippet_id: int, user_id: str) -> bool:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "DELETE FROM snippets WHERE id = ? AND user_id = ? AND scope = 'personal'",
+            (snippet_id, user_id),
+        )
+        await db.commit()
+        return cursor.rowcount > 0
 
 
 async def delete_dictionary_entry(entry_id: int, user_id: str) -> bool:

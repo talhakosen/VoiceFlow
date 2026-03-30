@@ -88,6 +88,27 @@ struct DictionaryResponse: Decodable {
     let count: Int
 }
 
+struct SnippetEntry: Codable, Identifiable {
+    let id: Int
+    let triggerPhrase: String
+    let expansion: String
+    let scope: String
+    let userId: String?
+    let tenantId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, expansion, scope
+        case triggerPhrase = "trigger_phrase"
+        case userId        = "user_id"
+        case tenantId      = "tenant_id"
+    }
+}
+
+struct SnippetResponse: Decodable {
+    let items: [SnippetEntry]
+    let count: Int
+}
+
 struct StatusResponse: Codable {
     let status: String
     let isRecording: Bool
@@ -115,6 +136,9 @@ protocol BackendServiceProtocol: Actor {
     func getDictionary() async throws -> [DictionaryEntry]
     func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry
     func deleteDictionaryEntry(id: Int) async throws
+    func getSnippets() async throws -> [SnippetEntry]
+    func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry
+    func deleteSnippet(id: Int) async throws
 }
 
 // MARK: - Concrete implementation
@@ -295,6 +319,36 @@ actor BackendService: BackendServiceProtocol {
 
     func deleteDictionaryEntry(id: Int) async throws {
         let request = makeRequest(path: "dictionary/\(id)", method: "DELETE")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func getSnippets() async throws -> [SnippetEntry] {
+        let request = makeRequest(path: "snippets")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(SnippetResponse.self, from: data).items
+    }
+
+    func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry {
+        var request = makeRequest(path: "snippets", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "trigger_phrase": triggerPhrase, "expansion": expansion, "scope": scope
+        ])
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(SnippetEntry.self, from: data)
+    }
+
+    func deleteSnippet(id: Int) async throws {
+        let request = makeRequest(path: "snippets/\(id)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

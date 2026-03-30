@@ -25,6 +25,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case general       = "General"
     case recording     = "Recording"
     case dictionary    = "Dictionary"
+    case snippets      = "Snippets"
     case knowledgeBase = "Knowledge Base"
     case account       = "Account"
     case about         = "About"
@@ -36,6 +37,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
         case .general:       return "gearshape"
         case .recording:     return "mic"
         case .dictionary:    return "character.book.closed"
+        case .snippets:      return "text.badge.plus"
         case .knowledgeBase: return "books.vertical"
         case .account:       return "person.circle"
         case .about:         return "info.circle"
@@ -80,6 +82,7 @@ struct SettingsView: View {
                     case .general:       GeneralSection()
                     case .recording:     RecordingSection(viewModel: viewModel)
                     case .dictionary:    DictionarySection(viewModel: viewModel)
+                    case .snippets:      SnippetsSection(viewModel: viewModel)
                     case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
                     case .account:       AccountSection(viewModel: viewModel)
                     case .about:         AboutSection(viewModel: viewModel)
@@ -238,6 +241,82 @@ private struct DictionarySection: View {
         .formStyle(.grouped)
         .padding()
         .onAppear { viewModel.loadDictionary() }
+    }
+}
+
+// MARK: - Snippets
+
+private struct SnippetsSection: View {
+    var viewModel: AppViewModel
+
+    @State private var newTrigger = ""
+    @State private var newExpansion = ""
+    @State private var newScope = "personal"
+
+    var body: some View {
+        Form {
+            Section {
+                if viewModel.snippetEntries.isEmpty {
+                    Text("No snippets yet.").foregroundStyle(.secondary)
+                } else {
+                    ForEach(viewModel.snippetEntries) { entry in
+                        HStack {
+                            Text(entry.triggerPhrase)
+                                .frame(minWidth: 100, alignment: .leading)
+                            Image(systemName: "arrow.right")
+                                .foregroundStyle(.secondary)
+                            Text(entry.expansion)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .lineLimit(2)
+                            Text(entry.scope)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 60)
+                            if entry.scope == "personal" {
+                                Button {
+                                    viewModel.deleteSnippet(id: entry.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .foregroundStyle(.red)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            } header: {
+                Text("Snippets")
+            }
+
+            Section("Add Snippet") {
+                HStack(spacing: 8) {
+                    TextField("trigger phrase (e.g. aç toplantı)", text: $newTrigger)
+                        .textFieldStyle(.roundedBorder)
+                    Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                    TextField("expansion text", text: $newExpansion)
+                        .textFieldStyle(.roundedBorder)
+                    Picker("", selection: $newScope) {
+                        Text("Personal").tag("personal")
+                        Text("Team").tag("team")
+                    }
+                    .frame(width: 90)
+                    Button("Add") {
+                        guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
+                        viewModel.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
+                        newTrigger = ""
+                        newExpansion = ""
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(newTrigger.isEmpty || newExpansion.isEmpty)
+                }
+
+                Text("Exact-match trigger replaces the entire transcript. Applied after Dictionary, before LLM correction.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .onAppear { viewModel.loadSnippets() }
     }
 }
 

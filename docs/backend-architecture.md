@@ -16,9 +16,11 @@ backend/src/voiceflow/
 │   ├── routes.py              # HTTP katmanı: validate → service → response
 │   └── auth.py                # X-Api-Key middleware
 ├── core/
-│   └── interfaces.py          # AbstractTranscriber, AbstractCorrector (ABCs)
+│   └── interfaces.py          # AbstractTranscriber, AbstractCorrector, AbstractRetriever (ABCs)
 ├── services/
-│   └── recording.py           # RecordingService — TÜM iş mantığı
+│   ├── recording.py           # RecordingService — TÜM iş mantığı
+│   ├── dictionary.py          # apply_dictionary() — word-boundary substitution
+│   └── snippets.py            # apply_snippets() — exact-match expansion
 ├── db/
 │   └── storage.py             # aiosqlite CRUD (~/.voiceflow/voiceflow.db)
 ├── audio/
@@ -26,9 +28,12 @@ backend/src/voiceflow/
 ├── transcription/
 │   ├── whisper.py             # MLX Whisper (local mode)
 │   └── faster_whisper.py      # NVIDIA faster-whisper (server mode)
-└── correction/
-    ├── llm_corrector.py       # mlx-lm Qwen 7B (local mode)
-    └── ollama_corrector.py    # Ollama HTTP client (server mode)
+├── correction/
+│   ├── llm_corrector.py       # mlx-lm Qwen 7B (local mode)
+│   └── ollama_corrector.py    # Ollama HTTP client (server mode)
+└── context/
+    ├── chroma_retriever.py    # ChromaDB retrieval (RAG, Phase 2)
+    └── ingestion.py           # Klasör indexleme → ChromaDB
 ```
 
 ---
@@ -46,12 +51,14 @@ Sıfır iş mantığı. Sadece:
 Tüm pipeline koordinasyonu:
 ```python
 class RecordingService:
-    def __init__(self, transcriber: AbstractTranscriber, corrector: AbstractCorrector)
+    def __init__(self, transcriber, corrector, retriever=None)
     def start() → None
-    async def stop(user_id) → dict      # transcribe + correct + save
+    async def stop(user_id) → dict      # transcribe → dict → snippets → RAG → LLM → save
     def force_stop() → bool
     async def preload_models() → None
 ```
+Pipeline sırası: **Whisper → Dictionary → Snippets → RAG retrieval → LLM correction → SQLite**
+
 Constructor injection → test için mock takılabilir.
 
 ### Interfaces (`core/interfaces.py`)
@@ -88,15 +95,24 @@ async def lifespan(app):
 ## API Endpoint'leri
 
 ```
-GET  /health             → {status, model_loaded, llm_loaded}
-GET  /api/status         → {status: str, is_recording: bool}
-POST /api/start          → Kayıt başlat (400 if already recording)
-POST /api/stop           → Durdur + transcribe [X-User-ID opsiyonel]
-POST /api/force-stop     → Her zaman başarılı
-POST /api/config         → {language?, task?, correction_enabled?, mode?, model?}
-GET  /api/devices        → Ses girişi cihazları listesi
-GET  /api/history        → SQLite geçmişi [?limit=&offset=&user_id=]
-DELETE /api/history      → Tüm geçmişi sil
+GET  /health                  → {status, model_loaded, llm_loaded}
+GET  /api/status              → {status: str, is_recording: bool}
+POST /api/start               → Kayıt başlat (400 if already recording)
+POST /api/stop                → Durdur + transcribe [X-User-ID opsiyonel]
+POST /api/force-stop          → Her zaman başarılı
+POST /api/config              → {language?, task?, correction_enabled?, mode?, model?}
+GET  /api/devices             → Ses girişi cihazları listesi
+GET  /api/history             → SQLite geçmişi [?limit=&offset=&user_id=]
+DELETE /api/history           → Tüm geçmişi sil
+POST /api/context/ingest      → Klasör indexle (async, ChromaDB)
+GET  /api/context/status      → {count, is_ready, is_empty}
+DELETE /api/context           → Knowledge base'i temizle
+GET  /api/dictionary          → Kullanıcı sözlüğü [X-User-ID]
+POST /api/dictionary          → {trigger, replacement, scope}
+DELETE /api/dictionary/{id}   → Kişisel entry sil
+GET  /api/snippets            → Snippet listesi [X-User-ID]
+POST /api/snippets            → {trigger_phrase, expansion, scope}
+DELETE /api/snippets/{id}     → Kişisel snippet sil
 ```
 
 **Auth:** `X-Api-Key` header — `BACKEND_MODE=server` iken zorunlu, local'de no-op.
@@ -191,6 +207,24 @@ CREATE TABLE config (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE user_dictionary (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id   TEXT NOT NULL DEFAULT 'default',
+    user_id     TEXT NOT NULL DEFAULT '',
+    trigger     TEXT NOT NULL,
+    replacement TEXT NOT NULL,
+    scope       TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team'
+);
+
+CREATE TABLE snippets (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id      TEXT NOT NULL DEFAULT 'default',
+    user_id        TEXT NOT NULL DEFAULT '',
+    trigger_phrase TEXT NOT NULL,
+    expansion      TEXT NOT NULL,
+    scope          TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team'
+);
 ```
 
 ---
@@ -227,14 +261,15 @@ soundfile>=0.12.0
 
 ---
 
-## Phase 2 — Context Engine (Gelecek)
+## Phase 2 — Context Engine (Aktif, v0.4)
 
 ```
 backend/src/voiceflow/context/
-├── embedder.py    # metin → vektör (local embedding model)
-├── store.py       # ChromaDB multi-tenant CRUD
-├── retriever.py   # query → top-K chunks
-└── ingestion.py   # dosya/klasör → parse → embed → store
+├── chroma_retriever.py   # ChromaRetriever: MiniLM embeddings + ChromaDB
+└── ingestion.py          # ingest_folder() → parse → embed → store
 ```
 
-ChromaDB multi-tenancy: `PersistentClient(tenant=company_id, database=dept)` — şirket izolasyonu built-in.
+- **Embeddings:** `all-MiniLM-L6-v2` (CPU, ~22MB, lazy loaded)
+- **Store:** ChromaDB `~/.voiceflow/chroma/`, `tenant="default"`
+- **Retrieval:** top-3 chunks inject edilir LLM correction prompt'una
+- **Lazy:** RecordingService'e opsiyonel 3. parametre — `retriever=None` ise RAG atlanır

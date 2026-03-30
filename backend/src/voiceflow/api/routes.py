@@ -13,7 +13,11 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
-from ..db import get_history, clear_history, get_dictionary, add_dictionary_entry, delete_dictionary_entry
+from ..db import (
+    get_history, clear_history,
+    get_dictionary, add_dictionary_entry, delete_dictionary_entry,
+    get_snippets, add_snippet, delete_snippet,
+)
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 logger = logging.getLogger(__name__)
@@ -279,3 +283,51 @@ async def delete_dict_entry(
     if not deleted:
         raise HTTPException(status_code=404, detail="Entry not found or not yours")
     return {"status": "deleted", "id": entry_id}
+
+
+# ------------------------------------------------------------------
+# Snippets (Katman 1)
+# ------------------------------------------------------------------
+
+class SnippetRequest(BaseModel):
+    trigger_phrase: str
+    expansion: str
+    scope: str = "personal"
+
+
+@router.get("/snippets")
+async def get_snippets_route(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+    user_id = x_user_id or ""
+    items = await get_snippets(user_id=user_id)
+    return {"items": items, "count": len(items)}
+
+
+@router.post("/snippets")
+async def add_snippet_route(
+    body: SnippetRequest,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    if not body.trigger_phrase.strip() or not body.expansion.strip():
+        raise HTTPException(status_code=400, detail="trigger_phrase and expansion must not be empty")
+    if body.scope not in ("personal", "team"):
+        raise HTTPException(status_code=400, detail="scope must be 'personal' or 'team'")
+    user_id = x_user_id or ""
+    snippet_id = await add_snippet(
+        trigger_phrase=body.trigger_phrase,
+        expansion=body.expansion,
+        user_id=user_id,
+        scope=body.scope,
+    )
+    return {"id": snippet_id, "trigger_phrase": body.trigger_phrase, "expansion": body.expansion, "scope": body.scope}
+
+
+@router.delete("/snippets/{snippet_id}")
+async def delete_snippet_route(
+    snippet_id: int,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    user_id = x_user_id or ""
+    deleted = await delete_snippet(snippet_id=snippet_id, user_id=user_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Snippet not found or not yours")
+    return {"status": "deleted", "id": snippet_id}
