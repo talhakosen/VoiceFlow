@@ -7,6 +7,9 @@ description: Sprint başlat — PO agent Trello'dan kart seçer, developer'a ata
 `$ARGUMENTS` boşsa → Katman 1 backlog'undan en öncelikli kartı al ve başlat.
 `$ARGUMENTS` bir kart adı veya ID'si ise → direkt o kartı başlat.
 
+# IMPORTANT
+ihtiyac halinde context7 ve sequentialthinking yapmayi unutma
+
 ## PO Agent'ı Çağır
 
 ```

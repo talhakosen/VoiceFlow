@@ -2,17 +2,20 @@
 
 ---
 
-## Şu An Çalışan (v0.2)
+## Şu An Çalışan (v0.3 — Katman 1 + Katman 2 kısmen)
 
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
 - Qwen 7B ile isteğe bağlı Türkçe düzeltme (3 mod: general/engineering/office)
 - Auto-paste (Cmd+V)
-- SQLite persistent history (~/.voiceflow/voiceflow.db)
-- Kullanıcı profili (UUID, ad, departman)
+- SQLite persistent history + tenant izolasyonu
+- Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
 - Knowledge Base (ChromaDB RAG — lazy load, MiniLM embeddings)
+- Recording overlay floating pill + ses efektleri
+- 2-panel Settings (General/Recording/Dictionary/Snippets/KB/Account/About)
 - Local mode (MLX/Mac) + Server mode (faster-whisper + Ollama)
-- API key auth middleware
+- JWT auth (register/login/refresh) — server mode
+- Mac app login ekranı + Keychain token saklama
 - Layered backend (HTTP → RecordingService → ABCs → Impl → SQLite)
 - MVVM + Protocol DI (Swift)
 
@@ -75,28 +78,27 @@
 
 ### 2.1 Auth Sistemi
 
-- [ ] **Backend: email/şifre login**:
+- [DONE 2026-03-30] **Backend: email/şifre login**:
       `POST /auth/register` — kullanıcı oluştur
       `POST /auth/login` → JWT token döner
       `POST /auth/refresh` → token yenile
       SQLite: `users` tablosu (id, email, password_hash, tenant_id, role)
       JWT middleware: tüm `/api/*` endpoint'leri için
 
-- [ ] **Tenant izolasyonu**:
+- [DONE 2026-03-30] **Tenant izolasyonu**:
       Her şirket = ayrı tenant_id
-      ChromaDB: `tenant=tenant_id` (zaten hazır)
-      SQLite: tüm sorgularda `WHERE tenant_id = ?` filtresi
-      Transcription history, dictionary, snippets — tenant bazlı izole
+      SQLite: transcriptions/dictionary/snippets tüm sorgularda tenant_id filtresi
+      JWT payload → request.state.tenant_id → DB sorgularına geçilir
 
 - [ ] **Roller**: superadmin | admin | member
       Admin: kullanıcı ekle/çıkar, istatistik görsün
       Member: sadece kendi transkriptleri
 
-- [ ] **Mac app: Login ekranı**:
+- [DONE 2026-03-30] **Mac app: Login ekranı**:
       İlk açılışta email/şifre formu (onboarding'in önünde)
-      JWT token Keychain'de sakla
+      JWT token Keychain'de sakla (SecItemAdd)
       Her API isteğine `Authorization: Bearer <token>` header
-      Token expire olunca otomatik logout
+      Token expire olunca otomatik refresh, başarısızsa logout
 
 ### 2.2 Admin Panel (Web)
 
