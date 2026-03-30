@@ -57,7 +57,7 @@ struct SettingsView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
-        .toolbar(removing: .sidebarToggle)
+        .toolbar(.hidden, for: .windowToolbar)
         .frame(width: 900, height: 620)
     }
 }
