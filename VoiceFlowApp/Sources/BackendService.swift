@@ -66,7 +66,22 @@ struct StatusResponse: Codable {
     }
 }
 
-actor BackendService {
+// MARK: - Protocol (enables mock injection for tests/previews)
+
+protocol BackendServiceProtocol: Actor {
+    func startRecording() async throws
+    func stopRecording() async throws -> TranscriptionResult
+    func forceStop() async throws
+    func getStatus() async throws -> StatusResponse
+    func isBackendRunning() async -> Bool
+    func updateConfig(language: String?, task: String, correctionEnabled: Bool?, mode: String?) async throws
+    func getHistory(limit: Int) async throws -> [HistoryItem]
+    func clearHistory() async throws
+}
+
+// MARK: - Concrete implementation
+
+actor BackendService: BackendServiceProtocol {
     private let session: URLSession
 
     init() {

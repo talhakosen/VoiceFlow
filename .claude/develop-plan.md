@@ -11,6 +11,24 @@
 - [DONE 2026-03-30] Mac app: API key ayarı (`SecureField`, `X-API-Key` header inject)
 - [ ] RunPod: deploy et, RTX 4090, uçtan uca test (<2s hedef) — Phase 5'e ertelendi
 
+## Phase 0.5: Architecture Refactor (ÖNCELİKLİ — Phase 2'den önce)
+
+**Hedef:** Test edilebilir, extend edilebilir, SOLID uyumlu yapı. Şimdi yapılmazsa büyüdükçe teknik borç birikir.
+
+### Backend — Layered Architecture
+- [x] api/ — sadece HTTP (routes, schemas, auth)
+- [ ] core/interfaces.py — AbstractTranscriber, AbstractCorrector ABC'leri → loose coupling, mock inject edilebilir
+- [ ] services/recording.py — RecordingService: tüm iş mantığı buraya (start/stop/transcribe/correct/save)
+- [ ] routes.py refactor — ~50 satıra iner, sadece HTTP → RecordingService çağrısı
+- [ ] app.state DI — lifespan'de RecordingService oluştur, Depends() ile inject
+
+### Swift — MVVM + Protocol-based DI
+- [ ] ViewModels/AppViewModel.swift — @Observable, tüm uygulama state'i + iş mantığı
+- [ ] BackendServiceProtocol — test/preview için mock inject edilebilir
+- [ ] MenuBarController refactor — sadece NSMenu UI, AppViewModel'e delegate (~150 satır)
+- [ ] AppDelegate refactor — sadece lifecycle, AppViewModel oluştur + inject
+- [ ] AudioCapture.force_stop() metodu — iç stream detayı routes'tan kaldırılır
+
 ## Phase 1: Foundation (Kurumsal Kullanıma Hazır)
 
 - [DONE 2026-03-30] SQLite persistent storage (history + config) — ~/.voiceflow/voiceflow.db, aiosqlite

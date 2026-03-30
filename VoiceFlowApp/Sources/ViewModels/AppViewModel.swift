@@ -1,0 +1,165 @@
+import AppKit
+import Observation
+
+/// Central app state and business logic.
+/// MenuBarController observes this; views bind to it via @Environment.
+@Observable
+@MainActor
+final class AppViewModel {
+
+    // MARK: - State (observed by MenuBarController & Views)
+
+    var isRecording = false
+    var statusText = "Ready"
+    var lastResult: TranscriptionResult?
+    var currentLanguageMode: LanguageMode = .turkish
+    var currentAppMode: AppMode = .general
+    var isCorrectionEnabled = false
+
+    // MARK: - Dependencies
+
+    private let backend: any BackendServiceProtocol
+    private let paste: PasteService
+    private let hotkey: HotkeyManager
+
+    private var activeApp: NSRunningApplication?
+
+    // MARK: - Init
+
+    init(
+        backend: any BackendServiceProtocol = BackendService(),
+        paste: PasteService = PasteService(),
+        hotkey: HotkeyManager = HotkeyManager()
+    ) {
+        self.backend = backend
+        self.paste = paste
+        self.hotkey = hotkey
+
+        restoreSettings()
+        setupHotkey()
+    }
+
+    // MARK: - Settings persistence
+
+    private func restoreSettings() {
+        let savedMode = UserDefaults.standard.string(forKey: AppSettings.appMode) ?? "general"
+        currentAppMode = AppMode(rawValue: savedMode) ?? .general
+    }
+
+    // MARK: - Hotkey wiring
+
+    private func setupHotkey() {
+        hotkey.onStartRecording = { [weak self] in
+            Task { @MainActor [weak self] in self?.startRecording() }
+        }
+        hotkey.onStopRecording = { [weak self] in
+            Task { @MainActor [weak self] in await self?.stopAndTranscribe() }
+        }
+        hotkey.start()
+    }
+
+    // MARK: - Recording
+
+    func startRecording() {
+        guard !isRecording else { return }
+        isRecording = true
+        statusText = "Recording... (Fn×2 to stop)"
+        activeApp = NSWorkspace.shared.frontmostApplication
+
+        Task {
+            do {
+                try await backend.startRecording()
+            } catch {
+                NSLog("VoiceFlow: startRecording failed: %@", error.localizedDescription)
+                isRecording = false
+                statusText = "Ready"
+            }
+        }
+    }
+
+    func stopAndTranscribe() async {
+        guard isRecording else {
+            // Sync local state with backend
+            if let status = try? await backend.getStatus(), status.isRecording {
+                try? await backend.forceStop()
+                statusText = "Ready"
+            }
+            return
+        }
+
+        isRecording = false
+        statusText = isCorrectionEnabled ? "Transcribing + Correcting..." : "Transcribing..."
+
+        let savedApp = activeApp
+        do {
+            let result = try await backend.stopRecording()
+            lastResult = result
+            guard !result.text.isEmpty else {
+                statusText = "Ready"
+                return
+            }
+            if let app = savedApp {
+                app.activate(options: .activateIgnoringOtherApps)
+            }
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            paste.pasteText(result.text)
+            statusText = "Ready"
+        } catch {
+            NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
+            statusText = "Ready"
+        }
+    }
+
+    func forceStop() {
+        isRecording = false
+        hotkey.resetState()
+        statusText = "Force stopping..."
+        Task {
+            try? await backend.forceStop()
+            statusText = "Ready"
+        }
+    }
+
+    // MARK: - Config changes
+
+    func selectLanguageMode(_ mode: LanguageMode) {
+        currentLanguageMode = mode
+        Task {
+            try? await backend.updateConfig(
+                language: mode.language,
+                task: mode.task,
+                correctionEnabled: nil,
+                mode: nil
+            )
+        }
+    }
+
+    func selectAppMode(_ mode: AppMode) {
+        currentAppMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
+        Task {
+            try? await backend.updateConfig(
+                language: currentLanguageMode.language,
+                task: currentLanguageMode.task,
+                correctionEnabled: nil,
+                mode: mode.rawValue
+            )
+        }
+    }
+
+    func toggleCorrection() {
+        isCorrectionEnabled.toggle()
+        Task {
+            try? await backend.updateConfig(
+                language: currentLanguageMode.language,
+                task: currentLanguageMode.task,
+                correctionEnabled: isCorrectionEnabled,
+                mode: nil
+            )
+        }
+    }
+
+    // MARK: - Accessibility
+
+    var hasAccessibility: Bool { AXIsProcessTrusted() }
+}

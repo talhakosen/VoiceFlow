@@ -8,28 +8,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var healthCheckTimer: Timer?
     private var onboardingWindow: NSWindow?
 
+    // Shared app state — created once, injected into MenuBarController
+    private var viewModel: AppViewModel?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        ensureUserID()
+
+        let vm = AppViewModel()
+        self.viewModel = vm
+
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
 
         if mode == "server" {
-            // Server mode: connect to remote backend, no local process needed
             NSLog("VoiceFlow: Server mode — skipping local backend startup")
             DispatchQueue.main.async {
-                self.menuBarController = MenuBarController()
+                self.menuBarController = MenuBarController(viewModel: vm)
             }
         } else {
-            // Local mode: start embedded Python backend
             killExistingBackend()
             startBackend()
             waitForBackendReady { [weak self] success in
                 DispatchQueue.main.async {
                     NSLog("VoiceFlow: Backend %@", success ? "ready" : "may not be ready")
-                    self?.menuBarController = MenuBarController()
+                    self?.menuBarController = MenuBarController(viewModel: vm)
                 }
             }
         }
 
-        ensureUserID()
         requestAccessibilityPermission()
         showOnboardingIfNeeded()
     }

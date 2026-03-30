@@ -1,639 +1,228 @@
 import AppKit
 import SwiftUI
 
-enum AppMode: String, CaseIterable {
-    case general     = "general"
-    case engineering = "engineering"
-    case office      = "office"
-
-    var displayName: String {
-        switch self {
-        case .general:     return "General"
-        case .engineering: return "Engineering"
-        case .office:      return "Office"
-        }
-    }
-}
-
-enum LanguageMode: String, CaseIterable {
-    case auto = "Auto Detect"
-    case turkish = "Türkçe"
-    case english = "English"
-    case translateToEnglish = "Any → English"
-
-    var language: String? {
-        switch self {
-        case .auto: return nil
-        case .turkish: return "tr"
-        case .english: return "en"
-        case .translateToEnglish: return nil
-        }
-    }
-
-    var task: String {
-        switch self {
-        case .translateToEnglish: return "translate"
-        default: return "transcribe"
-        }
-    }
-}
-
-struct HistoryEntry: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    let result: TranscriptionResult
-}
-
-class HistoryStore: ObservableObject {
-    @Published var entries: [HistoryEntry] = []
-    private let maxCount = 50
-
-    func add(_ result: TranscriptionResult) {
-        let entry = HistoryEntry(timestamp: Date(), result: result)
-        entries.insert(entry, at: 0)
-        if entries.count > maxCount {
-            entries = Array(entries.prefix(maxCount))
-        }
-    }
-
-    func clear() {
-        entries.removeAll()
-    }
-}
-
-// MARK: - History SwiftUI View
-
-struct HistoryView: View {
-    @ObservedObject var store: HistoryStore
-    @State private var copiedId: UUID?
-
-    private let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f
-    }()
-
-    var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Transcription History")
-                    .font(.headline)
-                Spacer()
-                if !store.entries.isEmpty {
-                    Button("Clear All") {
-                        store.clear()
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundColor(.red)
-                    .font(.caption)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-
-            Divider()
-
-            if store.entries.isEmpty {
-                Spacer()
-                Text("No transcriptions yet")
-                    .foregroundColor(.secondary)
-                    .font(.subheadline)
-                Spacer()
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(store.entries) { entry in
-                            HistoryRow(
-                                entry: entry,
-                                isCopied: copiedId == entry.id,
-                                timeFormatter: timeFormatter,
-                                onCopy: { text in
-                                    NSPasteboard.general.clearContents()
-                                    NSPasteboard.general.setString(text, forType: .string)
-                                    copiedId = entry.id
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                        if copiedId == entry.id {
-                                            copiedId = nil
-                                        }
-                                    }
-                                }
-                            )
-                            Divider().padding(.leading, 16)
-                        }
-                    }
-                }
-            }
-        }
-        .frame(width: 420, height: 480)
-    }
-}
-
-struct HistoryRow: View {
-    let entry: HistoryEntry
-    let isCopied: Bool
-    let timeFormatter: DateFormatter
-    let onCopy: (String) -> Void
-
-    private var wasCorrected: Bool {
-        entry.result.corrected ?? false
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // Top line: badge + time
-            HStack(spacing: 6) {
-                Text(wasCorrected ? "LLM" : "Raw")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(wasCorrected ? Color.green : Color.orange)
-                    .cornerRadius(4)
-
-                Text(timeFormatter.string(from: entry.timestamp))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
-                Button(action: { onCopy(entry.result.text) }) {
-                    Text(isCopied ? "Copied!" : "Copy")
-                        .font(.caption)
-                        .foregroundColor(isCopied ? .green : .accentColor)
-                }
-                .buttonStyle(.plain)
-            }
-
-            // Main text
-            Text(entry.result.text)
-                .font(.system(size: 13))
-                .lineLimit(3)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            // Raw text if corrected
-            if wasCorrected, let raw = entry.result.rawText, raw != entry.result.text {
-                Text("Raw: \(raw)")
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .contentShape(Rectangle())
-        .onTapGesture { onCopy(entry.result.text) }
-    }
-}
-
 // MARK: - MenuBarController
+// Responsibility: NSStatusItem + NSMenu setup and updates.
+// All business logic is in AppViewModel.
 
+@MainActor
 class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
-    private var popover: NSPopover?
-    private let backendService = BackendService()
-    private let hotkeyManager = HotkeyManager()
-    private let pasteService = PasteService()
-
-    private var isRecording = false
-    private var currentMode: LanguageMode = .turkish
-    private var isCorrectionEnabled = false
-    private var currentAppMode: AppMode = .general
-    private var activeApp: NSRunningApplication?
-
-    private let historyStore = HistoryStore()
+    private let viewModel: AppViewModel
     private var historyWindow: NSWindow?
 
-    override init() {
+    init(viewModel: AppViewModel) {
+        self.viewModel = viewModel
         super.init()
-        // Restore saved mode from UserDefaults
-        let savedMode = UserDefaults.standard.string(forKey: AppSettings.appMode) ?? "general"
-        currentAppMode = AppMode(rawValue: savedMode) ?? .general
         setupStatusItem()
-        setupHotkey()
         checkAccessibility()
+        observeViewModel()
     }
 
     // MARK: - Status Item
 
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-
-        if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "VoiceFlow")
-            button.action = #selector(togglePopover)
-            button.target = self
-        }
-
-        setupMenu()
+        guard let button = statusItem?.button else { return }
+        button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "VoiceFlow")
+        button.action = #selector(statusBarButtonClicked)
+        button.target = self
+        rebuildMenu()
     }
 
-    private func setupMenu() {
+    // MARK: - ViewModel observation
+
+    private func observeViewModel() {
+        // Poll via a timer — lightweight for a menu bar app.
+        // Replace with withObservationTracking if needed for complex UIs.
+        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
+            self?.syncUI()
+        }
+    }
+
+    private func syncUI() {
+        guard let menu = statusItem?.menu else { return }
+
+        // Status text
+        menu.item(withTag: 100)?.title = viewModel.statusText
+
+        // Last result
+        if let result = viewModel.lastResult {
+            let item = menu.item(withTag: 150)
+            let wasCorrected = result.corrected ?? false
+            item?.title = (wasCorrected ? "✓ LLM: " : "✗ Raw: ") + String(result.text.prefix(60))
+            item?.isHidden = false
+        }
+
+        // Recording icon
+        let button = statusItem?.button
+        let recording = viewModel.isRecording
+        button?.image = NSImage(systemSymbolName: recording ? "waveform.circle.fill" : "waveform",
+                                accessibilityDescription: "VoiceFlow")
+        button?.contentTintColor = recording ? .systemRed : nil
+    }
+
+    // MARK: - Menu construction
+
+    private func rebuildMenu() {
         let menu = NSMenu()
 
-        let titleItem = NSMenuItem(title: "VoiceFlow", action: nil, keyEquivalent: "")
-        titleItem.isEnabled = false
-        menu.addItem(titleItem)
-        menu.addItem(NSMenuItem.separator())
+        menu.addItem(disabled("VoiceFlow"))
+        menu.addItem(.separator())
+        menu.addItem(disabled("Ready", tag: 100))
 
-        let statusMenuItem = NSMenuItem(title: "Ready", action: nil, keyEquivalent: "")
-        statusMenuItem.tag = 100
-        statusMenuItem.isEnabled = false
-        menu.addItem(statusMenuItem)
+        let resultItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        resultItem.tag = 150
+        resultItem.isEnabled = false
+        resultItem.isHidden = true
+        menu.addItem(resultItem)
 
-        let lastResultItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        lastResultItem.tag = 150
-        lastResultItem.isEnabled = false
-        lastResultItem.isHidden = true
-        menu.addItem(lastResultItem)
+        menu.addItem(.separator())
+        menu.addItem(action("History...", sel: #selector(showHistory), key: "h", tag: 400))
+        menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem.separator())
-
-        // History window button
-        let historyItem = NSMenuItem(title: "History...", action: #selector(showHistory), keyEquivalent: "h")
-        historyItem.target = self
-        historyItem.tag = 400
-        menu.addItem(historyItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        // Language mode submenu
-        let languageMenu = NSMenu()
-        for mode in LanguageMode.allCases {
-            let item = NSMenuItem(title: mode.rawValue, action: #selector(selectLanguageMode(_:)), keyEquivalent: "")
+        menu.addItem(submenu("Language", items: LanguageMode.allCases.map { mode in
+            let item = NSMenuItem(title: mode.rawValue, action: #selector(selectLanguage(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = mode
-            if mode == currentMode {
-                item.state = .on
-            }
-            languageMenu.addItem(item)
-        }
+            item.state = mode == viewModel.currentLanguageMode ? .on : .off
+            return item
+        }, tag: 200))
 
-        let languageMenuItem = NSMenuItem(title: "Language", action: nil, keyEquivalent: "")
-        languageMenuItem.submenu = languageMenu
-        languageMenuItem.tag = 200
-        menu.addItem(languageMenuItem)
-
-        // App mode submenu (General / Engineering / Office)
-        let modeMenu = NSMenu()
-        for mode in AppMode.allCases {
-            let item = NSMenuItem(title: mode.displayName, action: #selector(selectAppMode(_:)), keyEquivalent: "")
+        menu.addItem(submenu("Mode", items: AppMode.allCases.map { mode in
+            let item = NSMenuItem(title: mode.displayName, action: #selector(selectMode(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = mode
-            item.state = (mode == currentAppMode) ? .on : .off
-            modeMenu.addItem(item)
-        }
-        let modeMenuItem = NSMenuItem(title: "Mode", action: nil, keyEquivalent: "")
-        modeMenuItem.submenu = modeMenu
-        modeMenuItem.tag = 210
-        menu.addItem(modeMenuItem)
+            item.state = mode == viewModel.currentAppMode ? .on : .off
+            return item
+        }, tag: 210))
 
-        // Smart Correction toggle
-        let correctionItem = NSMenuItem(title: "Smart Correction", action: #selector(toggleCorrection(_:)), keyEquivalent: "")
+        let correctionItem = NSMenuItem(title: "Smart Correction", action: #selector(toggleCorrection), keyEquivalent: "")
         correctionItem.target = self
         correctionItem.tag = 250
-        correctionItem.state = isCorrectionEnabled ? .on : .off
+        correctionItem.state = viewModel.isCorrectionEnabled ? .on : .off
         menu.addItem(correctionItem)
 
-        menu.addItem(NSMenuItem.separator())
+        menu.addItem(.separator())
+        menu.addItem(action("Toggle Recording", sel: #selector(toggleRecording), key: "r"))
+        menu.addItem(action("Force Stop",        sel: #selector(forceStop),       key: "s"))
+        menu.addItem(action("Restart Backend",   sel: #selector(restartBackend),  key: "b"))
+        menu.addItem(action("Hard Reset Backend",sel: #selector(hardReset),       key: "k"))
+        menu.addItem(.separator())
+        menu.addItem(action("Settings...",       sel: #selector(openSettings),    key: ","))
+        menu.addItem(action("Quit",              sel: #selector(quit),            key: "q"))
 
-        let toggleItem = NSMenuItem(title: "Toggle Recording", action: #selector(toggleRecordingFromMenu), keyEquivalent: "r")
-        toggleItem.target = self
-        toggleItem.tag = 300
-        menu.addItem(toggleItem)
-
-        let forceStopItem = NSMenuItem(title: "Force Stop", action: #selector(forceStopFromMenu), keyEquivalent: "s")
-        forceStopItem.target = self
-        forceStopItem.tag = 310
-        menu.addItem(forceStopItem)
-
-        let restartItem = NSMenuItem(title: "Restart Backend", action: #selector(restartBackendFromMenu), keyEquivalent: "b")
-        restartItem.target = self
-        restartItem.tag = 320
-        menu.addItem(restartItem)
-
-        let hardResetItem = NSMenuItem(title: "Hard Reset Backend", action: #selector(hardResetBackendFromMenu), keyEquivalent: "k")
-        hardResetItem.target = self
-        hardResetItem.tag = 330
-        menu.addItem(hardResetItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
-        quitItem.target = self
-        menu.addItem(quitItem)
-
-        self.statusItem?.menu = menu
+        statusItem?.menu = menu
     }
 
-    @objc private func selectLanguageMode(_ sender: NSMenuItem) {
+    // MARK: - Actions
+
+    @objc private func statusBarButtonClicked() {}
+
+    @objc private func selectLanguage(_ sender: NSMenuItem) {
         guard let mode = sender.representedObject as? LanguageMode else { return }
-        currentMode = mode
-
-        // Update checkmarks
-        if let menu = statusItem?.menu,
-           let languageMenuItem = menu.item(withTag: 200),
-           let submenu = languageMenuItem.submenu {
-            for item in submenu.items {
-                item.state = (item.representedObject as? LanguageMode) == mode ? .on : .off
-            }
-        }
-
-        // Update backend config
-        Task {
-            try? await backendService.updateConfig(language: mode.language, task: mode.task)
-        }
-
-        print("Language mode changed to: \(mode.rawValue)")
+        viewModel.selectLanguageMode(mode)
+        updateSubmenuCheckmarks(tag: 200, selected: mode, type: LanguageMode.self)
     }
 
-    @objc private func selectAppMode(_ sender: NSMenuItem) {
+    @objc private func selectMode(_ sender: NSMenuItem) {
         guard let mode = sender.representedObject as? AppMode else { return }
-        currentAppMode = mode
-        UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
-
-        if let menu = statusItem?.menu,
-           let modeMenuItem = menu.item(withTag: 210),
-           let submenu = modeMenuItem.submenu {
-            for item in submenu.items {
-                item.state = (item.representedObject as? AppMode) == mode ? .on : .off
-            }
-        }
-
-        Task {
-            try? await backendService.updateConfig(language: currentMode.language, task: currentMode.task, mode: mode.rawValue)
-        }
+        viewModel.selectAppMode(mode)
+        updateSubmenuCheckmarks(tag: 210, selected: mode, type: AppMode.self)
     }
 
-    @objc private func toggleCorrection(_ sender: NSMenuItem) {
-        isCorrectionEnabled.toggle()
-        sender.state = isCorrectionEnabled ? .on : .off
-
-        Task {
-            try? await backendService.updateConfig(
-                language: currentMode.language,
-                task: currentMode.task,
-                correctionEnabled: isCorrectionEnabled
-            )
-        }
-
-        print("Smart Correction: \(isCorrectionEnabled ? "ON" : "OFF")")
+    @objc private func toggleCorrection() {
+        viewModel.toggleCorrection()
+        statusItem?.menu?.item(withTag: 250)?.state = viewModel.isCorrectionEnabled ? .on : .off
     }
 
-    @objc private func togglePopover() {
-        // For now, just show menu
-    }
-
-    @objc private func toggleRecordingFromMenu() {
-        toggleRecording()
-    }
-
-    @objc private func forceStopFromMenu() {
-        NSLog("VoiceFlow: Force stop from menu")
-        isRecording = false
-        hotkeyManager.resetState()
-        updateStatusIcon(recording: false)
-        updateStatusText("Force stopping...")
-
-        Task {
-            // Use force-stop endpoint that always succeeds regardless of backend state
-            do {
-                try await backendService.forceStop()
-                NSLog("VoiceFlow: Force stop succeeded")
-            } catch {
-                NSLog("VoiceFlow: Force stop error: \(error), trying normal stop")
-                _ = try? await backendService.stopRecording()
-            }
-            await MainActor.run {
-                updateStatusText("Ready")
-            }
+    @objc private func toggleRecording() {
+        if viewModel.isRecording {
+            Task { await viewModel.stopAndTranscribe() }
+        } else {
+            viewModel.startRecording()
         }
     }
 
-    @objc private func hardResetBackendFromMenu() {
-        NSLog("VoiceFlow: Hard reset from menu")
-        isRecording = false
-        hotkeyManager.resetState()
-        updateStatusIcon(recording: false)
-        updateStatusText("Hard resetting...")
+    @objc private func forceStop() { viewModel.forceStop() }
+
+    @objc private func restartBackend() {
+        viewModel.statusText = "Restarting backend..."
+        guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
+        appDelegate.restartBackend { [weak self] success in
+            self?.viewModel.statusText = success ? "Ready" : "Backend restart failed"
+        }
+    }
+
+    @objc private func hardReset() {
+        viewModel.statusText = "Hard resetting..."
         guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
         appDelegate.hardResetBackend { [weak self] success in
-            self?.updateStatusText(success ? "Ready" : "Hard reset failed")
+            self?.viewModel.statusText = success ? "Ready" : "Hard reset failed"
         }
     }
 
-    @objc private func restartBackendFromMenu() {
-        NSLog("VoiceFlow: Restart backend from menu")
-        isRecording = false
-        hotkeyManager.resetState()
-        updateStatusIcon(recording: false)
-        updateStatusText("Restarting backend...")
-
-        guard let appDelegate = NSApp.delegate as? AppDelegate else {
-            NSLog("VoiceFlow: Cannot access AppDelegate for restart")
-            updateStatusText("Restart failed")
-            return
-        }
-
-        appDelegate.restartBackend { [weak self] success in
-            self?.updateStatusText(success ? "Ready" : "Backend restart failed")
-        }
+    @objc private func openSettings() {
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
 
-    @objc private func quit() {
-        NSApplication.shared.terminate(nil)
-    }
+    @objc private func quit() { NSApplication.shared.terminate(nil) }
 
-    // MARK: - Accessibility Check
-
-    private func checkAccessibility() {
-        if !AXIsProcessTrusted() {
-            updateStatusText("⚠ Enable Accessibility!")
-            NSLog("VoiceFlow: Accessibility NOT granted - paste will fail")
-        }
-    }
-
-    // MARK: - Hotkey
-
-    private func setupHotkey() {
-        hotkeyManager.onStartRecording = { [weak self] in
-            self?.startRecording()
-        }
-
-        hotkeyManager.onStopRecording = { [weak self] in
-            self?.stopRecordingAndTranscribe()
-        }
-
-        hotkeyManager.start()
-    }
-
-    // MARK: - Recording
-
-    private func toggleRecording() {
-        if isRecording {
-            stopRecordingAndTranscribe()
-        } else {
-            startRecording()
-        }
-    }
-
-    private func startRecording() {
-        guard !isRecording else { return }
-        isRecording = true
-
-        updateStatusIcon(recording: true)
-
-        // Remember which app was active so we can paste there later
-        activeApp = NSWorkspace.shared.frontmostApplication
-        NSLog("VoiceFlow: Starting recording (active app: %@ pid:%d, accessibility: %@)",
-              activeApp?.localizedName ?? "none",
-              activeApp?.processIdentifier ?? 0,
-              pasteService.hasAccessibility ? "YES" : "NO")
-
-        Task {
-            do {
-                try await backendService.startRecording()
-                NSLog("VoiceFlow: Recording started successfully")
-            } catch {
-                NSLog("VoiceFlow: Failed to start recording: \(error)")
-                await MainActor.run {
-                    isRecording = false
-                    updateStatusIcon(recording: false)
-                }
-            }
-        }
-    }
-
-    private func stopRecordingAndTranscribe() {
-        guard isRecording else {
-            NSLog("VoiceFlow: stopRecordingAndTranscribe called but isRecording=false, checking backend...")
-            // Even if local state says not recording, check backend and force stop if needed
-            Task {
-                if let status = try? await backendService.getStatus(), status.isRecording {
-                    NSLog("VoiceFlow: Backend was still recording! Force stopping.")
-                    try? await backendService.forceStop()
-                    await MainActor.run { updateStatusText("Ready") }
-                }
-            }
-            return
-        }
-        isRecording = false
-
-        updateStatusIcon(recording: false)
-        updateStatusText(isCorrectionEnabled ? "Transcribing + Correcting..." : "Transcribing...")
-        NSLog("VoiceFlow: Stopping recording, sending to backend...")
-
-        let savedApp = activeApp
-
-        Task {
-            do {
-                let result = try await backendService.stopRecording()
-                let wasCorrected = result.corrected ?? false
-                NSLog("VoiceFlow: Result: '%@' (corrected: %@, lang: %@, dur: %.1fs)",
-                      result.text,
-                      wasCorrected ? "YES" : "NO",
-                      result.language ?? "?",
-                      result.duration ?? 0)
-                if wasCorrected, let raw = result.rawText {
-                    NSLog("VoiceFlow: Raw: '%@'", raw)
-                }
-
-                if !result.text.isEmpty {
-                    await MainActor.run {
-                        self.updateLastResult(result)
-                        self.historyStore.add(result)
-                        if let app = savedApp {
-                            NSLog("VoiceFlow: Re-activating: %@ (pid %d)",
-                                  app.localizedName ?? "?", app.processIdentifier)
-                            app.activate(options: .activateIgnoringOtherApps)
-                        } else {
-                            NSLog("VoiceFlow: WARNING - no saved activeApp")
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                            NSLog("VoiceFlow: Pasting text now...")
-                            self?.pasteService.pasteText(result.text)
-                            self?.updateStatusText("Ready")
-                        }
-                    }
-                } else {
-                    NSLog("VoiceFlow: Empty transcription result")
-                    await MainActor.run {
-                        updateStatusText("Ready")
-                    }
-                }
-            } catch {
-                NSLog("VoiceFlow: Failed to stop/transcribe: \(error)")
-                await MainActor.run {
-                    updateStatusText("Ready")
-                }
-            }
-        }
-    }
-
-    private func updateStatusIcon(recording: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            if let button = self?.statusItem?.button {
-                let symbolName = recording ? "waveform.circle.fill" : "waveform"
-                button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "VoiceFlow")
-                button.contentTintColor = recording ? .systemRed : nil
-            }
-
-            self?.updateStatusText(recording ? "Recording... (Fn×2 to stop)" : "Ready")
-        }
-    }
-
-    private func updateStatusText(_ text: String) {
-        if let menu = statusItem?.menu,
-           let statusItem = menu.item(withTag: 100) {
-            statusItem.title = text
-        }
-    }
-
-    private func updateLastResult(_ result: TranscriptionResult) {
-        guard let menu = statusItem?.menu,
-              let item = menu.item(withTag: 150) else { return }
-
-        let wasCorrected = result.corrected ?? false
-        let prefix = wasCorrected ? "✓ LLM: " : "✗ Raw: "
-        let displayText = String(result.text.prefix(60))
-        item.title = prefix + displayText
-        item.isHidden = false
-
-        if wasCorrected, let raw = result.rawText {
-            item.toolTip = "Raw: \(raw)"
-        } else {
-            item.toolTip = nil
-        }
-    }
-
-    // MARK: - History Window
+    // MARK: - History window
 
     @objc private func showHistory() {
-        // If window exists, just bring to front
-        if let window = historyWindow, window.isVisible {
-            window.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            return
-        }
-
-        let historyView = HistoryView(store: historyStore)
-        let hostingController = NSHostingController(rootView: historyView)
-
-        let window = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
-            styleMask: [.titled, .closable, .resizable, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        window.contentViewController = hostingController
+        if let w = historyWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
+                             styleMask: [.titled, .closable, .resizable, .nonactivatingPanel],
+                             backing: .buffered, defer: false)
+        window.contentViewController = NSHostingController(rootView: HistoryView(viewModel: viewModel))
         window.title = "VoiceFlow History"
         window.isFloatingPanel = true
         window.level = .floating
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        historyWindow = window
+    }
 
-        self.historyWindow = window
+    // MARK: - Accessibility
+
+    private func checkAccessibility() {
+        if !AXIsProcessTrusted() {
+            viewModel.statusText = "⚠ Enable Accessibility!"
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func disabled(_ title: String, tag: Int = 0) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.isEnabled = false
+        item.tag = tag
+        return item
+    }
+
+    private func action(_ title: String, sel: Selector, key: String, tag: Int = 0) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: sel, keyEquivalent: key)
+        item.target = self
+        item.tag = tag
+        return item
+    }
+
+    private func submenu(_ title: String, items: [NSMenuItem], tag: Int) -> NSMenuItem {
+        let parent = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        parent.tag = tag
+        let sub = NSMenu()
+        items.forEach { sub.addItem($0) }
+        parent.submenu = sub
+        return parent
+    }
+
+    private func updateSubmenuCheckmarks<T: Equatable>(tag: Int, selected: T, type: T.Type) {
+        guard let sub = statusItem?.menu?.item(withTag: tag)?.submenu else { return }
+        for item in sub.items {
+            item.state = (item.representedObject as? T) == selected ? .on : .off
+        }
     }
 }

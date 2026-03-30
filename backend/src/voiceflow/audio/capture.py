@@ -114,6 +114,18 @@ class AudioCapture:
             self._state = RecordingState.IDLE
             return audio_data
 
+    def force_reset(self) -> None:
+        """Force-reset state and close stream without requiring RECORDING state."""
+        with self._lock:
+            if self._stream is not None:
+                try:
+                    self._stream.stop()
+                    self._stream.close()
+                except Exception:
+                    pass
+                self._stream = None
+            self._state = RecordingState.IDLE
+
     def get_devices(self) -> list[dict]:
         """Get list of available input devices."""
         devices = sd.query_devices()
