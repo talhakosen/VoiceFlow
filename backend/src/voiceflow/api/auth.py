@@ -1,9 +1,10 @@
-"""API key authentication — active only in server mode."""
+"""Authentication middleware — X-Api-Key (local/server) + JWT Bearer (server mode)."""
 
 import logging
 import os
 
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
+from jose import JWTError
 
 logger = logging.getLogger(__name__)
 
@@ -11,12 +12,46 @@ _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 _VALID_KEYS: set[str] = set(filter(None, os.getenv("API_KEYS", "").split(",")))
 
 if _BACKEND_MODE == "server" and not _VALID_KEYS:
-    logger.warning("BACKEND_MODE=server but API_KEYS is not set — all requests will be rejected")
+    logger.warning(
+        "BACKEND_MODE=server but API_KEYS is not set — "
+        "JWT Bearer auth will be used; X-Api-Key fallback disabled"
+    )
 
 
-async def verify_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> None:
-    """FastAPI dependency: validates API key in server mode, no-op in local mode."""
+async def verify_api_key(
+    request: Request,
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+) -> None:
+    """FastAPI dependency: validates auth in server mode, no-op in local mode.
+
+    Server mode priority:
+      1. Authorization: Bearer <JWT>  → sets request.state.user_id / tenant_id
+      2. X-Api-Key header             → legacy key-based auth (backward compat)
+    """
     if _BACKEND_MODE != "server":
         return
-    if not x_api_key or x_api_key not in _VALID_KEYS:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header.removeprefix("Bearer ").strip()
+        try:
+            from ..services.auth_service import decode_token
+            payload = decode_token(token)
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Invalid or expired JWT token")
+
+        if payload.get("type") != "access":
+            raise HTTPException(status_code=401, detail="Not an access token")
+
+        request.state.user_id = payload.get("sub")
+        request.state.tenant_id = payload.get("tenant_id", "default")
+        return
+
+    # Fallback: X-Api-Key (backward compat)
+    if x_api_key and _VALID_KEYS and x_api_key in _VALID_KEYS:
+        # Respect X-User-ID header for backward compat
+        request.state.user_id = request.headers.get("X-User-ID")
+        request.state.tenant_id = "default"
+        return
+
+    raise HTTPException(status_code=401, detail="Invalid or missing credentials")

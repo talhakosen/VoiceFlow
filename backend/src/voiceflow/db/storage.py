@@ -1,6 +1,7 @@
 """SQLite persistent storage for VoiceFlow."""
 
 import logging
+import uuid
 from pathlib import Path
 
 import aiosqlite
@@ -53,6 +54,19 @@ async def init_db() -> None:
                 scope TEXT NOT NULL DEFAULT 'personal'
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id         TEXT PRIMARY KEY,
+                email      TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                tenant_id  TEXT NOT NULL DEFAULT 'default',
+                role       TEXT NOT NULL DEFAULT 'member',
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id)"
+        )
         # Migration: add user_id column if missing (existing DBs)
         async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
             columns = {row[1] async for row in cursor}
@@ -204,3 +218,42 @@ async def delete_dictionary_entry(entry_id: int, user_id: str) -> bool:
         )
         await db.commit()
         return cursor.rowcount > 0
+
+
+# ------------------------------------------------------------------
+# User CRUD
+# ------------------------------------------------------------------
+
+async def create_user(
+    email: str,
+    password_hash: str,
+    tenant_id: str = "default",
+    role: str = "member",
+) -> str:
+    """Insert a new user. Returns the new user id (UUID)."""
+    user_id = str(uuid.uuid4())
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO users (id, email, password_hash, tenant_id, role) VALUES (?, ?, ?, ?, ?)",
+            (user_id, email, password_hash, tenant_id, role),
+        )
+        await db.commit()
+    return user_id
+
+
+async def get_user_by_email(email: str) -> dict | None:
+    """Return user row as dict or None."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute("SELECT * FROM users WHERE email = ?", (email,)) as cursor:
+            row = await cursor.fetchone()
+            return dict(row) if row else None
+
+
+async def get_user_by_id(user_id: str) -> dict | None:
+    """Return user row as dict or None."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute("SELECT * FROM users WHERE id = ?", (user_id,)) as cursor:
+            row = await cursor.fetchone()
+            return dict(row) if row else None
