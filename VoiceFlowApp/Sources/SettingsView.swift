@@ -31,23 +31,18 @@ struct SettingsView: View {
     var viewModel: AppViewModel
 
     @State private var selectedSection: SettingsSection = .general
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Sidebar nav
-            VStack(spacing: 0) {
-                List(SettingsSection.allCases, id: \.self, selection: $selectedSection) { section in
-                    Label(section.rawValue, systemImage: section.icon)
-                        .tag(section)
-                        .padding(.vertical, 3)
-                }
-                .listStyle(.sidebar)
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            List(SettingsSection.allCases, selection: $selectedSection) { section in
+                Label(section.rawValue, systemImage: section.icon)
+                    .tag(section)
+                    .padding(.vertical, 3)
             }
-            .frame(width: 200)
-
-            Divider()
-
-            // Detail pane
+            .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 200)
+        } detail: {
             ScrollView {
                 Group {
                     switch selectedSection {
@@ -61,8 +56,21 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        withAnimation {
+                            columnVisibility = columnVisibility == .detailOnly ? .all : .detailOnly
+                        }
+                    } label: {
+                        Image(systemName: "sidebar.left")
+                    }
+                    .help("Toggle Sidebar")
+                }
+            }
         }
+        .navigationSplitViewStyle(.balanced)
+        .toolbar(removing: .sidebarToggle)
         .frame(width: 900, height: 620)
     }
 }
