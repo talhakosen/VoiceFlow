@@ -14,11 +14,14 @@ backend/src/voiceflow/
 ├── main.py                    # FastAPI app, lifespan (DI), health endpoint
 ├── api/
 │   ├── routes.py              # HTTP katmanı: validate → service → response
-│   └── auth.py                # X-Api-Key middleware
+│   ├── auth.py                # Middleware: X-Api-Key (local) / JWT Bearer (server)
+│   ├── auth_routes.py         # /auth/register, /auth/login, /auth/refresh, /auth/me
+│   └── admin_routes.py        # /admin/users CRUD (admin+ only, tenant isolated)
 ├── core/
 │   └── interfaces.py          # AbstractTranscriber, AbstractCorrector, AbstractRetriever (ABCs)
 ├── services/
 │   ├── recording.py           # RecordingService — TÜM iş mantığı
+│   ├── auth_service.py        # JWT create/decode, bcrypt, require_role() dependency
 │   ├── dictionary.py          # apply_dictionary() — word-boundary substitution
 │   └── snippets.py            # apply_snippets() — exact-match expansion
 ├── db/
@@ -32,7 +35,7 @@ backend/src/voiceflow/
 │   ├── llm_corrector.py       # mlx-lm Qwen 7B (local mode)
 │   └── ollama_corrector.py    # Ollama HTTP client (server mode)
 └── context/
-    ├── chroma_retriever.py    # ChromaDB retrieval (RAG, Phase 2)
+    ├── chroma_retriever.py    # ChromaDB retrieval (RAG)
     └── ingestion.py           # Klasör indexleme → ChromaDB
 ```
 
@@ -95,27 +98,43 @@ async def lifespan(app):
 ## API Endpoint'leri
 
 ```
+# Auth (public — token gerektirmez)
+POST /auth/register           → {email, password} → {user_id, email, tenant_id}
+POST /auth/login              → {email, password} → {access_token, refresh_token, token_type}
+POST /auth/refresh            → {refresh_token}   → {access_token, token_type}
+GET  /auth/me                 → Bearer token      → {user_id, email, tenant_id, role}
+
+# Admin (admin+ role gerektirir, tenant isolated)
+GET  /admin/users             → tenant'taki tüm kullanıcılar
+PUT  /admin/users/{id}/role   → {role: "admin"|"member"|"superadmin"}
+DELETE /admin/users/{id}      → soft delete (is_active=0)
+
+# API (JWT Bearer veya X-Api-Key)
 GET  /health                  → {status, model_loaded, llm_loaded}
 GET  /api/status              → {status: str, is_recording: bool}
-POST /api/start               → Kayıt başlat (400 if already recording)
-POST /api/stop                → Durdur + transcribe [X-User-ID opsiyonel]
+POST /api/start               → Kayıt başlat
+POST /api/stop                → Durdur + transcribe
 POST /api/force-stop          → Her zaman başarılı
 POST /api/config              → {language?, task?, correction_enabled?, mode?, model?}
 GET  /api/devices             → Ses girişi cihazları listesi
-GET  /api/history             → SQLite geçmişi [?limit=&offset=&user_id=]
-DELETE /api/history           → Tüm geçmişi sil
+GET  /api/history             → SQLite geçmişi [?limit=&offset=] — tenant filtered
+DELETE /api/history           → Geçmişi sil
 POST /api/context/ingest      → Klasör indexle (async, ChromaDB)
 GET  /api/context/status      → {count, is_ready, is_empty}
 DELETE /api/context           → Knowledge base'i temizle
-GET  /api/dictionary          → Kullanıcı sözlüğü [X-User-ID]
+GET  /api/dictionary          → Kullanıcı sözlüğü
 POST /api/dictionary          → {trigger, replacement, scope}
 DELETE /api/dictionary/{id}   → Kişisel entry sil
-GET  /api/snippets            → Snippet listesi [X-User-ID]
+GET  /api/snippets            → Snippet listesi
 POST /api/snippets            → {trigger_phrase, expansion, scope}
 DELETE /api/snippets/{id}     → Kişisel snippet sil
 ```
 
-**Auth:** `X-Api-Key` header — `BACKEND_MODE=server` iken zorunlu, local'de no-op.
+**Auth:**
+- `local` mode: X-Api-Key middleware (no-op), tüm API açık
+- `server` mode: `Authorization: Bearer <JWT>` zorunlu; 401 → geçersiz/expired, 403 → yetersiz rol
+- JWT payload: `{sub: user_id, tenant_id, role, exp}`
+- `request.state`: `user_id`, `tenant_id`, `role` — tüm route'larda kullanılabilir
 
 ---
 
@@ -153,7 +172,7 @@ DELETE /api/snippets/{id}     → Kişisel snippet sil
 HOST=127.0.0.1
 transcriber = WhisperTranscriber (mlx-whisper)
 corrector   = LLMCorrector (mlx-lm, Qwen 7B 4-bit)
-auth        = no-op
+auth        = no-op (X-Api-Key optional)
 ```
 
 ### Server (NVIDIA, `BACKEND_MODE=server`)
@@ -161,15 +180,17 @@ auth        = no-op
 HOST=0.0.0.0
 transcriber = FasterWhisperTranscriber (NVIDIA CUDA)
 corrector   = OllamaCorrector (httpx → Ollama OpenAI-compat API)
-auth        = X-Api-Key validation (API_KEYS env var)
+auth        = JWT Bearer zorunlu + X-Api-Key fallback
 ```
 Env değişkenleri:
 ```bash
 BACKEND_MODE=server
-WHISPER_MODEL=large-v3         # faster-whisper model
-LLM_MODEL=qwen2.5:7b           # Ollama model adı
+WHISPER_MODEL=large-v3
+LLM_MODEL=qwen2.5:7b
 LLM_ENDPOINT=http://ollama:11434
 API_KEYS=key1,key2,key3
+JWT_SECRET=<strong-random-secret>   # zorunlu, yoksa startup'ta RuntimeError
+JWT_ACCESS_TTL_MINUTES=60           # opsiyonel, default 60
 ```
 
 ---
@@ -191,6 +212,16 @@ API_KEYS=key1,key2,key3
 ## SQLite Schema (`~/.voiceflow/voiceflow.db`)
 
 ```sql
+CREATE TABLE users (
+    id            TEXT PRIMARY KEY,         -- UUID
+    email         TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,            -- bcrypt
+    tenant_id     TEXT NOT NULL DEFAULT 'default',
+    role          TEXT NOT NULL DEFAULT 'member',  -- member | admin | superadmin
+    is_active     INTEGER NOT NULL DEFAULT 1,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE transcriptions (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     created_at TEXT    NOT NULL DEFAULT (datetime('now')),
