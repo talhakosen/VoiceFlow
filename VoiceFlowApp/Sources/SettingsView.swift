@@ -24,10 +24,7 @@ struct SettingsView: View {
     @AppStorage(AppSettings.userDepartment) private var userDepartment = ""
     @AppStorage(AppSettings.userID)         private var userID         = ""
 
-    var viewModel: AppViewModel? = nil
-
     @State private var showRestartNotice = false
-    @State private var showContextSheet = false
 
     var body: some View {
         Form {
@@ -108,35 +105,9 @@ struct SettingsView: View {
                 }
             }
 
-            if let vm = viewModel {
-                Section {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Knowledge Base")
-                            Text(vm.contextChunkCount > 0
-                                 ? "\(vm.contextChunkCount) chunks indexed"
-                                 : "Not indexed")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Button("Manage…") {
-                            showContextSheet = true
-                        }
-                    }
-                } header: {
-                    Text("Context Engine")
-                        .font(.headline)
-                }
-            }
         }
         .formStyle(.grouped)
         .padding()
         .frame(width: 460)
-        .sheet(isPresented: $showContextSheet) {
-            if let vm = viewModel {
-                ContextView(viewModel: vm)
-            }
-        }
     }
 }

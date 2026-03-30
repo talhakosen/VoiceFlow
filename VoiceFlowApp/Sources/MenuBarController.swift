@@ -10,6 +10,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
     private var historyWindow: NSWindow?
+    private var contextWindow: NSWindow?
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
@@ -78,7 +79,8 @@ class MenuBarController: NSObject {
         menu.addItem(resultItem)
 
         menu.addItem(.separator())
-        menu.addItem(action("History...", sel: #selector(showHistory), key: "h", tag: 400))
+        menu.addItem(action("History...",        sel: #selector(showHistory),       key: "h", tag: 400))
+        menu.addItem(action("Knowledge Base...", sel: #selector(showContextWindow), key: "j", tag: 401))
         menu.addItem(.separator())
 
         menu.addItem(submenu("Language", items: LanguageMode.allCases.map { mode in
@@ -184,6 +186,23 @@ class MenuBarController: NSObject {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         historyWindow = window
+    }
+
+    // MARK: - Context window
+
+    @objc private func showContextWindow() {
+        if let w = contextWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 460, height: 320),
+                             styleMask: [.titled, .closable, .nonactivatingPanel],
+                             backing: .buffered, defer: false)
+        window.contentViewController = NSHostingController(rootView: ContextView(viewModel: viewModel))
+        window.title = "VoiceFlow — Knowledge Base"
+        window.isFloatingPanel = true
+        window.level = .floating
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        contextWindow = window
     }
 
     // MARK: - Accessibility
