@@ -90,7 +90,7 @@ class MenuBarController: NSObject {
                              styleMask: [.titled, .closable, .nonactivatingPanel],
                              backing: .buffered, defer: false)
         window.contentViewController = NSHostingController(rootView: SettingsView(viewModel: viewModel))
-        window.title = "VoiceFlow — Settings"
+        window.title = ""
         window.isFloatingPanel = true
         window.level = .floating
         window.titleVisibility = .hidden

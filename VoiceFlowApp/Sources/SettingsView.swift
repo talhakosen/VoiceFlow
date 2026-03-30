@@ -59,6 +59,7 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 190, ideal: 200)
+            .toolbar(removing: .sidebarToggle)
             .safeAreaInset(edge: .top, spacing: 0) {
                 HStack(spacing: 6) {
                     Image(systemName: "waveform")
