@@ -76,10 +76,6 @@ struct SettingsView: View {
         }
         .navigationSplitViewStyle(.balanced)
         .frame(width: 900, height: 620)
-        .withHostingWindowCallback { window in
-            // SwiftUI adds sidebar toggle after render — remove it on next tick
-            DispatchQueue.main.async { window?.toolbar = nil }
-        }
     }
 }
 
