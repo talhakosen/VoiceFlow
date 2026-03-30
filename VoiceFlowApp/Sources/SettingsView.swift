@@ -59,6 +59,18 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 190, ideal: 200)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                HStack(spacing: 6) {
+                    Image(systemName: "waveform")
+                        .fontWeight(.semibold)
+                    Text("VoiceFlow")
+                        .fontWeight(.semibold)
+                }
+                .font(.title3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
         } detail: {
             ScrollView {
                 Group {

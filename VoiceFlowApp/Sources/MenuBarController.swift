@@ -93,6 +93,8 @@ class MenuBarController: NSObject {
         window.title = "VoiceFlow — Settings"
         window.isFloatingPanel = true
         window.level = .floating
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
