@@ -9,7 +9,7 @@ struct OnboardingView: View {
     var onComplete: (() -> Void)? = nil
 
     @AppStorage(AppSettings.appMode)            private var appMode = "general"
-    @AppStorage(AppSettings.defaultLanguage)    private var defaultLanguage = "tr"
+    @AppStorage(AppSettings.defaultLanguage)    private var defaultLanguage = LanguageMode.turkish.rawValue
     @AppStorage(AppSettings.onboardingComplete) private var onboardingComplete = false
 
     @State private var path: [OnboardingStep] = []
@@ -61,11 +61,19 @@ private struct WelcomeStep: View {
                     .multilineTextAlignment(.center)
             }
 
-            HStack(spacing: 8) {
-                Image(systemName: "lock.shield.fill").foregroundStyle(.green)
-                Text("100% Lokal · Açık Kaynak · Kurumsal Hazır")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 6) {
+                HStack(spacing: 8) {
+                    Image(systemName: "lock.shield.fill").foregroundStyle(.green)
+                    Text("100% Lokal · Açık Kaynak · Kurumsal Hazır")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 16) {
+                    Label("Kişisel Sözlük", systemImage: "character.book.closed")
+                    Label("Sesli Şablonlar", systemImage: "text.badge.plus")
+                    Label("Knowledge Base", systemImage: "books.vertical")
+                }
+                .font(.caption2)
+                .foregroundStyle(.secondary)
             }
 
             Spacer()
@@ -117,12 +125,19 @@ private struct ModeSelectionStep: View {
                 Text("Dil:")
                     .font(.subheadline)
                 Picker("", selection: $defaultLanguage) {
-                    Text("Türkçe").tag("tr")
-                    Text("English").tag("en")
-                    Text("Otomatik").tag("auto")
+                    ForEach(LanguageMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode.rawValue)
+                    }
                 }
                 .pickerStyle(.segmented)
-                .frame(maxWidth: 260)
+                .frame(maxWidth: 300)
+            }
+
+            HStack(spacing: 6) {
+                Image(systemName: "gearshape").foregroundStyle(.secondary)
+                Text("Dil, mod ve LLM düzeltme ayarlarını dilediğiniz zaman Settings'ten değiştirebilirsiniz.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()

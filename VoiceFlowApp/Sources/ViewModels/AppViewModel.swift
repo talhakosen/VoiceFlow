@@ -44,6 +44,9 @@ final class AppViewModel {
     private func restoreSettings() {
         let savedMode = UserDefaults.standard.string(forKey: AppSettings.appMode) ?? "general"
         currentAppMode = AppMode(rawValue: savedMode) ?? .general
+
+        let savedLang = UserDefaults.standard.string(forKey: AppSettings.defaultLanguage) ?? LanguageMode.turkish.rawValue
+        currentLanguageMode = LanguageMode(rawValue: savedLang) ?? .turkish
     }
 
     // MARK: - Hotkey wiring
@@ -129,6 +132,7 @@ final class AppViewModel {
 
     func selectLanguageMode(_ mode: LanguageMode) {
         currentLanguageMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.defaultLanguage)
         Task {
             try? await backend.updateConfig(
                 language: mode.language,

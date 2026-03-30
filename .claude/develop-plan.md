@@ -43,7 +43,7 @@
       İçinde sadece waveform animasyonu
       Kayıt bitince kaybolur — hiçbir şey yapıştırana kadar
 
-- [ ] **Onboarding yenileme** — mevcut 3-adım yeterli, sadece yeni Settings yapısına uyarla
+- [DONE 2026-03-30] **Onboarding yenileme** — mevcut 3-adım yeterli, sadece yeni Settings yapısına uyarla
 
 ### 1.2 Backend Kararlılık
 
