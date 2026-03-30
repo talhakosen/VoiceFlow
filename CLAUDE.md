@@ -1,9 +1,9 @@
 # VoiceFlow
 
-Real-time speech-to-text for macOS using mlx-whisper + mlx-lm.
+Real-time speech-to-text for macOS — mlx-whisper + mlx-lm, enterprise on-premise.
 
 # IMPORTANT
-ihtiyac halince context7 ve sequentialthink yapmayi unutma 
+ihtiyac halinde context7 ve sequentialthinking yapmayi unutma
 
 ## Quick Start
 
@@ -14,9 +14,9 @@ ihtiyac halince context7 ve sequentialthink yapmayi unutma
 ./voiceflow.sh status   # Check status
 ```
 
-### macOS App Build & Deploy
+### macOS App Build & Deploy (ALWAYS full clean build)
 ```bash
-pkill -f "VoiceFlow.app" 2>/dev/null
+pkill -f "VoiceFlow.app" 2>/dev/null || true
 rm -rf ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*
 xcodebuild -project VoiceFlowApp/VoiceFlowApp.xcodeproj -scheme VoiceFlowApp -configuration Debug clean build
 rm -rf /Applications/VoiceFlow.app
@@ -24,41 +24,63 @@ cp -R ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*/Build/Products/Debug/
 open /Applications/VoiceFlow.app
 ```
 
-## Usage
+## Architecture (v0.2)
 
-- Double-tap Fn → start recording
-- Double-tap Fn again OR release Fn → stop recording & transcribe
-- Menu bar: Force Stop (Cmd+S) if stuck
-- Smart Correction: menu toggle, Turkish text auto-correction via LLM
+### Backend — Layered Architecture
+```
+api/routes.py          ← HTTP only: validate → Depends(get_service) → response
+services/recording.py  ← RecordingService: ALL pipeline logic (start/stop/transcribe/correct/save)
+core/interfaces.py     ← AbstractTranscriber, AbstractCorrector (ABCs)
+transcription/         ← WhisperTranscriber (MLX) or FasterWhisperTranscriber (NVIDIA)
+correction/            ← LLMCorrector (mlx-lm) or OllamaCorrector (httpx)
+db/storage.py          ← aiosqlite SQLite CRUD (~/.voiceflow/voiceflow.db)
+```
 
-## Architecture
+### Swift — MVVM + Protocol DI
+```
+AppViewModel           ← @Observable @MainActor — ALL state + business logic
+MenuBarController      ← NSMenu UI only (~200 lines), observes AppViewModel
+BackendService (actor) ← HTTP client, implements BackendServiceProtocol
+AppDelegate            ← lifecycle only: creates AppViewModel, starts backend process
+```
 
-- `backend/src/voiceflow/` - Python backend (FastAPI, port 8765)
-- `backend/src/voiceflow/transcription/` - mlx-whisper module
-- `backend/src/voiceflow/correction/` - LLM correction module (mlx-lm)
-- `backend/src/voiceflow/audio/` - Audio capture (sounddevice)
-- `VoiceFlowApp/` - Swift menu bar app
+### Deployment Modes
+- **Local** (`BACKEND_MODE=local`): MLX on Mac, 127.0.0.1, no auth
+- **Server** (`BACKEND_MODE=server`): NVIDIA GPU, 0.0.0.0, X-Api-Key required
 
 ## API
 
-- `POST /api/start` - Start recording
-- `POST /api/stop` - Stop & transcribe (+ optional LLM correction)
-- `GET /api/status` - Recording status
-- `POST /api/config` - Config (language, task, correction_enabled)
-- `GET /health` - Health check (model_loaded, llm_loaded)
+```
+GET  /health             → {status, model_loaded, llm_loaded}
+GET  /api/status         → {status, is_recording}
+POST /api/start          → start recording
+POST /api/stop           → stop + transcribe + correct + save [X-User-ID header]
+POST /api/force-stop     → always succeeds
+POST /api/config         → {language?, task?, correction_enabled?, mode?, model?}
+GET  /api/devices        → audio input devices
+GET  /api/history        → SQLite history [?limit=&offset=&user_id=]
+DELETE /api/history      → clear all history
+```
+
+Modes: `general` | `engineering` | `office` — different LLM system prompts.
 
 ## Key Config
 
-- Whisper: `mlx-community/whisper-small-mlx`
-- LLM correction: `mlx-community/Qwen2.5-7B-Instruct-4bit` (~4GB)
+- Whisper (local): `mlx-community/whisper-small-mlx`
+- LLM (local): `mlx-community/Qwen2.5-7B-Instruct-4bit` (~4GB)
 - Python venv: `backend/.venv` (python3.14)
-- MLX executor: single-thread (Metal GPU not thread-safe)
+- MLX executor: `ThreadPoolExecutor(max_workers=1)` in RecordingService — Metal GPU not thread-safe
+- SQLite: `~/.voiceflow/voiceflow.db`
 
-## Dev Notes
+## Critical Dev Notes
 
-- venv path: `backend/.venv/bin/python` - recreate with `python3 -m venv .venv` if broken
-- HF_TOKEN in env speeds up model downloads (unauthenticated = very slow)
-- Fn key release events unreliable on macOS → double-tap toggle + Force Stop as fallbacks
-- Small LLMs (1.5B, 3B) hallucinate on Turkish correction → 7B minimum for quality
-- LLM prompt uses few-shot examples + greedy decoding (temp=0) for deterministic output
-- After Swift changes: always clean build + copy to /Applications
+- **After ANY Swift build**: Accessibility izni sıfırlanır → System Settings → Privacy → Accessibility → VoiceFlow'u etkinleştir. Auto-paste sessizce çalışmaz.
+- **Fn key**: Release eventi güvenilmez — double-tap toggle + Force Stop yedek. Asla sadece key-up'a güvenme.
+- **7B minimum**: 1.5B/3B Türkçe'de hallüsinasyon yapıyor (doğrulandı). 7B altına inme.
+- **faster-whisper**: numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`.
+- **MLX LLM on-demand**: Correction açılınca yükle, kapanınca unload (~4GB boşalt).
+- **Mode capture**: `RecordingService.stop()`'ta `active_mode = corrector.config.mode` ilk önce yakala — concurrent `/api/config` race condition önler.
+- **DerivedData**: Her build öncesi sil yoksa eski binary çalışır.
+- **Docker yok (local)**: Phase 5'e ertelendi. Local geliştirmede Docker kullanma.
+- **HF_TOKEN**: Model indirme hızı için gerekli — env var olarak ver.
+- **venv bozulursa**: `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
