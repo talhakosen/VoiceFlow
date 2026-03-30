@@ -6,10 +6,26 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
-_SYSTEM_PROMPT = (
-    "Convert ASCII Turkish text to proper Turkish with correct characters "
-    "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. Keep all words exactly the same."
-)
+_SYSTEM_PROMPTS = {
+    "general": (
+        "Convert ASCII Turkish text to proper Turkish with correct characters "
+        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. Keep all words exactly the same."
+    ),
+    "engineering": (
+        "Convert ASCII Turkish text to proper Turkish with correct characters "
+        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. "
+        "Preserve all technical terms, API names, variable names, and acronyms verbatim. "
+        "Do not translate or expand technical identifiers."
+    ),
+    "office": (
+        "Convert ASCII Turkish text to proper Turkish with correct characters "
+        "(ç,ş,ğ,ı,ö,ü,İ) and punctuation. "
+        "Use formal register. Expand informal abbreviations (mrhb→merhaba, tşk→teşekkürler). "
+        "Ensure professional tone suitable for business communication."
+    ),
+}
+
+_SYSTEM_PROMPT = _SYSTEM_PROMPTS["general"]  # backward compat
 
 _FEW_SHOT_EXAMPLES = [
     ("bugun hava cok guzel", "Bugün hava çok güzel."),
@@ -26,6 +42,7 @@ class OllamaCorrectorConfig:
     llm_endpoint: str = field(default_factory=lambda: os.getenv("LLM_ENDPOINT", "http://localhost:11434"))
     max_tokens: int = 512
     enabled: bool = False
+    mode: str = "general"  # "general" | "engineering" | "office"
 
 
 @dataclass
@@ -67,7 +84,8 @@ class OllamaCorrector:
         if language and language != "tr":
             return text
 
-        messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
+        system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        messages = [{"role": "system", "content": system_prompt}]
         for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
             messages.append({"role": "user", "content": user_text})
             messages.append({"role": "assistant", "content": assistant_text})
@@ -124,7 +142,8 @@ class OllamaCorrector:
         if language and language != "tr":
             return text
 
-        messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
+        system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        messages = [{"role": "system", "content": system_prompt}]
         for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
             messages.append({"role": "user", "content": user_text})
             messages.append({"role": "assistant", "content": assistant_text})

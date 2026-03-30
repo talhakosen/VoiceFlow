@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from .auth import verify_api_key
+from ..db import save_transcription, get_history, clear_history
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 
@@ -44,6 +45,7 @@ class TranscriptionResponse(BaseModel):
     corrected: bool = False
     language: str | None = None
     duration: float | None = None
+    id: int | None = None
 
 
 class ConfigRequest(BaseModel):
@@ -51,6 +53,7 @@ class ConfigRequest(BaseModel):
     language: str | None = None
     task: str | None = None  # "transcribe" or "translate"
     correction_enabled: bool | None = None
+    mode: str | None = None  # "general" | "engineering" | "office"
 
 
 def get_audio_capture() -> AudioCapture:
@@ -133,6 +136,7 @@ async def stop_recording():
     raw_text = result.text
     was_corrected = False
     corrector = get_corrector()
+    active_mode = corrector.config.mode  # capture before any concurrent /config change
     if corrector.config.enabled and result.text:
         logger.info("LLM correction enabled, correcting: '%s'", result.text[:80])
         t_llm = time.perf_counter()
@@ -155,12 +159,22 @@ async def stop_recording():
     t_total = time.perf_counter()
     logger.info("Total stop→response: %.3fs", t_total - t_start)
 
+    row_id = await save_transcription(
+        text=result.text,
+        raw_text=raw_text if was_corrected else None,
+        corrected=was_corrected,
+        language=result.language,
+        duration=result.duration,
+        mode=active_mode,
+    )
+
     return TranscriptionResponse(
         text=result.text,
         raw_text=raw_text if was_corrected else None,
         corrected=was_corrected,
         language=result.language,
         duration=result.duration,
+        id=row_id,
     )
 
 
@@ -236,7 +250,13 @@ async def update_config(config: ConfigRequest):
         # Unload model when correction is disabled
         elif not config.correction_enabled and was_enabled:
             logger.info("Correction disabled, unloading LLM model...")
-            await loop.run_in_executor(_mlx_executor, corrector.unload)
+            if hasattr(corrector, "correct_async"):
+                await loop.run_in_executor(None, corrector.unload)
+            else:
+                await loop.run_in_executor(_mlx_executor, corrector.unload)
+
+    if config.mode is not None:
+        corrector.config.mode = config.mode
 
     transcriber = get_transcriber()
     return {
@@ -244,4 +264,19 @@ async def update_config(config: ConfigRequest):
         "language": transcriber.config.language,
         "task": transcriber.config.task,
         "correction_enabled": corrector.config.enabled,
+        "mode": corrector.config.mode,
     }
+
+
+@router.get("/history")
+async def history(limit: int = 100, offset: int = 0):
+    """Return transcription history from SQLite, newest first."""
+    rows = await get_history(limit=limit, offset=offset)
+    return {"items": rows, "total": len(rows)}
+
+
+@router.delete("/history")
+async def delete_history():
+    """Clear all transcription history."""
+    await clear_history()
+    return {"status": "cleared"}

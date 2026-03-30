@@ -6,6 +6,7 @@ struct TranscriptionResult: Codable {
     let corrected: Bool?
     let language: String?
     let duration: Double?
+    let id: Int?
 
     enum CodingKeys: String, CodingKey {
         case text
@@ -13,7 +14,46 @@ struct TranscriptionResult: Codable {
         case corrected
         case language
         case duration
+        case id
     }
+}
+
+struct HistoryItem: Identifiable {
+    let id: Int
+    let createdAt: String
+    let text: String
+    let rawText: String?
+    let corrected: Bool
+    let language: String?
+    let duration: Double?
+    let mode: String?
+}
+
+extension HistoryItem: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case id, text, language, duration, mode
+        case createdAt = "created_at"
+        case rawText   = "raw_text"
+        case corrected
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id        = try c.decode(Int.self,     forKey: .id)
+        createdAt = try c.decode(String.self,  forKey: .createdAt)
+        text      = try c.decode(String.self,  forKey: .text)
+        rawText   = try c.decodeIfPresent(String.self, forKey: .rawText)
+        language  = try c.decodeIfPresent(String.self, forKey: .language)
+        duration  = try c.decodeIfPresent(Double.self, forKey: .duration)
+        mode      = try c.decodeIfPresent(String.self, forKey: .mode)
+        // SQLite stores 0/1; decode as Int then convert to Bool
+        corrected = (try c.decode(Int.self, forKey: .corrected)) != 0
+    }
+}
+
+struct HistoryResponse: Decodable {
+    let items: [HistoryItem]
+    let total: Int
 }
 
 struct StatusResponse: Codable {
@@ -106,7 +146,7 @@ actor BackendService {
         catch { return false }
     }
 
-    func updateConfig(language: String?, task: String, correctionEnabled: Bool? = nil) async throws {
+    func updateConfig(language: String?, task: String, correctionEnabled: Bool? = nil, mode: String? = nil) async throws {
         var request = makeRequest(path: "config", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -115,8 +155,28 @@ actor BackendService {
         if let correctionEnabled {
             body["correction_enabled"] = correctionEnabled
         }
+        if let mode {
+            body["mode"] = mode
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func getHistory(limit: Int = 100) async throws -> [HistoryItem] {
+        let request = makeRequest(path: "history?limit=\(limit)")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(HistoryResponse.self, from: data).items
+    }
+
+    func clearHistory() async throws {
+        let request = makeRequest(path: "history", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

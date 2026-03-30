@@ -6,6 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var backendProcess: Process?
     private let backendPort = 8765
     private var healthCheckTimer: Timer?
+    private var onboardingWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
@@ -29,6 +30,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         requestAccessibilityPermission()
+        showOnboardingIfNeeded()
+    }
+
+    private func showOnboardingIfNeeded() {
+        let complete = UserDefaults.standard.bool(forKey: AppSettings.onboardingComplete)
+        guard !complete else { return }
+
+        let view = OnboardingView(onComplete: { [weak self] in
+            self?.onboardingWindow?.close()
+            self?.onboardingWindow = nil
+        })
+        let hosting = NSHostingController(rootView: view)
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.contentViewController = hosting
+        window.title = "VoiceFlow'a Hoş Geldiniz"
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        onboardingWindow = window
     }
 
     func applicationWillTerminate(_ notification: Notification) {

@@ -3,9 +3,12 @@ import SwiftUI
 // MARK: - UserDefaults Keys
 
 enum AppSettings {
-    static let deploymentMode = "deploymentMode"  // "local" | "server"
-    static let serverURL      = "serverURL"
-    static let apiKey         = "apiKey"
+    static let deploymentMode      = "deploymentMode"       // "local" | "server"
+    static let serverURL           = "serverURL"
+    static let apiKey              = "apiKey"
+    static let appMode             = "appMode"              // "general" | "engineering" | "office"
+    static let onboardingComplete  = "onboardingComplete"   // Bool
+    static let defaultLanguage     = "defaultLanguage"      // "tr" | "en" | nil
 }
 
 // MARK: - SettingsView

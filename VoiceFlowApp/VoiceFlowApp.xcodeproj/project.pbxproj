@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52791314F78F9ECF007AF962 /* OnboardingView.swift */; };
 		26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B6377D077B683525B53452 /* BackendService.swift */; };
 		7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */; };
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
@@ -22,6 +23,7 @@
 		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5187915534C878EB6507FF9A /* VoiceFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFlowApp.swift; sourceTree = "<group>"; };
+		52791314F78F9ECF007AF962 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		72D480057CB89B7229506A72 /* PasteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteService.swift; sourceTree = "<group>"; };
 		85B6377D077B683525B53452 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				85B6377D077B683525B53452 /* BackendService.swift */,
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
 				DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */,
+				52791314F78F9ECF007AF962 /* OnboardingView.swift */,
 				72D480057CB89B7229506A72 /* PasteService.swift */,
 				5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */,
 				5187915534C878EB6507FF9A /* VoiceFlowApp.swift */,
@@ -148,6 +151,7 @@
 				26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */,
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
+				22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */,
 				E525F85F34936AB92BF64280 /* PasteService.swift in Sources */,
 				D27A26B4882DE2398DBCAC5F /* SettingsView.swift in Sources */,
 				E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */,

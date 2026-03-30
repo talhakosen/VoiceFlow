@@ -1,6 +1,20 @@
 import AppKit
 import SwiftUI
 
+enum AppMode: String, CaseIterable {
+    case general     = "general"
+    case engineering = "engineering"
+    case office      = "office"
+
+    var displayName: String {
+        switch self {
+        case .general:     return "General"
+        case .engineering: return "Engineering"
+        case .office:      return "Office"
+        }
+    }
+}
+
 enum LanguageMode: String, CaseIterable {
     case auto = "Auto Detect"
     case turkish = "Türkçe"
@@ -185,6 +199,7 @@ class MenuBarController: NSObject {
     private var isRecording = false
     private var currentMode: LanguageMode = .turkish
     private var isCorrectionEnabled = false
+    private var currentAppMode: AppMode = .general
     private var activeApp: NSRunningApplication?
 
     private let historyStore = HistoryStore()
@@ -192,6 +207,9 @@ class MenuBarController: NSObject {
 
     override init() {
         super.init()
+        // Restore saved mode from UserDefaults
+        let savedMode = UserDefaults.standard.string(forKey: AppSettings.appMode) ?? "general"
+        currentAppMode = AppMode(rawValue: savedMode) ?? .general
         setupStatusItem()
         setupHotkey()
         checkAccessibility()
@@ -257,6 +275,20 @@ class MenuBarController: NSObject {
         languageMenuItem.tag = 200
         menu.addItem(languageMenuItem)
 
+        // App mode submenu (General / Engineering / Office)
+        let modeMenu = NSMenu()
+        for mode in AppMode.allCases {
+            let item = NSMenuItem(title: mode.displayName, action: #selector(selectAppMode(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = mode
+            item.state = (mode == currentAppMode) ? .on : .off
+            modeMenu.addItem(item)
+        }
+        let modeMenuItem = NSMenuItem(title: "Mode", action: nil, keyEquivalent: "")
+        modeMenuItem.submenu = modeMenu
+        modeMenuItem.tag = 210
+        menu.addItem(modeMenuItem)
+
         // Smart Correction toggle
         let correctionItem = NSMenuItem(title: "Smart Correction", action: #selector(toggleCorrection(_:)), keyEquivalent: "")
         correctionItem.target = self
@@ -314,6 +346,24 @@ class MenuBarController: NSObject {
         }
 
         print("Language mode changed to: \(mode.rawValue)")
+    }
+
+    @objc private func selectAppMode(_ sender: NSMenuItem) {
+        guard let mode = sender.representedObject as? AppMode else { return }
+        currentAppMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
+
+        if let menu = statusItem?.menu,
+           let modeMenuItem = menu.item(withTag: 210),
+           let submenu = modeMenuItem.submenu {
+            for item in submenu.items {
+                item.state = (item.representedObject as? AppMode) == mode ? .on : .off
+            }
+        }
+
+        Task {
+            try? await backendService.updateConfig(language: currentMode.language, task: currentMode.task, mode: mode.rawValue)
+        }
     }
 
     @objc private func toggleCorrection(_ sender: NSMenuItem) {

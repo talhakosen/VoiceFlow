@@ -12,6 +12,7 @@ _HOST = "0.0.0.0" if _BACKEND_MODE == "server" else "127.0.0.1"
 
 from .api import router
 from .api.routes import get_transcriber, get_corrector, _mlx_executor
+from .db import init_db
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +59,8 @@ async def _preload_model_background():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Start model preloading in background."""
-    # Start loading in background - don't block server startup
+    """Initialize DB and start model preloading in background."""
+    await init_db()
     asyncio.create_task(_preload_model_background())
     yield
 

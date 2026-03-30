@@ -9,8 +9,7 @@
 - [DONE 2026-03-30] Backend: `0.0.0.0` bind (server mode için)
 - [DONE 2026-03-30] Mac app: server URL configurable (`@AppStorage("serverURL")`)
 - [DONE 2026-03-30] Mac app: API key ayarı (`SecureField`, `X-API-Key` header inject)
-- [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
-- [ ] RunPod: deploy et, RTX 4090, uçtan uca test (<2s hedef)
+- [ ] RunPod: deploy et, RTX 4090, uçtan uca test (<2s hedef) — Phase 5'e ertelendi
 
 ## Phase 1: Foundation (Kurumsal Kullanıma Hazır)
 
@@ -50,7 +49,8 @@
 
 - [ ] Code signing + notarization (Apple Developer Program)
 - [ ] DMG paketleme
-- [ ] Docker Compose kurulum paketi (şirket IT için)
+- [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
+- [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
 - [ ] Admin dashboard (kullanıcı yönetimi)
 - [ ] Offline lisanslama (license key doğrulama)
 - [ ] Kurulum dokümantasyonu
