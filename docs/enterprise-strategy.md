@@ -5,61 +5,45 @@
 Kurumsal mühendisler ve ofis çalışanları için şirkete özel bağlam anlayan,
 tamamen şirket içinde çalışan sesli metin dönüştürme platformu.
 
-**Temel fark:** Genel bir transkripsiyon aracı değil — şirketin kod tabanını,
-terminolojisini, iletişim stilini öğrenen bir asistan.
+**Temel fark:** Genel transkripsiyon aracı değil — şirketin kod tabanını,
+terminolojisini, iletişim stilini öğrenen bağlam-duyarlı asistan.
 
 ---
 
 ## Hedef Müşteri
 
-### Öncelikli Segment
-- Türkiye'deki büyük kurumsal şirketler
-- 100–5000 çalışan, teknoloji veya finans sektörü
-- Örnekler: Akbank, Türkcell, Garanti BBVA, Yapı Kredi, Trendyol
-
-### Neden Bu Segment?
-- Mac kullanımı mühendis ekiplerinde yüksek (doğrulanmış: "çoğu mühendis Mac kullanıyor")
-- Veri egemenliği hassasiyeti yüksek — cloud AI kabul etmiyorlar
-- Büyük mühendis ekipleri = yüksek per-seat gelir potansiyeli
-- Kurumsal satış döngüsü uzun ama sözleşmeler büyük
+- Türkiye'deki büyük kurumsal şirketler (100–5000 çalışan)
+- Teknoloji, finans, telecom sektörü
+- Örnekler: Akbank, Türkcell, Garanti BBVA, Trendyol, Yapı Kredi
+- Mac kullanan mühendis ekipleri (veri egemenliği hassasiyeti yüksek)
 
 ---
 
 ## Ürün Paketleri
 
-### Paket 1: Engineering Suite
-**Hedef:** Yazılım geliştirme ekipleri
+### Engineering Suite
+Yazılım ekipleri için:
+- Git repo indexleme → şirkete özel teknik terminoloji
+- Teknik terimleri korur (sınıf, fonksiyon, servis isimleri değişmez)
+- Çıktı: kod yorumu, PR açıklaması, teknik dokümantasyon
 
-**Ne yapar:**
-- Ses → kod yorumu, PR açıklaması, teknik dokümantasyon
-- Şirketin kod tabanını indexler (git repo, README, docstring)
-- Teknik terimleri korur (sınıf isimleri, servis isimleri değişmez)
-- "Bu fonksiyonu anlat", "PR açıklaması yaz" gibi komutlar
-
-**Gerçek senaryo:** Mühendis kod yazarken düşüncesini konuşuyor →
-sistem kod context'ini bilerek düzgün teknik metin üretiyor.
-
-### Paket 2: Office Suite
-**Hedef:** Yöneticiler, proje yöneticisi, satış ekibi
-
-**Ne yapar:**
-- Ses → email taslağı (alıcıya ve konuya göre ton)
-- Şirket email template'lerini öğrenir
-- "CEO'ya", "müşteriye", "ekibe" farklı format
-- Toplantı notları, durum raporu formatları
+### Office Suite
+Yönetici / proje yöneticisi / satış için:
+- Email taslağı (alıcı + konuya göre ton)
+- Resmi Türkçe, kısaltma açma
+- Toplantı notu, durum raporu formatları
 
 ---
 
-## Deployment Modeli (Kurumsal)
+## Deployment Modeli
 
-### Nasıl Satılır?
-1. Demo: RunPod'da çalışan sunucu ile gösterim (~1.5s yanıt)
-2. Pilot: 10–20 kişilik ekiple 1 ay ücretsiz
-3. Kurulum: Müşteri sunucusuna Docker Compose ile deploy
-4. Eğitim: IT ekibine ½ günlük teknik onboarding
-5. Sözleşme: Yıllık lisans + destek
+### Satış Süreci
+1. Demo (RunPod'da server mode, ~1.5s yanıt)
+2. Pilot (10–20 kişi, 1 ay ücretsiz)
+3. Kurulum (Docker Compose → müşteri GPU sunucusu)
+4. Lisans sözleşmesi
 
-### Teknik Kurulum Modeli
+### Teknik Kurulum
 ```
 Müşteri sağlar:
 ├── Ubuntu sunucu (min. RTX 4090, 24GB VRAM)
@@ -67,131 +51,110 @@ Müşteri sağlar:
 └── Docker + NVIDIA Container Toolkit
 
 Biz sağlarız:
-├── Docker Compose paketi (API + LLM + Whisper + Vector DB)
-├── Mac app (DMG, tüm mühendislere)
-├── Kurulum ve konfigürasyon
+├── Docker Compose paketi (API + Whisper + LLM + Vector DB)
+├── Mac app (DMG — tüm mühendislere)
+├── Kurulum + konfigürasyon
 └── İlk knowledge base indexleme
 ```
 
-**Veri garantisi:** Ses verisi ve transkriptler şirket sunucusundan çıkmaz.
-Açık kaynak modeller kullanılır (Llama, Qwen) — üçüncü parti API yok.
+**Dağıtım:** App Store YOK — DMG, doğrudan şirketlere.
+App Store sandbox global hotkey + auto-paste'i engeller.
 
 ---
 
-## Fiyatlandırma Modeli
+## Fiyatlandırma
 
-### Per-Seat Lisans (Önerilen)
-- Setup ücreti: $2,000–5,000 (bir kez, sunucu kurulumu + eğitim)
-- Yıllık lisans: $200–400 / kullanıcı / yıl
-- Destek & güncelleme: Yıllık lisansa dahil
-
-**Örnek:** Akbank, 50 mühendis
-- Setup: $3,000
-- Yıllık: 50 × $300 = $15,000
-- **Toplam Yıl 1: $18,000**
-
-### Şirket İçi Sunucu Alternatifleri
-Müşterinin GPU sunucusu yoksa:
-- Şirket ağında dedicated mini PC + RTX 4090 önerisi (~$3,000–5,000 donanım)
-- Kurulum + donanım danışmanlık hizmeti olarak sunulabilir
+- Setup: $2,000–5,000 (sunucu kurulumu + eğitim)
+- Yıllık: $200–400 / kullanıcı
+- 50 kullanıcı örnek: Setup $3,000 + $15,000/yıl = **$18,000 Yıl 1**
 
 ---
 
 ## Demo Altyapısı (RunPod)
 
-Demo için RunPod'da her zaman açık bir sunucu:
+**RTX 4090, mesai saatleri modu ~$95/ay**
+- faster-whisper large-v3 (CUDA)
+- Ollama + Qwen 2.5 7B
+- Beklenen: ~1–1.5s uçtan uca
 
-**Seçilen yapılandırma:** RTX 4090 (24GB VRAM), Community Cloud
-
-| Kullanım | Maliyet |
-|---|---|
-| 7/24 açık | ~$270/ay |
-| Mesai saatleri (10s/gün, 22gün) | ~$95/ay |
-| Spot pricing (kesinti riski var) | ~$50/ay |
-
-**Teknik stack (RunPod):**
-- faster-whisper large-v3 (NVIDIA CUDA)
-- Ollama + Qwen 2.5 7B (veya Llama 3.1 8B)
-- ChromaDB (vector store)
-- FastAPI (mevcut backend refactor)
-
-**Beklenen demo hızı:** ~1–1.5 saniye (LAN'da ~0.8s, internette +100ms)
+Docker + RunPod deployment → Phase 5'te (şimdi lokal geliştirme öncelikli).
 
 ---
 
 ## Development Roadmap
 
-### Phase 0 — Demo Hazırlığı (1–2 hafta)
-**Amaç:** RunPod'da çalışan server mode backend
+### ✅ Phase 0 — Demo Altyapısı
+- [x] BACKEND_MODE env flag (local/server)
+- [x] faster-whisper entegrasyonu (numpy→BytesIO adapter)
+- [x] Ollama HTTP client (correct_async — MLX executor'ı bloklamaz)
+- [x] API key auth middleware (X-Api-Key, local'de no-op)
+- [x] 0.0.0.0 bind (server mode)
+- [x] Mac app: server URL + API key (Settings window)
+- [x] AppDelegate: server modunda local backend başlatmaz
 
-- [ ] Backend: server mode flag (0.0.0.0 bind, API key auth)
-- [ ] Backend: faster-whisper entegrasyonu (MLX → NVIDIA)
-- [ ] Backend: Ollama HTTP client (mlx-lm yerine)
-- [ ] Mac app: server URL configurable (hardcoded localhost kalkıyor)
-- [ ] RunPod: Docker image hazırla, deploy et
-- [ ] Test: uçtan uca <2s yanıt doğrula
+### ✅ Phase 0.5 — Architecture Refactor
+- [x] Backend: Layered Architecture (core/interfaces → services → api)
+- [x] Backend: RecordingService DI (testable, mock inject edilebilir)
+- [x] Backend: routes.py → sadece HTTP (~100 satır)
+- [x] Swift: MVVM + @Observable (AppViewModel)
+- [x] Swift: BackendServiceProtocol (loose coupling)
+- [x] Swift: MenuBarController → sadece UI (~200 satır, eskiden 600)
 
-### Phase 1 — Foundation (4–5 hafta)
-**Amaç:** Bireysel kurumsal kullanıma hazır
+### ✅ Phase 1 — Foundation
+- [x] SQLite persistent storage (aiosqlite, ~/.voiceflow/voiceflow.db)
+- [x] Mod sistemi: General / Engineering / Office (mode-aware LLM prompts)
+- [x] Onboarding sihirbazı (NavigationStack, 3 adım, ilk açılış)
+- [x] Kullanıcı profili (UUID, ad, departman — Settings panel)
+- [x] X-User-ID header → transcriptions.user_id
+- [x] GET/DELETE /api/history endpoint'leri
 
-- [ ] Persistent storage (SQLite — history, config)
-- [ ] Kullanıcı profili (rol, departman, mod)
-- [ ] Onboarding sihirbazı (Mac app)
-- [ ] Settings panel (SwiftUI)
-- [ ] Mod sistemi (Engineering / Office / General)
-- [ ] Audit log (sunucu tarafı)
-
-### Phase 2 — Context Engine (6–8 hafta)
-**Amaç:** Şirkete özel bağlam — ürünün kalbi
-
-- [ ] ChromaDB entegrasyonu
+### 🔲 Phase 2 — Context Engine
+- [ ] ChromaDB multi-tenant (tenant=company_id)
+- [ ] Local embedding model (MiniLM veya MLX muadili)
 - [ ] Dosya ingestion pipeline (kod, dokümantasyon)
-- [ ] Embedding model (local, fast)
-- [ ] RAG retrieval → LLM prompt injection
+- [ ] RAG: retrieval → LLM prompt injection
 - [ ] Mac app: knowledge base klasör seçimi UI
+- [ ] Kalite testi: 7B + context yeterli mi?
 
-### Phase 3 — Engineering Package (4–5 hafta)
-- [ ] Git repo indexleme (otomatik, değişiklikleri takip)
-- [ ] Teknik terminoloji çıkarma (sınıf, fonksiyon, servis isimleri)
+### 🔲 Phase 3 — Engineering Package
+- [ ] Git repo indexleme (FSEvents ile otomatik)
+- [ ] Teknik terminoloji çıkarma (class/func/servis isimleri)
 - [ ] Engineering prompt template'leri
-- [ ] Kod yorumu, PR açıklaması, ticket formatları
+- [ ] Çıktı: kod yorumu, PR açıklaması, ticket
 
-### Phase 4 — Office Package (4–5 hafta)
-- [ ] Alıcı profili sistemi (macOS Contacts entegrasyonu)
+### 🔲 Phase 4 — Office Package
+- [ ] Alıcı profili sistemi
 - [ ] Email ton belirleme (formal/informal/teknik)
 - [ ] Mail.app entegrasyonu (AppleScript)
-- [ ] Şirket template library import
+- [ ] Şirket template library
 
-### Phase 5 — Enterprise Distribution (3–4 hafta)
-- [ ] Code signing + notarization (Apple Developer Program)
-- [ ] DMG paketleme
-- [ ] Docker Compose kurulum paketi
-- [ ] Admin dashboard (kullanıcı yönetimi)
-- [ ] Lisanslama sistemi (offline doğrulama)
-- [ ] Kurulum dokümantasyonu (IT için)
-
-**Toplam tahmini süre: 5–6 ay**
+### 🔲 Phase 5 — Enterprise Distribution
+- [ ] Developer ID imzalama + notarization (mevcut Apple hesabı yeterli)
+- [ ] DMG paketleme → şirket web sitesi
+- [ ] Docker Compose paketi (FastAPI + Ollama + faster-whisper)
+- [ ] RunPod deploy, RTX 4090, <2s test
+- [ ] Admin dashboard
+- [ ] Offline lisanslama
+- [ ] IT kurulum dokümantasyonu
 
 ---
 
 ## Rekabet Avantajları
 
-| Özellik | VoiceFlow | Whisper (generic) | Cloud AI (Copilot vb.) |
+| Özellik | VoiceFlow | Whisper (generic) | Cloud AI |
 |---|---|---|---|
-| Tamamen local/on-premise | ✅ | ✅ | ❌ |
+| Tamamen on-premise | ✅ | ✅ | ❌ |
 | Türkçe optimize | ✅ | Orta | Orta |
 | Şirkete özel context | ✅ (Phase 2) | ❌ | Kısıtlı |
 | Veri egemenliği garantisi | ✅ | ✅ | ❌ |
-| Mac native UX | ✅ | ❌ | Tarayıcı |
-| Auto-paste | ✅ | ❌ | ❌ |
-| Kurumsal destek | ✅ | ❌ | ✅ |
+| Mac native UX + auto-paste | ✅ | ❌ | ❌ |
+| SOLID, test edilebilir kod | ✅ | ❌ | — |
 
 ---
 
 ## Bilinen Riskler
 
-1. **Satış döngüsü:** Türk kurumsal müşterilerde karar süreci uzun (3–9 ay)
-2. **IT onayı:** Şirket sunucusuna kurulum IT güvenlik onayı gerektirir
-3. **Donanım:** Müşteride GPU sunucu yoksa ek maliyet/gecikme
-4. **MLX → NVIDIA geçişi:** Backend refactor iş yükü (Phase 0'da yapılacak)
-5. **LLM kalitesi:** 7B model Turkish context'te yeterli mi? → pilot ile doğrulanacak
+1. **Satış döngüsü:** Türk kurumsal müşteride 3–9 ay
+2. **IT onayı:** GPU sunucu kurulumu güvenlik onayı gerektirir
+3. **LLM kalitesi:** 7B Türkçe context'te yeterli mi? → pilot ile doğrulanacak
+4. **Donanım:** Müşteride GPU yoksa ek maliyet/gecikme

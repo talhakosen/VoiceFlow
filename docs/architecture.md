@@ -1,133 +1,139 @@
 # VoiceFlow — Sistem Mimarisi
 
-## Mevcut Durum (v0.1, Çalışıyor)
+## Mevcut Durum (v0.2, Çalışıyor)
 
 ```
 [Mac — Apple Silicon]
-├── Swift Menu Bar App
-│   ├── HotkeyManager  (Fn double-tap → kayıt başlat/durdur)
-│   ├── BackendService (HTTP client → localhost:8765)
-│   ├── PasteService   (Clipboard + CGEvent Cmd+V)
-│   └── MenuBarController (UI + flow koordinasyonu)
+├── Swift Menu Bar App (MVVM)
+│   ├── AppViewModel      (@Observable — tüm state + iş mantığı)
+│   ├── MenuBarController (NSMenu UI — AppViewModel'i observe eder)
+│   ├── BackendService    (actor, BackendServiceProtocol impl)
+│   ├── HotkeyManager     (Fn double-tap → kayıt başlat/durdur)
+│   └── PasteService      (Clipboard + CGEvent Cmd+V)
 │
 └── Python Backend (FastAPI, port 8765)
-    ├── AudioCapture   (sounddevice, 16kHz mono float32)
-    ├── WhisperTranscriber (mlx-whisper, Apple Silicon MLX)
-    └── LLMCorrector   (mlx-lm, Qwen 2.5 7B 4-bit, isteğe bağlı)
+    ├── api/routes.py        (HTTP katmanı — sadece request/response)
+    ├── services/recording.py (RecordingService — iş mantığı)
+    ├── core/interfaces.py   (AbstractTranscriber, AbstractCorrector)
+    ├── audio/capture.py     (sounddevice, 16kHz mono float32)
+    ├── transcription/       (mlx-whisper — Apple Silicon MLX)
+    ├── correction/          (mlx-lm Qwen 7B — isteğe bağlı)
+    └── db/storage.py        (aiosqlite — ~/.voiceflow/voiceflow.db)
 ```
 
-**Doğrulanmış özellikler:**
+**Çalışan özellikler (v0.2):**
 - Tamamen local, internet bağlantısı yok
 - Apple Silicon MLX ile GPU hızlandırması
 - Fn double-tap hotkey (push-to-talk + toggle)
-- Auto-paste (Accessibility permission gerekli)
+- Auto-paste (Accessibility izni gerekli)
 - Türkçe + İngilizce + otomatik dil algılama
 - LLM düzeltme isteğe bağlı (~4GB, açıkken)
+- SQLite persistent history (`~/.voiceflow/voiceflow.db`)
+- Mod sistemi: General / Engineering / Office
+- Kullanıcı profili: UUID, ad, departman
+- Onboarding sihirbazı (ilk açılış)
+- Server mode: Settings → Server URL + API Key → uzak GPU backend
+- API key auth middleware (X-Api-Key header)
 - Yanıt süresi: ~0.5s (LLM kapalı), ~3.5s (LLM açık)
 
 ---
 
-## Hedef Mimari (v1.0, Kurumsal)
+## Mimari Prensipler
 
-### İki Deployment Modu
+### Backend — Layered Architecture
+```
+HTTP Layer  (api/routes.py)       ← request validate → service → response
+Service     (services/recording.py) ← iş mantığı, orchestration
+Interface   (core/interfaces.py)  ← AbstractTranscriber, AbstractCorrector
+Impl        (transcription/, correction/) ← MLX veya NVIDIA impl
+Data        (db/storage.py)       ← SQLite CRUD
+```
+- Routes'ta sıfır iş mantığı — sadece HTTP
+- `RecordingService(transcriber, corrector)` constructor injection → testable
+- `app.state.recording_service` via `Depends(get_service)` → FastAPI DI
 
-#### Mod A: Local (Bireysel / Küçük Ekip)
+### Swift — MVVM + Protocol DI
+```
+View        (MenuBarController, HistoryView, SettingsView)
+ViewModel   (AppViewModel @Observable)
+Service     (BackendService actor, BackendServiceProtocol)
+Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
+```
+- `AppViewModel` tüm state + iş mantığı; view'lar sadece gösterir
+- `BackendServiceProtocol` → test/preview için mock inject edilebilir
+- `@Observable` — sadece değişen property view'ı yeniden çizer
+
+---
+
+## Deployment Modları
+
+### Mod A: Local (Mac)
 ```
 [Mac]
-├── Swift App (thin client)
-└── Python Backend (localhost)
-    ├── faster-whisper veya mlx-whisper
-    ├── Ollama (7B model, local)
-    └── ChromaDB (local vector store)
+├── Swift App
+└── Python Backend (localhost:8765)
+    ├── mlx-whisper (Apple Silicon GPU)
+    └── mlx-lm Qwen 7B (isteğe bağlı, ~4GB)
 ```
-- Tüm modeller Mac'te
-- İnternet gerekmez
-- Şu anki mimarinin geliştirilmişi
 
-#### Mod B: Server (Kurumsal, On-Premise)
+### Mod B: Server (Kurumsal, On-Premise)
 ```
-[Mac — Thin Client]                    [Şirket Sunucusu]
-├── Swift App                    →     ├── FastAPI Backend
-│   ├── Ses kaydı (local)   HTTPS+VPN  ├── faster-whisper (GPU)
-│   ├── Server URL config              ├── vLLM veya Ollama (LLM)
-│   └── API Key auth                   ├── ChromaDB (knowledge base)
-│                                      ├── Auth middleware
-│                                      └── Audit log
-│
-[VPN] ← Şirket IT altyapısı
+[Mac — Thin Client]                    [Şirket / RunPod Sunucusu]
+├── Swift App                   →      ├── FastAPI + RecordingService
+│   ├── Ses kaydı (local)  HTTPS+VPN   ├── faster-whisper large-v3 (CUDA)
+│   ├── Server URL config               ├── Ollama + Qwen 7B (GPU)
+│   └── API Key auth                   ├── SQLite (history + config)
+│                                      └── API key middleware
 ```
 - Mac sadece ses kaydeder, işleme sunucuda
 - Veri şirket ağından dışarı çıkmaz
-- Tek sunucu, tüm ekip kullanır
-- Docker Compose ile kurulum
+- `BACKEND_MODE=server` env var ile seçilir
 
 ---
 
-## Neden Bu Mimari?
+## Hız (Ölçülmüş)
 
-### Neden Local-First?
-- Türkiye'deki büyük firmalar (Akbank, Türkcel vb.) ses verisi için veri egemenliği ister
-- Qwen, Llama gibi modeller açık kaynak → kendi sunucunda çalıştırabilirsin
-- Cloud API'ya (OpenAI, Anthropic) veri gönderme → kurumsal müşteri kabul etmez
-
-### Neden Server Modu?
-- Her Mac'e 7B+ model (4–10GB) indirmek pratik değil
-- Sunucuda model sürekli VRAM'de yüklü → soğuk başlatma yok
-- Merkezi güncelleme, merkezi knowledge base
-
-### Neden MLX değil NVIDIA (server için)?
-- MLX sadece Apple Silicon — RunPod ve şirket sunucuları NVIDIA kullanır
-- faster-whisper + vLLM: NVIDIA GPU'da production-proven
-- Apple Silicon Mac client + NVIDIA server: hibrit çalışır
+| Ortam | Whisper | LLM (7B) | Toplam |
+|---|---|---|---|
+| Mac M1/M2 (LLM kapalı) | ~0.3–0.5s | — | ~0.5s |
+| Mac M1/M2 (LLM açık) | ~0.3–0.5s | ~3–4s | ~3.5–4.5s |
+| RTX 4090 server | ~0.2–0.3s | ~0.5–1s | ~0.8–1.3s |
 
 ---
 
-## Bileşenler Karşılaştırması
-
-| Bileşen | Local (Mac) | Server (NVIDIA) |
-|---|---|---|
-| Transkripsiyon | mlx-whisper small | faster-whisper large-v3 |
-| LLM | mlx-lm Qwen 7B | vLLM / Ollama Qwen 7B–70B |
-| Vector DB | ChromaDB (local) | ChromaDB / Qdrant |
-| Auth | Yok (localhost) | API Key + JWT |
-| Storage | RAM (geçici) | SQLite + network volume |
-
----
-
-## Veri Akışı (Server Modu)
+## Veri Akışı
 
 ```
-1. Kullanıcı Fn'e basıyor
-2. Mac → POST /api/start (API key header)
-3. Ses kaydı başlıyor (Mac'te local)
-4. Kullanıcı Fn bırakıyor
-5. Mac → POST /api/stop (ses verisi body'de)
-6. Sunucu:
-   a. faster-whisper → ham metin (~0.3s)
-   b. ChromaDB retrieval → ilgili context (~0.1s)
-   c. LLM → context-aware düzeltme/format (~0.7s)
-7. Sunucu → TranscriptionResponse (text, raw_text, language)
-8. Mac → Clipboard → Cmd+V paste
+1. Fn double-tap → AppViewModel.startRecording()
+2. BackendService.startRecording() → POST /api/start
+3. Ses kaydı (Mac'te local, sounddevice)
+4. Fn double-tap → AppViewModel.stopAndTranscribe()
+5. BackendService.stopRecording() → POST /api/stop [X-User-ID header]
+6. RecordingService.stop():
+   a. AudioCapture.stop() → numpy array
+   b. MLX executor → WhisperTranscriber.transcribe() (~0.3s)
+   c. (enabled) → LLMCorrector.correct() veya OllamaCorrector.correct_async()
+   d. db.save_transcription() → SQLite
+7. TranscriptionResponse → Mac
+8. AppViewModel → PasteService.pasteText() → Cmd+V
 ```
 
-**Toplam hedef süre: < 2 saniye (LAN üzerinde)**
+---
+
+## Güvenlik
+
+1. **VPN** — Şirket ağı erişim şartı (IT yönetir)
+2. **API Key** — `X-Api-Key` header, server modunda zorunlu
+3. **HTTPS** — TLS (production deployment'ta)
+4. **On-Premise** — Ses + transkript şirket sunucusundan çıkmaz
+5. **Audit** — Her transkripsiyon SQLite'a user_id ile kaydedilir
 
 ---
 
-## Güvenlik Katmanları
+## Bilinen Kısıtlar
 
-1. **VPN** — Şirket ağına erişim şartı (IT tarafından yönetilir)
-2. **API Key** — Her request header'da, kullanıcıya özel
-3. **HTTPS** — TLS, sunucu sertifikası
-4. **Audit Log** — Kim, ne zaman, kaç saniye kaydetti
-5. **On-Premise** — Veri şirket sunucusundan çıkmaz
-
----
-
-## Kısıtlar ve Bilinen Sorunlar (Doğrulanmış)
-
-- Fn key release eventi macOS'ta güvenilmez → double-tap + Force Stop fallback
+- Fn key release eventi macOS'ta güvenilmez → double-tap birincil yöntem
 - Her Swift binary değişikliği Accessibility iznini sıfırlar
-- MLX thread-safe değil → tek executor (server modunda bu sorun yok)
-- Küçük LLM'ler (1.5B, 3B) Türkçe'de hallüsinasyon yapar → minimum 7B
-- RunPod serverless cold start 30–60s → always-on worker gerekli
+- MLX thread-safe değil → `ThreadPoolExecutor(max_workers=1)` (server modda sorun yok)
+- Küçük LLM'ler (1.5B, 3B) Türkçe'de hallüsinasyon → minimum 7B
+- Mac App Store sandbox global hotkey + paste'i engeller → DMG dağıtım şart

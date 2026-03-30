@@ -16,27 +16,27 @@
 **Hedef:** Test edilebilir, extend edilebilir, SOLID uyumlu yapı. Şimdi yapılmazsa büyüdükçe teknik borç birikir.
 
 ### Backend — Layered Architecture
-- [x] api/ — sadece HTTP (routes, schemas, auth)
-- [ ] core/interfaces.py — AbstractTranscriber, AbstractCorrector ABC'leri → loose coupling, mock inject edilebilir
-- [ ] services/recording.py — RecordingService: tüm iş mantığı buraya (start/stop/transcribe/correct/save)
-- [ ] routes.py refactor — ~50 satıra iner, sadece HTTP → RecordingService çağrısı
-- [ ] app.state DI — lifespan'de RecordingService oluştur, Depends() ile inject
+- [DONE 2026-03-30] api/ — sadece HTTP (routes, schemas, auth)
+- [DONE 2026-03-30] core/interfaces.py — AbstractTranscriber, AbstractCorrector ABC'leri → loose coupling, mock inject edilebilir
+- [DONE 2026-03-30] services/recording.py — RecordingService: tüm iş mantığı buraya (start/stop/transcribe/correct/save)
+- [DONE 2026-03-30] routes.py refactor — ~100 satır, sadece HTTP → RecordingService çağrısı
+- [DONE 2026-03-30] app.state DI — lifespan'de RecordingService oluştur, Depends() ile inject
 
 ### Swift — MVVM + Protocol-based DI
-- [ ] ViewModels/AppViewModel.swift — @Observable, tüm uygulama state'i + iş mantığı
-- [ ] BackendServiceProtocol — test/preview için mock inject edilebilir
-- [ ] MenuBarController refactor — sadece NSMenu UI, AppViewModel'e delegate (~150 satır)
-- [ ] AppDelegate refactor — sadece lifecycle, AppViewModel oluştur + inject
-- [ ] AudioCapture.force_stop() metodu — iç stream detayı routes'tan kaldırılır
+- [DONE 2026-03-30] ViewModels/AppViewModel.swift — @Observable @MainActor, tüm uygulama state'i + iş mantığı
+- [DONE 2026-03-30] BackendServiceProtocol — test/preview için mock inject edilebilir
+- [DONE 2026-03-30] MenuBarController refactor — sadece NSMenu UI, AppViewModel'e delegate (~200 satır)
+- [DONE 2026-03-30] AppDelegate refactor — sadece lifecycle, AppViewModel oluştur + inject
+- [DONE 2026-03-30] AudioCapture.force_reset() metodu — iç stream detayı routes'tan kaldırıldı
 
 ## Phase 1: Foundation (Kurumsal Kullanıma Hazır)
 
 - [DONE 2026-03-30] SQLite persistent storage (history + config) — ~/.voiceflow/voiceflow.db, aiosqlite
 - [DONE 2026-03-30] Mod sistemi: Engineering / Office / General — mode-aware LLM prompts, menu submenu
 - [DONE 2026-03-30] Onboarding sihirbazı — NavigationStack, 3-adım, ilk açılış
-- [ ] Kullanıcı profili (ad, rol, departman)
-- [ ] Audit log (sunucu tarafı, kim/ne zaman/kaç saniye)
-- [ ] Multi-user desteği (user_id per request)
+- [DONE 2026-03-30] Kullanıcı profili (UUID, ad, departman) — Settings panel + ensureUserID()
+- [DONE 2026-03-30] Multi-user desteği (X-User-ID header per request, transcriptions.user_id)
+- [DONE 2026-03-30] GET /api/history + DELETE /api/history endpoints
 
 ## Phase 2: Context Engine (Ürünün Kalbi)
 
@@ -80,16 +80,21 @@
 
 ---
 
-## Şu An Çalışan (v0.2 — Phase 0)
+## Şu An Çalışan (v0.2 — Phase 0 + 0.5 + 1)
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
-- Qwen 7B ile isteğe bağlı Türkçe düzeltme
+- Qwen 7B ile isteğe bağlı Türkçe düzeltme (3 mod: general/engineering/office)
 - Auto-paste (Cmd+V)
-- Menu bar history (son 50, RAM'de)
+- SQLite persistent history (~/.voiceflow/voiceflow.db)
+- Mod sistemi: General / Engineering / Office (mode-aware LLM prompts)
+- Kullanıcı profili (UUID, ad, departman — Settings panel)
+- Onboarding sihirbazı (ilk açılış, 3 adım)
 - Local mode: tüm işlem Mac'te (Apple Silicon MLX)
 - Server mode: Settings → Server URL + API Key → uzak GPU backend
 - BACKEND_MODE=server: faster-whisper (NVIDIA) + Ollama LLM
 - API key auth middleware (X-API-Key header)
+- Layered Architecture (backend): HTTP → RecordingService → ABCs → Impl → SQLite
+- MVVM + Protocol DI (Swift): AppViewModel @Observable, BackendServiceProtocol
 
 ## Mimari Kararlar
 - **Local-first, server optional:** Aynı Mac app her iki modda çalışır, sadece URL değişir

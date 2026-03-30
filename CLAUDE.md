@@ -2,6 +2,9 @@
 
 Real-time speech-to-text for macOS using mlx-whisper + mlx-lm.
 
+# IMPORTANT
+ihtiyac halince context7 ve sequentialthink yapmayi unutma 
+
 ## Quick Start
 
 ```bash
