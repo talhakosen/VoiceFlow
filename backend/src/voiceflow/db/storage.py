@@ -33,6 +33,16 @@ async def init_db() -> None:
                 value TEXT NOT NULL
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS user_dictionary (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id TEXT NOT NULL DEFAULT 'default',
+                user_id TEXT NOT NULL DEFAULT '',
+                trigger TEXT NOT NULL,
+                replacement TEXT NOT NULL,
+                scope TEXT NOT NULL DEFAULT 'personal'
+            )
+        """)
         # Migration: add user_id column if missing (existing DBs)
         async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
             columns = {row[1] async for row in cursor}
@@ -99,3 +109,49 @@ async def set_config(key: str, value: str) -> None:
             "INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)", (key, value)
         )
         await db.commit()
+
+
+# ------------------------------------------------------------------
+# Dictionary CRUD
+# ------------------------------------------------------------------
+
+async def get_dictionary(user_id: str, tenant_id: str = "default") -> list[dict]:
+    """Return personal entries for user + all team entries for tenant."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """SELECT * FROM user_dictionary
+               WHERE tenant_id = ? AND (scope = 'team' OR user_id = ?)
+               ORDER BY scope, trigger""",
+            (tenant_id, user_id),
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
+
+
+async def add_dictionary_entry(
+    trigger: str,
+    replacement: str,
+    user_id: str,
+    scope: str = "personal",
+    tenant_id: str = "default",
+) -> int | None:
+    """Insert a new dictionary entry. Returns the new row id."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "INSERT INTO user_dictionary (tenant_id, user_id, trigger, replacement, scope) VALUES (?, ?, ?, ?, ?)",
+            (tenant_id, user_id, trigger.strip(), replacement.strip(), scope),
+        )
+        await db.commit()
+        return cursor.lastrowid
+
+
+async def delete_dictionary_entry(entry_id: int, user_id: str) -> bool:
+    """Delete an entry. Users can only delete their own personal entries."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "DELETE FROM user_dictionary WHERE id = ? AND user_id = ? AND scope = 'personal'",
+            (entry_id, user_id),
+        )
+        await db.commit()
+        return cursor.rowcount > 0

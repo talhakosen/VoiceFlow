@@ -68,6 +68,26 @@ struct ContextStatus: Decodable {
     }
 }
 
+struct DictionaryEntry: Codable, Identifiable {
+    let id: Int
+    let trigger: String
+    let replacement: String
+    let scope: String
+    let userId: String?
+    let tenantId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, trigger, replacement, scope
+        case userId   = "user_id"
+        case tenantId = "tenant_id"
+    }
+}
+
+struct DictionaryResponse: Decodable {
+    let items: [DictionaryEntry]
+    let count: Int
+}
+
 struct StatusResponse: Codable {
     let status: String
     let isRecording: Bool
@@ -92,6 +112,9 @@ protocol BackendServiceProtocol: Actor {
     func getContextStatus() async throws -> ContextStatus
     func ingestContext(path: String) async throws
     func clearContext() async throws
+    func getDictionary() async throws -> [DictionaryEntry]
+    func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry
+    func deleteDictionaryEntry(id: Int) async throws
 }
 
 // MARK: - Concrete implementation
@@ -242,6 +265,36 @@ actor BackendService: BackendServiceProtocol {
 
     func clearContext() async throws {
         let request = makeRequest(path: "context", method: "DELETE")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func getDictionary() async throws -> [DictionaryEntry] {
+        let request = makeRequest(path: "dictionary")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(DictionaryResponse.self, from: data).items
+    }
+
+    func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry {
+        var request = makeRequest(path: "dictionary", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "trigger": trigger, "replacement": replacement, "scope": scope
+        ])
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(DictionaryEntry.self, from: data)
+    }
+
+    func deleteDictionaryEntry(id: Int) async throws {
+        let request = makeRequest(path: "dictionary/\(id)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

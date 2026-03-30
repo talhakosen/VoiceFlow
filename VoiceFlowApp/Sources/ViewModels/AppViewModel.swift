@@ -164,6 +164,31 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Dictionary (Katman 1)
+
+    var dictionaryEntries: [DictionaryEntry] = []
+
+    func loadDictionary() {
+        Task {
+            dictionaryEntries = (try? await backend.getDictionary()) ?? []
+        }
+    }
+
+    func addDictionaryEntry(trigger: String, replacement: String, scope: String) {
+        Task {
+            if let entry = try? await backend.addDictionaryEntry(trigger: trigger, replacement: replacement, scope: scope) {
+                dictionaryEntries.append(entry)
+            }
+        }
+    }
+
+    func deleteDictionaryEntry(id: Int) {
+        Task {
+            try? await backend.deleteDictionaryEntry(id: id)
+            dictionaryEntries.removeAll { $0.id == id }
+        }
+    }
+
     // MARK: - Context Engine (Phase 2)
 
     var contextChunkCount: Int = 0

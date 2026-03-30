@@ -12,7 +12,8 @@ from concurrent.futures import ThreadPoolExecutor
 from ..audio import AudioCapture, AudioConfig
 from ..audio.capture import RecordingState
 from ..core.interfaces import AbstractCorrector, AbstractRetriever, AbstractTranscriber, TranscriptionResult
-from ..db import save_transcription
+from ..db import save_transcription, get_dictionary
+from ..services.dictionary import apply_dictionary
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,12 @@ class RecordingService:
         raw_text = result.text
         was_corrected = False
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
+
+        # Dictionary substitution (Whisper → Dictionary → LLM)
+        if result.text and user_id:
+            entries = await get_dictionary(user_id=user_id)
+            if entries:
+                result.text = apply_dictionary(result.text, entries)
 
         # Retrieve context (skip if retriever absent or knowledge base empty)
         context_chunks: list[str] = []

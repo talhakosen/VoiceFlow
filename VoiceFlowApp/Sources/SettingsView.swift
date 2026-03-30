@@ -6,6 +6,7 @@ import AppKit
 private enum SettingsSection: String, CaseIterable, Identifiable {
     case general       = "General"
     case recording     = "Recording"
+    case dictionary    = "Dictionary"
     case knowledgeBase = "Knowledge Base"
     case account       = "Account"
     case about         = "About"
@@ -16,6 +17,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
         switch self {
         case .general:       return "gearshape"
         case .recording:     return "mic"
+        case .dictionary:    return "character.book.closed"
         case .knowledgeBase: return "books.vertical"
         case .account:       return "person.circle"
         case .about:         return "info.circle"
@@ -43,6 +45,7 @@ struct SettingsView: View {
                 switch selectedSection {
                 case .general:       GeneralSection()
                 case .recording:     RecordingSection(viewModel: viewModel)
+                case .dictionary:    DictionarySection(viewModel: viewModel)
                 case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
                 case .account:       AccountSection(viewModel: viewModel)
                 case .about:         AboutSection(viewModel: viewModel)
@@ -114,6 +117,81 @@ private struct GeneralSection: View {
         }
         .formStyle(.grouped)
         .padding()
+    }
+}
+
+// MARK: - Dictionary
+
+private struct DictionarySection: View {
+    var viewModel: AppViewModel
+
+    @State private var newTrigger = ""
+    @State private var newReplacement = ""
+    @State private var newScope = "personal"
+
+    var body: some View {
+        Form {
+            Section {
+                if viewModel.dictionaryEntries.isEmpty {
+                    Text("No entries yet.").foregroundStyle(.secondary)
+                } else {
+                    ForEach(viewModel.dictionaryEntries) { entry in
+                        HStack {
+                            Text(entry.trigger)
+                                .frame(minWidth: 80, alignment: .leading)
+                            Image(systemName: "arrow.right")
+                                .foregroundStyle(.secondary)
+                            Text(entry.replacement)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(entry.scope)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 60)
+                            if entry.scope == "personal" {
+                                Button {
+                                    viewModel.deleteDictionaryEntry(id: entry.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .foregroundStyle(.red)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            } header: {
+                Text("Entries")
+            }
+
+            Section("Add Entry") {
+                HStack(spacing: 8) {
+                    TextField("trigger (e.g. btw)", text: $newTrigger)
+                        .textFieldStyle(.roundedBorder)
+                    Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                    TextField("replacement", text: $newReplacement)
+                        .textFieldStyle(.roundedBorder)
+                    Picker("", selection: $newScope) {
+                        Text("Personal").tag("personal")
+                        Text("Team").tag("team")
+                    }
+                    .frame(width: 90)
+                    Button("Add") {
+                        guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
+                        viewModel.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: newScope)
+                        newTrigger = ""
+                        newReplacement = ""
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
+                }
+
+                Text("Applied after Whisper, before LLM correction. Word-boundary match, case-insensitive.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .onAppear { viewModel.loadDictionary() }
     }
 }
 

@@ -52,7 +52,7 @@
       RAG retrieval LLM'e doğru inject ediliyor mu?
       Boş KB'de retrieval atlama çalışıyor mu?
 
-- [ ] **Dictionary (Kişisel Sözlük)** — Wispr Flow'daki gibi:
+- [DONE 2026-03-30] **Dictionary (Kişisel Sözlük)** — Wispr Flow'daki gibi:
       Kullanıcı özel kelimeler/jargon ekleyebilir (şirket adları, kısaltmalar)
       Backend: SQLite'a `user_dictionary` tablosu
       Whisper post-processing: kelime düzeltme geçişi

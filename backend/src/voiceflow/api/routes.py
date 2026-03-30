@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
-from ..db import get_history, clear_history
+from ..db import get_history, clear_history, get_dictionary, add_dictionary_entry, delete_dictionary_entry
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 logger = logging.getLogger(__name__)
@@ -231,3 +231,51 @@ async def context_clear(svc=Depends(get_service)):
     except Exception as e:
         logger.error("Context clear failed: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ------------------------------------------------------------------
+# Dictionary (Katman 1)
+# ------------------------------------------------------------------
+
+class DictionaryEntryRequest(BaseModel):
+    trigger: str
+    replacement: str
+    scope: str = "personal"
+
+
+@router.get("/dictionary")
+async def get_dict(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+    user_id = x_user_id or ""
+    entries = await get_dictionary(user_id=user_id)
+    return {"items": entries, "count": len(entries)}
+
+
+@router.post("/dictionary")
+async def add_dict_entry(
+    body: DictionaryEntryRequest,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    if not body.trigger.strip() or not body.replacement.strip():
+        raise HTTPException(status_code=400, detail="trigger and replacement must not be empty")
+    if body.scope not in ("personal", "team"):
+        raise HTTPException(status_code=400, detail="scope must be 'personal' or 'team'")
+    user_id = x_user_id or ""
+    entry_id = await add_dictionary_entry(
+        trigger=body.trigger,
+        replacement=body.replacement,
+        user_id=user_id,
+        scope=body.scope,
+    )
+    return {"id": entry_id, "trigger": body.trigger, "replacement": body.replacement, "scope": body.scope}
+
+
+@router.delete("/dictionary/{entry_id}")
+async def delete_dict_entry(
+    entry_id: int,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    user_id = x_user_id or ""
+    deleted = await delete_dictionary_entry(entry_id=entry_id, user_id=user_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Entry not found or not yours")
+    return {"status": "deleted", "id": entry_id}
