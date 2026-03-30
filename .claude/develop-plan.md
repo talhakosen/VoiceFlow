@@ -90,7 +90,7 @@
       SQLite: transcriptions/dictionary/snippets tüm sorgularda tenant_id filtresi
       JWT payload → request.state.tenant_id → DB sorgularına geçilir
 
-- [ ] **Roller**: superadmin | admin | member
+- [DONE 2026-03-30] **Roller**: superadmin | admin | member
       Admin: kullanıcı ekle/çıkar, istatistik görsün
       Member: sadece kendi transkriptleri
 

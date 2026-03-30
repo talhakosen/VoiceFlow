@@ -45,8 +45,16 @@ async def verify_api_key(
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Not an access token")
 
-        request.state.user_id = payload.get("sub")
+        user_id = payload.get("sub")
+        # is_active check — only hit DB for deactivation, role comes from JWT claim
+        from ..db import get_user_by_id
+        user = await get_user_by_id(user_id)
+        if user and not user.get("is_active", 1):
+            raise HTTPException(status_code=401, detail="Account deactivated")
+
+        request.state.user_id = user_id
         request.state.tenant_id = payload.get("tenant_id", "default")
+        request.state.role = payload.get("role", "member")
         return
 
     # Fallback: X-Api-Key (backward compat)

@@ -476,6 +476,12 @@ private struct AccountSection: View {
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
+                if let user = viewModel.currentUser {
+                    LabeledContent("Rol") {
+                        Text(user.role.capitalized)
+                            .foregroundStyle(user.role == "admin" || user.role == "superadmin" ? .blue : .secondary)
+                    }
+                }
             }
         }
         .formStyle(.grouped)

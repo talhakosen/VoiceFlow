@@ -3,6 +3,7 @@ from .storage import (
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
     create_user, get_user_by_email, get_user_by_id,
+    list_users, update_user_role, deactivate_user,
 )
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "get_dictionary", "add_dictionary_entry", "delete_dictionary_entry",
     "get_snippets", "add_snippet", "delete_snippet",
     "create_user", "get_user_by_email", "get_user_by_id",
+    "list_users", "update_user_role", "deactivate_user",
 ]

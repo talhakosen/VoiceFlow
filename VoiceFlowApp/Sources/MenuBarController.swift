@@ -10,6 +10,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
     private var settingsWindow: NSWindow?
+    private var lastKnownRole: String = ""
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
@@ -43,6 +44,14 @@ class MenuBarController: NSObject {
     private func syncUI() {
         guard let menu = statusItem?.menu else { return }
 
+        // Rebuild menu if role changed (e.g. after login)
+        let currentRole = viewModel.currentUser?.role ?? ""
+        if currentRole != lastKnownRole {
+            lastKnownRole = currentRole
+            rebuildMenu()
+            return
+        }
+
         // Status text
         menu.item(withTag: 100)?.title = viewModel.statusText
 
@@ -65,6 +74,10 @@ class MenuBarController: NSObject {
         menu.addItem(action("Force Stop",       sel: #selector(forceStop),       key: "s"))
         menu.addItem(.separator())
         menu.addItem(action("Settings...",      sel: #selector(openSettings),    key: ","))
+        let role = viewModel.currentUser?.role ?? ""
+        if role == "admin" || role == "superadmin" {
+            menu.addItem(action("Admin Panel...", sel: #selector(openAdminPanel), key: ""))
+        }
         menu.addItem(action("Quit",             sel: #selector(quit),            key: "q"))
 
         statusItem?.menu = menu
@@ -99,6 +112,13 @@ class MenuBarController: NSObject {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow = window
+    }
+
+    @objc private func openAdminPanel() {
+        let baseURL = UserDefaults.standard.string(forKey: AppSettings.serverURL) ?? "http://127.0.0.1:8765"
+        if let url = URL(string: "\(baseURL)/admin") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     @objc private func quit() { NSApplication.shared.terminate(nil) }

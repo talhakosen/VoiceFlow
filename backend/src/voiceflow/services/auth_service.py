@@ -1,10 +1,11 @@
-"""JWT auth service — password hashing, token creation/decoding."""
+"""JWT auth service — password hashing, token creation/decoding, role guards."""
 
 import logging
 import os
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
+from fastapi import Depends, HTTPException, Request
 from jose import JWTError, jwt  # noqa: F401 (re-exported for callers)
 
 logger = logging.getLogger(__name__)
@@ -51,3 +52,17 @@ def create_refresh_token(user_id: str) -> str:
 def decode_token(token: str) -> dict:
     """Decode and validate a JWT. Raises JWTError if invalid or expired."""
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+
+_ROLE_ORDER: dict[str, int] = {"member": 0, "admin": 1, "superadmin": 2}
+
+
+def require_role(min_role: str):
+    """FastAPI dependency factory. min_role: 'admin' or 'superadmin'."""
+
+    async def _check(request: Request) -> None:
+        role = getattr(request.state, "role", "member")
+        if _ROLE_ORDER.get(role, 0) < _ROLE_ORDER.get(min_role, 99):
+            raise HTTPException(status_code=403, detail="Insufficient role")
+
+    return Depends(_check)

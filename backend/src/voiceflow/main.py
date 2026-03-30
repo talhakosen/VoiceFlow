@@ -10,6 +10,7 @@ from starlette.requests import Request
 
 from .api import router
 from .api.auth_routes import router as auth_router
+from .api.admin_routes import router as admin_router
 from .db import init_db
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
@@ -78,6 +79,7 @@ app = FastAPI(
 
 app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(admin_router)
 
 
 @app.get("/")
