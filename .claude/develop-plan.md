@@ -25,7 +25,7 @@
 
 ### 1.1 UI/UX Yenileme
 
-- [ ] **Menü sadeleştirme** — Wispr Flow gibi minimal:
+- [DONE 2026-03-30] **Menü sadeleştirme** — Wispr Flow gibi minimal:
       Sadece: Status | Toggle Recording | Force Stop | ─ | Settings | Quit
       Dil, mod, correction → Settings'e taşı
 

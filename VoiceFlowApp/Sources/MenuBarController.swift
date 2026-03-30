@@ -9,8 +9,6 @@ import SwiftUI
 class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
-    private var historyWindow: NSWindow?
-    private var contextWindow: NSWindow?
     private var settingsWindow: NSWindow?
 
     init(viewModel: AppViewModel) {
@@ -48,14 +46,6 @@ class MenuBarController: NSObject {
         // Status text
         menu.item(withTag: 100)?.title = viewModel.statusText
 
-        // Last result
-        if let result = viewModel.lastResult {
-            let item = menu.item(withTag: 150)
-            let wasCorrected = result.corrected ?? false
-            item?.title = (wasCorrected ? "✓ LLM: " : "✗ Raw: ") + String(result.text.prefix(60))
-            item?.isHidden = false
-        }
-
         // Recording icon
         let button = statusItem?.button
         let recording = viewModel.isRecording
@@ -69,53 +59,13 @@ class MenuBarController: NSObject {
     private func rebuildMenu() {
         let menu = NSMenu()
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss"
-        menu.addItem(disabled("VoiceFlow v0.2 — \(formatter.string(from: Date()))"))
-        menu.addItem(.separator())
         menu.addItem(disabled("Ready", tag: 100))
-
-        let resultItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        resultItem.tag = 150
-        resultItem.isEnabled = false
-        resultItem.isHidden = true
-        menu.addItem(resultItem)
-
-        menu.addItem(.separator())
-        menu.addItem(action("History...",        sel: #selector(showHistory),       key: "h", tag: 400))
-        menu.addItem(action("Knowledge Base...", sel: #selector(showContextWindow), key: "j", tag: 401))
-        menu.addItem(.separator())
-
-        menu.addItem(submenu("Language", items: LanguageMode.allCases.map { mode in
-            let item = NSMenuItem(title: mode.rawValue, action: #selector(selectLanguage(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = mode
-            item.state = mode == viewModel.currentLanguageMode ? .on : .off
-            return item
-        }, tag: 200))
-
-        menu.addItem(submenu("Mode", items: AppMode.allCases.map { mode in
-            let item = NSMenuItem(title: mode.displayName, action: #selector(selectMode(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = mode
-            item.state = mode == viewModel.currentAppMode ? .on : .off
-            return item
-        }, tag: 210))
-
-        let correctionItem = NSMenuItem(title: "Smart Correction", action: #selector(toggleCorrection), keyEquivalent: "")
-        correctionItem.target = self
-        correctionItem.tag = 250
-        correctionItem.state = viewModel.isCorrectionEnabled ? .on : .off
-        menu.addItem(correctionItem)
-
         menu.addItem(.separator())
         menu.addItem(action("Toggle Recording", sel: #selector(toggleRecording), key: "r"))
-        menu.addItem(action("Force Stop",        sel: #selector(forceStop),       key: "s"))
-        menu.addItem(action("Restart Backend",   sel: #selector(restartBackend),  key: "b"))
-        menu.addItem(action("Hard Reset Backend",sel: #selector(hardReset),       key: "k"))
+        menu.addItem(action("Force Stop",       sel: #selector(forceStop),       key: "s"))
         menu.addItem(.separator())
-        menu.addItem(action("Settings...",       sel: #selector(openSettings),    key: ","))
-        menu.addItem(action("Quit",              sel: #selector(quit),            key: "q"))
+        menu.addItem(action("Settings...",      sel: #selector(openSettings),    key: ","))
+        menu.addItem(action("Quit",             sel: #selector(quit),            key: "q"))
 
         statusItem?.menu = menu
     }
@@ -123,23 +73,6 @@ class MenuBarController: NSObject {
     // MARK: - Actions
 
     @objc private func statusBarButtonClicked() {}
-
-    @objc private func selectLanguage(_ sender: NSMenuItem) {
-        guard let mode = sender.representedObject as? LanguageMode else { return }
-        viewModel.selectLanguageMode(mode)
-        updateSubmenuCheckmarks(tag: 200, selected: mode, type: LanguageMode.self)
-    }
-
-    @objc private func selectMode(_ sender: NSMenuItem) {
-        guard let mode = sender.representedObject as? AppMode else { return }
-        viewModel.selectAppMode(mode)
-        updateSubmenuCheckmarks(tag: 210, selected: mode, type: AppMode.self)
-    }
-
-    @objc private func toggleCorrection() {
-        viewModel.toggleCorrection()
-        statusItem?.menu?.item(withTag: 250)?.state = viewModel.isCorrectionEnabled ? .on : .off
-    }
 
     @objc private func toggleRecording() {
         if viewModel.isRecording {
@@ -150,22 +83,6 @@ class MenuBarController: NSObject {
     }
 
     @objc private func forceStop() { viewModel.forceStop() }
-
-    @objc private func restartBackend() {
-        viewModel.statusText = "Restarting backend..."
-        guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
-        appDelegate.restartBackend { [weak self] success in
-            self?.viewModel.statusText = success ? "Ready" : "Backend restart failed"
-        }
-    }
-
-    @objc private func hardReset() {
-        viewModel.statusText = "Hard resetting..."
-        guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
-        appDelegate.hardResetBackend { [weak self] success in
-            self?.viewModel.statusText = success ? "Ready" : "Hard reset failed"
-        }
-    }
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
@@ -183,40 +100,6 @@ class MenuBarController: NSObject {
     }
 
     @objc private func quit() { NSApplication.shared.terminate(nil) }
-
-    // MARK: - History window
-
-    @objc private func showHistory() {
-        if let w = historyWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
-        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
-                             styleMask: [.titled, .closable, .resizable, .nonactivatingPanel],
-                             backing: .buffered, defer: false)
-        window.contentViewController = NSHostingController(rootView: HistoryView(viewModel: viewModel))
-        window.title = "VoiceFlow History"
-        window.isFloatingPanel = true
-        window.level = .floating
-        window.center()
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        historyWindow = window
-    }
-
-    // MARK: - Context window
-
-    @objc private func showContextWindow() {
-        if let w = contextWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
-        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 460, height: 320),
-                             styleMask: [.titled, .closable, .nonactivatingPanel],
-                             backing: .buffered, defer: false)
-        window.contentViewController = NSHostingController(rootView: ContextView(viewModel: viewModel))
-        window.title = "VoiceFlow — Knowledge Base"
-        window.isFloatingPanel = true
-        window.level = .floating
-        window.center()
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        contextWindow = window
-    }
 
     // MARK: - Accessibility
 
@@ -242,19 +125,4 @@ class MenuBarController: NSObject {
         return item
     }
 
-    private func submenu(_ title: String, items: [NSMenuItem], tag: Int) -> NSMenuItem {
-        let parent = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        parent.tag = tag
-        let sub = NSMenu()
-        items.forEach { sub.addItem($0) }
-        parent.submenu = sub
-        return parent
-    }
-
-    private func updateSubmenuCheckmarks<T: Equatable>(tag: Int, selected: T, type: T.Type) {
-        guard let sub = statusItem?.menu?.item(withTag: tag)?.submenu else { return }
-        for item in sub.items {
-            item.state = (item.representedObject as? T) == selected ? .on : .off
-        }
-    }
 }
