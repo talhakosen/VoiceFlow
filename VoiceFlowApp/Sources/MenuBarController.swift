@@ -93,6 +93,7 @@ class MenuBarController: NSObject {
         window.title = "VoiceFlow — Settings"
         window.isFloatingPanel = true
         window.level = .floating
+        window.toolbar = nil
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
