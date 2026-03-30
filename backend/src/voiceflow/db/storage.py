@@ -11,7 +11,7 @@ DB_PATH = Path.home() / ".voiceflow" / "voiceflow.db"
 
 
 async def init_db() -> None:
-    """Create database and tables if they don't exist."""
+    """Create database and tables if they don't exist. Runs migrations for existing DBs."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
@@ -23,7 +23,8 @@ async def init_db() -> None:
                 corrected INTEGER DEFAULT 0,
                 language TEXT,
                 duration REAL,
-                mode TEXT DEFAULT 'general'
+                mode TEXT DEFAULT 'general',
+                user_id TEXT
             )
         """)
         await db.execute("""
@@ -32,6 +33,12 @@ async def init_db() -> None:
                 value TEXT NOT NULL
             )
         """)
+        # Migration: add user_id column if missing (existing DBs)
+        async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
+            columns = {row[1] async for row in cursor}
+        if "user_id" not in columns:
+            await db.execute("ALTER TABLE transcriptions ADD COLUMN user_id TEXT")
+            logger.info("Migration: added user_id column to transcriptions")
         await db.commit()
     logger.info("Database initialized at %s", DB_PATH)
 
@@ -43,25 +50,29 @@ async def save_transcription(
     language: str | None = None,
     duration: float | None = None,
     mode: str = "general",
+    user_id: str | None = None,
 ) -> int | None:
     """Save a transcription to history. Returns the new row id."""
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
-            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode) VALUES (?, ?, ?, ?, ?, ?)",
-            (text, raw_text, int(corrected), language, duration, mode),
+            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (text, raw_text, int(corrected), language, duration, mode, user_id),
         )
         await db.commit()
         return cursor.lastrowid
 
 
-async def get_history(limit: int = 100, offset: int = 0) -> list[dict]:
-    """Return transcription history, newest first."""
+async def get_history(limit: int = 100, offset: int = 0, user_id: str | None = None) -> list[dict]:
+    """Return transcription history, newest first. Optionally filter by user_id."""
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
-        async with db.execute(
-            "SELECT * FROM transcriptions ORDER BY created_at DESC LIMIT ? OFFSET ?",
-            (limit, offset),
-        ) as cursor:
+        if user_id:
+            query = "SELECT * FROM transcriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params = (user_id, limit, offset)
+        else:
+            query = "SELECT * FROM transcriptions ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params = (limit, offset)
+        async with db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
 

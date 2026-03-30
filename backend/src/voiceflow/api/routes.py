@@ -8,7 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
 
 from .auth import verify_api_key
@@ -109,7 +109,7 @@ async def start_recording():
 
 
 @router.post("/stop", response_model=TranscriptionResponse)
-async def stop_recording():
+async def stop_recording(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
     """Stop recording and transcribe."""
     capture = get_audio_capture()
     if not capture.is_recording:
@@ -166,6 +166,7 @@ async def stop_recording():
         language=result.language,
         duration=result.duration,
         mode=active_mode,
+        user_id=x_user_id,
     )
 
     return TranscriptionResponse(
@@ -269,10 +270,10 @@ async def update_config(config: ConfigRequest):
 
 
 @router.get("/history")
-async def history(limit: int = 100, offset: int = 0):
-    """Return transcription history from SQLite, newest first."""
-    rows = await get_history(limit=limit, offset=offset)
-    return {"items": rows, "total": len(rows)}
+async def history(limit: int = 100, offset: int = 0, user_id: str | None = None):
+    """Return transcription history from SQLite, newest first. Filter by user_id if provided."""
+    rows = await get_history(limit=limit, offset=offset, user_id=user_id)
+    return {"items": rows, "count": len(rows)}
 
 
 @router.delete("/history")

@@ -29,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        ensureUserID()
         requestAccessibilityPermission()
         showOnboardingIfNeeded()
     }
@@ -293,6 +294,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         return "/usr/bin/python3"
+    }
+
+    // MARK: - User Identity
+
+    private func ensureUserID() {
+        let key = AppSettings.userID
+        if UserDefaults.standard.string(forKey: key)?.isEmpty ?? true {
+            let newID = UUID().uuidString
+            UserDefaults.standard.set(newID, forKey: key)
+            NSLog("VoiceFlow: Generated user ID: %@", newID)
+        }
     }
 
     // MARK: - Permissions

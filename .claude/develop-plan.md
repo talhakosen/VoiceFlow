@@ -13,11 +13,10 @@
 
 ## Phase 1: Foundation (Kurumsal Kullanıma Hazır)
 
-- [ ] SQLite persistent storage (history, config)
-- [ ] Kullanıcı profili (ad, rol, departman, mod)
-- [ ] Onboarding sihirbazı (Mac app, ilk açılış)
-- [ ] Settings panel (SwiftUI window)
-- [ ] Mod sistemi: Engineering / Office / General
+- [DONE 2026-03-30] SQLite persistent storage (history + config) — ~/.voiceflow/voiceflow.db, aiosqlite
+- [DONE 2026-03-30] Mod sistemi: Engineering / Office / General — mode-aware LLM prompts, menu submenu
+- [DONE 2026-03-30] Onboarding sihirbazı — NavigationStack, 3-adım, ilk açılış
+- [ ] Kullanıcı profili (ad, rol, departman)
 - [ ] Audit log (sunucu tarafı, kim/ne zaman/kaç saniye)
 - [ ] Multi-user desteği (user_id per request)
 
@@ -47,13 +46,19 @@
 
 ## Phase 5: Enterprise Distribution
 
-- [ ] Code signing + notarization (Apple Developer Program)
-- [ ] DMG paketleme
+**Dağıtım stratejisi: App Store YOK — DMG, doğrudan şirketlere**
+- Şirket IT'sine DMG/ZIP gönderilir veya kendi web sitesinden indirilir
+- App Store sandbox'ı global hotkey + auto-paste'i kısıtlar → zaten uygun değil
+- B2B lisans, %30 App Store komisyonu yok
+
+- [ ] "Developer ID Application" sertifikası — Xcode → Accounts'tan bir tıkla (mevcut hesap yeterli)
+- [ ] Notarization — `notarytool` ile imzala, "Bilinmeyen geliştirici" uyarısı kalkar
+- [ ] DMG paketleme + web sitesinde yayın
 - [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
 - [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
 - [ ] Admin dashboard (kullanıcı yönetimi)
 - [ ] Offline lisanslama (license key doğrulama)
-- [ ] Kurulum dokümantasyonu
+- [ ] Kurulum dokümantasyonu (IT için)
 
 ---
 

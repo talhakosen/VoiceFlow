@@ -8,7 +8,10 @@ enum AppSettings {
     static let apiKey              = "apiKey"
     static let appMode             = "appMode"              // "general" | "engineering" | "office"
     static let onboardingComplete  = "onboardingComplete"   // Bool
-    static let defaultLanguage     = "defaultLanguage"      // "tr" | "en" | nil
+    static let defaultLanguage     = "defaultLanguage"      // "tr" | "en" | "auto"
+    static let userID              = "userID"               // UUID string, auto-generated
+    static let userName            = "userName"             // display name (optional)
+    static let userDepartment      = "userDepartment"       // department (optional)
 }
 
 // MARK: - SettingsView
@@ -17,6 +20,9 @@ struct SettingsView: View {
     @AppStorage(AppSettings.deploymentMode) private var deploymentMode = "local"
     @AppStorage(AppSettings.serverURL)      private var serverURL      = "http://127.0.0.1:8765"
     @AppStorage(AppSettings.apiKey)         private var apiKey         = ""
+    @AppStorage(AppSettings.userName)       private var userName       = ""
+    @AppStorage(AppSettings.userDepartment) private var userDepartment = ""
+    @AppStorage(AppSettings.userID)         private var userID         = ""
 
     @State private var showRestartNotice = false
 
@@ -64,6 +70,27 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+            }
+
+            Section {
+                LabeledContent("Ad Soyad") {
+                    TextField("Opsiyonel", text: $userName)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 200)
+                }
+                LabeledContent("Departman") {
+                    TextField("Opsiyonel", text: $userDepartment)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 200)
+                }
+                LabeledContent("Kullanıcı ID") {
+                    Text(userID.isEmpty ? "—" : userID)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("Profil")
+                    .font(.headline)
             }
 
             if showRestartNotice {

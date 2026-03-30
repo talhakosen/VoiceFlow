@@ -53,7 +53,7 @@ extension HistoryItem: Decodable {
 
 struct HistoryResponse: Decodable {
     let items: [HistoryItem]
-    let total: Int
+    let count: Int
 }
 
 struct StatusResponse: Codable {
@@ -94,6 +94,10 @@ actor BackendService {
 
     // MARK: - Request factory
 
+    private var userID: String {
+        UserDefaults.standard.string(forKey: AppSettings.userID) ?? ""
+    }
+
     private func makeRequest(path: String, method: String = "GET") -> URLRequest {
         let url = URL(string: "\(baseURL)/\(path)")!
         var request = URLRequest(url: url)
@@ -101,6 +105,10 @@ actor BackendService {
         let key = apiKey
         if !key.isEmpty {
             request.setValue(key, forHTTPHeaderField: "X-API-Key")
+        }
+        let uid = userID
+        if !uid.isEmpty {
+            request.setValue(uid, forHTTPHeaderField: "X-User-ID")
         }
         return request
     }
