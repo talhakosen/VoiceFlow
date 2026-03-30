@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel, field_validator
 from jose import JWTError
 
-from ..db import create_user, get_user_by_email, get_user_by_id
+from ..db import create_user, get_user_by_email, get_user_by_id, append_audit_log
 from ..services.auth_service import (
     hash_password,
     verify_password,
@@ -110,6 +110,12 @@ async def login(body: LoginRequest):
         role=user["role"],
     )
     refresh_token = create_refresh_token(user_id=user["id"])
+    await append_audit_log(
+        tenant_id=user["tenant_id"],
+        action="login",
+        user_id=user["id"],
+        target=body.email,
+    )
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,

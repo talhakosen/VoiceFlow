@@ -5,6 +5,7 @@ from .storage import (
     create_user, get_user_by_email, get_user_by_id,
     list_users, update_user_role, deactivate_user,
     get_tenant_stats,
+    append_audit_log, get_audit_log, delete_user_data,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "create_user", "get_user_by_email", "get_user_by_id",
     "list_users", "update_user_role", "deactivate_user",
     "get_tenant_stats",
+    "append_audit_log", "get_audit_log", "delete_user_data",
 ]

@@ -69,6 +69,19 @@ async def init_db() -> None:
         await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id)"
         )
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id  TEXT NOT NULL DEFAULT 'default',
+                user_id    TEXT,
+                action     TEXT NOT NULL,
+                target     TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_audit_tenant ON audit_log(tenant_id, created_at)"
+        )
         # Migration: add user_id column if missing (existing DBs)
         async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
             columns = {row[1] async for row in cursor}
@@ -308,6 +321,70 @@ async def deactivate_user(user_id: str, tenant_id: str) -> bool:
         )
         await db.commit()
         return cursor.rowcount > 0
+
+
+async def append_audit_log(
+    tenant_id: str,
+    action: str,
+    user_id: str | None = None,
+    target: str | None = None,
+) -> None:
+    """Append an immutable audit log entry (no UPDATE/DELETE on this table)."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO audit_log (tenant_id, user_id, action, target) VALUES (?, ?, ?, ?)",
+            (tenant_id, user_id, action, target),
+        )
+        await db.commit()
+
+
+async def get_audit_log(tenant_id: str, limit: int = 200, offset: int = 0) -> list[dict]:
+    """Return audit log entries for a tenant, newest first."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """SELECT id, tenant_id, user_id, action, target, created_at
+               FROM audit_log
+               WHERE tenant_id = ?
+               ORDER BY created_at DESC
+               LIMIT ? OFFSET ?""",
+            (tenant_id, limit, offset),
+        ) as cur:
+            rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def delete_user_data(user_id: str, tenant_id: str) -> dict:
+    """KVKK: delete all personal data for a user. Returns counts of deleted rows."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM transcriptions WHERE user_id = ? AND tenant_id = ?",
+            (user_id, tenant_id),
+        )
+        transcriptions_deleted = cur.rowcount
+        cur = await db.execute(
+            "DELETE FROM user_dictionary WHERE user_id = ? AND tenant_id = ?",
+            (user_id, tenant_id),
+        )
+        dictionary_deleted = cur.rowcount
+        cur = await db.execute(
+            "DELETE FROM snippets WHERE user_id = ? AND tenant_id = ?",
+            (user_id, tenant_id),
+        )
+        snippets_deleted = cur.rowcount
+        # Soft-delete the user account
+        cur = await db.execute(
+            "UPDATE users SET is_active = 0 WHERE id = ? AND tenant_id = ?",
+            (user_id, tenant_id),
+        )
+        user_deactivated = cur.rowcount > 0
+        await db.commit()
+    return {
+        "transcriptions_deleted": transcriptions_deleted,
+        "dictionary_deleted": dictionary_deleted,
+        "snippets_deleted": snippets_deleted,
+        "user_deactivated": user_deactivated,
+    }
 
 
 async def get_tenant_stats(tenant_id: str) -> dict:

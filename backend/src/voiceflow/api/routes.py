@@ -17,6 +17,7 @@ from ..db import (
     get_history, clear_history,
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
+    append_audit_log,
 )
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
@@ -106,7 +107,7 @@ async def get_devices(svc=Depends(get_service)):
 
 
 @router.post("/config")
-async def update_config(config: ConfigRequest, svc=Depends(get_service)):
+async def update_config(config: ConfigRequest, request: Request, svc=Depends(get_service)):
     from ..transcription import WhisperTranscriber, WhisperConfig
     from concurrent.futures import ThreadPoolExecutor
 
@@ -156,13 +157,22 @@ async def update_config(config: ConfigRequest, svc=Depends(get_service)):
             else:
                 await loop.run_in_executor(_mlx_executor, corrector.unload)
 
-    return {
+    result = {
         "model": svc.transcriber.config.model_name,
         "language": svc.transcriber.config.language,
         "task": svc.transcriber.config.task,
         "correction_enabled": corrector.config.enabled,
         "mode": corrector.config.mode,
     }
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+    user_id = getattr(request.state, "user_id", "") or ""
+    await append_audit_log(
+        tenant_id=tenant_id,
+        action="config_changed",
+        user_id=user_id,
+        target=str({k: v for k, v in config.model_dump().items() if v is not None}),
+    )
+    return result
 
 
 @router.get("/history")
@@ -178,8 +188,11 @@ async def history(
 
 
 @router.delete("/history")
-async def delete_history():
+async def delete_history(request: Request):
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+    user_id = getattr(request.state, "user_id", "") or ""
     await clear_history()
+    await append_audit_log(tenant_id=tenant_id, action="history_cleared", user_id=user_id)
     return {"status": "cleared"}
 
 

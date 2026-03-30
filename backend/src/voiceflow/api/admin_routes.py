@@ -7,7 +7,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 
 from ..api.auth import verify_api_key
-from ..db import list_users, update_user_role, deactivate_user, get_tenant_stats
+from ..db import (
+    list_users, update_user_role, deactivate_user, get_tenant_stats,
+    append_audit_log, get_audit_log, delete_user_data,
+)
 from ..services.auth_service import require_role
 
 logger = logging.getLogger(__name__)
@@ -59,6 +62,32 @@ async def admin_stats(request: Request):
     """Tenant istatistikleri — JSON."""
     tenant_id = getattr(request.state, "tenant_id", "default")
     return await get_tenant_stats(tenant_id)
+
+
+@router.get("/audit-log", dependencies=[require_role("admin")])
+async def get_audit_log_endpoint(
+    request: Request,
+    limit: int = 200,
+    offset: int = 0,
+):
+    """Tenant audit log — admin only, newest first."""
+    tenant_id = getattr(request.state, "tenant_id", "default")
+    return await get_audit_log(tenant_id, limit=limit, offset=offset)
+
+
+@router.delete("/users/{user_id}/data", dependencies=[require_role("admin")])
+async def delete_user_data_endpoint(user_id: str, request: Request):
+    """KVKK: kalıcı olarak tüm kişisel veriyi sil (transkript, sözlük, snippet, hesap)."""
+    tenant_id = getattr(request.state, "tenant_id", "default")
+    actor_id = getattr(request.state, "user_id", "")
+    result = await delete_user_data(user_id, tenant_id)
+    await append_audit_log(
+        tenant_id=tenant_id,
+        action="user_data_deleted",
+        user_id=actor_id,
+        target=user_id,
+    )
+    return result
 
 
 # ------------------------------------------------------------------

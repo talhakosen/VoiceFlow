@@ -18,6 +18,7 @@
 - Mac app login ekranı + Keychain token saklama
 - Rol sistemi (superadmin/admin/member) + /admin/* endpoint'leri
 - Admin web UI (Jinja2 Bootstrap 5) + usage dashboard (/admin/)
+- Audit log (append-only SQLite) + KVKK veri silme API
 - Layered backend (HTTP → RecordingService → ABCs → Impl → SQLite)
 - MVVM + Protocol DI (Swift)
 
@@ -121,8 +122,8 @@
 
 - [ ] **KVKK/BDDK hazırlık belgesi** — "Veriler nerede saklanır?" dokümanı
 - [ ] **Data at rest encryption** — SQLite şifreleme (SQLCipher)
-- [ ] **Audit log** — kim ne zaman ne yaptı (admin sildi, config değiştirdi)
-- [ ] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği)
+- [DONE 2026-03-30] **Audit log** — login, config_changed, history_cleared, user_data_deleted events; append-only SQLite tablo
+- [DONE 2026-03-30] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği) — transkript+sözlük+snippet+hesap kalıcı silme
 
 ---
 
