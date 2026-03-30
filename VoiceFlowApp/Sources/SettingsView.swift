@@ -33,15 +33,18 @@ struct SettingsView: View {
     @State private var selectedSection: SettingsSection = .general
 
     var body: some View {
-        NavigationSplitView {
-            List(SettingsSection.allCases, selection: $selectedSection) { section in
+        HStack(spacing: 0) {
+            // Fixed sidebar
+            List(SettingsSection.allCases, id: \.self, selection: $selectedSection) { section in
                 Label(section.rawValue, systemImage: section.icon)
-                    .tag(section)
                     .padding(.vertical, 3)
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 190, ideal: 200)
-        } detail: {
+            .frame(width: 200)
+
+            Divider()
+
+            // Detail
             ScrollView {
                 Group {
                     switch selectedSection {
@@ -55,8 +58,8 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationSplitViewStyle(.balanced)
         .frame(width: 900, height: 620)
     }
 }
