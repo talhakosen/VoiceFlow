@@ -33,29 +33,37 @@ struct SettingsView: View {
     @State private var selectedSection: SettingsSection = .general
 
     var body: some View {
-        NavigationSplitView {
-            List(SettingsSection.allCases, selection: $selectedSection) { section in
-                Label(section.rawValue, systemImage: section.icon)
-                    .tag(section)
-                    .padding(.vertical, 2)
-            }
-            .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 190, ideal: 200)
-        } detail: {
-            ScrollView {
-                switch selectedSection {
-                case .general:       GeneralSection()
-                case .recording:     RecordingSection(viewModel: viewModel)
-                case .dictionary:    DictionarySection(viewModel: viewModel)
-                case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
-                case .account:       AccountSection(viewModel: viewModel)
-                case .about:         AboutSection(viewModel: viewModel)
+        HStack(spacing: 0) {
+            // Sidebar nav
+            VStack(spacing: 0) {
+                List(SettingsSection.allCases, id: \.self, selection: $selectedSection) { section in
+                    Label(section.rawValue, systemImage: section.icon)
+                        .tag(section)
+                        .padding(.vertical, 3)
                 }
+                .listStyle(.sidebar)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(width: 200)
+
+            Divider()
+
+            // Detail pane
+            ScrollView {
+                Group {
+                    switch selectedSection {
+                    case .general:       GeneralSection()
+                    case .recording:     RecordingSection(viewModel: viewModel)
+                    case .dictionary:    DictionarySection(viewModel: viewModel)
+                    case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
+                    case .account:       AccountSection(viewModel: viewModel)
+                    case .about:         AboutSection(viewModel: viewModel)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationSplitViewStyle(.balanced)
-        .frame(minWidth: 860, idealWidth: 900, minHeight: 560, idealHeight: 620)
+        .frame(width: 900, height: 620)
     }
 }
 
