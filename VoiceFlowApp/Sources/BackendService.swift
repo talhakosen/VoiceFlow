@@ -27,7 +27,6 @@ struct StatusResponse: Codable {
 }
 
 actor BackendService {
-    private let baseURL = "http://127.0.0.1:8765/api"
     private let session: URLSession
 
     init() {
@@ -37,92 +36,89 @@ actor BackendService {
         self.session = URLSession(configuration: config)
     }
 
-    func startRecording() async throws {
-        let url = URL(string: "\(baseURL)/start")!
+    // MARK: - Computed config (reads UserDefaults on each call)
+
+    private var baseURL: String {
+        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
+        if mode == "server",
+           let url = UserDefaults.standard.string(forKey: AppSettings.serverURL),
+           !url.isEmpty {
+            return "\(url)/api"
+        }
+        return "http://127.0.0.1:8765/api"
+    }
+
+    private var apiKey: String {
+        UserDefaults.standard.string(forKey: AppSettings.apiKey) ?? ""
+    }
+
+    // MARK: - Request factory
+
+    private func makeRequest(path: String, method: String = "GET") -> URLRequest {
+        let url = URL(string: "\(baseURL)/\(path)")!
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = method
+        let key = apiKey
+        if !key.isEmpty {
+            request.setValue(key, forHTTPHeaderField: "X-API-Key")
+        }
+        return request
+    }
 
+    // MARK: - API
+
+    func startRecording() async throws {
+        let request = makeRequest(path: "start", method: "POST")
         let (_, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
     }
 
     func stopRecording() async throws -> TranscriptionResult {
-        let url = URL(string: "\(baseURL)/stop")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
+        let request = makeRequest(path: "stop", method: "POST")
         let (data, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
-
-        let decoder = JSONDecoder()
-        return try decoder.decode(TranscriptionResult.self, from: data)
+        return try JSONDecoder().decode(TranscriptionResult.self, from: data)
     }
 
     func forceStop() async throws {
-        let url = URL(string: "\(baseURL)/force-stop")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
+        let request = makeRequest(path: "force-stop", method: "POST")
         let (_, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
     }
 
     func getStatus() async throws -> StatusResponse {
-        let url = URL(string: "\(baseURL)/status")!
-        let (data, response) = try await session.data(from: url)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        let request = makeRequest(path: "status")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
-
-        let decoder = JSONDecoder()
-        return try decoder.decode(StatusResponse.self, from: data)
+        return try JSONDecoder().decode(StatusResponse.self, from: data)
     }
 
     func isBackendRunning() async -> Bool {
-        do {
-            _ = try await getStatus()
-            return true
-        } catch {
-            return false
-        }
+        do { _ = try await getStatus(); return true }
+        catch { return false }
     }
 
     func updateConfig(language: String?, task: String, correctionEnabled: Bool? = nil) async throws {
-        let url = URL(string: "\(baseURL)/config")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = makeRequest(path: "config", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         var body: [String: Any] = ["task": task]
-        if let language = language {
-            body["language"] = language
-        } else {
-            body["language"] = NSNull()
-        }
-        if let correctionEnabled = correctionEnabled {
+        body["language"] = language ?? NSNull()
+        if let correctionEnabled {
             body["correction_enabled"] = correctionEnabled
         }
-
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (_, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
     }

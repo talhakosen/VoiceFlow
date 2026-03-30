@@ -7,8 +7,8 @@
 - [DONE 2026-03-30] Backend: Ollama HTTP client — `correct_async()` ile async, MLX executor'ı bloklamaz
 - [DONE 2026-03-30] Backend: API key auth middleware (`X-API-Key` header, local modda no-op)
 - [DONE 2026-03-30] Backend: `0.0.0.0` bind (server mode için)
-- [ ] Mac app: server URL configurable (`@AppStorage("serverURL")`)
-- [ ] Mac app: API key ayarı
+- [DONE 2026-03-30] Mac app: server URL configurable (`@AppStorage("serverURL")`)
+- [DONE 2026-03-30] Mac app: API key ayarı (`SecureField`, `X-API-Key` header inject)
 - [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)
 - [ ] RunPod: deploy et, RTX 4090, uçtan uca test (<2s hedef)
 
@@ -57,13 +57,16 @@
 
 ---
 
-## Şu An Çalışan (v0.1)
+## Şu An Çalışan (v0.2 — Phase 0)
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
 - Qwen 7B ile isteğe bağlı Türkçe düzeltme
 - Auto-paste (Cmd+V)
 - Menu bar history (son 50, RAM'de)
-- Tüm işlem local (Apple Silicon MLX)
+- Local mode: tüm işlem Mac'te (Apple Silicon MLX)
+- Server mode: Settings → Server URL + API Key → uzak GPU backend
+- BACKEND_MODE=server: faster-whisper (NVIDIA) + Ollama LLM
+- API key auth middleware (X-API-Key header)
 
 ## Mimari Kararlar
 - **Local-first, server optional:** Aynı Mac app her iki modda çalışır, sadece URL değişir

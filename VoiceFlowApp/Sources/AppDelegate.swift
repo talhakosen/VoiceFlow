@@ -8,26 +8,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var healthCheckTimer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Kill any existing backend on our port first
-        killExistingBackend()
+        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
 
-        // Start Python backend
-        startBackend()
-
-        // Wait for backend to be ready before setting up UI
-        waitForBackendReady { [weak self] success in
+        if mode == "server" {
+            // Server mode: connect to remote backend, no local process needed
+            NSLog("VoiceFlow: Server mode — skipping local backend startup")
             DispatchQueue.main.async {
-                if success {
-                    print("Backend is ready")
-                } else {
-                    print("Warning: Backend may not be ready")
+                self.menuBarController = MenuBarController()
+            }
+        } else {
+            // Local mode: start embedded Python backend
+            killExistingBackend()
+            startBackend()
+            waitForBackendReady { [weak self] success in
+                DispatchQueue.main.async {
+                    NSLog("VoiceFlow: Backend %@", success ? "ready" : "may not be ready")
+                    self?.menuBarController = MenuBarController()
                 }
-                // Setup menu bar regardless
-                self?.menuBarController = MenuBarController()
             }
         }
 
-        // Request accessibility permissions if needed
         requestAccessibilityPermission()
     }
 

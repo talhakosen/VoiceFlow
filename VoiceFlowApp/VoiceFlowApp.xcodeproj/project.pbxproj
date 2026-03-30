@@ -11,6 +11,7 @@
 		7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */; };
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
 		B04BAD74A7956463FAD0EC58 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8FFB7AD6817577CB09BEA299 /* AppIcon.icns */; };
+		D27A26B4882DE2398DBCAC5F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */; };
 		D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */; };
 		E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5187915534C878EB6507FF9A /* VoiceFlowApp.swift */; };
 		E525F85F34936AB92BF64280 /* PasteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D480057CB89B7229506A72 /* PasteService.swift */; };
@@ -21,6 +22,7 @@
 		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5187915534C878EB6507FF9A /* VoiceFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFlowApp.swift; sourceTree = "<group>"; };
+		5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		72D480057CB89B7229506A72 /* PasteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteService.swift; sourceTree = "<group>"; };
 		85B6377D077B683525B53452 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
 		8FFB7AD6817577CB09BEA299 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
 				DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */,
 				72D480057CB89B7229506A72 /* PasteService.swift */,
+				5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */,
 				5187915534C878EB6507FF9A /* VoiceFlowApp.swift */,
 			);
 			path = Sources;
@@ -98,6 +101,12 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					B525E7255C4A04A9033D7798 = {
+						DevelopmentTeam = 34SJV9BWY6;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 0DB0F98B5BAA3471B3A88B1C /* Build configuration list for PBXProject "VoiceFlowApp" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -140,6 +149,7 @@
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
 				E525F85F34936AB92BF64280 /* PasteService.swift in Sources */,
+				D27A26B4882DE2398DBCAC5F /* SettingsView.swift in Sources */,
 				E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -198,7 +208,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -255,7 +265,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
