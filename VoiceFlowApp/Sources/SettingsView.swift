@@ -37,11 +37,12 @@ struct SettingsView: View {
             List(SettingsSection.allCases, selection: $selectedSection) { section in
                 Label(section.rawValue, systemImage: section.icon)
                     .tag(section)
+                    .padding(.vertical, 2)
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 155, ideal: 165)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 200)
         } detail: {
-            Group {
+            ScrollView {
                 switch selectedSection {
                 case .general:       GeneralSection()
                 case .recording:     RecordingSection(viewModel: viewModel)
@@ -54,7 +55,7 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationSplitViewStyle(.balanced)
-        .frame(width: 640, height: 460)
+        .frame(minWidth: 860, idealWidth: 900, minHeight: 560, idealHeight: 620)
     }
 }
 
@@ -90,12 +91,12 @@ private struct GeneralSection: View {
                     LabeledContent("Server URL") {
                         TextField("https://voiceflow.company.internal:8765", text: $serverURL)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 240)
+                            .frame(minWidth: 360)
                     }
                     LabeledContent("API Key") {
                         SecureField("Paste API key here", text: $apiKey)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 240)
+                            .frame(minWidth: 360)
                     }
                     HStack(spacing: 6) {
                         Image(systemName: "lock.shield").foregroundStyle(.green)
@@ -337,13 +338,13 @@ private struct AccountSection: View {
                 LabeledContent("Ad Soyad") {
                     TextField("Opsiyonel", text: $userName)
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 200)
+                        .frame(minWidth: 320)
                         .onChange(of: userName) { viewModel.userName = userName }
                 }
                 LabeledContent("Departman") {
                     TextField("Opsiyonel", text: $userDepartment)
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 200)
+                        .frame(minWidth: 320)
                         .onChange(of: userDepartment) { viewModel.userDepartment = userDepartment }
                 }
                 LabeledContent("Kullanıcı ID") {
