@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA1111AA1111AA1111AA1111 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */; };
+		CC3333CC3333CC3333CC3333 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD4444DD4444DD4444DD4444 /* LoginView.swift */; };
 		7B5D7FE561D342C8AE14BC52 /* RecordingOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A833ABEA835E447D81BB30FE /* RecordingOverlayWindow.swift */; };
 		22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52791314F78F9ECF007AF962 /* OnboardingView.swift */; };
 		26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B6377D077B683525B53452 /* BackendService.swift */; };
@@ -25,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		DD4444DD4444DD4444DD4444 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		A833ABEA835E447D81BB30FE /* RecordingOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingOverlayWindow.swift; sourceTree = "<group>"; };
 		0450FCA0C0301B340112E74B /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		C2D3E4F5A6B7C8D9E0F1A2B3 /* ContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextView.swift; sourceTree = "<group>"; };
@@ -83,6 +87,8 @@
 			children = (
 				E2021EE246F139A902BD82D3 /* AppDelegate.swift */,
 				85B6377D077B683525B53452 /* BackendService.swift */,
+				BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */,
+				DD4444DD4444DD4444DD4444 /* LoginView.swift */,
 				A833ABEA835E447D81BB30FE /* RecordingOverlayWindow.swift */,
 				0450FCA0C0301B340112E74B /* HistoryView.swift */,
 				C2D3E4F5A6B7C8D9E0F1A2B3 /* ContextView.swift */,
@@ -172,6 +178,8 @@
 			files = (
 				8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */,
 				AF9027634AB6A6A011406A4A /* AppViewModel.swift in Sources */,
+				AA1111AA1111AA1111AA1111 /* KeychainHelper.swift in Sources */,
+				CC3333CC3333CC3333CC3333 /* LoginView.swift in Sources */,
 				26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */,
 				7B5D7FE561D342C8AE14BC52 /* RecordingOverlayWindow.swift in Sources */,
 				A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */,

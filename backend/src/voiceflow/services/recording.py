@@ -65,7 +65,7 @@ class RecordingService:
             raise ValueError("Already recording")
         self._audio.start()
 
-    async def stop(self, user_id: str | None = None) -> dict:
+    async def stop(self, user_id: str | None = None, tenant_id: str = "default") -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
         Returns a dict ready for the API response.
@@ -141,6 +141,7 @@ class RecordingService:
             duration=result.duration,
             mode=active_mode,
             user_id=user_id,
+            tenant_id=tenant_id,
         )
 
         return {

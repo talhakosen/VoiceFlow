@@ -139,6 +139,12 @@ protocol BackendServiceProtocol: Actor {
     func getSnippets() async throws -> [SnippetEntry]
     func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry
     func deleteSnippet(id: Int) async throws
+
+    // Auth
+    func login(email: String, password: String) async throws -> AuthTokens
+    func register(email: String, password: String) async throws -> AuthUser
+    func refreshToken(_ refreshToken: String) async throws -> String
+    func getMe() async throws -> AuthUser
 }
 
 // MARK: - Concrete implementation
@@ -165,6 +171,17 @@ actor BackendService: BackendServiceProtocol {
         return "http://127.0.0.1:8765/api"
     }
 
+    /// Root URL without /api suffix (for auth endpoints)
+    private var rootURL: String {
+        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
+        if mode == "server",
+           let url = UserDefaults.standard.string(forKey: AppSettings.serverURL),
+           !url.isEmpty {
+            return url
+        }
+        return "http://127.0.0.1:8765"
+    }
+
     private var apiKey: String {
         UserDefaults.standard.string(forKey: AppSettings.apiKey) ?? ""
     }
@@ -187,7 +204,38 @@ actor BackendService: BackendServiceProtocol {
         if !uid.isEmpty {
             request.setValue(uid, forHTTPHeaderField: "X-User-ID")
         }
+        if let token = KeychainHelper.accessToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         return request
+    }
+
+    /// Build a request to /auth/* endpoints (no /api prefix, no auth header injection).
+    private func makeAuthRequest(path: String, method: String = "POST") -> URLRequest {
+        let url = URL(string: "\(rootURL)/auth/\(path)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return request
+    }
+
+    /// Execute a request and retry once with refreshed token on 401.
+    private func dataWithRefreshRetry(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        var req = request
+        let (data, response) = try await session.data(for: req)
+        guard let http = response as? HTTPURLResponse else { throw BackendError.requestFailed }
+        if http.statusCode != 401 { return (data, http) }
+
+        // Try to refresh
+        guard let rt = KeychainHelper.refreshToken else { throw BackendError.unauthorized }
+        let newToken = try await refreshToken(rt)
+
+        // Rebuild request with new token
+        req.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
+        let (data2, response2) = try await session.data(for: req)
+        guard let http2 = response2 as? HTTPURLResponse else { throw BackendError.requestFailed }
+        if http2.statusCode == 401 { throw BackendError.unauthorized }
+        return (data2, http2)
     }
 
     // MARK: - API
@@ -354,10 +402,90 @@ actor BackendService: BackendServiceProtocol {
             throw BackendError.requestFailed
         }
     }
+
+    // MARK: - Auth
+
+    func login(email: String, password: String) async throws -> AuthTokens {
+        var request = makeAuthRequest(path: "login")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["email": email, "password": password])
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.unauthorized
+        }
+        return try JSONDecoder().decode(AuthTokens.self, from: data)
+    }
+
+    func register(email: String, password: String) async throws -> AuthUser {
+        var request = makeAuthRequest(path: "register")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["email": email, "password": password])
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(AuthUser.self, from: data)
+    }
+
+    func refreshToken(_ refreshToken: String) async throws -> String {
+        var request = makeAuthRequest(path: "refresh")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["refresh_token": refreshToken])
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.unauthorized
+        }
+        let tokens = try JSONDecoder().decode(RefreshTokens.self, from: data)
+        KeychainHelper.accessToken = tokens.accessToken
+        return tokens.accessToken
+    }
+
+    func getMe() async throws -> AuthUser {
+        var req = URLRequest(url: URL(string: "\(rootURL)/auth/me")!)
+        req.httpMethod = "GET"
+        if let token = KeychainHelper.accessToken {
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        let (data, _) = try await dataWithRefreshRetry(for: req)
+        return try JSONDecoder().decode(AuthUser.self, from: data)
+    }
 }
 
 enum BackendError: Error {
     case requestFailed
     case decodingFailed
     case backendNotRunning
+    case unauthorized
+}
+
+// MARK: - Auth models
+
+struct AuthTokens: Decodable {
+    let accessToken: String
+    let refreshToken: String
+    let tokenType: String
+    enum CodingKeys: String, CodingKey {
+        case accessToken  = "access_token"
+        case refreshToken = "refresh_token"
+        case tokenType    = "token_type"
+    }
+}
+
+struct AuthUser: Decodable {
+    let userId: String
+    let email: String
+    let tenantId: String
+    let role: String
+    enum CodingKeys: String, CodingKey {
+        case userId   = "user_id"
+        case email
+        case tenantId = "tenant_id"
+        case role
+    }
+}
+
+struct RefreshTokens: Decodable {
+    let accessToken: String
+    let tokenType: String
+    enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case tokenType   = "token_type"
+    }
 }

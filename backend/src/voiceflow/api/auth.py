@@ -29,6 +29,8 @@ async def verify_api_key(
       2. X-Api-Key header             → legacy key-based auth (backward compat)
     """
     if _BACKEND_MODE != "server":
+        request.state.tenant_id = "default"
+        request.state.user_id = ""
         return
 
     auth_header = request.headers.get("Authorization", "")

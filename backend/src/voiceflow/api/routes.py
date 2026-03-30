@@ -83,8 +83,12 @@ async def stop_recording(
     svc=Depends(get_service),
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
+    # JWT sets request.state; fall back to X-User-ID header for local mode compat
+    state_user_id = getattr(request.state, "user_id", None)
+    user_id = state_user_id or x_user_id or None
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     try:
-        result = await svc.stop(user_id=x_user_id)
+        result = await svc.stop(user_id=user_id, tenant_id=tenant_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return TranscriptionResponse(**result)
@@ -162,8 +166,14 @@ async def update_config(config: ConfigRequest, svc=Depends(get_service)):
 
 
 @router.get("/history")
-async def history(limit: int = 100, offset: int = 0, user_id: str | None = None):
-    rows = await get_history(limit=limit, offset=offset, user_id=user_id)
+async def history(
+    request: Request,
+    limit: int = 100,
+    offset: int = 0,
+    user_id: str | None = None,
+):
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+    rows = await get_history(limit=limit, offset=offset, user_id=user_id, tenant_id=tenant_id)
     return {"items": rows, "count": len(rows)}
 
 

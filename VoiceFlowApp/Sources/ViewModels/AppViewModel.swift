@@ -303,6 +303,51 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - Auth (Katman 2)
+
+    var isLoggedIn: Bool = false
+    var loginError: String? = nil
+    var currentUser: AuthUser? = nil
+
+    func checkLoginState() {
+        guard KeychainHelper.accessToken != nil else {
+            isLoggedIn = false
+            return
+        }
+        Task {
+            do {
+                let user = try await backend.getMe()
+                currentUser = user
+                isLoggedIn = true
+            } catch {
+                logout()
+            }
+        }
+    }
+
+    func login(email: String, password: String) async {
+        loginError = nil
+        do {
+            let tokens = try await backend.login(email: email, password: password)
+            KeychainHelper.accessToken  = tokens.accessToken
+            KeychainHelper.refreshToken = tokens.refreshToken
+            let user = try await backend.getMe()
+            currentUser = user
+            isLoggedIn  = true
+        } catch BackendError.unauthorized {
+            loginError = "E-posta veya şifre hatalı."
+        } catch {
+            loginError = error.localizedDescription
+        }
+    }
+
+    func logout() {
+        KeychainHelper.accessToken  = nil
+        KeychainHelper.refreshToken = nil
+        isLoggedIn   = false
+        currentUser  = nil
+    }
+
     // MARK: - Accessibility
 
     var hasAccessibility: Bool { AXIsProcessTrusted() }

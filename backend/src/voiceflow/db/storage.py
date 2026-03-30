@@ -25,7 +25,8 @@ async def init_db() -> None:
                 language TEXT,
                 duration REAL,
                 mode TEXT DEFAULT 'general',
-                user_id TEXT
+                user_id TEXT,
+                tenant_id TEXT NOT NULL DEFAULT 'default'
             )
         """)
         await db.execute("""
@@ -73,6 +74,9 @@ async def init_db() -> None:
         if "user_id" not in columns:
             await db.execute("ALTER TABLE transcriptions ADD COLUMN user_id TEXT")
             logger.info("Migration: added user_id column to transcriptions")
+        if "tenant_id" not in columns:
+            await db.execute("ALTER TABLE transcriptions ADD COLUMN tenant_id TEXT NOT NULL DEFAULT 'default'")
+            logger.info("Migration: added tenant_id column to transcriptions")
         await db.commit()
     logger.info("Database initialized at %s", DB_PATH)
 
@@ -85,27 +89,33 @@ async def save_transcription(
     duration: float | None = None,
     mode: str = "general",
     user_id: str | None = None,
+    tenant_id: str = "default",
 ) -> int | None:
     """Save a transcription to history. Returns the new row id."""
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
-            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (text, raw_text, int(corrected), language, duration, mode, user_id),
+            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode, user_id, tenant_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (text, raw_text, int(corrected), language, duration, mode, user_id, tenant_id),
         )
         await db.commit()
         return cursor.lastrowid
 
 
-async def get_history(limit: int = 100, offset: int = 0, user_id: str | None = None) -> list[dict]:
-    """Return transcription history, newest first. Optionally filter by user_id."""
+async def get_history(
+    limit: int = 100,
+    offset: int = 0,
+    user_id: str | None = None,
+    tenant_id: str = "default",
+) -> list[dict]:
+    """Return transcription history for a tenant, newest first. Optionally filter by user_id."""
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         if user_id:
-            query = "SELECT * FROM transcriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
-            params = (user_id, limit, offset)
+            query = "SELECT * FROM transcriptions WHERE tenant_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params = (tenant_id, user_id, limit, offset)
         else:
-            query = "SELECT * FROM transcriptions ORDER BY created_at DESC LIMIT ? OFFSET ?"
-            params = (limit, offset)
+            query = "SELECT * FROM transcriptions WHERE tenant_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params = (tenant_id, limit, offset)
         async with db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]

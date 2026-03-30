@@ -8,6 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let backendPort = 8765
     private var healthCheckTimer: Timer?
     private var onboardingWindow: NSWindow?
+    private var loginWindow: NSPanel?
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
@@ -43,7 +44,46 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         requestAccessibilityPermission()
-        showOnboardingIfNeeded()
+
+        let deployMode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
+        if deployMode == "server" {
+            vm.checkLoginState()
+            // Observe login state: show login panel when not logged in
+            Task { @MainActor [weak self] in
+                // Wait briefly for checkLoginState to complete
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                if !vm.isLoggedIn {
+                    self?.showLoginWindow(viewModel: vm)
+                }
+                // Watch for login success to close panel
+                while !vm.isLoggedIn {
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                }
+                self?.loginWindow?.close()
+                self?.loginWindow = nil
+                self?.showOnboardingIfNeeded()
+            }
+        } else {
+            showOnboardingIfNeeded()
+        }
+    }
+
+    private func showLoginWindow(viewModel: AppViewModel) {
+        let hosting = NSHostingController(rootView: LoginView(viewModel: viewModel))
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 380, height: 320),
+            styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.contentViewController = hosting
+        panel.title = "VoiceFlow Giriş"
+        panel.isReleasedWhenClosed = false
+        panel.isMovableByWindowBackground = true
+        panel.center()
+        panel.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        loginWindow = panel
     }
 
     private func showOnboardingIfNeeded() {
