@@ -68,6 +68,7 @@ final class AppViewModel {
         isRecording = true
         statusText = "Recording... (Fn×2 to stop)"
         activeApp = NSWorkspace.shared.frontmostApplication
+        NSSound(named: "Tink")?.play()
         onShowRecordingOverlay?()
 
         Task {
@@ -99,6 +100,7 @@ final class AppViewModel {
         do {
             let result = try await backend.stopRecording()
             lastResult = result
+            NSSound(named: "Pop")?.play()
             onHideRecordingOverlay?()
             guard !result.text.isEmpty else {
                 statusText = "Ready"

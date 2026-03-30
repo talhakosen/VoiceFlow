@@ -64,7 +64,7 @@
       Mac app: Settings → Snippets section
       Backend: transkript sonrası snippet match → expand
 
-- [ ] **Ses efektleri** — kayıt başlama/bitme sesi (system sound veya custom)
+- [DONE 2026-03-30] **Ses efektleri** — kayıt başlama/bitme sesi (system sound veya custom)
 
 ---
 
