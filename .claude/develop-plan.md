@@ -2,15 +2,11 @@
 
 ## Phase 0: Demo Hazırlığı (Hedef: RunPod'da <2s yanıt)
 
-- [ ] Backend: `BACKEND_MODE` env flag (local/server)
-- [ ] Backend: `faster-whisper` entegrasyonu — **numpy array → BytesIO adapter zorunlu**
-      `WhisperModel("large-v3", device="cuda", compute_type="float16")`
-      `vad_filter=True` ekle (sessizlik filtresi)
-- [ ] Backend: Ollama HTTP client — **OpenAI-compat `/v1/chat/completions`** kullan
-      mlx-lm da aynı endpoint'i sunuyor → tek client, iki mod
-      `keep_alive=-1` ile model GPU'da sürekli yüklü
-- [ ] Backend: API key auth middleware (`X-API-Key` header)
-- [ ] Backend: `0.0.0.0` bind (server mode için)
+- [DONE 2026-03-30] Backend: `BACKEND_MODE` env flag (local/server)
+- [DONE 2026-03-30] Backend: `faster-whisper` entegrasyonu — numpy → BytesIO adapter, `WHISPER_MODEL` env var
+- [DONE 2026-03-30] Backend: Ollama HTTP client — `correct_async()` ile async, MLX executor'ı bloklamaz
+- [DONE 2026-03-30] Backend: API key auth middleware (`X-API-Key` header, local modda no-op)
+- [DONE 2026-03-30] Backend: `0.0.0.0` bind (server mode için)
 - [ ] Mac app: server URL configurable (`@AppStorage("serverURL")`)
 - [ ] Mac app: API key ayarı
 - [ ] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper)

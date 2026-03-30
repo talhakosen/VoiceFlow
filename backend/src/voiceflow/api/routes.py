@@ -3,11 +3,17 @@
 import asyncio
 import gc
 import logging
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
+from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+from .auth import verify_api_key
+
+_BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +22,12 @@ from ..audio.capture import RecordingState
 from ..correction import LLMCorrector, CorrectorConfig
 from ..transcription import WhisperTranscriber, WhisperConfig
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_api_key)])
 
 # Global instances
 _audio_capture: AudioCapture | None = None
-_transcriber: WhisperTranscriber | None = None
-_corrector: LLMCorrector | None = None
+_transcriber: Any = None   # WhisperTranscriber | FasterWhisperTranscriber
+_corrector: Any = None     # LLMCorrector | OllamaCorrector
 
 # Single-thread executor for MLX operations (Metal GPU is not thread-safe)
 _mlx_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mlx")
@@ -54,17 +60,25 @@ def get_audio_capture() -> AudioCapture:
     return _audio_capture
 
 
-def get_transcriber() -> WhisperTranscriber:
+def get_transcriber():
     global _transcriber
     if _transcriber is None:
-        _transcriber = WhisperTranscriber(config=WhisperConfig())
+        if _BACKEND_MODE == "server":
+            from ..transcription.faster_whisper import FasterWhisperTranscriber
+            _transcriber = FasterWhisperTranscriber(config=WhisperConfig())
+        else:
+            _transcriber = WhisperTranscriber(config=WhisperConfig())
     return _transcriber
 
 
-def get_corrector() -> LLMCorrector:
+def get_corrector():
     global _corrector
     if _corrector is None:
-        _corrector = LLMCorrector(config=CorrectorConfig())
+        if _BACKEND_MODE == "server":
+            from ..correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
+            _corrector = OllamaCorrector(config=OllamaCorrectorConfig())
+        else:
+            _corrector = LLMCorrector(config=CorrectorConfig())
     return _corrector
 
 
@@ -109,7 +123,7 @@ async def stop_recording():
 
     # Transcribe in dedicated MLX thread (Metal GPU is not thread-safe)
     transcriber = get_transcriber()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     t_whisper = time.perf_counter()
     result = await loop.run_in_executor(_mlx_executor, transcriber.transcribe, audio_data)
     t_whisper_done = time.perf_counter()
@@ -122,9 +136,13 @@ async def stop_recording():
     if corrector.config.enabled and result.text:
         logger.info("LLM correction enabled, correcting: '%s'", result.text[:80])
         t_llm = time.perf_counter()
-        corrected_text = await loop.run_in_executor(
-            _mlx_executor, corrector.correct, result.text, result.language
-        )
+        # Ollama uses async HTTP — run directly; MLX uses GPU executor
+        if hasattr(corrector, "correct_async"):
+            corrected_text = await corrector.correct_async(result.text, result.language)
+        else:
+            corrected_text = await loop.run_in_executor(
+                _mlx_executor, corrector.correct, result.text, result.language
+            )
         t_llm_done = time.perf_counter()
         logger.info("LLM correction: %.3fs", t_llm_done - t_llm)
         if corrected_text != result.text:
@@ -185,7 +203,7 @@ async def update_config(config: ConfigRequest):
     current = get_transcriber()
     new_config = WhisperConfig(
         model_name=config.model or current.config.model_name,
-        language=config.language,  # None = auto-detect
+        language=config.language if config.language is not None else current.config.language,
         task=config.task or current.config.task,
     )
 
@@ -194,7 +212,11 @@ async def update_config(config: ConfigRequest):
             or new_config.language != current.config.language
             or new_config.task != current.config.task):
         current.unload()
-        _transcriber = WhisperTranscriber(config=new_config)
+        if _BACKEND_MODE == "server":
+            from ..transcription.faster_whisper import FasterWhisperTranscriber
+            _transcriber = FasterWhisperTranscriber(config=new_config)
+        else:
+            _transcriber = WhisperTranscriber(config=new_config)
         gc.collect()
 
     # Update correction config if provided
@@ -203,11 +225,14 @@ async def update_config(config: ConfigRequest):
         was_enabled = corrector.config.enabled
         corrector.config.enabled = config.correction_enabled
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         # Load model on demand when correction is enabled
         if config.correction_enabled and not was_enabled:
             logger.info("Correction enabled, loading LLM model...")
-            await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
+            if hasattr(corrector, "correct_async"):
+                await loop.run_in_executor(None, corrector._ensure_model_loaded)
+            else:
+                await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
         # Unload model when correction is disabled
         elif not config.correction_enabled and was_enabled:
             logger.info("Correction disabled, unloading LLM model...")

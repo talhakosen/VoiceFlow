@@ -2,9 +2,13 @@
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+
+_BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
+_HOST = "0.0.0.0" if _BACKEND_MODE == "server" else "127.0.0.1"
 
 from .api import router
 from .api.routes import get_transcriber, get_corrector, _mlx_executor
@@ -20,7 +24,7 @@ async def _preload_model_background():
     """Load models in dedicated MLX thread."""
     global _model_loading, _model_loaded
     _model_loading = True
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
 
     # Load Whisper model first
     logger.info("Preloading Whisper model in background...")
@@ -37,10 +41,15 @@ async def _preload_model_background():
     if corrector.config.enabled:
         logger.info("Preloading LLM correction model in background...")
         try:
-            await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
+            # Ollama: HTTP pre-warm (IO-bound, no GPU executor needed)
+            # MLX: GPU load (requires single MLX executor)
+            if hasattr(corrector, "correct_async"):
+                await loop.run_in_executor(None, corrector._ensure_model_loaded)
+            else:
+                await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
             logger.info("LLM correction model loaded successfully")
         except Exception as e:
-            logger.error(f"Failed to load LLM model: {e}")
+            logger.error("Failed to load LLM model: %s", e)
     else:
         logger.info("LLM correction disabled, skipping model preload (~4GB saved)")
 
@@ -77,7 +86,7 @@ async def health():
         "status": "healthy",
         "model_loaded": _model_loaded,
         "model_loading": _model_loading,
-        "llm_loaded": corrector._model is not None,
+        "llm_loaded": getattr(corrector, "_model", None) is not None,
     }
 
 
@@ -85,7 +94,8 @@ def main():
     """Run the FastAPI server."""
     import uvicorn
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    uvicorn.run(app, host="127.0.0.1", port=8765)
+    logger.info("Starting VoiceFlow in %s mode on %s:8765", _BACKEND_MODE.upper(), _HOST)
+    uvicorn.run(app, host=_HOST, port=8765)
 
 
 if __name__ == "__main__":
