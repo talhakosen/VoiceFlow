@@ -45,13 +45,14 @@ class AbstractCorrector(ABC):
     config: CorrectorConfig
 
     @abstractmethod
-    def correct(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
+    def correct(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
         """Synchronous correction. Used in MLX executor.
 
         Args:
             text: Raw transcription text.
             language: Detected language code (e.g. "tr").
             context: Optional RAG context chunks injected into the prompt.
+            active_app: Bundle ID of the frontmost app at recording start (for tone override).
         """
 
     @abstractmethod

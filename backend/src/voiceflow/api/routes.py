@@ -50,6 +50,7 @@ class ConfigRequest(BaseModel):
     task: str | None = None          # "transcribe" | "translate"
     correction_enabled: bool | None = None
     mode: str | None = None          # "general" | "engineering" | "office"
+    output_format: str | None = None  # "prose" | "code_comment" | "pr_description" | "jira_ticket"
 
 
 # ------------------------------------------------------------------
@@ -83,13 +84,14 @@ async def stop_recording(
     request: Request,
     svc=Depends(get_service),
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+    x_active_app: str | None = Header(default=None, alias="X-Active-App"),
 ):
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
     user_id = state_user_id or x_user_id or None
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     try:
-        result = await svc.stop(user_id=user_id, tenant_id=tenant_id)
+        result = await svc.stop(user_id=user_id, tenant_id=tenant_id, active_app=x_active_app or None)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return TranscriptionResponse(**result)
@@ -138,6 +140,13 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
     if config.mode is not None:
         corrector.config.mode = config.mode
 
+    # Update output format
+    if config.output_format is not None:
+        valid_formats = {"prose", "code_comment", "pr_description", "jira_ticket"}
+        if config.output_format not in valid_formats:
+            raise HTTPException(status_code=400, detail=f"output_format must be one of {sorted(valid_formats)}")
+        corrector.config.output_format = config.output_format
+
     # Update correction enabled/disabled
     if config.correction_enabled is not None:
         was_enabled = corrector.config.enabled
@@ -163,6 +172,7 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
         "task": svc.transcriber.config.task,
         "correction_enabled": corrector.config.enabled,
         "mode": corrector.config.mode,
+        "output_format": getattr(corrector.config, "output_format", "prose"),
     }
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     user_id = getattr(request.state, "user_id", "") or ""

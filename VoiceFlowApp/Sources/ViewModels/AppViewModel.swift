@@ -23,6 +23,7 @@ final class AppViewModel {
     private let hotkey: HotkeyManager
 
     private var activeApp: NSRunningApplication?
+    private var activeAppBundleID: String? = nil
 
     // MARK: - Init
 
@@ -68,6 +69,7 @@ final class AppViewModel {
         isRecording = true
         statusText = "Recording... (Fn×2 to stop)"
         activeApp = NSWorkspace.shared.frontmostApplication
+        activeAppBundleID = activeApp?.bundleIdentifier
         NSSound(named: "Tink")?.play()
         onShowRecordingOverlay?()
 
@@ -97,8 +99,9 @@ final class AppViewModel {
         statusText = isCorrectionEnabled ? "Transcribing + Correcting..." : "Transcribing..."
 
         let savedApp = activeApp
+        let bundleID = activeAppBundleID
         do {
-            let result = try await backend.stopRecording()
+            let result = try await backend.stopRecording(activeAppBundleID: bundleID)
             lastResult = result
             NSSound(named: "Pop")?.play()
             onHideRecordingOverlay?()

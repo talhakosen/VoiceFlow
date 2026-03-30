@@ -65,7 +65,7 @@ class RecordingService:
             raise ValueError("Already recording")
         self._audio.start()
 
-    async def stop(self, user_id: str | None = None, tenant_id: str = "default") -> dict:
+    async def stop(self, user_id: str | None = None, tenant_id: str = "default", active_app: str | None = None) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
         Returns a dict ready for the API response.
@@ -119,10 +119,10 @@ class RecordingService:
         if self._corrector.config.enabled and result.text:
             t_llm = time.perf_counter()
             if hasattr(self._corrector, "correct_async"):
-                corrected = await self._corrector.correct_async(result.text, result.language, context_chunks or None)
+                corrected = await self._corrector.correct_async(result.text, result.language, context_chunks or None, active_app)
             else:
                 corrected = await loop.run_in_executor(
-                    _mlx_executor, self._corrector.correct, result.text, result.language, context_chunks or None
+                    _mlx_executor, self._corrector.correct, result.text, result.language, context_chunks or None, active_app
                 )
             logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
             if corrected != result.text:

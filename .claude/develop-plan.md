@@ -134,10 +134,10 @@
 
 ### 3.1 Kurumsal Özelleştirme
 
-- [ ] **Style/ton per-context** (Wispr Flow'daki gibi):
+- [DONE 2026-03-30] **Style/ton per-context** (Wispr Flow'daki gibi):
       Farklı uygulamalar için farklı ton: Mail → formal, Slack → casual, Terminal → teknik
       Mac app: aktif uygulamayı tespit et (NSWorkspace), ton otomatik seç
-      Admin: şirket genelinde varsayılan ton politikası
+      Bundle ID → tone mapping (10 app), X-Active-App header
 
 - [ ] **Şirket template library**:
       Admin upload: şirket içi email şablonları, rapor formatları
@@ -151,10 +151,10 @@
 
 ### 3.2 Engineering Package (Derinleştirme)
 
-- [ ] Git repo indexleme (otomatik, FSEvents ile değişiklik takibi)
-- [ ] Teknik terminoloji çıkarma (class/func/servis isimleri → dictionary'e ekle)
-- [ ] Çıktı formatları: kod yorumu, PR açıklaması, Jira ticket
-- [ ] VS Code / Cursor entegrasyonu (Vibe coding benzeri)
+- [DONE 2026-03-30] Git repo indexleme: ingest_git_repo() — git log + ingest_folder
+- [DONE 2026-03-30] Teknik terminoloji çıkarma: extract_symbols() regex, POST /api/engineering/extract-symbols
+- [DONE 2026-03-30] Çıktı formatları: output_format config (prose/code_comment/pr_description/jira_ticket)
+- [DONE 2026-03-30] VS Code entegrasyonu: docs/vscode-integration.md URL scheme dökümantasyonu
 
 ### 3.3 Office Package (Derinleştirme)
 

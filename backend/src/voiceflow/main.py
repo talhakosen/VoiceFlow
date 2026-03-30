@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
-from .api import router
+from .api import router, engineering_router
 from .api.auth_routes import router as auth_router
 from .api.admin_routes import router as admin_router
 from .db import init_db
@@ -85,6 +85,7 @@ _templates_dir = _pathlib.Path(__file__).parent.parent.parent / "templates"
 app.state.templates = Jinja2Templates(directory=str(_templates_dir))
 
 app.include_router(router, prefix="/api")
+app.include_router(engineering_router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(admin_router)
 

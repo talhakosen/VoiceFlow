@@ -25,6 +25,35 @@ _SYSTEM_PROMPTS = {
     ),
 }
 
+# Tone suffixes appended to the base system prompt based on active app
+_TONE_OVERRIDES = {
+    "formal": (
+        " Use formal, polished language suitable for professional correspondence. "
+        "Full sentences, no abbreviations."
+    ),
+    "casual": (
+        " Use natural, conversational language. Short sentences are fine."
+    ),
+    "technical": (
+        " Preserve all technical terms, commands, paths, and identifiers exactly as spoken. "
+        "Do not paraphrase or expand CLI commands."
+    ),
+}
+
+# Bundle ID → tone mapping
+_APP_TONE_MAP: dict[str, str] = {
+    "com.apple.mail": "formal",
+    "com.microsoft.Outlook": "formal",
+    "com.apple.Notes": "casual",
+    "com.tinyspeck.slackmacgap": "casual",
+    "com.discord": "casual",
+    "com.apple.Terminal": "technical",
+    "com.microsoft.VSCode": "technical",
+    "com.googlecode.iterm2": "technical",
+    "com.jetbrains.intellij": "technical",
+    "com.jetbrains.pycharm": "technical",
+}
+
 _SYSTEM_PROMPT = _SYSTEM_PROMPTS["general"]  # backward compat
 
 _FEW_SHOT_EXAMPLES = [
@@ -75,7 +104,7 @@ class OllamaCorrector:
         """No-op — Ollama manages its own lifecycle."""
         pass
 
-    async def correct_async(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
+    async def correct_async(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
         """Async version — preferred in server mode to avoid blocking the MLX executor."""
         import httpx
 
@@ -85,6 +114,11 @@ class OllamaCorrector:
             return text
 
         system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        if active_app:
+            tone = _APP_TONE_MAP.get(active_app)
+            if tone:
+                system_prompt = system_prompt + _TONE_OVERRIDES[tone]
+                logger.debug("Tone override '%s' applied for app: %s", tone, active_app)
         if context:
             context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
             system_prompt = system_prompt + f"\n\nRelevant context from company knowledge base:\n{context_block}"
@@ -127,7 +161,7 @@ class OllamaCorrector:
             logger.error("Ollama async correction failed: %s", e)
             return text
 
-    def correct(self, text: str, language: str | None = None, context: list[str] | None = None) -> str:
+    def correct(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
         """Correct transcription text via Ollama.
 
         Args:
@@ -147,6 +181,11 @@ class OllamaCorrector:
             return text
 
         system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+        if active_app:
+            tone = _APP_TONE_MAP.get(active_app)
+            if tone:
+                system_prompt = system_prompt + _TONE_OVERRIDES[tone]
+                logger.debug("Tone override '%s' applied for app: %s", tone, active_app)
         if context:
             context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
             system_prompt = system_prompt + f"\n\nRelevant context from company knowledge base:\n{context_block}"
