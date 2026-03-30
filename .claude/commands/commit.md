@@ -57,3 +57,32 @@ Check if `docs/` needs updating:
 - New app feature? → `docs/app-architecture.md`
 - Katman completed? → `docs/enterprise-strategy.md` roadmap güncelle
 - Competitor positioning changed? → `docs/research-wispr-flow.md`
+
+## Trello Güncelleme
+
+Her commit sonrası Trello board'u güncelle (Board: `Omhc3R8e`):
+
+1. **Tamamlanan kart varsa** → Done listesine taşı (`idList: 69cab079656e54941cc4572e`)
+2. **Checklist item'ları** → tamamlananları `state=complete` yap
+3. **Yeni bir şey keşfedildiyse** → Backlog'a kart ekle
+
+```
+Board  : Omhc3R8e
+Key    : 642cb17e41836ea0e33f92ff7bf17199
+Token  : ATTA1b2d6f3227ec8fb10feb07aba20675de3433c0a3da4ffa519ebe2f86bb0906a803B94A13
+
+Lists:
+  Backlog     : 69cab0784259d48aad42caf1
+  In Progress : 69cab07826e56dbf8d1cf44f
+  Done        : 69cab079656e54941cc4572e
+```
+
+Kart taşıma:
+```bash
+curl -s -X PUT "https://api.trello.com/1/cards/{CARD_ID}?key=KEY&token=TOKEN&idList=DONE_LIST_ID"
+```
+
+Checklist item tamamlama:
+```bash
+curl -s -X PUT "https://api.trello.com/1/cards/{CARD_ID}/checkItem/{ITEM_ID}?key=KEY&token=TOKEN&state=complete"
+```
