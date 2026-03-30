@@ -205,6 +205,41 @@ final class AppViewModel {
         }
     }
 
+    // MARK: - User profile (@Observable-tracked, persisted via didSet)
+
+    var userName: String = UserDefaults.standard.string(forKey: AppSettings.userName) ?? "" {
+        didSet { UserDefaults.standard.set(userName, forKey: AppSettings.userName) }
+    }
+
+    var userDepartment: String = UserDefaults.standard.string(forKey: AppSettings.userDepartment) ?? "" {
+        didSet { UserDefaults.standard.set(userDepartment, forKey: AppSettings.userDepartment) }
+    }
+
+    var userID: String = UserDefaults.standard.string(forKey: AppSettings.userID) ?? ""
+
+    // MARK: - Backend management (injected closures — no AppDelegate dependency)
+
+    var onRestartBackend: ((@escaping (Bool) -> Void) -> Void)?
+    var onHardReset: ((@escaping (Bool) -> Void) -> Void)?
+
+    func restartBackend() {
+        statusText = "Restarting backend..."
+        onRestartBackend? { [weak self] success in
+            Task { @MainActor [weak self] in
+                self?.statusText = success ? "Ready" : "Backend restart failed"
+            }
+        }
+    }
+
+    func hardReset() {
+        statusText = "Hard resetting..."
+        onHardReset? { [weak self] success in
+            Task { @MainActor [weak self] in
+                self?.statusText = success ? "Ready" : "Hard reset failed"
+            }
+        }
+    }
+
     // MARK: - Accessibility
 
     var hasAccessibility: Bool { AXIsProcessTrusted() }

@@ -1,6 +1,20 @@
 import AppKit
 import SwiftUI
 
+// MARK: - UserDefaults Keys
+
+enum AppSettings {
+    static let deploymentMode      = "deploymentMode"
+    static let serverURL           = "serverURL"
+    static let apiKey              = "apiKey"
+    static let appMode             = "appMode"
+    static let onboardingComplete  = "onboardingComplete"
+    static let defaultLanguage     = "defaultLanguage"
+    static let userID              = "userID"
+    static let userName            = "userName"
+    static let userDepartment      = "userDepartment"
+}
+
 // MARK: - LanguageMode
 
 enum LanguageMode: String, CaseIterable {

@@ -1,113 +1,318 @@
 import SwiftUI
+import AppKit
 
-// MARK: - UserDefaults Keys
+// MARK: - Settings Section
 
-enum AppSettings {
-    static let deploymentMode      = "deploymentMode"       // "local" | "server"
-    static let serverURL           = "serverURL"
-    static let apiKey              = "apiKey"
-    static let appMode             = "appMode"              // "general" | "engineering" | "office"
-    static let onboardingComplete  = "onboardingComplete"   // Bool
-    static let defaultLanguage     = "defaultLanguage"      // "tr" | "en" | "auto"
-    static let userID              = "userID"               // UUID string, auto-generated
-    static let userName            = "userName"             // display name (optional)
-    static let userDepartment      = "userDepartment"       // department (optional)
+private enum SettingsSection: String, CaseIterable, Identifiable {
+    case general       = "General"
+    case recording     = "Recording"
+    case knowledgeBase = "Knowledge Base"
+    case account       = "Account"
+    case about         = "About"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .general:       return "gearshape"
+        case .recording:     return "mic"
+        case .knowledgeBase: return "books.vertical"
+        case .account:       return "person.circle"
+        case .about:         return "info.circle"
+        }
+    }
 }
 
-// MARK: - SettingsView
+// MARK: - SettingsView (2-panel)
 
 struct SettingsView: View {
+    var viewModel: AppViewModel
+
+    @State private var selectedSection: SettingsSection = .general
+
+    var body: some View {
+        NavigationSplitView {
+            List(SettingsSection.allCases, selection: $selectedSection) { section in
+                Label(section.rawValue, systemImage: section.icon)
+                    .tag(section)
+            }
+            .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 155, ideal: 165)
+        } detail: {
+            Group {
+                switch selectedSection {
+                case .general:       GeneralSection()
+                case .recording:     RecordingSection(viewModel: viewModel)
+                case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
+                case .account:       AccountSection(viewModel: viewModel)
+                case .about:         AboutSection(viewModel: viewModel)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .navigationSplitViewStyle(.balanced)
+        .frame(width: 640, height: 460)
+    }
+}
+
+// MARK: - General
+
+private struct GeneralSection: View {
     @AppStorage(AppSettings.deploymentMode) private var deploymentMode = "local"
     @AppStorage(AppSettings.serverURL)      private var serverURL      = "http://127.0.0.1:8765"
     @AppStorage(AppSettings.apiKey)         private var apiKey         = ""
-    @AppStorage(AppSettings.userName)       private var userName       = ""
-    @AppStorage(AppSettings.userDepartment) private var userDepartment = ""
-    @AppStorage(AppSettings.userID)         private var userID         = ""
-
     @State private var showRestartNotice = false
 
     var body: some View {
         Form {
-            Section {
-                Picker("Deployment Mode", selection: $deploymentMode) {
-                    Text("Local (Mac)").tag("local")
-                    Text("Server (On-Premise / RunPod)").tag("server")
+            Section("Shortcut") {
+                LabeledContent("Hotkey") {
+                    Text("Fn × 2  (double-tap to toggle recording)")
+                        .foregroundStyle(.secondary)
                 }
-                .pickerStyle(.segmented)
-                .onChange(of: deploymentMode) {
-                    showRestartNotice = true
+                LabeledContent("Force Stop") {
+                    Text("⌘S  from menu bar")
+                        .foregroundStyle(.secondary)
                 }
-            } header: {
-                Text("Connection")
-                    .font(.headline)
             }
 
-            if deploymentMode == "server" {
-                Section {
+            Section("Connection") {
+                Picker("Deployment Mode", selection: $deploymentMode) {
+                    Text("Local (Mac — MLX)").tag("local")
+                    Text("Server (On-Premise / RunPod)").tag("server")
+                }
+                .onChange(of: deploymentMode) { showRestartNotice = true }
+
+                if deploymentMode == "server" {
                     LabeledContent("Server URL") {
                         TextField("https://voiceflow.company.internal:8765", text: $serverURL)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 280)
+                            .frame(minWidth: 240)
                     }
-
                     LabeledContent("API Key") {
                         SecureField("Paste API key here", text: $apiKey)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 280)
+                            .frame(minWidth: 240)
                     }
-                } header: {
-                    Text("Server Configuration")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                Section {
                     HStack(spacing: 6) {
-                        Image(systemName: "lock.shield")
-                            .foregroundStyle(.green)
+                        Image(systemName: "lock.shield").foregroundStyle(.green)
                         Text("All audio processing happens on your server. No data leaves your network.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                 }
-            }
-
-            Section {
-                LabeledContent("Ad Soyad") {
-                    TextField("Opsiyonel", text: $userName)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 200)
-                }
-                LabeledContent("Departman") {
-                    TextField("Opsiyonel", text: $userDepartment)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 200)
-                }
-                LabeledContent("Kullanıcı ID") {
-                    Text(userID.isEmpty ? "—" : userID)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                Text("Profil")
-                    .font(.headline)
             }
 
             if showRestartNotice {
                 Section {
                     HStack(spacing: 6) {
-                        Image(systemName: "arrow.clockwise.circle")
-                            .foregroundStyle(.orange)
+                        Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
                         Text("Restart VoiceFlow to apply mode change.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+    }
+}
+
+// MARK: - Recording
+
+private struct RecordingSection: View {
+    var viewModel: AppViewModel
+
+    var body: some View {
+        Form {
+            Section("Language") {
+                Picker("Language", selection: Binding(
+                    get: { viewModel.currentLanguageMode },
+                    set: { viewModel.selectLanguageMode($0) }
+                )) {
+                    ForEach(LanguageMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
                     }
                 }
             }
 
+            Section("Mode") {
+                Picker("Transcription Mode", selection: Binding(
+                    get: { viewModel.currentAppMode },
+                    set: { viewModel.selectAppMode($0) }
+                )) {
+                    ForEach(AppMode.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.radioGroup)
+
+                Text("Mode adjusts the LLM system prompt for better context-specific corrections.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            Section("LLM Correction") {
+                Toggle("Smart Correction (Qwen 7B)", isOn: Binding(
+                    get: { viewModel.isCorrectionEnabled },
+                    set: { _ in viewModel.toggleCorrection() }
+                ))
+                Text("Loads a ~4 GB model on first use. Corrects punctuation, capitalisation, and Turkish characters.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .padding()
-        .frame(width: 460)
+    }
+}
+
+// MARK: - Knowledge Base
+
+private struct KnowledgeBaseSection: View {
+    var viewModel: AppViewModel
+    @State private var selectedFolderPath = ""
+
+    var body: some View {
+        Form {
+            Section("Index Status") {
+                HStack {
+                    Image(systemName: viewModel.contextChunkCount > 0 ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(viewModel.contextChunkCount > 0 ? .green : .secondary)
+                    if viewModel.contextChunkCount > 0 {
+                        Text("\(viewModel.contextChunkCount) chunks indexed")
+                    } else {
+                        Text("Not indexed").foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if viewModel.contextChunkCount > 0 {
+                        Button("Clear") { viewModel.clearContext() }
+                            .buttonStyle(.plain).foregroundStyle(.red)
+                    }
+                }
+            }
+
+            Section("Index a Folder") {
+                HStack {
+                    TextField("Folder path", text: $selectedFolderPath)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(.body, design: .monospaced))
+                    Button("Browse…") { pickFolder() }
+                }
+
+                Text("Supported: .txt .md .py .swift .ts .js .go .java .yaml .json")
+                    .font(.caption).foregroundStyle(.secondary)
+
+                Button {
+                    guard !selectedFolderPath.isEmpty else { return }
+                    viewModel.ingestContext(folderPath: selectedFolderPath)
+                } label: {
+                    if viewModel.isIndexing {
+                        HStack(spacing: 6) {
+                            ProgressView().scaleEffect(0.7)
+                            Text("Indexing…")
+                        }
+                    } else {
+                        Text("Index Now")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(selectedFolderPath.isEmpty || viewModel.isIndexing)
+
+                if let error = viewModel.contextIndexingError {
+                    Text(error).font(.caption).foregroundStyle(.red)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .onAppear { viewModel.loadContextStatus() }
+    }
+
+    @MainActor
+    private func pickFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Select Folder"
+        if panel.runModal() == .OK, let url = panel.url {
+            selectedFolderPath = url.path
+        }
+    }
+}
+
+// MARK: - Account
+
+private struct AccountSection: View {
+    var viewModel: AppViewModel
+
+    @State private var userName: String
+    @State private var userDepartment: String
+
+    init(viewModel: AppViewModel) {
+        self.viewModel = viewModel
+        _userName       = State(initialValue: viewModel.userName)
+        _userDepartment = State(initialValue: viewModel.userDepartment)
+    }
+
+    var body: some View {
+        Form {
+            Section("Profile") {
+                LabeledContent("Ad Soyad") {
+                    TextField("Opsiyonel", text: $userName)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 200)
+                        .onChange(of: userName) { viewModel.userName = userName }
+                }
+                LabeledContent("Departman") {
+                    TextField("Opsiyonel", text: $userDepartment)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(minWidth: 200)
+                        .onChange(of: userDepartment) { viewModel.userDepartment = userDepartment }
+                }
+                LabeledContent("Kullanıcı ID") {
+                    Text(viewModel.userID.isEmpty ? "—" : viewModel.userID)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+    }
+}
+
+// MARK: - About
+
+private struct AboutSection: View {
+    var viewModel: AppViewModel
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.2"
+    }
+
+    var body: some View {
+        Form {
+            Section("VoiceFlow") {
+                LabeledContent("Version") {
+                    Text("v\(appVersion)").foregroundStyle(.secondary)
+                }
+                LabeledContent("Backend") {
+                    Text(viewModel.statusText).foregroundStyle(.secondary)
+                }
+            }
+
+            Section("Backend Control") {
+                Button("Restart Backend") { viewModel.restartBackend() }
+                    .buttonStyle(.bordered)
+
+                Button("Hard Reset Backend") { viewModel.hardReset() }
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(.red)
+
+                Text("Hard reset kills the backend process and restarts from scratch.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
     }
 }

@@ -86,10 +86,10 @@ class MenuBarController: NSObject {
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
-        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 460, height: 480),
+        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 460),
                              styleMask: [.titled, .closable, .nonactivatingPanel],
                              backing: .buffered, defer: false)
-        window.contentViewController = NSHostingController(rootView: SettingsView())
+        window.contentViewController = NSHostingController(rootView: SettingsView(viewModel: viewModel))
         window.title = "VoiceFlow — Settings"
         window.isFloatingPanel = true
         window.level = .floating

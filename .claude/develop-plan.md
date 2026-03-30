@@ -29,7 +29,7 @@
       Sadece: Status | Toggle Recording | Force Stop | ─ | Settings | Quit
       Dil, mod, correction → Settings'e taşı
 
-- [ ] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
+- [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
       Sol nav: General | Recording | Knowledge Base | Account | About
       Sağ content:
         - General: shortcut (fn), dil seçimi, ses efektleri

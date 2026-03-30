@@ -15,6 +15,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ensureUserID()
 
         let vm = AppViewModel()
+        vm.onRestartBackend = { [weak self] completion in self?.restartBackend(completion: completion) }
+        vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
         self.viewModel = vm
 
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
