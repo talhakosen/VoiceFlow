@@ -7,6 +7,8 @@ from .storage import (
     get_tenant_stats,
     append_audit_log, get_audit_log, delete_user_data,
     save_feedback,
+    get_training_sentences, save_training_feedback, get_sentences_count,
+    get_user_stats, get_user_corrections,
 )
 
 __all__ = [
@@ -18,4 +20,6 @@ __all__ = [
     "get_tenant_stats",
     "append_audit_log", "get_audit_log", "delete_user_data",
     "save_feedback",
+    "get_training_sentences", "save_training_feedback", "get_sentences_count",
+    "get_user_stats", "get_user_corrections",
 ]

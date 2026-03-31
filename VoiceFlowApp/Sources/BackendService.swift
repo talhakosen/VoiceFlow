@@ -119,6 +119,61 @@ struct StatusResponse: Codable {
     }
 }
 
+// MARK: - My Space models (Katman 4)
+
+struct MySpaceStats: Decodable {
+    let totalTranscripts: Int
+    let totalWords: Int
+    let totalCorrected: Int
+    let correctionRate: Double
+    let recognitionScore: Double
+    let weekTranscripts: Int
+    let weekWords: Int
+
+    enum CodingKeys: String, CodingKey {
+        case totalTranscripts  = "total_transcripts"
+        case totalWords        = "total_words"
+        case totalCorrected    = "total_corrected"
+        case correctionRate    = "correction_rate"
+        case recognitionScore  = "recognition_score"
+        case weekTranscripts   = "week_transcripts"
+        case weekWords         = "week_words"
+    }
+}
+
+struct CorrectionItem: Identifiable, Decodable {
+    let id: Int
+    let rawText: String
+    let text: String
+    let createdAt: String
+    let mode: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, text, mode
+        case rawText   = "raw_text"
+        case createdAt = "created_at"
+    }
+}
+
+struct CorrectionsResponse: Decodable {
+    let items: [CorrectionItem]
+    let count: Int
+}
+
+// MARK: - Training Mode models (Katman 4)
+
+struct TrainingSentence: Codable, Identifiable {
+    let id: Int
+    let domain: String
+    let difficulty: String
+    let text: String
+}
+
+struct TrainingSentencesResponse: Decodable {
+    let items: [TrainingSentence]
+    let count: Int
+}
+
 // MARK: - Protocol (enables mock injection for tests/previews)
 
 protocol BackendServiceProtocol: Actor {
@@ -148,6 +203,14 @@ protocol BackendServiceProtocol: Actor {
 
     // Training Mode (Katman 4)
     func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String?) async throws
+
+    // On-Demand Training Session (Katman 4)
+    func fetchTrainingSentences(domain: String?) async throws -> [TrainingSentence]
+    func submitTrainingFeedback(sentenceId: Int, originalText: String, transcribedText: String, correctedText: String, domain: String) async throws
+
+    // My Space (Katman 4)
+    func getMySpaceStats() async throws -> MySpaceStats
+    func getMyCorrections(limit: Int) async throws -> [CorrectionItem]
 }
 
 // MARK: - Concrete implementation
@@ -473,6 +536,56 @@ actor BackendService: BackendServiceProtocol {
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
+    }
+
+    func fetchTrainingSentences(domain: String?) async throws -> [TrainingSentence] {
+        var path = "training/sentences"
+        if let domain = domain, !domain.isEmpty {
+            path += "?domain=\(domain)"
+        }
+        let request = makeRequest(path: path)
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(TrainingSentencesResponse.self, from: data).items
+    }
+
+    func submitTrainingFeedback(sentenceId: Int, originalText: String, transcribedText: String, correctedText: String, domain: String) async throws {
+        var request = makeRequest(path: "training/feedback", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: Any] = [
+            "sentence_id": sentenceId,
+            "original_text": originalText,
+            "transcribed_text": transcribedText,
+            "corrected_text": correctedText,
+            "domain": domain,
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    // MARK: - My Space
+
+    func getMySpaceStats() async throws -> MySpaceStats {
+        let request = makeRequest(path: "me/stats")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(MySpaceStats.self, from: data)
+    }
+
+    func getMyCorrections(limit: Int = 50) async throws -> [CorrectionItem] {
+        let request = makeRequest(path: "me/corrections?limit=\(limit)")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(CorrectionsResponse.self, from: data).items
     }
 }
 

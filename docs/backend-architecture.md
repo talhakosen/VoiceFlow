@@ -25,7 +25,8 @@ backend/src/voiceflow/
 │   ├── dictionary.py          # apply_dictionary() — word-boundary substitution
 │   └── snippets.py            # apply_snippets() — exact-match expansion
 ├── db/
-│   └── storage.py             # aiosqlite CRUD (~/.voiceflow/voiceflow.db)
+│   ├── storage.py             # aiosqlite CRUD (~/.voiceflow/voiceflow.db)
+│   └── seed_sentences.py      # Training sentences seed (200+ TR, domain/difficulty)
 ├── audio/
 │   └── capture.py             # sounddevice ses kaydı, force_reset()
 ├── transcription/
@@ -343,9 +344,11 @@ backend/src/voiceflow/context/
 
 ## Katman 4 — Planlanan Backend Değişiklikleri
 
-### Yeni Endpoint (P1)
+### Training Mode Endpoints (K4)
 ```
-POST /api/feedback   → {raw_whisper, model_output, user_action, user_edit, app_context}
+POST /api/feedback              → {raw_whisper, model_output, user_action, user_edit}  — correction feedback kaydet
+GET  /api/training/sentences    → ?domain=general|engineering|office  — 50 rastgele cümle döner
+POST /api/training/feedback     → {sentence_id, original_text, transcribed_text, corrected_text, domain}  — training pair kaydet
 ```
 
 ### Yeni SQLite Tablosu (P1)

@@ -2,7 +2,7 @@
 
 ---
 
-## Şu An Çalışan (v0.3 — Katman 1 + Katman 2 kısmen)
+## Şu An Çalışan (v0.6 — Katman 4 kısmen)
 
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
@@ -197,10 +197,10 @@
 
 ### 4.3 P1 — Training Mode (3-5 gün)
 
-- [DONE 2026-03-31] **Feedback pill (Swift)** — paste sonrası NSPanel: [✓ Doğru] [✗ Düzelt], 5sn auto-dismiss
+- [DONE 2026-03-31] **Feedback pill (Swift)** — paste sonrası NSPanel, kelime chip UX, NSAlert dialog düzeltme, no auto-dismiss
 - [DONE 2026-03-31] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
 - [DONE 2026-03-31] **`POST /api/feedback` endpoint** — feedback kaydet
-- [DONE 2026-03-31] **Settings: Training Mode section** — toggle
+- [DONE 2026-03-31] **Settings: Training Mode toggle** — trainingModeEnabled UserDefaults
 
 ### 4.4 P2 — Fine-Tuning Pipeline (3 hafta)
 
@@ -214,12 +214,27 @@
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 
-### 4.5 P3 — Müşteriye Özel Adapter (Killer Feature)
+### 4.5 P2.5 — My Space (Kişisel Alan)
+
+Trello: 69cc33eb366eb363d100ffdf
+
+**Tek ekran, tek giriş** — "Training", "On-Demand Session" gibi teknik terimler kullanıcıya gözükmez.
+
+- [DONE 2026-03-31] **Backend: `GET /api/me/stats`** — toplam transkript, kelime, düzeltme oranı, tanıma skoru
+- [DONE 2026-03-31] **Backend: `GET /api/me/corrections`** — son 50 düzeltme (raw→corrected)
+- [DONE 2026-03-31] **Backend: `GET /api/training/sentences`** + `POST /api/training/feedback` — 5'erli mini session
+- [DONE 2026-03-31] **Mac app: My Space paneli** — MenuBar → "Kişisel Alan", NSPanel, NSWindowDelegate ile lifecycle yönetimi
+      - [DONE 2026-03-31] Tanıma skoru: progress ring, "VoiceFlow sizi %X oranında doğru anlıyor"
+      - [DONE 2026-03-31] İstatistik kartları + son düzeltmeler feed'i
+      - [DONE 2026-03-31] "5 Cümle Söyle" butonu → TrainingSessionView (5 cümle, özet)
+      - [DONE 2026-03-31] Boş state gösterimi
+
+### 4.6 P3 — Müşteriye Özel Adapter (Killer Feature)
 
 - [ ] **Müşteri adapter sistemi** — base adapter üzerine domain fine-tune
       Örnek: Akbank (+bankacılık), Turkcell (+telekom), THY (+havacılık)
       Veri makineden çıkmaz — KVKK doğal uyum
-- [ ] **"VoiceFlow sizi tanıyor" satış mesajı** — ilk 1 ay Training Mode → özelleşmiş model
+- [ ] **"VoiceFlow sizi tanıyor" satış mesajı** — My Space'teki tanıma skoru → özelleşmiş model
 
 ---
 

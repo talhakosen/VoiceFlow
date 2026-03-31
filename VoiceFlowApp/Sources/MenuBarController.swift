@@ -10,6 +10,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
     private var settingsWindow: NSWindow?
+    private var mySpaceWindow: NSWindow?
     private var lastKnownRole: String = ""
 
     init(viewModel: AppViewModel) {
@@ -73,6 +74,7 @@ class MenuBarController: NSObject {
         menu.addItem(action("Toggle Recording", sel: #selector(toggleRecording), key: "r"))
         menu.addItem(action("Force Stop",       sel: #selector(forceStop),       key: "s"))
         menu.addItem(.separator())
+        menu.addItem(action("Kisisel Alan",     sel: #selector(openMySpace),     key: "m"))
         menu.addItem(action("Settings...",      sel: #selector(openSettings),    key: ","))
         let role = viewModel.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
@@ -114,6 +116,27 @@ class MenuBarController: NSObject {
         settingsWindow = window
     }
 
+    func openMySpaceFromViewModel() {
+        openMySpace()
+    }
+
+    @objc private func openMySpace() {
+        if let w = mySpaceWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let view = MySpaceView(viewModel: viewModel)
+        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 680, height: 560),
+                             styleMask: [.titled, .closable, .nonactivatingPanel],
+                             backing: .buffered, defer: false)
+        window.contentViewController = NSHostingController(rootView: view)
+        window.title = "Kişisel Alan"
+        window.isFloatingPanel = true
+        window.level = .floating
+        window.delegate = self
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        mySpaceWindow = window
+    }
+
     @objc private func openAdminPanel() {
         let baseURL = UserDefaults.standard.string(forKey: AppSettings.serverURL) ?? "http://127.0.0.1:8765"
         if let url = URL(string: "\(baseURL)/admin") {
@@ -147,4 +170,14 @@ class MenuBarController: NSObject {
         return item
     }
 
+}
+
+// MARK: - NSWindowDelegate
+
+extension MenuBarController: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        if (notification.object as? NSWindow) === mySpaceWindow {
+            mySpaceWindow = nil
+        }
+    }
 }

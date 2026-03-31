@@ -6,22 +6,19 @@ import AppKit
 private struct WordToken: Identifiable {
     let id = UUID()
     let original: String      // never changes — original model output
-    var text: String          // may be edited by user
-    var isWrong = false       // single tap = marked wrong
-    var isEditing = false     // double tap = edit mode
-    var editBuffer = ""
+    var text: String          // may be edited via dialog
+    var isWrong = false       // single tap = marked wrong (red)
 }
 
 // MARK: - TrainingPillView
 
 /// Floating feedback panel shown after paste when Training Mode is enabled.
-/// Displays transcription as word chips — tap any word to correct it inline.
-/// Auto-dismisses after 15 seconds (timer resets on any interaction).
+/// Displays transcription as word chips.
+/// First tap → red (mark wrong). Second tap → NSAlert dialog to correct.
 struct TrainingPillView: View {
     var viewModel: AppViewModel
 
     @State private var tokens: [WordToken] = []
-    @State private var confirmed = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -47,7 +44,7 @@ struct TrainingPillView: View {
             wordChipsView
 
             // Hint
-            Text("Yanlış kelimeye tıkla ve düzelt. Dokunmadan bırakırsan onaylanmış sayılır.")
+            Text("Yanlış kelimeye tıkla → kırmızı. Tekrar tıkla → düzelt.")
                 .font(.system(size: 10))
                 .foregroundStyle(.tertiary)
 
@@ -67,7 +64,7 @@ struct TrainingPillView: View {
             }
         }
         .padding(14)
-        .frame(width: 460)
+        .frame(minWidth: 500, maxWidth: 700)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 4)
@@ -84,54 +81,17 @@ struct TrainingPillView: View {
 
     private var wordChipsView: some View {
         FlowLayout(spacing: 5) {
-            ForEach($tokens) { $token in
-                if token.isEditing {
-                    // Double-tap: inline edit
-                    HStack(spacing: 3) {
-                        TextField("", text: $token.editBuffer)
-                            .font(.system(size: 12))
-                            .frame(minWidth: 40, maxWidth: 120)
-                            .textFieldStyle(.plain)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(Color.orange.opacity(0.15))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .onSubmit { applyEdit(token: &token) }
-
-                        Button { applyEdit(token: &token) } label: {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(.green)
-                        }.buttonStyle(.plain)
-
-                        Button {
-                            token.isEditing = false
-                            token.editBuffer = ""
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.secondary)
-                        }.buttonStyle(.plain)
+            ForEach(tokens.indices, id: \.self) { idx in
+                chipView(token: tokens[idx])
+                    .onTapGesture {
+                        if tokens[idx].isWrong {
+                            // Second tap → open native dialog
+                            showEditDialog(for: idx)
+                        } else {
+                            // First tap → mark wrong
+                            tokens[idx].isWrong = true
+                        }
                     }
-                } else {
-                    // Normal chip
-                    chipView(token: token)
-                        .onTapGesture(count: 2) {
-                            // Double tap → edit
-                            closeAllEditing()
-                            if let idx = tokens.firstIndex(where: { $0.id == token.id }) {
-                                tokens[idx].editBuffer = tokens[idx].text
-                                tokens[idx].isEditing = true
-                            }
-                        }
-                        .onTapGesture(count: 1) {
-                            // Single tap → toggle wrong
-                            if let idx = tokens.firstIndex(where: { $0.id == token.id }) {
-                                tokens[idx].isWrong.toggle()
-                            }
-                        }
-                        .help(token.isWrong ? "Çift tıkla ve düzelt, ya da gönder" : "Hatalıysa tıkla")
-                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -140,12 +100,12 @@ struct TrainingPillView: View {
     @ViewBuilder
     private func chipView(token: WordToken) -> some View {
         let isEdited = token.text != token.original
-        let bg: Color = isEdited ? .green.opacity(0.15) : token.isWrong ? .red.opacity(0.15) : .secondary.opacity(0.1)
-        let border: Color = isEdited ? .green.opacity(0.4) : token.isWrong ? .red.opacity(0.4) : .clear
+        let bg: Color = isEdited ? .green.opacity(0.12) : token.isWrong ? .red.opacity(0.08) : .secondary.opacity(0.1)
+        let border: Color = isEdited ? .green.opacity(0.3) : token.isWrong ? .red.opacity(0.25) : .clear
 
         Text(token.text)
             .font(.system(size: 12))
-            .strikethrough(token.isWrong && !isEdited, color: .red.opacity(0.5))
+            .foregroundStyle(token.isWrong && !isEdited ? Color.red.opacity(0.7) : Color.primary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(bg)
@@ -153,41 +113,52 @@ struct TrainingPillView: View {
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(border, lineWidth: 1))
     }
 
-    private func closeAllEditing() {
-        for i in tokens.indices where tokens[i].isEditing {
-            tokens[i].isEditing = false
+    // MARK: - Edit dialog
+
+    private func showEditDialog(for idx: Int) {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let alert = NSAlert()
+        alert.messageText = "Kelimeyi düzelt"
+        alert.informativeText = "Orijinal: \"\(tokens[idx].original)\""
+        alert.addButton(withTitle: "Uygula")
+        alert.addButton(withTitle: "İptal")
+
+        let tf = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 24))
+        tf.stringValue = tokens[idx].text
+        tf.placeholderString = "Doğru yazım..."
+        alert.accessoryView = tf
+        alert.window.initialFirstResponder = tf
+        // Raise above the floating panel
+        alert.window.level = .floating + 1
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            let trimmed = tf.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                tokens[idx].text = trimmed
+                tokens[idx].isWrong = false  // edited → green
+            }
         }
     }
 
-    private func applyEdit(token: inout WordToken) {
-        let trimmed = token.editBuffer.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmed.isEmpty {
-            token.text = trimmed
-        }
-        token.isEditing = false
-        token.editBuffer = ""
-    }
+    // MARK: - Submit
 
     private func submitFeedback() {
-        confirmed = true
         let originalText = viewModel.trainingPillResult?.text ?? ""
         let correctedText = tokens.map(\.text).joined(separator: " ")
         let hasEdits = correctedText != originalText
         let hasWrongMarks = tokens.contains { $0.isWrong && $0.text == $0.original }
 
         if hasEdits {
-            // User edited some words → full correction pair
             Task { await viewModel.editFeedback(corrected: correctedText) }
         } else if hasWrongMarks {
-            // User marked words as wrong but didn't edit → partial signal
             let wrongWords = tokens.filter { $0.isWrong }.map(\.text).joined(separator: ", ")
             Task { await viewModel.editFeedback(corrected: "__wrong_words__: \(wrongWords)") }
         } else {
-            // All good
             Task { await viewModel.approveFeedback() }
         }
     }
-
 }
 
 // MARK: - FlowLayout (word wrap)
@@ -251,7 +222,7 @@ final class TrainingPillWindowController: NSObject {
         hostingView = hosting
 
         let p = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 492, height: 160),
+            contentRect: NSRect(x: 0, y: 0, width: 640, height: 200),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -264,7 +235,6 @@ final class TrainingPillWindowController: NSObject {
         p.contentView = hosting
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
-        // Position: bottom-center of screen (avoids covering active text areas)
         if let screen = NSScreen.main {
             let sw = screen.visibleFrame
             let pw = p.frame.width

@@ -11,6 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var loginWindow: NSPanel?
     private let trainingPillController = TrainingPillWindowController()
     private var trainingPillObserver: Task<Void, Never>? = nil
+    private let trainingSessionController = TrainingSessionWindowController()
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
@@ -25,6 +26,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.recordingOverlay = overlay
         vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.orderFront(nil) } }
         vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.orderOut(nil) } }
+        vm.onShowTrainingSession = { [weak self] in DispatchQueue.main.async { self?.trainingSessionController.show() } }
+        vm.onShowMySpace = { [weak self] in DispatchQueue.main.async { self?.menuBarController?.openMySpaceFromViewModel() } }
 
         // Observe Training Mode pill state
         trainingPillObserver = Task { @MainActor [weak self] in
