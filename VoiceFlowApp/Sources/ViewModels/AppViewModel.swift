@@ -292,7 +292,16 @@ final class AppViewModel {
         statusText = "Restarting backend..."
         onRestartBackend? { [weak self] success in
             Task { @MainActor [weak self] in
-                self?.statusText = success ? "Ready" : "Backend restart failed"
+                guard let self else { return }
+                self.statusText = success ? "Ready" : "Backend restart failed"
+                if success {
+                    try? await self.backend.updateConfig(
+                        language: self.currentLanguageMode.language,
+                        task: self.currentLanguageMode.task,
+                        correctionEnabled: self.isCorrectionEnabled,
+                        mode: self.currentAppMode.rawValue
+                    )
+                }
             }
         }
     }

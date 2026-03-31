@@ -88,6 +88,7 @@ class OllamaCorrectorConfig:
 
     model_name: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "qwen2.5:7b"))
     llm_endpoint: str = field(default_factory=lambda: os.getenv("LLM_ENDPOINT", "http://localhost:11434"))
+    api_key: str = field(default_factory=lambda: os.getenv("LLM_API_KEY", ""))
     max_tokens: int = 512
     enabled: bool = False
     mode: str = "general"  # "general" | "engineering" | "office"
@@ -148,9 +149,13 @@ class OllamaCorrector:
         messages.append({"role": "user", "content": text})
 
         try:
+            headers = {}
+            if self.config.api_key:
+                headers["Authorization"] = f"Bearer {self.config.api_key}"
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     f"{self.config.llm_endpoint}/v1/chat/completions",
+                    headers=headers,
                     json={
                         "model": self.config.model_name,
                         "messages": messages,
@@ -215,8 +220,12 @@ class OllamaCorrector:
         messages.append({"role": "user", "content": text})
 
         try:
+            headers = {}
+            if self.config.api_key:
+                headers["Authorization"] = f"Bearer {self.config.api_key}"
             response = httpx.post(
                 f"{self.config.llm_endpoint}/v1/chat/completions",
+                headers=headers,
                 json={
                     "model": self.config.model_name,
                     "messages": messages,

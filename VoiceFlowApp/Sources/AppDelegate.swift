@@ -187,24 +187,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         env["HF_TOKEN"] = env["HF_TOKEN"] ?? ""
 
         let llmMode = UserDefaults.standard.string(forKey: AppSettings.llmMode) ?? "local"
-        if llmMode == "cloud" {
-            env["LLM_BACKEND"] = "ollama"
-            // Read LLM_ENDPOINT from .env file in project root
-            let projectRoot = URL(fileURLWithPath: backendPath).deletingLastPathComponent().path
-            let envFile = "\(projectRoot)/.env"
-            if let contents = try? String(contentsOfFile: envFile, encoding: .utf8) {
-                for line in contents.components(separatedBy: "\n") {
-                    let parts = line.components(separatedBy: "=")
-                    if parts.count >= 2 {
-                        let key = parts[0].trimmingCharacters(in: .whitespaces)
-                        let value = parts[1...].joined(separator: "=").trimmingCharacters(in: .whitespaces)
-                        if ["LLM_ENDPOINT", "LLM_MODEL", "HF_TOKEN"].contains(key) {
-                            env[key] = value
-                        }
-                    }
+        // Parse .env file once
+        let projectRoot = URL(fileURLWithPath: backendPath).deletingLastPathComponent().path
+        var dotEnv: [String: String] = [:]
+        if let contents = try? String(contentsOfFile: "\(projectRoot)/.env", encoding: .utf8) {
+            for line in contents.components(separatedBy: "\n") {
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.hasPrefix("#"), !trimmed.isEmpty else { continue }
+                let parts = trimmed.components(separatedBy: "=")
+                if parts.count >= 2 {
+                    dotEnv[parts[0].trimmingCharacters(in: .whitespaces)] = parts[1...].joined(separator: "=").trimmingCharacters(in: .whitespaces)
                 }
             }
-            NSLog("VoiceFlow: LLM_BACKEND=ollama, LLM_ENDPOINT=%@", env["LLM_ENDPOINT"] ?? "nil")
+        }
+
+        if llmMode == "cloud" {
+            env["LLM_BACKEND"] = "ollama"
+            for key in ["LLM_ENDPOINT", "LLM_MODEL", "HF_TOKEN"] {
+                if let val = dotEnv[key] { env[key] = val }
+            }
+            NSLog("VoiceFlow: LLM_BACKEND=ollama (RunPod), LLM_ENDPOINT=%@", env["LLM_ENDPOINT"] ?? "nil")
+        } else if llmMode == "alibaba" {
+            env["LLM_BACKEND"] = "ollama"
+            env["LLM_ENDPOINT"] = "https://dashscope-intl.aliyuncs.com/compatible-mode"
+            env["LLM_MODEL"] = "qwen-max"
+            if let apiKey = dotEnv["ALIBABA_API_KEY"] { env["LLM_API_KEY"] = apiKey }
+            NSLog("VoiceFlow: LLM_BACKEND=ollama (Alibaba DashScope), model=qwen-max")
         } else {
             env["LLM_BACKEND"] = "mlx"
         }

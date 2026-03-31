@@ -363,8 +363,9 @@ private struct RecordingSection: View {
                 ))
 
                 Picker("LLM Backend", selection: $llmMode) {
-                    Text("Local (Mac — MLX)").tag("local")
-                    Text("Cloud (RunPod — Ollama)").tag("cloud")
+                    Text("Local (Mac — MLX Qwen 7B)").tag("local")
+                    Text("Cloud (RunPod — Ollama Qwen 7B)").tag("cloud")
+                    Text("Alibaba (Qwen Max — API)").tag("alibaba")
                 }
                 .onChange(of: llmMode) { showRestartNotice = true }
 
@@ -374,6 +375,14 @@ private struct RecordingSection: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(minWidth: 360)
                             .onChange(of: llmEndpoint) { showRestartNotice = true }
+                    }
+                }
+
+                if llmMode == "alibaba" {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bolt.fill").foregroundStyle(.orange)
+                        Text("Alibaba DashScope — qwen-max. Hızlı, yüksek kalite. İnternet gerektirir.")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                 }
 

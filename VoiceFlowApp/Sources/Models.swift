@@ -13,7 +13,7 @@ enum AppSettings {
     static let userID              = "userID"
     static let userName            = "userName"
     static let userDepartment      = "userDepartment"
-    static let llmMode             = "llmMode"      // "local" | "cloud"
+    static let llmMode             = "llmMode"      // "local" | "cloud" | "alibaba"
     static let llmEndpoint         = "llmEndpoint"  // cloud Ollama URL
 }
 

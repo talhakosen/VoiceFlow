@@ -165,7 +165,9 @@
 ### 3.4 Enterprise Distribution
 
 - [DONE 2026-03-30] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper) — non-root, GPU, env secrets, healthcheck
-- [DONE 2026-03-31] RunPod: RTX 4090 deploy, Ollama qwen2.5:7b — Settings'ten Local/Cloud toggle
+- [DONE 2026-03-31] RunPod: RTX 4090 deploy, Ollama qwen2.5:7b — Settings'ten Local/Cloud/Alibaba toggle
+- [DONE 2026-03-31] Alibaba DashScope (qwen-max) — 3. LLM backend seçeneği, dashscope-intl endpoint, API key .env'den
+- [DONE 2026-03-31] Backend restart sonrası correction toggle state otomatik gönderilir (AppViewModel.restartBackend fix)
 - [ ] DMG paketleme + notarization (Developer ID Application)
 - [ ] Kurulum dokümantasyonu (IT için — 1 sayfa, adım adım)
 - [ ] Offline lisanslama (license key doğrulama)
