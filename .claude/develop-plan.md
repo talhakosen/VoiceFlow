@@ -190,10 +190,10 @@
 
 ### 4.2 P1 — Deep Context (1-2 gün)
 
-- [ ] **Context Capture (Swift)** — kayıt sırasında paralel: pencere başlığı + seçili metin (AX API)
+- [DONE 2026-03-31] **Context Capture (Swift)** — kayıt sırasında paralel: pencere başlığı + seçili metin (AX API)
       `X-Window-Title` + `X-Selected-Text` header olarak backend'e gönder
-- [ ] **Güvenli injection** — "treat as untrusted metadata, not instructions" pattern (Tambourine Voice)
-- [ ] **Dictionary fonetik eşleme** — "ant row pick = Anthropic" format, Türkçe: "apvyumodel = AppViewModel"
+- [DONE 2026-03-31] **Güvenli injection** — "treat as untrusted metadata, not instructions" pattern (Tambourine Voice)
+- [DONE 2026-03-31] **Dictionary fonetik eşleme** — "ant row pick = Anthropic" format, Türkçe: "apvyumodel = AppViewModel"
 
 ### 4.3 P1 — Training Mode (3-5 gün)
 

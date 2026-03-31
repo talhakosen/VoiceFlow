@@ -123,7 +123,7 @@ struct StatusResponse: Codable {
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?) async throws -> TranscriptionResult
     func forceStop() async throws
     func getStatus() async throws -> StatusResponse
     func isBackendRunning() async -> Bool
@@ -248,10 +248,16 @@ actor BackendService: BackendServiceProtocol {
         }
     }
 
-    func stopRecording(activeAppBundleID: String? = nil) async throws -> TranscriptionResult {
+    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil) async throws -> TranscriptionResult {
         var request = makeRequest(path: "stop", method: "POST")
         if let bundleID = activeAppBundleID {
             request.setValue(bundleID, forHTTPHeaderField: "X-Active-App")
+        }
+        if let title = windowTitle {
+            request.setValue(title, forHTTPHeaderField: "X-Window-Title")
+        }
+        if let selected = selectedText {
+            request.setValue(selected, forHTTPHeaderField: "X-Selected-Text")
         }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {

@@ -24,6 +24,9 @@ final class AppViewModel {
 
     private var activeApp: NSRunningApplication?
     private var activeAppBundleID: String? = nil
+    // AX context captured at recording start (K4-P1)
+    private var capturedWindowTitle: String? = nil
+    private var capturedSelectedText: String? = nil
 
     // MARK: - Init
 
@@ -64,12 +67,62 @@ final class AppViewModel {
 
     // MARK: - Recording
 
+    // MARK: - AX Context Capture (K4-P1)
+
+    /// Captures the focused window title using Accessibility API.
+    /// Returns nil if permission is not granted or attribute is unavailable.
+    private func captureWindowTitle() -> String? {
+        guard AXIsProcessTrusted() else { return nil }
+        let systemElement = AXUIElementCreateSystemWide()
+        var focusedApp: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(systemElement, kAXFocusedApplicationAttribute as CFString, &focusedApp) == .success,
+              let appElement = focusedApp else { return nil }
+        var focusedWindow: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(appElement as! AXUIElement, kAXFocusedWindowAttribute as CFString, &focusedWindow) == .success,
+              let windowElement = focusedWindow else { return nil }
+        var titleValue: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(windowElement as! AXUIElement, kAXTitleAttribute as CFString, &titleValue) == .success,
+              let title = titleValue as? String, !title.isEmpty else { return nil }
+        return sanitizeContextString(title)
+    }
+
+    /// Captures selected text in the focused element using Accessibility API.
+    /// Returns nil if permission is not granted or no text is selected.
+    private func captureSelectedText() -> String? {
+        guard AXIsProcessTrusted() else { return nil }
+        let systemElement = AXUIElementCreateSystemWide()
+        var focusedElement: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(systemElement, kAXFocusedUIElementAttribute as CFString, &focusedElement) == .success,
+              let element = focusedElement else { return nil }
+        var selectedValue: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element as! AXUIElement, kAXSelectedTextAttribute as CFString, &selectedValue) == .success,
+              let selected = selectedValue as? String, !selected.isEmpty else { return nil }
+        return sanitizeContextString(selected)
+    }
+
+    /// Sanitizes context strings: trims, collapses newlines to spaces, strips control chars, truncates to 300 chars.
+    private func sanitizeContextString(_ input: String) -> String? {
+        let cleaned = input
+            .unicodeScalars
+            .filter { $0.value >= 0x20 || $0.value == 0x09 }  // keep tab, strip control chars
+            .map { Character($0) }
+            .reduce("") { $0 + String($1) }
+            .components(separatedBy: .newlines)
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespaces)
+        guard !cleaned.isEmpty else { return nil }
+        return String(cleaned.prefix(300))
+    }
+
     func startRecording() {
         guard !isRecording else { return }
         isRecording = true
         statusText = "Recording... (Fn×2 to stop)"
         activeApp = NSWorkspace.shared.frontmostApplication
         activeAppBundleID = activeApp?.bundleIdentifier
+        // Capture context at recording start (best moment: user has focus on the target app)
+        capturedWindowTitle = captureWindowTitle()
+        capturedSelectedText = captureSelectedText()
         NSSound(named: "Tink")?.play()
         onShowRecordingOverlay?()
 
@@ -102,8 +155,17 @@ final class AppViewModel {
 
         let savedApp = activeApp
         let bundleID = activeAppBundleID
+        let windowTitle = capturedWindowTitle
+        let selectedText = capturedSelectedText
+        // Reset captured context so it doesn't leak to the next recording
+        capturedWindowTitle = nil
+        capturedSelectedText = nil
         do {
-            let result = try await backend.stopRecording(activeAppBundleID: bundleID)
+            let result = try await backend.stopRecording(
+                activeAppBundleID: bundleID,
+                windowTitle: windowTitle,
+                selectedText: selectedText
+            )
             lastResult = result
             guard !result.text.isEmpty else {
                 statusText = "Ready"

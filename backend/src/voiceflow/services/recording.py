@@ -5,12 +5,12 @@ Routes delegate to this service; they only handle HTTP concerns.
 """
 
 import asyncio
+import functools
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 
 from ..audio import AudioCapture, AudioConfig
-from ..audio.capture import RecordingState
 from ..core.interfaces import AbstractCorrector, AbstractRetriever, AbstractTranscriber, TranscriptionResult
 from ..db import save_transcription, get_dictionary, get_snippets
 from ..services.dictionary import apply_dictionary
@@ -65,7 +65,14 @@ class RecordingService:
             raise ValueError("Already recording")
         self._audio.start()
 
-    async def stop(self, user_id: str | None = None, tenant_id: str = "default", active_app: str | None = None) -> dict:
+    async def stop(
+        self,
+        user_id: str | None = None,
+        tenant_id: str = "default",
+        active_app: str | None = None,
+        window_title: str | None = None,
+        selected_text: str | None = None,
+    ) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
         Returns a dict ready for the API response.
@@ -119,11 +126,17 @@ class RecordingService:
         if self._corrector.config.enabled and result.text:
             t_llm = time.perf_counter()
             if hasattr(self._corrector, "correct_async"):
-                corrected = await self._corrector.correct_async(result.text, result.language, context_chunks or None, active_app)
-            else:
-                corrected = await loop.run_in_executor(
-                    _mlx_executor, self._corrector.correct, result.text, result.language, context_chunks or None, active_app
+                corrected = await self._corrector.correct_async(
+                    result.text, result.language, context_chunks or None, active_app,
+                    window_title=window_title, selected_text=selected_text,
                 )
+            else:
+                _correct_fn = functools.partial(
+                    self._corrector.correct,
+                    result.text, result.language, context_chunks or None, active_app,
+                    window_title=window_title, selected_text=selected_text,
+                )
+                corrected = await loop.run_in_executor(_mlx_executor, _correct_fn)
             logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
             if corrected != result.text:
                 was_corrected = True

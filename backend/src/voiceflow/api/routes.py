@@ -85,13 +85,21 @@ async def stop_recording(
     svc=Depends(get_service),
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
     x_active_app: str | None = Header(default=None, alias="X-Active-App"),
+    x_window_title: str | None = Header(default=None, alias="X-Window-Title"),
+    x_selected_text: str | None = Header(default=None, alias="X-Selected-Text"),
 ):
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
     user_id = state_user_id or x_user_id or None
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     try:
-        result = await svc.stop(user_id=user_id, tenant_id=tenant_id, active_app=x_active_app or None)
+        result = await svc.stop(
+            user_id=user_id,
+            tenant_id=tenant_id,
+            active_app=x_active_app or None,
+            window_title=x_window_title or None,
+            selected_text=x_selected_text or None,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return TranscriptionResponse(**result)
@@ -111,10 +119,8 @@ async def get_devices(svc=Depends(get_service)):
 @router.post("/config")
 async def update_config(config: ConfigRequest, request: Request, svc=Depends(get_service)):
     from ..transcription import WhisperTranscriber, WhisperConfig
-    from concurrent.futures import ThreadPoolExecutor
 
     loop = asyncio.get_running_loop()
-    mlx_executor = svc._mlx_executor if hasattr(svc, "_mlx_executor") else None
 
     transcriber = svc.transcriber
     corrector = svc.corrector
