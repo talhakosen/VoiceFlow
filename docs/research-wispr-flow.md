@@ -1,7 +1,7 @@
 # Wispr Flow — Araştırma Sonuçları
 
-> Tarih: 30 Mart 2026
-> Amaç: Rakip analizi, UI/UX referans, kurumsal konumlama farkı
+> Tarih: 30-31 Mart 2026
+> Amaç: Rakip analizi, UI/UX referans, kurumsal konumlama farkı, teknik correction pipeline analizi
 
 ---
 
@@ -197,3 +197,200 @@ VoiceFlow için farklılaştırma:
 - Türkçe arayüz seçeneği
 - On-premise badge / "Verileriniz bu sunucuda" göstergesi
 - Enterprise admin paneli (tenant yönetimi)
+
+---
+
+## 6. Teknik Correction Pipeline Analizi (31 Mart 2026)
+
+> Kaynak: Baseten case study, Wispr teknik blog, FreeFlow açık kaynak klonu kaynak kodu, Tambourine Voice
+
+### 6.1 Wispr Flow — İki Aşamalı Cloud Pipeline
+
+```
+[Mikrofon] → [ASR/Speech Recognition] → [Fine-tuned Llama LLM] → [Paste]
+                  <200ms                      <250ms (100+ token)
+                        ──────── toplam <700ms (p99) ────────
+```
+
+**Altyapı:**
+- ASR: Baseten üzerinde (muhtemelen Whisper varyantı, özelleştirilmiş)
+- LLM: Fine-tuned Llama 3.1 — TensorRT-LLM ile optimize
+- Multi-step inference: Baseten Chains framework
+- Ek provider'lar: OpenAI, Anthropic, Cerebras (text processing)
+
+**Latency bütçesi (p99):**
+- ASR inference: <200ms
+- LLM inference: <200ms (100+ token generate)
+- Network: <200ms (dünya genelinden)
+- **Toplam: <700ms**
+
+### 6.2 Wispr Flow — 7 Correction Katmanı
+
+| # | Özellik | Açıklama |
+|---|---------|---------|
+| 1 | **Filler Word Removal** | "um, uh, like, you know" otomatik silme |
+| 2 | **Backtracking / Course Correction** | "yarın buluşalım, hayır cuma olsun" → "Cuma buluşalım" — verbal self-correction'ı anlama |
+| 3 | **Context-Aware Tone** | Aktif uygulamaya göre ton (Mail=formal, Slack=casual, Terminal=teknik) |
+| 4 | **Personal Dictionary Auto-Learn** | Kullanıcı düzeltmelerini izle, otomatik sözlüğe ekle. "Auto-add to Dictionary" toggle. |
+| 5 | **Intelligent Punctuation** | Konuşma kadansı + cümle yapısından noktalama çıkarma, "period/comma" demek gerekmez |
+| 6 | **Snippets** | Trigger phrase → template text (60 char trigger, 4000 char expansion, cross-device sync) |
+| 7 | **Context-Conditioned ASR** | Konuşmacı özellikleri + çevre konteksti + bireysel geçmiş ile ASR modeli koşullandırma |
+
+**Sahaj Garg (CTO) teknik blog'undan:**
+> "Tek kelimelik bir ses klibini düşünün — kişinin sesini, konuşma konularını ve çevre bağlamını bilmeden ne söylediğini çözmek imkansız."
+
+### 6.3 FreeFlow (Açık Kaynak Klon) — Tam Pipeline
+
+> Kaynak: github.com/zachlatta/freeflow — Swift macOS app
+
+**3 Aşamalı Pipeline:**
+
+```
+1. KAYIT BAŞLAR → audioRecorder.startRecording()
+                → startContextCapture() [PARALEL — kayıt sırasında context alınır]
+
+2. KAYIT BİTER → audioRecorder.stopRecording() → audio file
+              → PARALEL:
+                 - transcriptionService.transcribe(file)  [Groq Whisper API]
+                 - await contextCaptureTask (zaten çalışıyor)
+              
+3. POST-PROCESS → postProcessingService.postProcess(
+                     transcript: rawTranscript,
+                     context: 2-cümle appContext özeti,
+                     customVocabulary: [...],
+                     customSystemPrompt: ...
+                  )
+              → paste
+```
+
+**Stage 1 — Transcription:**
+- Model: `whisper-large-v3` (Groq API)
+- Audio: 16kHz mono PCM 16-bit WAV
+- Timeout: 20 saniye
+
+**Stage 2 — Deep Context (PARALEL — kayıt sırasında):**
+
+macOS Accessibility API ile toplanan veriler:
+- `NSWorkspace.shared.frontmostApplication` → uygulama adı, bundle ID
+- `kAXFocusedWindowAttribute` → pencere başlığı
+- `kAXSelectedTextAttribute` → seçili metin
+- `CGWindowListCreateImage` → ekran görüntüsü (JPEG, max 1024px, <500KB base64)
+
+Context inference LLM prompt'u (verbatim):
+```
+You are a context synthesis assistant for a speech-to-text pipeline.
+Given app/window metadata and an optional screenshot, output exactly 
+two sentences that describe what the user is doing right now and the 
+likely writing intent in the current window.
+Prioritize concrete details only from the context: for email, identify 
+recipients, subject or thread cues, and whether the user is replying 
+or composing; for terminal/code/text work, identify the active command, 
+file, document title, or topic.
+If details are missing, state uncertainty instead of inventing facts.
+Return only two sentences, no labels, no markdown, no extra commentary.
+```
+
+Model: `meta-llama/llama-4-scout-17b-16e-instruct` (vision-capable), temp=0.2
+
+**Stage 3 — Post-Processing Correction:**
+
+System prompt (verbatim):
+```
+You are a dictation post-processor. You receive raw speech-to-text 
+output and return clean text ready to be typed into an application.
+
+Your job:
+- Remove filler words (um, uh, you know, like) unless they carry meaning.
+- Fix spelling, grammar, and punctuation errors.
+- When the transcript already contains a word that is a close misspelling 
+  of a name or term from the context or custom vocabulary, correct the 
+  spelling. Never insert names or terms from context that the speaker 
+  did not say.
+- Preserve the speaker's intent, tone, and meaning exactly.
+
+Output rules:
+- Return ONLY the cleaned transcript text, nothing else.
+- If the transcription is empty, return exactly: EMPTY
+- Do not add words, names, or content that are not in the transcription. 
+  The context is only for correcting spelling of words already spoken.
+- Do not change the meaning of what was said.
+```
+
+Vocabulary eklentisi (varsa):
+```
+The following vocabulary must be treated as high-priority terms while 
+rewriting. Use these spellings exactly in the output when relevant:
+{comma-separated vocabulary terms}
+```
+
+User message:
+```
+Instructions: Clean up RAW_TRANSCRIPTION and return only the cleaned 
+transcript text without surrounding quotes. Return EMPTY if there should 
+be no result.
+
+CONTEXT: "{contextSummary}"
+
+RAW_TRANSCRIPTION: "{transcript}"
+```
+
+Model: `meta-llama/llama-4-scout-17b-16e-instruct`, temp=0.0
+
+**Kritik tasarım kararları:**
+- Context özeti sadece 2 cümle — post-processing LLM'e ham screenshot GÖNDERİLMEZ
+- Her iki prompt da kullanıcı tarafından özelleştirilebilir (Settings)
+- Post-processing başarısız olursa raw Whisper çıktısı kullanılır
+- Clipboard korunur: paste öncesi snapshot, 150ms sonra geri yükleme
+
+### 6.4 VoiceFlow Gap Analizi — Correction Pipeline
+
+| Özellik | Wispr Flow | FreeFlow | VoiceFlow | Gap |
+|---------|-----------|----------|-----------|-----|
+| ASR | Custom (Baseten) | Groq Whisper | mlx-whisper / faster-whisper | Eşit |
+| LLM Correction | Fine-tuned Llama | Llama 4 Scout 17B | Qwen 7B / Ollama | **Fine-tune eksik** |
+| Filler removal | Built-in (LLM) | Prompt'ta | **Prompt'ta yok** | **P0** |
+| Backtracking | Built-in (fine-tune) | Dolaylı (LLM) | **Yok** | **P0** |
+| Context awareness | App + screenshot + selected text | App + window + screenshot + LLM özet | App bundle ID → tone | **P1 — Deep Context eksik** |
+| Personal dictionary | Auto-learn from corrections | Custom vocabulary | Manuel ekleme | **P1 — Auto-learn eksik** |
+| Snippets | Voice triggers | Yok | Backend'de var | Eşit |
+| Few-shot examples | Fine-tune data | 1 örnek (prompt'ta) | 5 Türkçe örnek | **İyi** |
+| Output safety | Bilinmiyor | EMPTY sentinel | len check + empty check | Eşit |
+| Latency | <700ms (cloud) | <1s (Groq) | ~2-5s (local 7B) | **Local trade-off** |
+
+### 6.5 Önerilen İyileştirmeler (Öncelik Sırasına Göre)
+
+**P0 — Hemen (prompt güncellemesi):**
+1. Filler word removal talimatı → `_BASE_PROMPT`'a ekle
+2. Backtracking/course correction talimatı → `_BASE_PROMPT`'a ekle
+3. Few-shot: backtracking + filler örnekleri ekle
+
+**P1 — Kısa vadeli (yeni feature):**
+4. Deep Context: aktif pencere başlığı + seçili metin → Swift'ten backend'e gönder
+5. Dictionary auto-learn: paste sonrası kullanıcı düzeltmelerini izle, otomatik ekle
+6. Context bilgisini user message'a ekle (FreeFlow formatı)
+
+**P2 — Orta vadeli (mimari):**
+7. Fine-tuned correction model (Türkçe veri toplayıp Qwen/Llama fine-tune)
+8. Context-conditioned ASR (Whisper fine-tune veya prompt conditioning)
+9. Paralel context capture (kayıt sırasında, sonra değil)
+
+### 6.6 Referans Prompt'lar (Alınabilecek)
+
+FreeFlow'un post-processing prompt'u bizim `_BASE_PROMPT`'tan daha iyi noktalar:
+- **"Remove filler words (um, uh, you know, like) unless they carry meaning"** — bizde yok
+- **"Never insert names or terms from context that the speaker did not say"** — hallüsinasyon guard, bizde yok
+- **"The context is only for correcting spelling of words already spoken"** — RAG kontekst kullanım sınırı, bizde yok
+- **EMPTY sentinel** — boş input handling, bizde farklı (empty string check)
+
+---
+
+## 7. Kaynaklar
+
+- [Wispr Flow + Baseten Case Study](https://www.baseten.co/resources/customers/wispr-flow/)
+- [Technical Challenges Behind Flow (Sahaj Garg)](https://wisprflow.ai/post/technical-challenges)
+- [FreeFlow — Open Source Wispr Flow Klonu](https://github.com/zachlatta/freeflow)
+- [Tambourine Voice — Open Source Alternative](https://github.com/kstonekuan/tambourine-voice)
+- [Wispr Flow Features](https://wisprflow.ai/features)
+- [Wispr Flow Snippets Docs](https://docs.wisprflow.ai/articles/5784437944-create-and-use-snippets)
+- [Wispr Flow Review — Fritz AI](https://fritz.ai/wispr-flow-review/)
+- [Wispr Flow 101 — Substack](https://sidsaladi.substack.com/p/wispr-flow-101-the-complete-guide)
