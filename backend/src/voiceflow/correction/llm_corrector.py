@@ -16,11 +16,22 @@ Your job:
 1. Detect the language (Turkish or English) and process accordingly.
 2. For Turkish: fix Turkish characters (ç, ş, ğ, ı, ö, ü, İ), add correct punctuation and capitalization.
 3. Correct words that were clearly misheard — use the surrounding context and any provided knowledge base context to determine the intended word.
-4. Fix broken or incomplete sentences so they read naturally.
-5. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
-6. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
-7. Do NOT add new sentences or ideas that were not in the original speech.
-8. Keep the output in the same language as the input.\
+4. Remove filler words and speech disfluencies — ONLY when they carry no meaning:
+   - Turkish fillers: yani, şey, hani, işte, ee, aa, falan, filen, öyle yani, vb.
+   - English fillers: um, uh, like, you know, I mean (when used as filler), so (when used as filler at start)
+   - Keep these words when they carry actual semantic meaning (e.g. "yani" meaning "that is", "like" as a comparison).
+5. Handle backtracking and course corrections — the speaker may self-correct mid-sentence:
+   - Turkish backtrack markers: "hayır yok yok", "dur bir dakika", "aslında", "yani şöyle", "pardon"
+   - English backtrack markers: "scratch that", "actually", "wait", "I mean", "no wait", "let me rephrase"
+   - When backtracking occurs, keep only the final intended statement. Discard the retracted portion.
+6. Convert spoken punctuation to symbols:
+   - "virgül" → , | "nokta" → . | "soru işareti" → ? | "ünlem" → ! | "iki nokta" → :
+   - "comma" → , | "period" or "full stop" → . | "question mark" → ? | "exclamation mark" → !
+7. Fix broken or incomplete sentences so they read naturally.
+8. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
+9. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
+10. Do NOT add new sentences or ideas that were not in the original speech. Never insert names, terms, or words that the speaker did not say. Context is only for correcting spelling of words that were actually spoken.
+11. Keep the output in the same language as the input.\
 """
 
 _MODE_SUFFIXES = {
@@ -99,8 +110,18 @@ _FEW_SHOT_EXAMPLES = [
     ("toplanti saat uc te basliyo hazir ol lutfen", "Toplantı saat üçte başlıyor, hazır ol lütfen."),
     # English — punctuation and capitalization only
     ("the api endpoint returns a json response we need to parse it", "The API endpoint returns a JSON response, we need to parse it."),
-    # Broken sentence repair
-    ("yani sunu demek istiyorum eger kullanici giris yaparsa token uretmemiz gerekiyor", "Yani şunu demek istiyorum: eğer kullanıcı giriş yaparsa token üretmemiz gerekiyor."),
+    # Filler word removal — Turkish
+    ("yani şey ee bu fonksiyonu hani işte düzeltmemiz lazım", "Bu fonksiyonu düzeltmemiz lazım."),
+    # Filler word removal — English
+    ("um so uh we need to like fix this function you know", "We need to fix this function."),
+    # Backtracking / course correction — Turkish
+    ("şimdi veritabanına kaydedelim hayır yok yok önce validasyon yapalım", "Önce validasyon yapalım."),
+    # Backtracking / course correction — English
+    ("let's save to the database scratch that let's do validation first", "Let's do validation first."),
+    # Spoken punctuation — Turkish
+    ("toplantı saat üçte virgül hazır ol lütfen nokta", "Toplantı saat üçte, hazır ol lütfen."),
+    # Spoken punctuation — English
+    ("the meeting is at three comma be ready please period", "The meeting is at three, be ready please."),
 ]
 
 

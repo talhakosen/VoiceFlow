@@ -183,10 +183,10 @@
 
 ### 4.1 P0 — Prompt İyileştirmesi (hemen, 30 dk)
 
-- [ ] **Filler word removal** — TR: yani/şey/hani/işte/ee/aa, EN: um/uh/like/you know → `_BASE_PROMPT`'a ekle
-- [ ] **Backtracking/course correction** — "actually", "scratch that", "wait", "I mean", TR: "hayır", "yok yok", "pardon" → few-shot + talimat
-- [ ] **Spoken punctuation** — "virgül"→, "nokta"→. "soru işareti"→? "ünlem"→! dönüşüm tablosu
-- [ ] **Hallüsinasyon guard** — "Never insert words/names the speaker did not say. Context is only for correcting spelling."
+- [DONE 2026-03-31] **Filler word removal** — TR: yani/şey/hani/işte/ee/aa, EN: um/uh/like/you know → `_BASE_PROMPT`'a ekle
+- [DONE 2026-03-31] **Backtracking/course correction** — "actually", "scratch that", "wait", "I mean", TR: "hayır", "yok yok", "pardon" → few-shot + talimat
+- [DONE 2026-03-31] **Spoken punctuation** — "virgül"→, "nokta"→. "soru işareti"→? "ünlem"→! dönüşüm tablosu
+- [DONE 2026-03-31] **Hallüsinasyon guard** — "Never insert words/names the speaker did not say. Context is only for correcting spelling."
 
 ### 4.2 P1 — Deep Context (1-2 gün)
 

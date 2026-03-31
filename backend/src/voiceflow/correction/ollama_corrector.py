@@ -13,12 +13,22 @@ Your job:
 1. Detect the language (Turkish or English) and process accordingly.
 2. For Turkish: fix Turkish characters (ç, ş, ğ, ı, ö, ü, İ), add correct punctuation and capitalization.
 3. Correct words that were clearly misheard — use the surrounding context and any provided knowledge base context to determine the intended word.
-4. Remove Turkish filler words and speech disfluencies: "gibi", "şey", "yani", "işte", "falan", "filan", "sanki", "hani", "ya", "ee", "öyle", "böyle" — ONLY when they are used as meaningless fillers (not when they carry actual meaning). For example: "gibi gibi gibi" → remove all; "test ediyorum gibi yaptım gibi" → "test ediyormuş gibi yaptım" (keep if meaningful).
-5. Fix broken or incomplete sentences so they read naturally.
-6. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
-7. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
-8. Do NOT add new sentences or ideas that were not in the original speech.
-9. Keep the output in the same language as the input.\
+4. Remove filler words and speech disfluencies — ONLY when they carry no meaning:
+   - Turkish fillers: yani, şey, hani, işte, ee, aa, falan, filen, gibi (filler), sanki (filler), öyle yani, vb.
+   - English fillers: um, uh, like, you know, I mean (when used as filler), so (when used as filler at start)
+   - Keep these words when they carry actual semantic meaning (e.g. "yani" meaning "that is", "gibi" as a real comparison, "like" as a comparison).
+5. Handle backtracking and course corrections — the speaker may self-correct mid-sentence:
+   - Turkish backtrack markers: "hayır yok yok", "dur bir dakika", "aslında", "yani şöyle", "pardon"
+   - English backtrack markers: "scratch that", "actually", "wait", "I mean", "no wait", "let me rephrase"
+   - When backtracking occurs, keep only the final intended statement. Discard the retracted portion.
+6. Convert spoken punctuation to symbols:
+   - "virgül" → , | "nokta" → . | "soru işareti" → ? | "ünlem" → ! | "iki nokta" → :
+   - "comma" → , | "period" or "full stop" → . | "question mark" → ? | "exclamation mark" → !
+7. Fix broken or incomplete sentences so they read naturally.
+8. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
+9. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
+10. Do NOT add new sentences or ideas that were not in the original speech. Never insert names, terms, or words that the speaker did not say. Context is only for correcting spelling of words that were actually spoken.
+11. Keep the output in the same language as the input.\
 """
 
 _MODE_SUFFIXES = {
@@ -72,13 +82,28 @@ _APP_TONE_MAP: dict[str, str] = {
 _SYSTEM_PROMPT = _SYSTEM_PROMPTS["general"]  # backward compat
 
 _FEW_SHOT_EXAMPLES = [
+    # Turkish character correction + punctuation
     ("bugun hava cok guzel", "Bugün hava çok güzel."),
+    # Misheard word correction (context-based)
     ("apvyumodel icinde state tutuyoruz", "AppViewModel içinde state tutuyoruz."),
+    # Sentence repair + punctuation
     ("toplanti saat uc te basliyo hazir ol lutfen", "Toplantı saat üçte başlıyor, hazır ol lütfen."),
+    # English — punctuation and capitalization only
     ("the api endpoint returns a json response we need to parse it", "The API endpoint returns a JSON response, we need to parse it."),
-    ("yani sunu demek istiyorum eger kullanici giris yaparsa token uretmemiz gerekiyor", "Şunu demek istiyorum: eğer kullanıcı giriş yaparsa token üretmemiz gerekiyor."),
-    ("şimdi sanki tekrar test ediyorum gibi yaptım gibi bakalım gibi mi", "Şimdi tekrar test ediyorum. Bakalım mı?"),
+    # Filler word removal — Turkish (heavy fillers)
     ("bu seyi yani şey nasıl desem işte falan tamam gibi", "Bunu nasıl desem, tamam."),
+    # Filler word removal — English
+    ("um so uh we need to like fix this function you know", "We need to fix this function."),
+    # Backtracking / course correction — Turkish
+    ("şimdi veritabanına kaydedelim hayır yok yok önce validasyon yapalım", "Önce validasyon yapalım."),
+    # Backtracking / course correction — English
+    ("let's save to the database scratch that let's do validation first", "Let's do validation first."),
+    # Spoken punctuation — Turkish
+    ("toplantı saat üçte virgül hazır ol lütfen nokta", "Toplantı saat üçte, hazır ol lütfen."),
+    # Spoken punctuation — English
+    ("the meeting is at three comma be ready please period", "The meeting is at three, be ready please."),
+    # Filler "gibi" as meaningful comparison — keep it
+    ("şimdi sanki tekrar test ediyorum gibi yaptım gibi bakalım gibi mi", "Şimdi tekrar test ediyorum. Bakalım mı?"),
 ]
 
 
