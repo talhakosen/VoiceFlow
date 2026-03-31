@@ -13,11 +13,12 @@ Your job:
 1. Detect the language (Turkish or English) and process accordingly.
 2. For Turkish: fix Turkish characters (ç, ş, ğ, ı, ö, ü, İ), add correct punctuation and capitalization.
 3. Correct words that were clearly misheard — use the surrounding context and any provided knowledge base context to determine the intended word.
-4. Fix broken or incomplete sentences so they read naturally.
-5. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
-6. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
-7. Do NOT add new sentences or ideas that were not in the original speech.
-8. Keep the output in the same language as the input.\
+4. Remove Turkish filler words and speech disfluencies: "gibi", "şey", "yani", "işte", "falan", "filan", "sanki", "hani", "ya", "ee", "öyle", "böyle" — ONLY when they are used as meaningless fillers (not when they carry actual meaning). For example: "gibi gibi gibi" → remove all; "test ediyorum gibi yaptım gibi" → "test ediyormuş gibi yaptım" (keep if meaningful).
+5. Fix broken or incomplete sentences so they read naturally.
+6. If the meaning is unclear or a word seems wrong, correct it to what was most likely intended.
+7. Output ONLY the corrected text. No explanations, no commentary, no prefixes.
+8. Do NOT add new sentences or ideas that were not in the original speech.
+9. Keep the output in the same language as the input.\
 """
 
 _MODE_SUFFIXES = {
@@ -75,7 +76,9 @@ _FEW_SHOT_EXAMPLES = [
     ("apvyumodel icinde state tutuyoruz", "AppViewModel içinde state tutuyoruz."),
     ("toplanti saat uc te basliyo hazir ol lutfen", "Toplantı saat üçte başlıyor, hazır ol lütfen."),
     ("the api endpoint returns a json response we need to parse it", "The API endpoint returns a JSON response, we need to parse it."),
-    ("yani sunu demek istiyorum eger kullanici giris yaparsa token uretmemiz gerekiyor", "Yani şunu demek istiyorum: eğer kullanıcı giriş yaparsa token üretmemiz gerekiyor."),
+    ("yani sunu demek istiyorum eger kullanici giris yaparsa token uretmemiz gerekiyor", "Şunu demek istiyorum: eğer kullanıcı giriş yaparsa token üretmemiz gerekiyor."),
+    ("şimdi sanki tekrar test ediyorum gibi yaptım gibi bakalım gibi mi", "Şimdi tekrar test ediyorum. Bakalım mı?"),
+    ("bu seyi yani şey nasıl desem işte falan tamam gibi", "Bunu nasıl desem, tamam."),
 ]
 
 

@@ -131,7 +131,7 @@ private struct GeneralSection: View {
             Section("Connection") {
                 Picker("Deployment Mode", selection: $deploymentMode) {
                     Text("Local (Mac — MLX)").tag("local")
-                    Text("Server (On-Premise / RunPod)").tag("server")
+                    Text("Server (On-Premise)").tag("server")
                 }
                 .onChange(of: deploymentMode) { showRestartNotice = true }
 
@@ -324,6 +324,9 @@ private struct SnippetsSection: View {
 
 private struct RecordingSection: View {
     var viewModel: AppViewModel
+    @AppStorage(AppSettings.llmMode)     private var llmMode     = "local"
+    @AppStorage(AppSettings.llmEndpoint) private var llmEndpoint = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
+    @State private var showRestartNotice = false
 
     var body: some View {
         Form {
@@ -354,12 +357,33 @@ private struct RecordingSection: View {
             }
 
             Section("LLM Correction") {
-                Toggle("Smart Correction (Qwen 7B)", isOn: Binding(
+                Toggle("Smart Correction", isOn: Binding(
                     get: { viewModel.isCorrectionEnabled },
                     set: { _ in viewModel.toggleCorrection() }
                 ))
-                Text("Loads a ~4 GB model on first use. Corrects punctuation, capitalisation, and Turkish characters.")
-                    .font(.caption).foregroundStyle(.secondary)
+
+                Picker("LLM Backend", selection: $llmMode) {
+                    Text("Local (Mac — MLX)").tag("local")
+                    Text("Cloud (RunPod — Ollama)").tag("cloud")
+                }
+                .onChange(of: llmMode) { showRestartNotice = true }
+
+                if llmMode == "cloud" {
+                    LabeledContent("Ollama URL") {
+                        TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(minWidth: 360)
+                            .onChange(of: llmEndpoint) { showRestartNotice = true }
+                    }
+                }
+
+                if showRestartNotice {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
+                        Text("Restart backend to apply LLM change.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
             }
         }
         .formStyle(.grouped)

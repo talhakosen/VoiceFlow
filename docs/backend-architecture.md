@@ -86,12 +86,18 @@ async def lifespan(app):
     await init_db()
     service = RecordingService(
         transcriber=_build_transcriber(),  # BACKEND_MODE'a göre seçilir
-        corrector=_build_corrector(),
+        corrector=_build_corrector(),      # LLM_BACKEND veya LLM_ENDPOINT'e göre seçilir
     )
     app.state.recording_service = service
     asyncio.create_task(service.preload_models())
     yield
 ```
+
+**Corrector seçim mantığı** (`_build_corrector()`):
+- `LLM_BACKEND=ollama` → OllamaCorrector
+- `LLM_ENDPOINT` set edilmişse → OllamaCorrector (URL doğrudan kullanılır)
+- `BACKEND_MODE=server` → OllamaCorrector
+- Hiçbiri yoksa → MLX LLMCorrector
 
 ---
 
@@ -167,11 +173,22 @@ DELETE /api/snippets/{id}     → Kişisel snippet sil
 
 ## Deployment Modları
 
-### Local (Mac, `BACKEND_MODE=local`)
+### Local + Cloud LLM (Mac Whisper + RunPod Ollama) — Aktif Kullanım
+```
+BACKEND_MODE=local
+LLM_BACKEND=ollama  (veya LLM_ENDPOINT set edilmiş)
+HOST=127.0.0.1
+transcriber = WhisperTranscriber (mlx-whisper, Mac)
+corrector   = OllamaCorrector → RunPod RTX 4090 Ollama
+auth        = no-op
+```
+Swift app, Settings → Recording → LLM Backend seçimine göre `LLM_BACKEND` ve `LLM_ENDPOINT` env var'larını backend'e geçirir. `.env` dosyasındaki `LLM_ENDPOINT` okunur.
+
+### Local (Tam Mac, `BACKEND_MODE=local`)
 ```
 HOST=127.0.0.1
 transcriber = WhisperTranscriber (mlx-whisper)
-corrector   = LLMCorrector (mlx-lm, Qwen 7B 4-bit)
+corrector   = LLMCorrector (mlx-lm, Qwen 7B 4-bit, ~4GB)
 auth        = no-op (X-Api-Key optional)
 ```
 
@@ -189,8 +206,8 @@ WHISPER_MODEL=large-v3
 LLM_MODEL=qwen2.5:7b
 LLM_ENDPOINT=http://ollama:11434
 API_KEYS=key1,key2,key3
-JWT_SECRET=<strong-random-secret>   # zorunlu, yoksa startup'ta RuntimeError
-JWT_ACCESS_TTL_MINUTES=60           # opsiyonel, default 60
+JWT_SECRET=<strong-random-secret>
+JWT_ACCESS_TTL_MINUTES=60
 ```
 
 ---
@@ -264,11 +281,13 @@ CREATE TABLE snippets (
 
 | Mode | System Prompt Odağı |
 |---|---|
-| `general` | ASCII Türkçe → düzgün Türkçe (ç,ş,ğ,ı,ö,ü) |
+| `general` | ASCII Türkçe → düzgün Türkçe (ç,ş,ğ,ı,ö,ü), dolgu kelime temizleme |
 | `engineering` | Teknik terimler, API/değişken isimleri değişmez |
 | `office` | Resmi dil, kısaltma açma, iş yazışması tonu |
 
-Tüm modlar aynı few-shot örnekleri kullanır (3 örnek). Sadece system prompt değişir.
+**Dolgu kelime temizleme** (tüm modlarda aktif): "gibi", "şey", "yani", "işte", "falan", "filan", "sanki", "hani" — anlamsız dolgu olarak kullanıldığında silinir, anlamlı kullanımlarda korunur.
+
+Tüm modlar aynı few-shot örnekleri kullanır (7 örnek). Sadece system prompt suffix değişir.
 
 ---
 

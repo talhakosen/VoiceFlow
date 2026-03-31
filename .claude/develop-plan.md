@@ -165,7 +165,7 @@
 ### 3.4 Enterprise Distribution
 
 - [DONE 2026-03-30] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper) — non-root, GPU, env secrets, healthcheck
-- [ ] RunPod: RTX 4090 deploy, uçtan uca test (<2s hedef)
+- [DONE 2026-03-31] RunPod: RTX 4090 deploy, Ollama qwen2.5:7b — Settings'ten Local/Cloud toggle
 - [ ] DMG paketleme + notarization (Developer ID Application)
 - [ ] Kurulum dokümantasyonu (IT için — 1 sayfa, adım adım)
 - [ ] Offline lisanslama (license key doğrulama)

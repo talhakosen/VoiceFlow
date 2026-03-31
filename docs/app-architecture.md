@@ -120,6 +120,10 @@ Sadece lifecycle:
 Backend process yönetimi (start/stop/restart/hardReset) AppDelegate'te kalır — OS process API'dir, iş mantığı değil.
 Closure injection pattern: AppViewModel → AppDelegate bağımlılığını kırar.
 
+`startBackend()` env var'ları `llmMode` UserDefaults key'ine göre ayarlar:
+- `llmMode == "cloud"` → `BACKEND_MODE=server`, `LLM_ENDPOINT=<llmEndpoint>`, `LLM_MODEL=qwen2.5:7b`
+- `llmMode == "local"` → `BACKEND_MODE=local` (MLX LLM kullanır)
+
 ---
 
 ### Models.swift
@@ -142,7 +146,7 @@ API modelleri `BackendService.swift`'te:
 
 ```swift
 enum AppSettings {
-    static let deploymentMode     // "local" | "server"
+    static let deploymentMode     // "local" | "server" — Whisper backend konumu
     static let serverURL          // "http://127.0.0.1:8765"
     static let apiKey             // X-Api-Key header değeri
     static let appMode            // "general" | "engineering" | "office"
@@ -151,6 +155,8 @@ enum AppSettings {
     static let userID             // UUID string (auto-generated)
     static let userName           // Opsiyonel display name (Account bölümü)
     static let userDepartment     // Opsiyonel departman (Account bölümü)
+    static let llmMode            // "local" | "cloud" — LLM correction backend
+    static let llmEndpoint        // Cloud Ollama URL (ör. https://…-11434.proxy.runpod.net)
 }
 // AppSettings Models.swift'te tanımlı — BackendService + SettingsView + AppViewModel paylaşır
 ```

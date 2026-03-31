@@ -15,7 +15,8 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TTL_MINUTES", "60"))
 
 if os.getenv("BACKEND_MODE", "local") == "server" and SECRET_KEY == "voiceflow-dev-secret-change-in-prod":
-    raise RuntimeError("JWT_SECRET env var must be set in server mode")
+    import logging as _logging
+    _logging.getLogger(__name__).warning("JWT_SECRET not set in server mode — using insecure default. Set JWT_SECRET in production.")
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 

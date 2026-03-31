@@ -30,10 +30,17 @@ def _build_transcriber():
 
 
 def _build_corrector():
-    if _BACKEND_MODE == "server":
+    use_ollama = (
+        os.getenv("LLM_BACKEND", "") == "ollama"
+        or _BACKEND_MODE == "server"
+        or bool(os.getenv("LLM_ENDPOINT", ""))
+    )
+    if use_ollama:
         from .correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
+        logger.info("Using OllamaCorrector (endpoint: %s)", os.getenv("LLM_ENDPOINT", "http://localhost:11434"))
         return OllamaCorrector(config=OllamaCorrectorConfig())
     from .correction import LLMCorrector, CorrectorConfig
+    logger.info("Using MLX LLMCorrector")
     return LLMCorrector(config=CorrectorConfig())
 
 

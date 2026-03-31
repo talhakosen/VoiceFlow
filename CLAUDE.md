@@ -59,7 +59,8 @@ AppDelegate            ← lifecycle only: creates AppViewModel, starts backend 
 
 ### Deployment Modes
 - **Local** (`BACKEND_MODE=local`): MLX on Mac, 127.0.0.1, no auth
-- **Server** (`BACKEND_MODE=server`): NVIDIA GPU, 0.0.0.0, X-Api-Key required
+- **Local + Cloud LLM** (`LLM_BACKEND=ollama` + `LLM_ENDPOINT=...`): Whisper Mac'te, correction RunPod'da. `BACKEND_MODE=local` kalır!
+- **Server** (`BACKEND_MODE=server`): NVIDIA GPU, 0.0.0.0, JWT auth zorunlu, faster-whisper gerektirir
 
 ## API
 
@@ -101,6 +102,10 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **ChromaDB lazy**: `_build_retriever()` sadece `ChromaRetriever()` döner, `is_empty()` çağırma — MiniLM startup'ta indirilmez.
 - **NSPanel pattern**: Settings, History, Knowledge Base hepsi NSPanel floating window. SwiftUI `Settings {}` scene selector debug'da güvenilmez.
 - **DerivedData**: Her build öncesi sil yoksa eski binary çalışır.
+- **Swift binary güncelleme**: `cp -Rf` /Applications'ı güncellemez — `sudo cp -Rf` zorunlu.
 - **Docker yok (local)**: Katman 3'e ertelendi. Local geliştirmede Docker kullanma.
 - **HF_TOKEN**: Model indirme hızı için gerekli — env var olarak ver.
 - **venv bozulursa**: `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev,context]"`
+- **BACKEND_MODE=server kullanma (Mac'te)**: faster-whisper + JWT_SECRET zorunlu hale gelir. Mac'te sadece Ollama corrector istiyorsan `LLM_BACKEND=ollama` + `LLM_ENDPOINT` yeterli.
+- **RunPod Ollama**: SECURE cloud kullan (Community'de Docker Hub timeout). Pod restart sonrası `OLLAMA_HOST=0.0.0.0 ollama serve > ollama.log 2>&1 &` tekrar çalıştır.
+- **RunPod Pod ID**: `.env`'deki `RUNPOD_VOICEFLOW_POD_ID` ve `RUNPOD_OLLAMA_URL` pod değişince güncelle.
