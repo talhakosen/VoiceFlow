@@ -56,9 +56,18 @@ class ChromaRetriever(AbstractRetriever):
                 self._collection.count(),
             )
 
+    @property
+    def is_ready(self) -> bool:
+        """True if MiniLM is already loaded (no blocking init)."""
+        return self._collection is not None
+
     def retrieve(self, query: str, top_k: int = 3) -> list[str]:
-        """Return top-k relevant text chunks. Returns [] if collection is empty."""
+        """Return top-k relevant text chunks. Returns [] if collection is empty or not yet loaded."""
         if not query or not query.strip():
+            return []
+
+        # Skip retrieval if MiniLM hasn't been loaded yet — don't block the stop pipeline
+        if not self.is_ready:
             return []
 
         self._ensure_collection()

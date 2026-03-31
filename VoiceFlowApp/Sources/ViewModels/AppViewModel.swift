@@ -97,14 +97,14 @@ final class AppViewModel {
 
         isRecording = false
         statusText = isCorrectionEnabled ? "Transcribing + Correcting..." : "Transcribing..."
+        NSSound(named: "Pop")?.play()
+        onHideRecordingOverlay?()
 
         let savedApp = activeApp
         let bundleID = activeAppBundleID
         do {
             let result = try await backend.stopRecording(activeAppBundleID: bundleID)
             lastResult = result
-            NSSound(named: "Pop")?.play()
-            onHideRecordingOverlay?()
             guard !result.text.isEmpty else {
                 statusText = "Ready"
                 return
@@ -117,7 +117,6 @@ final class AppViewModel {
             statusText = "Ready"
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
-            onHideRecordingOverlay?()
             statusText = "Ready"
         }
     }

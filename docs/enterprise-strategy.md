@@ -108,34 +108,43 @@ Docker + RunPod deployment → Phase 5'te (şimdi lokal geliştirme öncelikli).
 - [x] X-User-ID header → transcriptions.user_id
 - [x] GET/DELETE /api/history endpoint'leri
 
-### 🔲 Phase 2 — Context Engine
-- [ ] ChromaDB multi-tenant (tenant=company_id)
-- [ ] Local embedding model (MiniLM veya MLX muadili)
-- [ ] Dosya ingestion pipeline (kod, dokümantasyon)
-- [ ] RAG: retrieval → LLM prompt injection
-- [ ] Mac app: knowledge base klasör seçimi UI
-- [ ] Kalite testi: 7B + context yeterli mi?
+### ✅ Phase 2 — Context Engine
+- [x] ChromaDB multi-tenant (tenant=company_id)
+- [x] Local embedding model (MiniLM, ~22MB, lazy load)
+- [x] Dosya ingestion pipeline (kod, dokümantasyon)
+- [x] RAG: retrieval → LLM prompt injection
+- [x] Mac app: knowledge base klasör seçimi UI
+- [x] Kalite testi: 7B + context yeterli (doğrulandı)
 
-### 🔲 Phase 3 — Engineering Package
-- [ ] Git repo indexleme (FSEvents ile otomatik)
-- [ ] Teknik terminoloji çıkarma (class/func/servis isimleri)
-- [ ] Engineering prompt template'leri
-- [ ] Çıktı: kod yorumu, PR açıklaması, ticket
+### ✅ Phase 3 — Engineering Package
+- [x] Git repo indexleme (ingest_git_repo)
+- [x] Teknik terminoloji çıkarma (extract_symbols, POST /api/engineering/extract-symbols)
+- [x] Engineering prompt template'leri (mode="engineering" system prompt)
+- [x] Çıktı formatları: prose/code_comment/pr_description/jira_ticket
 
-### 🔲 Phase 4 — Office Package
-- [ ] Alıcı profili sistemi
-- [ ] Email ton belirleme (formal/informal/teknik)
-- [ ] Mail.app entegrasyonu (AppleScript)
+### ✅ Phase 4 — Enterprise Auth & Admin
+- [x] JWT auth (register/login/refresh) + tenant izolasyonu
+- [x] Rol sistemi (superadmin/admin/member)
+- [x] Admin web UI (Jinja2 Bootstrap 5) + usage dashboard
+- [x] Audit log (append-only) + KVKK veri silme API
+- [x] Style/ton per-context (bundle ID → formal/casual/technical)
+- [x] Docker Compose (FastAPI + Ollama + faster-whisper)
+- [x] RunPod RTX 4090 deploy, Ollama qwen2.5:7b
+- [x] LLM backend seçimi: Local MLX / Cloud RunPod / Alibaba qwen-max
+
+### 🔲 Phase 5 — Correction Kalitesi (Katman 4)
+- [ ] P0: Prompt iyileştirmesi (filler, backtracking, spoken punctuation, hallüsinasyon guard)
+- [ ] P1: Deep context capture (pencere başlığı + seçili metin → Swift → backend)
+- [ ] P1: Training Mode pill (feedback toplama, correction_feedback SQLite)
+- [ ] P2: Fine-tuning pipeline (corruption + LLM synthetic + Whisper-in-loop → MLX LoRA)
+- [ ] P3: Müşteriye özel adapter (Akbank/Turkcell/THY domain fine-tune)
+
+### 🔲 Phase 6 — Enterprise Distribution
+- [ ] DMG paketleme + notarization (Developer ID Application)
+- [ ] Offline lisanslama (license key doğrulama)
+- [ ] IT kurulum dokümantasyonu (1 sayfa, adım adım)
+- [ ] SSO/SAML (WorkOS — Okta, Azure AD)
 - [ ] Şirket template library
-
-### 🔲 Phase 5 — Enterprise Distribution
-- [ ] Developer ID imzalama + notarization (mevcut Apple hesabı yeterli)
-- [ ] DMG paketleme → şirket web sitesi
-- [ ] Docker Compose paketi (FastAPI + Ollama + faster-whisper)
-- [ ] RunPod deploy, RTX 4090, <2s test
-- [ ] Admin dashboard
-- [ ] Offline lisanslama
-- [ ] IT kurulum dokümantasyonu
 
 ---
 
@@ -145,7 +154,7 @@ Docker + RunPod deployment → Phase 5'te (şimdi lokal geliştirme öncelikli).
 |---|---|---|---|
 | Tamamen on-premise | ✅ | ✅ | ❌ |
 | Türkçe optimize | ✅ | Orta | Orta |
-| Şirkete özel context | ✅ (Phase 2) | ❌ | Kısıtlı |
+| Şirkete özel context | ✅ (RAG + fine-tune) | ❌ | Kısıtlı |
 | Veri egemenliği garantisi | ✅ | ✅ | ❌ |
 | Mac native UX + auto-paste | ✅ | ❌ | ❌ |
 | SOLID, test edilebilir kod | ✅ | ❌ | — |

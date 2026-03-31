@@ -323,3 +323,65 @@ backend/src/voiceflow/context/
 - **Store:** ChromaDB `~/.voiceflow/chroma/`, `tenant="default"`
 - **Retrieval:** top-3 chunks inject edilir LLM correction prompt'una
 - **Lazy:** RecordingService'e opsiyonel 3. parametre — `retriever=None` ise RAG atlanır
+
+---
+
+## LLM Backend Seçimi (v0.5)
+
+**3 seçenek** — Swift app Settings'ten `llmMode` UserDefaults key'i ile seçilir, AppDelegate env var'larını backend'e geçirir:
+
+| llmMode | Env Vars | Corrector |
+|---------|----------|-----------|
+| `local` | `LLM_BACKEND=mlx` | LLMCorrector (mlx-lm Qwen 7B) |
+| `cloud` | `LLM_BACKEND=ollama`, `LLM_ENDPOINT` (RunPod), `LLM_MODEL=qwen2.5:7b` | OllamaCorrector |
+| `alibaba` | `LLM_BACKEND=ollama`, `LLM_ENDPOINT=https://dashscope-intl.aliyuncs.com/compatible-mode`, `LLM_MODEL=qwen-max`, `LLM_API_KEY` | OllamaCorrector |
+
+**OllamaCorrector** OpenAI-compatible endpoint kullanan her servisle çalışır (Ollama, vLLM, mlx-lm server, DashScope).
+
+---
+
+## Katman 4 — Planlanan Backend Değişiklikleri
+
+### Yeni Endpoint (P1)
+```
+POST /api/feedback   → {raw_whisper, model_output, user_action, user_edit, app_context}
+```
+
+### Yeni SQLite Tablosu (P1)
+```sql
+CREATE TABLE correction_feedback (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id    TEXT NOT NULL,
+    user_id      TEXT,
+    raw_whisper  TEXT NOT NULL,
+    model_output TEXT NOT NULL,
+    user_action  TEXT NOT NULL,   -- 'approved' | 'edited' | 'dismissed'
+    user_edit    TEXT,
+    app_context  TEXT,
+    window_title TEXT,
+    mode         TEXT,
+    language     TEXT,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Yeni Headers (P1)
+`POST /api/stop`'a ek header'lar — Swift Context Capture'dan gelir:
+```
+X-Window-Title: "Re: Q3 Roadmap - Mail"   (max 300 char, sanitized)
+X-Selected-Text: "Lütfen bütçeyi..."      (max 300 char, sanitized)
+```
+Backend, bunları OllamaCorrector'a "untrusted metadata" olarak iletir.
+
+### Fine-Tuning Scripts (P2)
+```
+backend/scripts/
+├── data_gen/
+│   ├── corruption_pipeline.py   ← clean text → simüle Whisper hataları (3K pair)
+│   ├── claude_generator.py      ← Claude API ile doğal TR pair (1K pair)
+│   └── whisper_loop.py          ← TTS → Whisper → gerçek hata pair (500 pair)
+└── training/
+    ├── prepare_dataset.py       ← tüm kaynaklar → train/valid/test.jsonl
+    ├── evaluate.py              ← WER/CER/exact_match metrikleri
+    └── harvest_feedback.py      ← SQLite feedback → JSONL
+```

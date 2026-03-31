@@ -1,6 +1,6 @@
 # VoiceFlow — Sistem Mimarisi
 
-## Mevcut Durum (v0.2, Çalışıyor)
+## Mevcut Durum (v0.5, Çalışıyor)
 
 ```
 [Mac — Apple Silicon]
@@ -21,7 +21,7 @@
     └── db/storage.py        (aiosqlite — ~/.voiceflow/voiceflow.db)
 ```
 
-**Çalışan özellikler (v0.2):**
+**Çalışan özellikler (v0.5):**
 - Tamamen local, internet bağlantısı yok
 - Apple Silicon MLX ile GPU hızlandırması
 - Fn double-tap hotkey (push-to-talk + toggle)
@@ -33,8 +33,14 @@
 - Kullanıcı profili: UUID, ad, departman
 - Onboarding sihirbazı (ilk açılış)
 - Server mode: Settings → Server URL + API Key → uzak GPU backend
-- API key auth middleware (X-Api-Key header)
-- Yanıt süresi: ~0.5s (LLM kapalı), ~3.5s (LLM açık)
+- JWT auth + tenant izolasyonu (server mode)
+- Admin web UI (Jinja2 Bootstrap 5) + usage dashboard
+- Audit log + KVKK veri silme API
+- Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
+- Knowledge Base (ChromaDB RAG, MiniLM embeddings)
+- Style/ton per-context (bundle ID → formal/casual/technical)
+- LLM backend seçimi: Local MLX / Cloud RunPod Ollama / Alibaba DashScope qwen-max
+- Yanıt süresi: ~0.5s (LLM kapalı), ~3.5s (local 7B), ~1.5s (Alibaba cloud)
 
 ---
 
@@ -76,14 +82,26 @@ Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
     └── mlx-lm Qwen 7B (isteğe bağlı, ~4GB)
 ```
 
-### Mod B: Server (Kurumsal, On-Premise)
+### Mod B: Local + Cloud LLM
+```
+[Mac]
+├── Swift App
+└── Python Backend (localhost:8765)
+    ├── mlx-whisper (Apple Silicon GPU — local)
+    └── OllamaCorrector → RunPod Ollama veya Alibaba DashScope
+```
+- `LLM_BACKEND=ollama` + `LLM_ENDPOINT` env var ile seçilir
+- `BACKEND_MODE=local` kalır — faster-whisper/JWT gerekmez
+- Settings'ten 3 seçenek: Local MLX / Cloud RunPod / Alibaba qwen-max
+
+### Mod C: Server (Kurumsal, On-Premise)
 ```
 [Mac — Thin Client]                    [Şirket / RunPod Sunucusu]
 ├── Swift App                   →      ├── FastAPI + RecordingService
 │   ├── Ses kaydı (local)  HTTPS+VPN   ├── faster-whisper large-v3 (CUDA)
 │   ├── Server URL config               ├── Ollama + Qwen 7B (GPU)
-│   └── API Key auth                   ├── SQLite (history + config)
-│                                      └── API key middleware
+│   └── JWT auth                       ├── SQLite (history + config)
+│                                      └── JWT middleware + tenant izolasyon
 ```
 - Mac sadece ses kaydeder, işleme sunucuda
 - Veri şirket ağından dışarı çıkmaz
@@ -93,11 +111,14 @@ Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
 
 ## Hız (Ölçülmüş)
 
-| Ortam | Whisper | LLM (7B) | Toplam |
+| Ortam | Whisper | LLM | Toplam |
 |---|---|---|---|
 | Mac M1/M2 (LLM kapalı) | ~0.3–0.5s | — | ~0.5s |
-| Mac M1/M2 (LLM açık) | ~0.3–0.5s | ~3–4s | ~3.5–4.5s |
+| Mac M1/M2 (MLX Qwen 7B) | ~0.3–0.5s | ~3–4s | ~3.5–4.5s |
+| Mac + Alibaba qwen-max | ~0.3–0.5s | ~0.7–1s | ~1.5s |
+| Mac + RunPod Ollama | ~0.3–0.5s | ~0.5–1s | ~1–1.5s |
 | RTX 4090 server | ~0.2–0.3s | ~0.5–1s | ~0.8–1.3s |
+| [K4] Mac + fine-tuned adapter | ~0.3–0.5s | ~0.5–1s | ~1s (hedef) |
 
 ---
 
@@ -108,14 +129,21 @@ Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
 2. BackendService.startRecording() → POST /api/start
 3. Ses kaydı (Mac'te local, sounddevice)
 4. Fn double-tap → AppViewModel.stopAndTranscribe()
-5. BackendService.stopRecording() → POST /api/stop [X-User-ID header]
+5. BackendService.stopRecording() → POST /api/stop
+   Headers: X-User-ID, X-Active-App, [X-Window-Title, X-Selected-Text — K4]
 6. RecordingService.stop():
    a. AudioCapture.stop() → numpy array
    b. MLX executor → WhisperTranscriber.transcribe() (~0.3s)
-   c. (enabled) → LLMCorrector.correct() veya OllamaCorrector.correct_async()
-   d. db.save_transcription() → SQLite
+   c. Dictionary substitution (user_dictionary)
+   d. Snippet match (snippets tablosu)
+   e. (enabled) → LLMCorrector.correct() veya OllamaCorrector.correct_async()
+      + RAG context injection (ChromaDB, KB varsa)
+      + App tone override (bundle ID → formal/casual/technical)
+      + [K4] Window title + selected text context injection
+   f. db.save_transcription() → SQLite
 7. TranscriptionResponse → Mac
 8. AppViewModel → PasteService.pasteText() → Cmd+V
+9. [K4] Training Mode açıksa → Training Pill göster
 ```
 
 ---
