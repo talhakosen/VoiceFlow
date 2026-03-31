@@ -231,46 +231,83 @@ backend/data/fine-tune/
 
 ```bash
 # Gereksinimler
-pip install mlx-lm
+pip install "mlx-lm[train]"
 
-# LoRA fine-tune
+# LoRA fine-tune (QLoRA otomatik — 4-bit model kullanıyoruz)
 python -m mlx_lm.lora \
   --model mlx-community/Qwen2.5-7B-Instruct-4bit \
   --data backend/data/fine-tune \
   --train \
-  --batch-size 4 \
-  --lora-layers 16 \
-  --lora-rank 16 \
-  --learning-rate 1e-5 \
+  --fine-tune-type lora \
+  --batch-size 2 \
+  --num-layers 16 \
+  --learning-rate 2e-4 \
   --iters 1000 \
-  --val-batches 25 \
+  --mask-prompt \
+  --steps-per-report 10 \
+  --steps-per-eval 100 \
   --save-every 200 \
   --adapter-path backend/models/correction-adapter
+
+# OOM olursa --grad-checkpoint ekle (RAM-compute trade-off)
+# --batch-size 1 --num-layers 8 --grad-checkpoint
 
 # Test
 python -m mlx_lm.lora \
   --model mlx-community/Qwen2.5-7B-Instruct-4bit \
   --adapter-path backend/models/correction-adapter \
-  --test \
-  --data backend/data/fine-tune
+  --data backend/data/fine-tune \
+  --test
+
+# Interactive test
+python -m mlx_lm.generate \
+  --model mlx-community/Qwen2.5-7B-Instruct-4bit \
+  --adapter-path backend/models/correction-adapter \
+  --prompt "bugun toplantida konusacagimiz konular sunlardir"
 ```
 
+**YAML Config alternatifi** (`backend/finetune/lora_config.yaml`):
+```yaml
+model: "mlx-community/Qwen2.5-7B-Instruct-4bit"
+data: "./backend/data/fine-tune"
+fine_tune_type: "lora"
+batch_size: 2
+num_layers: 16
+iters: 1000
+learning_rate: 2e-4
+mask_prompt: true          # Loss sadece corrected output'ta hesaplanır
+save_every: 200
+adapter_path: "./backend/models/correction-adapter"
+lora_parameters:
+  rank: 8
+  scale: 20.0              # alpha/rank — efektif ağırlık
+  dropout: 0.0
+```
+```bash
+python -m mlx_lm.lora --train --config backend/finetune/lora_config.yaml
+```
+
+**Önemli notlar:**
+- `--mask-prompt`: Loss sadece assistant (corrected) kısmında hesaplanır — prompt pattern öğrenmez
+- QLoRA otomatik: 4-bit model verince base quantized kalır, adapter full precision
+- GGUF modeller fine-tune'a uygun DEĞİL — sadece HuggingFace format
+
 **Donanım gereksinimleri:**
-| Mac | RAM | Eğitim süresi (5K pair) | Batch size |
-|-----|-----|------------------------|------------|
-| M1 16GB | 16GB | ~3-4 saat | 1-2 |
-| M1 Pro/Max 32GB | 32GB | ~2 saat | 4 |
-| M2/M3 Pro 36GB | 36GB | ~1.5 saat | 4-8 |
-| M3 Max 64GB+ | 64GB+ | ~1 saat | 8-16 |
+| Mac | RAM | Eğitim süresi (1K iter) | Batch size | num-layers |
+|-----|-----|------------------------|------------|------------|
+| M1/M2 16GB | 16GB | ~25-35 dk | 1 | 8 + grad-checkpoint |
+| M2/M3 Pro 18-32GB | 18-32GB | ~15-20 dk | 2 | 16 |
+| M3 Max 36GB+ | 36GB+ | ~10-15 dk | 4 | 16 |
+| M4 Max 64GB+ | 64GB+ | ~8-12 dk | 4-8 | 16 |
 
 **LoRA Hyperparameters:**
 ```
-rank: 16          # 5K data için iyi denge
-alpha: 32         # rank * 2
-dropout: 0.05     # hafif regularization
+rank: 8-16        # 8 ile başla, yetersizse 16'ya çık
+scale: 20.0       # alpha/rank oranı
+dropout: 0.0      # küçük dataset'te dropout genelde gereksiz
 layers: 16        # son 16 layer (Qwen 7B'de 32 layer var)
-learning_rate: 1e-5
-epochs: 3-5       # overfitting'e dikkat, val loss izle
+learning_rate: 2e-4  # LoRA standardı; çok agresifse 1e-4'e düşür
+iters: 1000       # val loss izle, düşüyorsa artır
 ```
 
 ### 4.3 Inference (Fine-tuned Model Kullanımı)
@@ -371,21 +408,46 @@ class LLMCorrector:
 
 ---
 
-## 6. Server Mode (NVIDIA)
+## 6. Server Mode (NVIDIA) + Production Deploy
 
-Aynı adapter'ı Ollama + GGUF formatına çevirerek server mode'da da kullanabiliriz:
+### 6.1 Fuse: Adapter'ı Base Model'e Göm (Production İçin)
 
 ```bash
-# MLX adapter → Hugging Face format → GGUF
-python -m mlx_lm.lora --model ... --adapter-path ... --de-quantize
+# Adapter'ı base model ile birleştir → tek model dizini
+python -m mlx_lm.fuse \
+  --model mlx-community/Qwen2.5-7B-Instruct-4bit \
+  --adapter-path backend/models/correction-adapter \
+  --save-path backend/models/voiceflow-corrector-v1
 
-# GGUF'a çevir
-python convert-hf-to-gguf.py ...
+# Fused model'i doğrudan yükle (adapter overhead yok)
+# model, tokenizer = load("backend/models/voiceflow-corrector-v1")
+```
+
+### 6.2 GGUF Export (Ollama / Server Mode)
+
+```bash
+# Fuse + GGUF export tek adımda
+python -m mlx_lm.fuse \
+  --model mlx-community/Qwen2.5-7B-Instruct-4bit \
+  --adapter-path backend/models/correction-adapter \
+  --save-path backend/models/voiceflow-corrector-v1 \
+  --export-gguf
 
 # Ollama Modelfile
-FROM qwen2.5:7b
-ADAPTER ./correction-adapter.gguf
+cat > backend/models/Modelfile <<'MODELFILE'
+FROM backend/models/voiceflow-corrector-v1/voiceflow-corrector-v1.gguf
+PARAMETER temperature 0.0
+PARAMETER num_predict 512
+SYSTEM "Fix the raw transcript: correct Turkish characters, remove fillers, handle self-corrections, add punctuation. Output ONLY the corrected text."
+MODELFILE
+
+# Ollama'ya register et
+ollama create voiceflow-corrector -f backend/models/Modelfile
 ```
+
+Bu sayede **tek training workflow** → iki deploy target:
+- **Local (Mac):** MLX model + adapter veya fused model
+- **Server (NVIDIA):** GGUF → Ollama → OllamaCorrector (mevcut kod değişmez)
 
 ---
 
