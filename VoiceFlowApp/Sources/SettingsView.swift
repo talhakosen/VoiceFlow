@@ -324,8 +324,9 @@ private struct SnippetsSection: View {
 
 private struct RecordingSection: View {
     var viewModel: AppViewModel
-    @AppStorage(AppSettings.llmMode)     private var llmMode     = "local"
-    @AppStorage(AppSettings.llmEndpoint) private var llmEndpoint = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
+    @AppStorage(AppSettings.llmMode)       private var llmMode       = "local"
+    @AppStorage(AppSettings.llmEndpoint)   private var llmEndpoint   = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
+    @AppStorage(AppSettings.trainingMode)  private var trainingMode  = false
     @State private var showRestartNotice = false
 
     var body: some View {
@@ -393,6 +394,17 @@ private struct RecordingSection: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
+            }
+
+            Section("Training Mode") {
+                Toggle("Training Mode", isOn: $trainingMode)
+                    .onChange(of: trainingMode) { _, val in
+                        UserDefaults.standard.set(val, forKey: AppSettings.trainingMode)
+                        viewModel.trainingModeEnabled = val
+                    }
+
+                Text("After each transcription, a feedback pill appears. Your corrections help improve future accuracy.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)

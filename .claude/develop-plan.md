@@ -197,10 +197,10 @@
 
 ### 4.3 P1 — Training Mode (3-5 gün)
 
-- [ ] **Feedback pill (Swift)** — paste sonrası NSPanel: [✓ Doğru] [✗ Düzelt], 5sn auto-dismiss
-- [ ] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
-- [ ] **`POST /api/feedback` endpoint** — feedback kaydet
-- [ ] **Settings: Training Mode section** — toggle + progress bar (312/500) + Eğitimi Başlat butonu
+- [DONE 2026-03-31] **Feedback pill (Swift)** — paste sonrası NSPanel: [✓ Doğru] [✗ Düzelt], 5sn auto-dismiss
+- [DONE 2026-03-31] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
+- [DONE 2026-03-31] **`POST /api/feedback` endpoint** — feedback kaydet
+- [DONE 2026-03-31] **Settings: Training Mode section** — toggle
 
 ### 4.4 P2 — Fine-Tuning Pipeline (3 hafta)
 

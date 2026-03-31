@@ -83,6 +83,25 @@ async def init_db() -> None:
         await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_audit_tenant ON audit_log(tenant_id, created_at)"
         )
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS correction_feedback (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id    TEXT NOT NULL DEFAULT 'default',
+                user_id      TEXT,
+                raw_whisper  TEXT NOT NULL,
+                model_output TEXT NOT NULL,
+                user_action  TEXT NOT NULL,
+                user_edit    TEXT,
+                app_context  TEXT,
+                window_title TEXT,
+                mode         TEXT,
+                language     TEXT,
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_feedback_tenant ON correction_feedback(tenant_id, created_at)"
+        )
         # Migration: add user_id column if missing (existing DBs)
         async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
             columns = {row[1] async for row in cursor}
@@ -373,6 +392,12 @@ async def delete_user_data(user_id: str, tenant_id: str) -> dict:
             (user_id, tenant_id),
         )
         snippets_deleted = cur.rowcount
+        # KVKK: delete feedback data (contains raw_whisper — personal voice data)
+        cur = await db.execute(
+            "DELETE FROM correction_feedback WHERE user_id = ? AND tenant_id = ?",
+            (user_id, tenant_id),
+        )
+        feedback_deleted = cur.rowcount
         # Soft-delete the user account
         cur = await db.execute(
             "UPDATE users SET is_active = 0 WHERE id = ? AND tenant_id = ?",
@@ -384,8 +409,33 @@ async def delete_user_data(user_id: str, tenant_id: str) -> dict:
         "transcriptions_deleted": transcriptions_deleted,
         "dictionary_deleted": dictionary_deleted,
         "snippets_deleted": snippets_deleted,
+        "feedback_deleted": feedback_deleted,
         "user_deactivated": user_deactivated,
     }
+
+
+async def save_feedback(
+    raw_whisper: str,
+    model_output: str,
+    user_action: str,
+    tenant_id: str = "default",
+    user_id: str | None = None,
+    user_edit: str | None = None,
+    app_context: str | None = None,
+    window_title: str | None = None,
+    mode: str | None = None,
+    language: str | None = None,
+) -> int | None:
+    """Save a training feedback entry. Returns the new row id."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            """INSERT INTO correction_feedback
+               (tenant_id, user_id, raw_whisper, model_output, user_action, user_edit, app_context, window_title, mode, language)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (tenant_id, user_id, raw_whisper, model_output, user_action, user_edit, app_context, window_title, mode, language),
+        )
+        await db.commit()
+        return cursor.lastrowid
 
 
 async def get_tenant_stats(tenant_id: str) -> dict:

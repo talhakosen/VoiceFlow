@@ -323,6 +323,7 @@ backend/src/voiceflow/context/
 - **Store:** ChromaDB `~/.voiceflow/chroma/`, `tenant="default"`
 - **Retrieval:** top-3 chunks inject edilir LLM correction prompt'una
 - **Lazy:** RecordingService'e opsiyonel 3. parametre — `retriever=None` ise RAG atlanır
+- **is_ready guard:** `retrieve()` MiniLM henüz yüklenmemişse (`_collection is None`) anında `[]` döner — stop pipeline'ı 30-40s bloke etmez. MiniLM ilk kez `ingest` sırasında yüklenir.
 
 ---
 

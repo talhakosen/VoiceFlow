@@ -9,6 +9,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var healthCheckTimer: Timer?
     private var onboardingWindow: NSWindow?
     private var loginWindow: NSPanel?
+    private let trainingPillController = TrainingPillWindowController()
+    private var trainingPillObserver: Task<Void, Never>? = nil
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
@@ -23,6 +25,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.recordingOverlay = overlay
         vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.orderFront(nil) } }
         vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.orderOut(nil) } }
+
+        // Observe Training Mode pill state
+        trainingPillObserver = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                guard let self, let vm = self.viewModel else { continue }
+                if vm.showTrainingPill {
+                    self.trainingPillController.show(viewModel: vm)
+                } else {
+                    self.trainingPillController.close()
+                }
+            }
+        }
         self.viewModel = vm
 
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"

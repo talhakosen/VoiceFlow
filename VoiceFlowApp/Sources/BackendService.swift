@@ -145,6 +145,9 @@ protocol BackendServiceProtocol: Actor {
     func register(email: String, password: String) async throws -> AuthUser
     func refreshToken(_ refreshToken: String) async throws -> String
     func getMe() async throws -> AuthUser
+
+    // Training Mode (Katman 4)
+    func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String?) async throws
 }
 
 // MARK: - Concrete implementation
@@ -454,6 +457,22 @@ actor BackendService: BackendServiceProtocol {
         }
         let (data, _) = try await dataWithRefreshRetry(for: req)
         return try JSONDecoder().decode(AuthUser.self, from: data)
+    }
+
+    func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String? = nil) async throws {
+        var request = makeRequest(path: "feedback", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var body: [String: Any] = [
+            "raw_whisper": rawWhisper,
+            "model_output": modelOutput,
+            "user_action": userAction,
+        ]
+        if let edit = userEdit { body["user_edit"] = edit }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
     }
 }
 

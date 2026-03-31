@@ -53,6 +53,7 @@ var isCorrectionEnabled: Bool
 
 **Business logic:**
 - `startRecording()` / `stopAndTranscribe()` / `forceStop()`
+  - `stopAndTranscribe`: overlay + Pop sesi backend response beklemeden **hemen** çalar — uzun Whisper/RAG işlemleri UI'ı bloke etmez
 - `selectLanguageMode(_:)` / `selectAppMode(_:)` / `toggleCorrection()`
 - `loadDictionary()` / `addDictionaryEntry()` / `deleteDictionaryEntry()`
 - `loadSnippets()` / `addSnippet()` / `deleteSnippet()`

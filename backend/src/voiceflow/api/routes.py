@@ -17,7 +17,7 @@ from ..db import (
     get_history, clear_history,
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
-    append_audit_log,
+    append_audit_log, save_feedback,
 )
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
@@ -370,3 +370,42 @@ async def delete_snippet_route(
     if not deleted:
         raise HTTPException(status_code=404, detail="Snippet not found or not yours")
     return {"status": "deleted", "id": snippet_id}
+
+
+# ------------------------------------------------------------------
+# Training Mode — Feedback (Katman 4)
+# ------------------------------------------------------------------
+
+_VALID_ACTIONS = {"approved", "edited", "dismissed"}
+
+
+class FeedbackRequest(BaseModel):
+    raw_whisper: str
+    model_output: str
+    user_action: str   # 'approved' | 'edited' | 'dismissed'
+    user_edit: str | None = None
+    app_context: str | None = None
+    window_title: str | None = None
+    mode: str | None = None
+    language: str | None = None
+
+
+@router.post("/feedback")
+async def submit_feedback(req: FeedbackRequest, request: Request):
+    if req.user_action not in _VALID_ACTIONS:
+        raise HTTPException(status_code=400, detail=f"user_action must be one of {sorted(_VALID_ACTIONS)}")
+    user_id = getattr(request.state, "user_id", None)
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+    await save_feedback(
+        raw_whisper=req.raw_whisper,
+        model_output=req.model_output,
+        user_action=req.user_action,
+        tenant_id=tenant_id,
+        user_id=user_id,
+        user_edit=req.user_edit,
+        app_context=req.app_context,
+        window_title=req.window_title,
+        mode=req.mode,
+        language=req.language,
+    )
+    return {"status": "ok"}

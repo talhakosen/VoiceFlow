@@ -16,6 +16,12 @@ final class AppViewModel {
     var currentAppMode: AppMode = .general
     var isCorrectionEnabled = false
 
+    // Training Mode (Katman 4)
+    var trainingModeEnabled: Bool = UserDefaults.standard.bool(forKey: AppSettings.trainingMode)
+    var showTrainingPill = false
+    var trainingPillResult: TranscriptionResult? = nil
+    private var autoDismissTask: Task<Void, Never>? = nil
+
     // MARK: - Dependencies
 
     private let backend: any BackendServiceProtocol
@@ -177,9 +183,80 @@ final class AppViewModel {
             try? await Task.sleep(nanoseconds: 300_000_000)
             paste.pasteText(result.text)
             statusText = "Ready"
+
+            // Training Mode: show feedback pill after paste
+            if trainingModeEnabled, let rawText = result.rawText, !rawText.isEmpty {
+                trainingPillResult = result
+                showTrainingPill = true
+                autoDismissTask?.cancel()
+                autoDismissTask = Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(5))
+                    guard let self, !Task.isCancelled else { return }
+                    await self.approveFeedback()
+                }
+            }
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
             statusText = "Ready"
+        }
+    }
+
+    // MARK: - Training Mode feedback actions (Katman 4)
+
+    func approveFeedback() async {
+        guard let result = trainingPillResult else { return }
+        autoDismissTask?.cancel()
+        autoDismissTask = nil
+        showTrainingPill = false
+        trainingPillResult = nil
+        let rawWhisper = result.rawText ?? result.text
+        let modelOutput = result.text
+        Task {
+            try? await backend.submitFeedback(
+                rawWhisper: rawWhisper,
+                modelOutput: modelOutput,
+                userAction: "approved",
+                userEdit: nil
+            )
+        }
+    }
+
+    func editFeedback(corrected: String) async {
+        guard let result = trainingPillResult else { return }
+        autoDismissTask?.cancel()
+        autoDismissTask = nil
+        showTrainingPill = false
+        trainingPillResult = nil
+        let rawWhisper = result.rawText ?? result.text
+        let modelOutput = result.text
+        Task {
+            try? await backend.submitFeedback(
+                rawWhisper: rawWhisper,
+                modelOutput: modelOutput,
+                userAction: "edited",
+                userEdit: corrected
+            )
+        }
+    }
+
+    func dismissFeedback() {
+        guard let result = trainingPillResult else {
+            showTrainingPill = false
+            return
+        }
+        autoDismissTask?.cancel()
+        autoDismissTask = nil
+        showTrainingPill = false
+        trainingPillResult = nil
+        let rawWhisper = result.rawText ?? result.text
+        let modelOutput = result.text
+        Task {
+            try? await backend.submitFeedback(
+                rawWhisper: rawWhisper,
+                modelOutput: modelOutput,
+                userAction: "dismissed",
+                userEdit: nil
+            )
         }
     }
 

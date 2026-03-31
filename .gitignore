@@ -65,3 +65,4 @@ temp/
 
 # Runtime
 backend/.voiceflow.pid
+.claude/worktrees/
