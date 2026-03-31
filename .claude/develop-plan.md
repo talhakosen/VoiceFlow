@@ -204,13 +204,13 @@
 
 ### 4.4 P2 — Fine-Tuning Pipeline (3 hafta)
 
-- [ ] **`corruption_pipeline.py`** — clean text → simüle Whisper hataları (3K pair, 3 zorluk)
-- [ ] **`claude_generator.py`** — Claude API ile doğal TR diyalog pair'leri (1K pair, ~$10)
-- [ ] **`whisper_loop.py`** — macOS `say` TTS → Whisper → gerçek hata pair'leri (500 pair)
-- [ ] **`prepare_dataset.py`** — tüm kaynakları train/valid/test.jsonl'e birleştir
+- [DONE 2026-03-31] **`corruption_pipeline.py`** — clean text → simüle Whisper hataları (3K pair, 3 zorluk)
+- [DONE 2026-03-31] **`claude_generator.py`** — Claude API ile doğal TR diyalog pair'leri (1K pair, ~$10)
+- [DONE 2026-03-31] **`whisper_loop.py`** — macOS `say` TTS → Whisper → gerçek hata pair'leri (500 pair)
+- [DONE 2026-03-31] **`prepare_dataset.py`** — tüm kaynakları train/valid/test.jsonl'e birleştir
 - [ ] **MLX LoRA fine-tune** — Qwen 7B, rank=8, 1000 iter, ~20 dk Mac'te
-- [ ] **`evaluate.py`** — WER/CER/exact_match/backtracking metrik raporu
-- [ ] **LLMCorrector adapter_path desteği** — adapter varsa kısa prompt, yoksa fallback
+- [DONE 2026-03-31] **`evaluate.py`** — WER/CER/exact_match/backtracking metrik raporu
+- [DONE 2026-03-31] **LLMCorrector adapter_path desteği** — adapter varsa kısa prompt, yoksa fallback
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 
