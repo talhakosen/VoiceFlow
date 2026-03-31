@@ -184,16 +184,10 @@ final class AppViewModel {
             paste.pasteText(result.text)
             statusText = "Ready"
 
-            // Training Mode: show feedback pill after paste
+            // Training Mode: show feedback pill after paste (no auto-dismiss)
             if trainingModeEnabled, let rawText = result.rawText, !rawText.isEmpty {
                 trainingPillResult = result
                 showTrainingPill = true
-                autoDismissTask?.cancel()
-                autoDismissTask = Task { [weak self] in
-                    try? await Task.sleep(for: .seconds(5))
-                    guard let self, !Task.isCancelled else { return }
-                    await self.approveFeedback()
-                }
             }
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
