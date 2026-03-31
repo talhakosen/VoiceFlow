@@ -412,7 +412,6 @@ private struct RecordingSection: View {
     }
 }
 
-
 // MARK: - Knowledge Base
 
 private struct KnowledgeBaseSection: View {

@@ -185,8 +185,7 @@ final class AppViewModel {
             statusText = "Ready"
 
             // Training Mode: show feedback pill after paste (no auto-dismiss)
-            // Show pill regardless of correction — rawText may be nil when correction is off
-            if trainingModeEnabled && !result.text.isEmpty {
+            if trainingModeEnabled, let rawText = result.rawText, !rawText.isEmpty {
                 trainingPillResult = result
                 showTrainingPill = true
             }
@@ -420,8 +419,6 @@ final class AppViewModel {
     var onHardReset: ((@escaping (Bool) -> Void) -> Void)?
     var onShowRecordingOverlay: (() -> Void)?
     var onHideRecordingOverlay: (() -> Void)?
-    var onShowTrainingSession: (() -> Void)?
-    var onShowMySpace: (() -> Void)?
 
     func restartBackend() {
         statusText = "Restarting backend..."
@@ -493,27 +490,6 @@ final class AppViewModel {
         KeychainHelper.refreshToken = nil
         isLoggedIn   = false
         currentUser  = nil
-    }
-
-    // MARK: - My Space (Katman 4)
-
-    var mySpaceStats: MySpaceStats? = nil
-    var mySpaceCorrections: [CorrectionItem] = []
-    var isLoadingMySpace = false
-
-    func loadMySpace() {
-        isLoadingMySpace = true
-        Task {
-            async let statsTask = backend.getMySpaceStats()
-            async let correctionsTask = backend.getMyCorrections(limit: 50)
-            mySpaceStats = try? await statsTask
-            mySpaceCorrections = (try? await correctionsTask) ?? []
-            isLoadingMySpace = false
-        }
-    }
-
-    func showMySpace() {
-        onShowMySpace?()
     }
 
     // MARK: - Accessibility

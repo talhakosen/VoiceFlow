@@ -66,13 +66,6 @@ def _build_retriever():
 async def lifespan(app: FastAPI):
     await init_db()
 
-    # Seed training sentences on first run (idempotent)
-    from .db.seed_sentences import _seed as seed_sentences
-    try:
-        await seed_sentences()
-    except Exception as e:
-        logger.warning("Training sentence seed failed (non-fatal): %s", e)
-
     from .services import RecordingService
     service = RecordingService(
         transcriber=_build_transcriber(),

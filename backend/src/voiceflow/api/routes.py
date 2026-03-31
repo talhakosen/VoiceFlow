@@ -18,8 +18,6 @@ from ..db import (
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
     append_audit_log, save_feedback,
-    get_training_sentences, save_training_feedback,
-    get_user_stats, get_user_corrections,
 )
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
@@ -375,37 +373,6 @@ async def delete_snippet_route(
 
 
 # ------------------------------------------------------------------
-# My Space — Personal stats (Katman 4)
-# ------------------------------------------------------------------
-
-@router.get("/me/stats")
-async def get_me_stats(
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    """Return personal usage stats for My Space (recognition score, word count, etc.)."""
-    state_user_id = getattr(request.state, "user_id", None)
-    user_id = state_user_id or x_user_id or None
-    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
-    stats = await get_user_stats(user_id=user_id, tenant_id=tenant_id)
-    return stats
-
-
-@router.get("/me/corrections")
-async def get_me_corrections(
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-    limit: int = 50,
-):
-    """Return recent corrected transcriptions for My Space feed."""
-    state_user_id = getattr(request.state, "user_id", None)
-    user_id = state_user_id or x_user_id or None
-    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
-    items = await get_user_corrections(user_id=user_id, tenant_id=tenant_id, limit=limit)
-    return {"items": items, "count": len(items)}
-
-
-# ------------------------------------------------------------------
 # Training Mode — Feedback (Katman 4)
 # ------------------------------------------------------------------
 
@@ -442,51 +409,3 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
         language=req.language,
     )
     return {"status": "ok"}
-
-
-# ------------------------------------------------------------------
-# Training Mode — Sentences + Session Feedback (Katman 4)
-# ------------------------------------------------------------------
-
-_VALID_DOMAINS = {"general", "engineering", "office"}
-
-
-@router.get("/training/sentences")
-async def get_sentences(domain: str | None = None):
-    """Return up to 50 random training sentences, optionally filtered by domain."""
-    if domain is not None and domain not in _VALID_DOMAINS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"domain must be one of {sorted(_VALID_DOMAINS)} or omitted",
-        )
-    sentences = await get_training_sentences(domain=domain, limit=50)
-    return {"items": sentences, "count": len(sentences)}
-
-
-class TrainingFeedbackRequest(BaseModel):
-    sentence_id: int
-    original_text: str
-    transcribed_text: str
-    corrected_text: str
-    domain: str
-
-
-@router.post("/training/feedback")
-async def submit_training_feedback(req: TrainingFeedbackRequest, request: Request):
-    if req.domain not in _VALID_DOMAINS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"domain must be one of {sorted(_VALID_DOMAINS)}",
-        )
-    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
-    user_id = getattr(request.state, "user_id", "training") or "training"
-    row_id = await save_training_feedback(
-        sentence_id=req.sentence_id,
-        original_text=req.original_text,
-        transcribed_text=req.transcribed_text,
-        corrected_text=req.corrected_text,
-        domain=req.domain,
-        tenant_id=tenant_id,
-        user_id=user_id,
-    )
-    return {"status": "ok", "id": row_id}
