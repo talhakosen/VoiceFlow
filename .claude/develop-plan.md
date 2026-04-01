@@ -2,7 +2,7 @@
 
 ---
 
-## Şu An Çalışan (v0.3 — Katman 1 + Katman 2 kısmen)
+## Şu An Çalışan (v0.3.0 — Production Polish Sprint)
 
 - Fn double-tap hotkey ile ses kaydı
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
@@ -12,7 +12,10 @@
 - Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
 - Knowledge Base (ChromaDB RAG — lazy load, MiniLM embeddings)
 - Recording overlay floating pill + ses efektleri
-- 2-panel Settings (General/Recording/Dictionary/Snippets/KB/Account/About)
+- 2-panel Settings (Genel/Kayıt/Sözlük/Şablonlar/Bilgi Tabanı/Hesap/Hakkında) — tam Türkçe
+- App icon tüm boyutlar doğru (Xcode warning yok)
+- Versiyon 0.3.0
+- Backend kapalıyken kullanıcıya Türkçe hata mesajı
 - Local mode (MLX/Mac) + Server mode (faster-whisper + Ollama)
 - JWT auth (register/login/refresh) — server mode
 - Mac app login ekranı + Keychain token saklama
