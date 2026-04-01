@@ -197,7 +197,10 @@
 
 ### 4.3 P1 — Training Mode (3-5 gün)
 
-- [DONE 2026-03-31] **Feedback pill (Swift)** — paste sonrası NSPanel: [✓ Doğru] [✗ Düzelt], 5sn auto-dismiss
+- [DONE 2026-04-01] **Feedback pill (Swift)** — paste sonrası NSPanel: tek tık kırmızı, ikinci tık NSAlert dialog düzeltme; NSAlert approach (nonactivatingPanel keyboard fix)
+- [DONE 2026-04-01] **Pill → Dictionary auto-add** — Onayla'da token diff → personal scope dictionary entry otomatik eklenir
+- [DONE 2026-04-01] **Dictionary UI — Kişisel/Takım tabları** — segmented picker, "Takıma ekle" butonu per-entry
+- [DONE 2026-04-01] **Snippet noktalama fix** — Whisper sona nokta koyunca eşleşmiyordu → rstrip(".,!?;:")
 - [DONE 2026-03-31] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
 - [DONE 2026-03-31] **`POST /api/feedback` endpoint** — feedback kaydet
 - [DONE 2026-03-31] **Settings: Training Mode section** — toggle

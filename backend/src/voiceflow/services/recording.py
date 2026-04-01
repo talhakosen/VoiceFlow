@@ -98,6 +98,7 @@ class RecordingService:
 
         raw_text = result.text
         was_corrected = False
+        snippet_used = False
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
 
         # Dictionary substitution (Whisper → Dictionary → Snippets → LLM)
@@ -107,7 +108,10 @@ class RecordingService:
                 result.text = apply_dictionary(result.text, entries)
             snippets = await get_snippets(user_id=user_id)
             if snippets:
-                result.text = apply_snippets(result.text, snippets)
+                expanded = apply_snippets(result.text, snippets)
+                if expanded != result.text:
+                    snippet_used = True
+                result.text = expanded
 
         # Retrieve context (skip if retriever absent or knowledge base empty)
         context_chunks: list[str] = []
@@ -157,10 +161,12 @@ class RecordingService:
             tenant_id=tenant_id,
         )
 
+        logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
         return {
             "text": result.text,
             "raw_text": raw_text if was_corrected else None,
             "corrected": was_corrected,
+            "snippet_used": snippet_used,
             "language": result.language,
             "duration": result.duration,
             "id": row_id,

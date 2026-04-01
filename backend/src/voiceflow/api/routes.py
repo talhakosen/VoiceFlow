@@ -39,6 +39,7 @@ class TranscriptionResponse(BaseModel):
     text: str
     raw_text: str | None = None
     corrected: bool = False
+    snippet_used: bool = False
     language: str | None = None
     duration: float | None = None
     id: int | None = None

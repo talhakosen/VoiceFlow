@@ -62,6 +62,8 @@ class RecordingService:
 ```
 Pipeline sırası: **Whisper → Dictionary → Snippets → RAG retrieval → LLM correction → SQLite**
 
+**Snippet matching notu:** `apply_snippets()` tüm metni trigger ile karşılaştırır (tam eşleşme). Whisper cümle sonuna noktalama ekler — bu nedenle karşılaştırma öncesi `rstrip(".,!?;:")` uygulanır. Snippet expand olduysa `snippet_used=True` response'a eklenir; Training Pill bu durumda gösterilmez.
+
 Constructor injection → test için mock takılabilir.
 
 ### Interfaces (`core/interfaces.py`)
@@ -151,6 +153,7 @@ DELETE /api/snippets/{id}     → Kişisel snippet sil
     "text": "Bugün hava çok güzel.",
     "raw_text": "bugun hava cok guzel",  # sadece düzeltildiyse dolu
     "corrected": true,
+    "snippet_used": false,               # snippet expand olduysa true — Training Pill bu durumda gösterilmez
     "language": "tr",
     "duration": 3.45,
     "id": 42                             # SQLite row ID

@@ -4,6 +4,7 @@ struct TranscriptionResult: Codable {
     let text: String
     let rawText: String?
     let corrected: Bool?
+    let snippetUsed: Bool?
     let language: String?
     let duration: Double?
     let id: Int?
@@ -12,6 +13,7 @@ struct TranscriptionResult: Codable {
         case text
         case rawText = "raw_text"
         case corrected
+        case snippetUsed = "snippet_used"
         case language
         case duration
         case id

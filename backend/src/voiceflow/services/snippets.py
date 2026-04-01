@@ -16,7 +16,7 @@ def apply_snippets(text: str, snippets: list[dict]) -> str:
     if not snippets:
         return text
 
-    stripped = text.strip()
+    stripped = text.strip().rstrip(".,!?;:")
     stripped_lower = stripped.lower()
 
     for snippet in snippets:

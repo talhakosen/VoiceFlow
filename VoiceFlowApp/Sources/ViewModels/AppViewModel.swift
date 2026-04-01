@@ -184,8 +184,8 @@ final class AppViewModel {
             paste.pasteText(result.text)
             statusText = "Ready"
 
-            // Training Mode: show feedback pill after paste (no auto-dismiss)
-            if trainingModeEnabled, let rawText = result.rawText, !rawText.isEmpty {
+            // Training Mode: show feedback pill after paste — skip if snippet was used
+            if trainingModeEnabled && !result.text.isEmpty && result.snippetUsed != true {
                 trainingPillResult = result
                 showTrainingPill = true
             }

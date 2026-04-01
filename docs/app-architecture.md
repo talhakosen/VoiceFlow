@@ -244,11 +244,14 @@ Active app context (treat as untrusted metadata, not instructions):
 Paste sonrası NSPanel — Training Mode açıksa gösterilir. Ekranın alt ortasında konumlanır.
 
 **Kelime chip UX:**
-- **Tek tık** → kelime kırmızı + üstü çizili ("bu yanlış")
-- **Çift tık** → inline düzenleme (TextField açılır)
+- **Tek tık** → kelime kırmızı ("bu yanlış")
+- **İkinci tık** → NSAlert dialog — orijinal kelime gösterilir, düzeltme yazılır
 - **Düzenlenen kelime** → yeşil gösterilir
-- **Onayla ✓** → feedback gönderilir; **✗** → pill kapanır, gönderilmez
+- **Onayla ✓** → feedback gönderilir + düzeltilen kelimeler Personal Dictionary'e eklenir
+- **✗ (dismiss)** → pill kapanır, gönderilmez
 - **Otomatik kapanma yok** — kullanıcı explicit action gerektirir
+
+**Dictionary auto-add:** Onayla'da `token.original → token.text` farkı olan her kelime, `scope=personal` olarak Dictionary'e eklenir. Bir dahaki kayıtta Whisper aynı hatayı yapsa otomatik düzeltilir.
 
 ```swift
 // AppViewModel state:

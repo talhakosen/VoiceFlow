@@ -174,73 +174,145 @@ private struct GeneralSection: View {
 private struct DictionarySection: View {
     var viewModel: AppViewModel
 
+    @State private var selectedTab = 0
     @State private var newTrigger = ""
     @State private var newReplacement = ""
-    @State private var newScope = "personal"
+
+    private var personalEntries: [DictionaryEntry] {
+        viewModel.dictionaryEntries.filter { $0.scope == "personal" }
+    }
+
+    private var teamEntries: [DictionaryEntry] {
+        viewModel.dictionaryEntries.filter { $0.scope == "team" }
+    }
+
+    // Check if a personal entry already exists in team
+    private func isSharedWithTeam(_ entry: DictionaryEntry) -> Bool {
+        teamEntries.contains { $0.trigger == entry.trigger && $0.replacement == entry.replacement }
+    }
 
     var body: some View {
-        Form {
-            Section {
-                if viewModel.dictionaryEntries.isEmpty {
-                    Text("No entries yet.").foregroundStyle(.secondary)
-                } else {
-                    ForEach(viewModel.dictionaryEntries) { entry in
-                        HStack {
-                            Text(entry.trigger)
-                                .frame(minWidth: 80, alignment: .leading)
-                            Image(systemName: "arrow.right")
+        VStack(spacing: 0) {
+            // Tab picker
+            Picker("", selection: $selectedTab) {
+                Text("Kişisel (\(personalEntries.count))").tag(0)
+                Text("Takım (\(teamEntries.count))").tag(1)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            Form {
+                Section {
+                    if selectedTab == 0 {
+                        if personalEntries.isEmpty {
+                            Text("Henüz kişisel kural yok. Ses düzeltmelerin otomatik buraya eklenir.")
                                 .foregroundStyle(.secondary)
-                            Text(entry.replacement)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(entry.scope)
-                                .font(.caption)
+                                .font(.callout)
+                        } else {
+                            ForEach(personalEntries) { entry in
+                                DictionaryRow(
+                                    entry: entry,
+                                    alreadyShared: isSharedWithTeam(entry),
+                                    onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
+                                    onShareToTeam: {
+                                        viewModel.addDictionaryEntry(
+                                            trigger: entry.trigger,
+                                            replacement: entry.replacement,
+                                            scope: "team"
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        if teamEntries.isEmpty {
+                            Text("Takım kuralı yok. Kişisel kurallarını takıma ekleyebilirsin.")
                                 .foregroundStyle(.secondary)
-                                .frame(width: 60)
-                            if entry.scope == "personal" {
-                                Button {
-                                    viewModel.deleteDictionaryEntry(id: entry.id)
-                                } label: {
-                                    Image(systemName: "trash")
-                                        .foregroundStyle(.red)
-                                }
-                                .buttonStyle(.plain)
+                                .font(.callout)
+                        } else {
+                            ForEach(teamEntries) { entry in
+                                DictionaryRow(
+                                    entry: entry,
+                                    alreadyShared: false,
+                                    onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
+                                    onShareToTeam: nil
+                                )
                             }
                         }
                     }
-                }
-            } header: {
-                Text("Entries")
-            }
-
-            Section("Add Entry") {
-                HStack(spacing: 8) {
-                    TextField("trigger (e.g. btw)", text: $newTrigger)
-                        .textFieldStyle(.roundedBorder)
-                    Image(systemName: "arrow.right").foregroundStyle(.secondary)
-                    TextField("replacement", text: $newReplacement)
-                        .textFieldStyle(.roundedBorder)
-                    Picker("", selection: $newScope) {
-                        Text("Personal").tag("personal")
-                        Text("Team").tag("team")
-                    }
-                    .frame(width: 90)
-                    Button("Add") {
-                        guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
-                        viewModel.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: newScope)
-                        newTrigger = ""
-                        newReplacement = ""
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
+                } header: {
+                    Text(selectedTab == 0 ? "Kişisel Kurallar" : "Takım Kuralları")
                 }
 
-                Text("Applied after Whisper, before LLM correction. Word-boundary match, case-insensitive.")
-                    .font(.caption).foregroundStyle(.secondary)
+                Section {
+                    HStack(spacing: 8) {
+                        TextField("kelime (örn: voisflow)", text: $newTrigger)
+                            .textFieldStyle(.roundedBorder)
+                        Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                        TextField("doğru yazım (örn: VoiceFlow)", text: $newReplacement)
+                            .textFieldStyle(.roundedBorder)
+                        Button("Ekle") {
+                            guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
+                            let scope = selectedTab == 0 ? "personal" : "team"
+                            viewModel.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: scope)
+                            newTrigger = ""
+                            newReplacement = ""
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
+                    }
+                    Text("Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } header: {
+                    Text(selectedTab == 0 ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle")
+                }
             }
+            .formStyle(.grouped)
         }
-        .formStyle(.grouped)
-        .padding()
         .onAppear { viewModel.loadDictionary() }
+    }
+}
+
+private struct DictionaryRow: View {
+    let entry: DictionaryEntry
+    let alreadyShared: Bool
+    let onDelete: () -> Void
+    let onShareToTeam: (() -> Void)?
+
+    var body: some View {
+        HStack {
+            Text(entry.trigger)
+                .frame(minWidth: 100, alignment: .leading)
+                .foregroundStyle(.primary)
+            Image(systemName: "arrow.right")
+                .foregroundStyle(.secondary)
+                .font(.caption)
+            Text(entry.replacement)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(.primary)
+
+            if let share = onShareToTeam {
+                Button {
+                    share()
+                } label: {
+                    Label(alreadyShared ? "Eklendi" : "Takıma ekle", systemImage: alreadyShared ? "checkmark" : "person.2.badge.plus")
+                        .font(.caption)
+                        .foregroundStyle(alreadyShared ? Color.secondary : Color.blue)
+                }
+                .buttonStyle(.plain)
+                .disabled(alreadyShared)
+            }
+
+            Button {
+                onDelete()
+            } label: {
+                Image(systemName: "trash")
+                    .foregroundStyle(.red)
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
