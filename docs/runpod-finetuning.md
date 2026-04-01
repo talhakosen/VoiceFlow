@@ -13,8 +13,8 @@ RTX 4090 üzerinde 1 epoch (~113K örnek) = 3-5 saat, ~$2-3.
 Image:          runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
 Cloud:          SECURE (Community'de Docker Hub timeout riski!)
 GPU:            NVIDIA GeForce RTX 4090
-Container Disk: 50 GB  (model ~15GB + unsloth ~5GB + dataset + output)
-Volume:         20 GB → /workspace
+Container Disk: 120 GB (model ~15GB + unsloth ~5GB + dataset ~50GB + output)
+Volume:         20 GB → /workspace  ← SADECE çıktı dosyaları buraya yaz!
 Ports:          22/tcp, 8888/http
 Env:            PUBLIC_KEY = <ssh public key>
 ```
@@ -141,6 +141,21 @@ Sonra `.env`'deki `LLM_ADAPTER_PATH` → `scripts/training/adapters_mlx` yap.
 |-----|-------|----------------|-----------------|
 | RTX 4090 | $0.59-0.60/hr | 3-5 saat | ~$2-3 |
 | A100 40GB | ~$1.89/hr | 1-2 saat | ~$2-4 |
+
+---
+
+## Disk Kullanımı — Kritik
+
+`/workspace` (volume) ve container disk farklı şeyler:
+
+| Path | Boyut | Ne için |
+|------|-------|---------|
+| `/` (container disk) | 120GB | İndirme, extract, model, geçici dosyalar |
+| `/workspace` (volume) | 20GB | Sadece küçük çıktılar (*.jsonl, adapter/) |
+
+**`df -h` yanıltıcı!** `/workspace` için 257TB gösterir — RunPod network FS'in toplam kapasitesi. Gerçek kota `volumeInGb` parametresi (20GB). 20GB'ı aşan yazma → `Disk quota exceeded`.
+
+**Kural:** Büyük dosyaları (dataset, model) `/root/` veya `/tmp/`'ye indir. Sadece indirmek istediğin çıktıyı `/workspace`'e yaz.
 
 ---
 

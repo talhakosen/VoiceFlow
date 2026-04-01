@@ -225,7 +225,8 @@
 - [DONE 2026-04-01] **Dataset genişletme** — word_order_pairs (531 pair) + GECTurk-generation (68.745 pair, tüm split'ler); toplam **71.437 pair** → 57K train / 7K valid / 7K test; lora_config.yaml: num_layers=4, iters=3000
 - [DONE 2026-03-31] **`evaluate.py`** — WER/CER/exact_match/backtracking metrik raporu
 - [DONE 2026-03-31] **LLMCorrector adapter_path desteği** — adapter varsa kısa prompt, yoksa fallback
-- [ ] **Genişletilmiş dataset ile MLX LoRA fine-tune** — 71K pair, 3000 iter, num_layers=4; RunPod'da çalıştır (Mac sistemi kilitledi)
+- [IN PROGRESS 2026-04-01] **Genişletilmiş dataset ile RunPod LoRA fine-tune** — unsloth SFTTrainer, Qwen2.5-7B, 14115 step, RTX 4090; voiceflow-finetuning pod (ep3rj4khxnkg4m); ~%60 tamamlandı
+- [IN PROGRESS 2026-04-01] **ISSAI Turkish Speech Corpus processing** — 186K wav → faster-whisper large-v3 → ASR error pairs → issai_pairs.jsonl; voiceflow-issai pod (qzln0jqssykk19); ~%10 tamamlandı
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 
