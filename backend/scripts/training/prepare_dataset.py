@@ -46,14 +46,13 @@ _SYSTEM_PROMPT = (
 
 
 def _format_pair(input_text: str, output_text: str) -> dict:
-    """Format a single pair into mlx-lm LoRA fine-tuning format."""
-    prompt = (
+    """Format a single pair into mlx-lm text format (avoids double chat-template wrapping)."""
+    text = (
         f"<|im_start|>system\n{_SYSTEM_PROMPT}<|im_end|>\n"
         f"<|im_start|>user\n{input_text}<|im_end|>\n"
-        "<|im_start|>assistant\n"
+        f"<|im_start|>assistant\n{output_text}<|im_end|>"
     )
-    completion = f"{output_text}<|im_end|>"
-    return {"prompt": prompt, "completion": completion}
+    return {"text": text}
 
 
 # ---------------------------------------------------------------------------
@@ -104,6 +103,8 @@ def main() -> None:
             Path("data_gen/corruption_pairs.jsonl"),
             Path("data_gen/claude_pairs.jsonl"),
             Path("data_gen/whisper_pairs.jsonl"),
+            Path("data_gen/word_order_pairs.jsonl"),
+            Path("data_gen/gecturk_pairs.jsonl"),
         ],
         help="JSONL source files to merge.",
     )

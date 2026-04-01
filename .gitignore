@@ -44,10 +44,22 @@ DerivedData/
 *.swo
 *~
 
-# ML models (large files)
+# ML models + training artifacts (large files — use DVC or download separately)
 *.mlmodel
 *.mlpackage
 models/
+*.safetensors
+*.gguf
+*.bin
+backend/scripts/training/adapters/
+backend/scripts/training/adapters_runpod/
+backend/scripts/training/adapters_mlx/
+# Large training datasets (generate with prepare_dataset.py)
+backend/scripts/training/train.jsonl
+backend/scripts/training/valid.jsonl
+backend/scripts/training/test.jsonl
+# Large raw data (gecturk: 138K pairs, 31MB — download from HuggingFace mcemilg/GECTurk-generation)
+backend/scripts/data_gen/gecturk_pairs.jsonl
 
 # Logs
 *.log

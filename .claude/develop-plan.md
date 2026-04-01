@@ -171,6 +171,13 @@
 - [DONE 2026-03-31] RunPod: RTX 4090 deploy, Ollama qwen2.5:7b — Settings'ten Local/Cloud/Alibaba toggle
 - [DONE 2026-03-31] Alibaba DashScope (qwen-max) — 3. LLM backend seçeneği, dashscope-intl endpoint, API key .env'den
 - [DONE 2026-03-31] Backend restart sonrası correction toggle state otomatik gönderilir (AppViewModel.restartBackend fix)
+- [DONE 2026-04-01] **Versiyon 1.0.x** — CFBundleShortVersionString patch + CFBundleVersion build, PreToolUse hook otomatik artırır
+- [DONE 2026-04-01] **Processing overlay** — kayıt bitince pill kapanmaz; Whisper/LLM süresince 3 nokta bounce animasyonu; paste sonrası kapanır
+- [DONE 2026-04-01] **processing_ms** — Whisper+LLM toplam süre; SQLite'a kaydedilir, API response'da döner
+- [DONE 2026-04-01] **Backend config sync** — 5s health check; backend restart sonrası config otomatik push edilir; isLLMReady takibi
+- [DONE 2026-04-01] **LLM yükleniyor uyarısı** — kayıt başlarken LLM hazır değilse statusText uyarı gösterir
+- [DONE 2026-04-01] **Menü polish** — Toggle Recording kaldırıldı; Force Stop → "Kaydı Durdur"; "Servisi Yeniden Başlat" eklendi; alt kısımda versiyon gösterimi
+- [DONE 2026-04-01] **LLM_ADAPTER_PATH fix** — AppDelegate env'e eklendi; .env path dosya yerine dizin'e işaret eder
 - [ ] DMG paketleme + notarization (Developer ID Application)
 - [ ] Kurulum dokümantasyonu (IT için — 1 sayfa, adım adım)
 - [ ] Offline lisanslama (license key doğrulama)
@@ -214,9 +221,11 @@
 - [DONE 2026-03-31] **`claude_generator.py`** — Claude API ile doğal TR diyalog pair'leri (1K pair, ~$10)
 - [DONE 2026-03-31] **`whisper_loop.py`** — macOS `say` TTS → Whisper → gerçek hata pair'leri (500 pair)
 - [DONE 2026-03-31] **`prepare_dataset.py`** — tüm kaynakları train/valid/test.jsonl'e birleştir
-- [ ] **MLX LoRA fine-tune** — Qwen 7B, rank=8, 1000 iter, ~20 dk Mac'te
+- [DONE 2026-04-01] **MLX LoRA fine-tune** — Qwen 7B, rank=8, 1000 iter; batch=1 + grad_checkpoint (Mac 16GB); dataset: 3161 pair (corruption + Opus-generated); adapters/ kaydedildi
+- [DONE 2026-04-01] **Dataset genişletme** — word_order_pairs (531 pair) + GECTurk-generation (68.745 pair, tüm split'ler); toplam **71.437 pair** → 57K train / 7K valid / 7K test; lora_config.yaml: num_layers=4, iters=3000
 - [DONE 2026-03-31] **`evaluate.py`** — WER/CER/exact_match/backtracking metrik raporu
 - [DONE 2026-03-31] **LLMCorrector adapter_path desteği** — adapter varsa kısa prompt, yoksa fallback
+- [ ] **Genişletilmiş dataset ile MLX LoRA fine-tune** — 71K pair, 3000 iter, num_layers=4; RunPod'da çalıştır (Mac sistemi kilitledi)
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 

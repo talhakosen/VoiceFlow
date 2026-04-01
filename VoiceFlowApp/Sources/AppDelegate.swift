@@ -23,8 +23,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
         let overlay = RecordingOverlayWindow()
         self.recordingOverlay = overlay
-        vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.orderFront(nil) } }
-        vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.orderOut(nil) } }
+        vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = false; overlay.orderFront(nil) } }
+        vm.onShowProcessingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = true; overlay.orderFront(nil) } }
+        vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = false; overlay.orderOut(nil) } }
 
         // Observe Training Mode pill state
         trainingPillObserver = Task { @MainActor [weak self] in
@@ -53,6 +54,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             waitForBackendReady { [weak self] success in
                 DispatchQueue.main.async {
                     NSLog("VoiceFlow: Backend %@", success ? "ready" : "may not be ready")
+                    if !success {
+                        vm.statusText = "⚠ Servis başlatılamadı — Yeniden Başlat'a bas"
+                    }
                     self?.menuBarController = MenuBarController(viewModel: vm)
                 }
             }
@@ -230,6 +234,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSLog("VoiceFlow: LLM_BACKEND=ollama (Alibaba DashScope), model=qwen-max")
         } else {
             env["LLM_BACKEND"] = "mlx"
+            // LoRA adapter — local mode only
+            if let adapterPath = dotEnv["LLM_ADAPTER_PATH"] {
+                env["LLM_ADAPTER_PATH"] = adapterPath
+                NSLog("VoiceFlow: LoRA adapter: %@", adapterPath)
+            }
         }
 
         backendProcess?.environment = env

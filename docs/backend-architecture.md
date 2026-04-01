@@ -156,6 +156,7 @@ DELETE /api/snippets/{id}     → Kişisel snippet sil
     "snippet_used": false,               # snippet expand olduysa true — Training Pill bu durumda gösterilmez
     "language": "tr",
     "duration": 3.45,
+    "processing_ms": 1240,               # ses durma → paste arası toplam süre (ms)
     "id": 42                             # SQLite row ID
 }
 ```
@@ -243,15 +244,17 @@ CREATE TABLE users (
 );
 
 CREATE TABLE transcriptions (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    text       TEXT    NOT NULL,
-    raw_text   TEXT,
-    corrected  INTEGER DEFAULT 0,
-    language   TEXT,
-    duration   REAL,
-    mode       TEXT    DEFAULT 'general',
-    user_id    TEXT
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    text          TEXT    NOT NULL,
+    raw_text      TEXT,
+    corrected     INTEGER DEFAULT 0,
+    language      TEXT,
+    duration      REAL,                    -- ses kaydı süresi (saniye)
+    mode          TEXT    DEFAULT 'general',
+    user_id       TEXT,
+    tenant_id     TEXT    NOT NULL DEFAULT 'default',
+    processing_ms INTEGER                  -- Whisper+LLM toplam süresi (ms)
 );
 
 CREATE TABLE config (
@@ -383,9 +386,19 @@ backend/scripts/
 ├── data_gen/
 │   ├── corruption_pipeline.py   ← clean text → simüle Whisper hataları (3K pair)
 │   ├── claude_generator.py      ← Claude API ile doğal TR pair (1K pair)
-│   └── whisper_loop.py          ← TTS → Whisper → gerçek hata pair (500 pair)
+│   ├── whisper_loop.py          ← TTS → Whisper → gerçek hata pair (500 pair)
+│   ├── word_order_generator.py  ← Türkçe kelime sırası düzeltme pair (531 pair)
+│   ├── word_order_pairs.jsonl   ← üretilen kelime sırası verisi
+│   └── gecturk_pairs.jsonl      ← GECTurk-generation HF dataset (48K pair)
 └── training/
-    ├── prepare_dataset.py       ← tüm kaynaklar → train/valid/test.jsonl
+    ├── prepare_dataset.py       ← tüm kaynaklar → train/valid/test.jsonl (50K+)
+    ├── lora_config.yaml         ← MLX LoRA config (Qwen2.5-7B, 3K iter)
     ├── evaluate.py              ← WER/CER/exact_match metrikleri
     └── harvest_feedback.py      ← SQLite feedback → JSONL
 ```
+
+**Dataset kaynakları** (`prepare_dataset.py --sources`):
+- `corruption_pairs.jsonl` — 3K sentetik Whisper hata simülasyonu
+- `word_order_pairs.jsonl` — 531 Türkçe kelime sırası (SOV) düzeltme pair
+- `gecturk_pairs.jsonl` — 48K GECTurk Türkçe gramer hata düzeltme (`mcemilg/GECTurk-generation`)
+- Toplam: ~50K pair → 40K train / 5K valid / 5K test

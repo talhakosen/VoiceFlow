@@ -34,6 +34,11 @@ final class AppViewModel {
     private var capturedWindowTitle: String? = nil
     private var capturedSelectedText: String? = nil
 
+    // Backend health tracking — detect restarts and re-sync config
+    private var backendWasAvailable = false
+    private var healthCheckTask: Task<Void, Never>? = nil
+    var isLLMReady = false
+
     // MARK: - Init
 
     init(
@@ -47,6 +52,36 @@ final class AppViewModel {
 
         restoreSettings()
         setupHotkey()
+        startHealthCheck()
+    }
+
+    // MARK: - Backend health check + auto config sync
+
+    private func startHealthCheck() {
+        healthCheckTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 5_000_000_000) // every 5s
+                guard let self else { return }
+                if let health = try? await self.backend.getHealth() {
+                    let available = health.status == "healthy"
+                    self.isLLMReady = health.llmLoaded
+                    if available && !self.backendWasAvailable {
+                        // Backend just came (back) online — push current config
+                        try? await self.backend.updateConfig(
+                            language: self.currentLanguageMode.language,
+                            task: self.currentLanguageMode.task,
+                            correctionEnabled: self.isCorrectionEnabled,
+                            mode: self.currentAppMode.rawValue
+                        )
+                        NSLog("VoiceFlow: Backend (re)connected — config synced (correction=%@)", self.isCorrectionEnabled ? "ON" : "OFF")
+                    }
+                    self.backendWasAvailable = available
+                } else {
+                    self.backendWasAvailable = false
+                    self.isLLMReady = false
+                }
+            }
+        }
     }
 
     // MARK: - Settings persistence
@@ -123,7 +158,11 @@ final class AppViewModel {
     func startRecording() {
         guard !isRecording else { return }
         isRecording = true
-        statusText = "Recording... (Fn×2 to stop)"
+        if isCorrectionEnabled && !isLLMReady {
+            statusText = "⚠ LLM yükleniyor — düzeltme bu kayıtta çalışmayabilir"
+        } else {
+            statusText = "Recording... (Fn×2 to stop)"
+        }
         activeApp = NSWorkspace.shared.frontmostApplication
         activeAppBundleID = activeApp?.bundleIdentifier
         // Capture context at recording start (best moment: user has focus on the target app)
@@ -157,7 +196,7 @@ final class AppViewModel {
         isRecording = false
         statusText = isCorrectionEnabled ? "Transcribing + Correcting..." : "Transcribing..."
         NSSound(named: "Pop")?.play()
-        onHideRecordingOverlay?()
+        onShowProcessingOverlay?()
 
         let savedApp = activeApp
         let bundleID = activeAppBundleID
@@ -174,6 +213,7 @@ final class AppViewModel {
             )
             lastResult = result
             guard !result.text.isEmpty else {
+                onHideRecordingOverlay?()
                 statusText = "Ready"
                 return
             }
@@ -182,6 +222,7 @@ final class AppViewModel {
             }
             try? await Task.sleep(nanoseconds: 300_000_000)
             paste.pasteText(result.text)
+            onHideRecordingOverlay?()
             statusText = "Ready"
 
             // Training Mode: show feedback pill after paste — skip if snippet was used
@@ -191,6 +232,7 @@ final class AppViewModel {
             }
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
+            onHideRecordingOverlay?()
             statusText = "⚠ Bağlantı hatası — servisi yeniden başlatın"
         }
     }
@@ -418,6 +460,7 @@ final class AppViewModel {
     var onRestartBackend: ((@escaping (Bool) -> Void) -> Void)?
     var onHardReset: ((@escaping (Bool) -> Void) -> Void)?
     var onShowRecordingOverlay: (() -> Void)?
+    var onShowProcessingOverlay: (() -> Void)?
     var onHideRecordingOverlay: (() -> Void)?
 
     func restartBackend() {

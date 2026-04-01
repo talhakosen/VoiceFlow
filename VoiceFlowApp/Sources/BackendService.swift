@@ -7,6 +7,7 @@ struct TranscriptionResult: Codable {
     let snippetUsed: Bool?
     let language: String?
     let duration: Double?
+    let processingMs: Int?
     let id: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -16,6 +17,7 @@ struct TranscriptionResult: Codable {
         case snippetUsed = "snippet_used"
         case language
         case duration
+        case processingMs = "processing_ms"
         case id
     }
 }
@@ -121,12 +123,25 @@ struct StatusResponse: Codable {
     }
 }
 
+struct HealthResponse: Decodable {
+    let status: String
+    let modelLoaded: Bool
+    let llmLoaded: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case status
+        case modelLoaded = "model_loaded"
+        case llmLoaded   = "llm_loaded"
+    }
+}
+
 // MARK: - Protocol (enables mock injection for tests/previews)
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
     func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?) async throws -> TranscriptionResult
     func forceStop() async throws
+    func getHealth() async throws -> HealthResponse
     func getStatus() async throws -> StatusResponse
     func isBackendRunning() async -> Bool
     func updateConfig(language: String?, task: String, correctionEnabled: Bool?, mode: String?) async throws
@@ -277,6 +292,17 @@ actor BackendService: BackendServiceProtocol {
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
+    }
+
+    func getHealth() async throws -> HealthResponse {
+        let healthURL = baseURL.replacingOccurrences(of: "/api", with: "") + "/health"
+        var request = URLRequest(url: URL(string: healthURL)!)
+        request.timeoutInterval = 3
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(HealthResponse.self, from: data)
     }
 
     func getStatus() async throws -> StatusResponse {

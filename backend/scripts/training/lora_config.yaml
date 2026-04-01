@@ -1,0 +1,21 @@
+# MLX LoRA fine-tuning config for VoiceFlow ASR correction
+model: mlx-community/Qwen2.5-7B-Instruct-4bit
+data: training/
+train: true
+fine_tune_type: lora
+num_layers: 4
+batch_size: 1
+iters: 3000
+learning_rate: 1e-5
+val_batches: 25
+steps_per_report: 10
+steps_per_eval: 100
+save_every: 500
+adapter_path: training/adapters
+mask_prompt: false
+grad_checkpoint: true
+lora_parameters:
+  rank: 8
+  alpha: 16
+  dropout: 0.0
+  scale: 10.0

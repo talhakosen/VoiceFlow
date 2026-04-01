@@ -147,7 +147,8 @@ class RecordingService:
                 logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
             result.text = corrected
 
-        logger.info("Total stop→result: %.3fs", time.perf_counter() - t_start)
+        processing_ms = int((time.perf_counter() - t_start) * 1000)
+        logger.info("Total stop→result: %dms", processing_ms)
 
         # Persist
         row_id = await save_transcription(
@@ -159,6 +160,7 @@ class RecordingService:
             mode=active_mode,
             user_id=user_id,
             tenant_id=tenant_id,
+            processing_ms=processing_ms,
         )
 
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
@@ -169,6 +171,7 @@ class RecordingService:
             "snippet_used": snippet_used,
             "language": result.language,
             "duration": result.duration,
+            "processing_ms": processing_ms,
             "id": row_id,
         }
 

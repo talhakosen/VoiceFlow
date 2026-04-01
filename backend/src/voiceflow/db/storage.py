@@ -111,6 +111,9 @@ async def init_db() -> None:
         if "tenant_id" not in columns:
             await db.execute("ALTER TABLE transcriptions ADD COLUMN tenant_id TEXT NOT NULL DEFAULT 'default'")
             logger.info("Migration: added tenant_id column to transcriptions")
+        if "processing_ms" not in columns:
+            await db.execute("ALTER TABLE transcriptions ADD COLUMN processing_ms INTEGER")
+            logger.info("Migration: added processing_ms column to transcriptions")
         # Migration: add is_active column to users if missing
         async with db.execute("PRAGMA table_info(users)") as cursor:
             user_columns = {row[1] async for row in cursor}
@@ -130,12 +133,13 @@ async def save_transcription(
     mode: str = "general",
     user_id: str | None = None,
     tenant_id: str = "default",
+    processing_ms: int | None = None,
 ) -> int | None:
     """Save a transcription to history. Returns the new row id."""
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
-            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode, user_id, tenant_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (text, raw_text, int(corrected), language, duration, mode, user_id, tenant_id),
+            "INSERT INTO transcriptions (text, raw_text, corrected, language, duration, mode, user_id, tenant_id, processing_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (text, raw_text, int(corrected), language, duration, mode, user_id, tenant_id, processing_ms),
         )
         await db.commit()
         return cursor.lastrowid

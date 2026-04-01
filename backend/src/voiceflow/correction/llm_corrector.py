@@ -2,6 +2,7 @@
 
 import gc
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -134,7 +135,7 @@ class CorrectorConfig:
     enabled: bool = False
     mode: str = "general"  # "general" | "engineering" | "office"
     output_format: str = "prose"  # "prose" | "code_comment" | "pr_description" | "jira_ticket"
-    adapter_path: str | None = None  # Path to LoRA adapter dir; None → full prompt fallback
+    adapter_path: str | None = field(default_factory=lambda: os.getenv("LLM_ADAPTER_PATH"))  # LoRA adapter; None → full prompt fallback
 
 
 @dataclass

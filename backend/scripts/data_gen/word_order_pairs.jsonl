@@ -1,0 +1,531 @@
+{"input": "kuruyorum ben bugün bir rapor", "output": "Ben bugün bir rapor kuruyorum.", "category": "word_order"}
+{"input": "gitti markete annem dün", "output": "Annem dün markete gitti.", "category": "word_order"}
+{"input": "yapacagiz toplantida bunu konusmayi", "output": "Bunu toplantıda konuşacağız.", "category": "word_order"}
+{"input": "bitti proje sonunda", "output": "Proje sonunda bitti.", "category": "word_order"}
+{"input": "aldim dukkandan ekmegi sabah", "output": "Sabah dükkândan ekmeği aldım.", "category": "word_order"}
+{"input": "calisiyor hala ofiste o", "output": "O hâlâ ofiste çalışıyor.", "category": "word_order"}
+{"input": "gonderdim maili musteriye dun aksam", "output": "Dün akşam müşteriye maili gönderdim.", "category": "word_order"}
+{"input": "bitirdim odevi ben dun gece", "output": "Ben dün gece ödevi bitirdim.", "category": "word_order"}
+{"input": "geliyor yarin sehire kardesim", "output": "Kardeşim yarın şehire geliyor.", "category": "word_order"}
+{"input": "aciktim cok simdi ben", "output": "Ben şimdi çok acıktım.", "category": "word_order"}
+{"input": "kapattim bilgisayari aksam", "output": "Akşam bilgisayarı kapattım.", "category": "word_order"}
+{"input": "izledik sinemada filmi cumartesi", "output": "Cumartesi sinemada filmi izledik.", "category": "word_order"}
+{"input": "arayacak beni aksam saat bes", "output": "Akşam saat beşte beni arayacak.", "category": "word_order"}
+{"input": "verdim sozumu sana", "output": "Sana sözümü verdim.", "category": "word_order"}
+{"input": "coktan uyudu cocuk", "output": "Çocuk çoktan uyudu.", "category": "word_order"}
+{"input": "hazir mi yemek henuz degil", "output": "Yemek henüz hazır değil.", "category": "word_order"}
+{"input": "ogrendim yeni bir sey bugun", "output": "Bugün yeni bir şey öğrendim.", "category": "word_order"}
+{"input": "geri dondu is seyahatinden baba", "output": "Baba iş seyahatinden geri döndü.", "category": "word_order"}
+{"input": "koydum notlari bilgisayara ben", "output": "Ben notları bilgisayara koydum.", "category": "word_order"}
+{"input": "bekliyor randevu icin hastanede hasta", "output": "Hasta hastanede randevu için bekliyor.", "category": "word_order"}
+{"input": "anlayamadim soruyu ben hic", "output": "Ben soruyu hiç anlayamadım.", "category": "word_order"}
+{"input": "toplantiya katilacak mudurun yardimcisi yarin", "output": "Müdürün yardımcısı yarın toplantıya katılacak.", "category": "word_order"}
+{"input": "seviyorum cok kahve sabah", "output": "Sabah kahveyi çok seviyorum.", "category": "word_order"}
+{"input": "unuttum evde anahtarimi bu sabah", "output": "Bu sabah anahtarımı evde unuttum.", "category": "word_order"}
+{"input": "calistirdi uygulamayi mudur", "output": "Müdür uygulamayı çalıştırdı.", "category": "word_order"}
+{"input": "sordu soruyu ogretmen bana", "output": "Öğretmen bana soruyu sordu.", "category": "word_order"}
+{"input": "yapiyorum spor her sabah ben", "output": "Ben her sabah spor yapıyorum.", "category": "word_order"}
+{"input": "alindi karar toplantida", "output": "Toplantıda karar alındı.", "category": "word_order"}
+{"input": "bozuldu makine fabrikada yine", "output": "Fabrikadaki makine yine bozuldu.", "category": "word_order"}
+{"input": "atti gol takim son dakikada", "output": "Takım son dakikada gol attı.", "category": "word_order"}
+{"input": "hazirladim sunumu biz hep birlikte", "output": "Biz hep birlikte sunumu hazırladık.", "category": "word_order"}
+{"input": "yedi kahvaltisini cocuk", "output": "Çocuk kahvaltısını yedi.", "category": "word_order"}
+{"input": "konustuk saatlerce telefonda dun", "output": "Dün telefonda saatlerce konuştuk.", "category": "word_order"}
+{"input": "bekledim uzun sure servisi", "output": "Servisi uzun süre bekledim.", "category": "word_order"}
+{"input": "cevap vermedi emailime mudur hala", "output": "Müdür hâlâ emailime cevap vermedi.", "category": "word_order"}
+{"input": "aldim izin bu hafta ben", "output": "Ben bu hafta izin aldım.", "category": "word_order"}
+{"input": "okudum kitabi bir haftada ben", "output": "Ben kitabı bir haftada okudum.", "category": "word_order"}
+{"input": "yonetiyorum projeyi tek basima", "output": "Projeyi tek başıma yönetiyorum.", "category": "word_order"}
+{"input": "bitti stok depodan", "output": "Depodaki stok bitti.", "category": "word_order"}
+{"input": "gonderdik faturalari muhasebeye dun", "output": "Dün faturaları muhasebeye gönderdik.", "category": "word_order"}
+{"input": "hazirlaniyorum sinava ben aktif sekilde", "output": "Ben sınava aktif şekilde hazırlanıyorum.", "category": "word_order"}
+{"input": "anlatti olayi bana arkadasim", "output": "Arkadaşım bana olayı anlattı.", "category": "word_order"}
+{"input": "degistirdim parolami sisteme gore", "output": "Sisteme göre parolamı değiştirdim.", "category": "word_order"}
+{"input": "sevmiyorum soguk havayı ben", "output": "Ben soğuk havayı sevmiyorum.", "category": "word_order"}
+{"input": "cikti sonuclari testi", "output": "Testin sonuçları çıktı.", "category": "word_order"}
+{"input": "baslayacak kurs pazartesi gununden itibaren", "output": "Kurs pazartesi gününden itibaren başlayacak.", "category": "word_order"}
+{"input": "yaziyorum raporu hizlica ben", "output": "Ben raporu hızlıca yazıyorum.", "category": "word_order"}
+{"input": "acikladi durumu ekibe mudur", "output": "Müdür durumu ekibe açıkladı.", "category": "word_order"}
+{"input": "duyruldu yeni politika calisanlara bugun", "output": "Bugün yeni politika çalışanlara duyuruldu.", "category": "word_order"}
+{"input": "bitirmedi odevi zamaninda ogrenci", "output": "Öğrenci ödevini zamanında bitirmedi.", "category": "word_order"}
+{"input": "kaldirdim toplantidan onceki notlari", "output": "Toplantıdan önceki notları kaldırdım.", "category": "word_order"}
+{"input": "ilerledi cok guzel proje", "output": "Proje çok güzel ilerledi.", "category": "word_order"}
+{"input": "hazirdi yemek aksama kadar", "output": "Yemek akşama kadar hazırdı.", "category": "word_order"}
+{"input": "gonulduk yuruyuse sabah erken", "output": "Sabah erken yürüyüşe çıktık.", "category": "word_order"}
+{"input": "koyamadim buldugumu nereye", "output": "Bulduğumu nereye koyduğumu bilemedim.", "category": "word_order"}
+{"input": "ogreniyorum ingilizceyi her gun ben", "output": "Ben her gün İngilizce öğreniyorum.", "category": "word_order"}
+{"input": "aldim sozlesmeyi imzalayip ben", "output": "Ben sözleşmeyi imzalayıp aldım.", "category": "word_order"}
+{"input": "degistirdi stratejisini sirket", "output": "Şirket stratejisini değiştirdi.", "category": "word_order"}
+{"input": "yaptim rezervasyonu otele onceden", "output": "Otele önceden rezervasyon yaptım.", "category": "word_order"}
+{"input": "konustu patronla calisan sabah", "output": "Çalışan sabah patronla konuştu.", "category": "word_order"}
+{"input": "bozdu planlari yamur", "output": "Yağmur planları bozdu.", "category": "word_order"}
+{"input": "yapti hata ciddi muhasebeci", "output": "Muhasebeci ciddi hata yaptı.", "category": "word_order"}
+{"input": "beklenildi cevap uzun sure", "output": "Cevap uzun süre beklendi.", "category": "word_order"}
+{"input": "onaylandi proje butcesi", "output": "Proje bütçesi onaylandı.", "category": "word_order"}
+{"input": "teslim etti odevi erken ogrenci", "output": "Öğrenci ödevi erken teslim etti.", "category": "word_order"}
+{"input": "acti pencereyi anne", "output": "Anne pencereyi açtı.", "category": "word_order"}
+{"input": "yemek yiyor aile birlikte aksam", "output": "Aile akşam birlikte yemek yiyor.", "category": "word_order"}
+{"input": "kaldi evde ben bu hafta sonu", "output": "Ben bu hafta sonu evde kaldım.", "category": "word_order"}
+{"input": "tasinacak yeni eve ailem ay sonu", "output": "Ailem ay sonunda yeni eve taşınacak.", "category": "word_order"}
+{"input": "cekti faturasi internetten o", "output": "O faturasını internetten çekti.", "category": "word_order"}
+{"input": "cevap bulamadim soruya dogru", "output": "Soruya doğru cevap bulamadım.", "category": "word_order"}
+{"input": "kapandi erken dukkan bugun", "output": "Dükkan bugün erken kapandı.", "category": "word_order"}
+{"input": "hosgeldin dedim musteriye sevinclе", "output": "Müşteriye sevinçle hoş geldiniz dedim.", "category": "word_order"}
+{"input": "yuzdu havuzda cocuk hizlica", "output": "Çocuk havuzda hızlıca yüzdü.", "category": "word_order"}
+{"input": "kazanmak istiyor yarismada cocuk", "output": "Çocuk yarışmada kazanmak istiyor.", "category": "word_order"}
+{"input": "surduruyoruz calismalarimizi devam", "output": "Çalışmalarımızı sürdürmeye devam ediyoruz.", "category": "word_order"}
+{"input": "aldim bilet tiyatroya hafta sonu icin", "output": "Hafta sonu için tiyatroya bilet aldım.", "category": "word_order"}
+{"input": "temizledi odayi annem sabah", "output": "Annem sabah odayı temizledi.", "category": "word_order"}
+{"input": "anlayamiyorum soruyu bu", "output": "Bu soruyu anlayamıyorum.", "category": "word_order"}
+{"input": "dusundugum seyi soyleyeyim sana", "output": "Sana düşündüğüm şeyi söyleyeyim.", "category": "word_order"}
+{"input": "cevapladi aninda mesajimi o", "output": "O mesajıma anında cevap verdi.", "category": "word_order"}
+{"input": "basladik calismalara hep birlikte", "output": "Hep birlikte çalışmalara başladık.", "category": "word_order"}
+{"input": "koydum urunleri sepete ben", "output": "Ben ürünleri sepete koydum.", "category": "word_order"}
+{"input": "gecti zaman hizla", "output": "Zaman hızla geçti.", "category": "word_order"}
+{"input": "atladim sorum ustunden", "output": "Soruyu atlayıp geçtim.", "category": "word_order"}
+{"input": "sordugumu buldurdu arkadaşim", "output": "Arkadaşım sorduğumu buldurdu.", "category": "word_order"}
+{"input": "koyuyorum calismami duraklat", "output": "Çalışmamı duraklatıyorum.", "category": "word_order"}
+{"input": "teslim ediyorum raporu bugun", "output": "Raporu bugün teslim ediyorum.", "category": "word_order"}
+{"input": "aradim servisi telefonla hemen", "output": "Hemen servisi telefonla aradım.", "category": "word_order"}
+{"input": "duzenledim dosyalari sistematik sekilde", "output": "Dosyaları sistematik şekilde düzenledim.", "category": "word_order"}
+{"input": "sordu mudur benden neden geciktim", "output": "Müdür benden neden geciktiğimi sordu.", "category": "word_order"}
+{"input": "bitirecegiz isleri yarın kadar", "output": "Yarına kadar işleri bitireceğiz.", "category": "word_order"}
+{"input": "tasinacak oda baska bir yere mobilya", "output": "Mobilya başka bir odaya taşınacak.", "category": "word_order"}
+{"input": "kapattim hesabi bankadan", "output": "Bankadan hesabı kapattım.", "category": "word_order"}
+{"input": "cevap bekliyorum mudurden hala", "output": "Müdürden hâlâ cevap bekliyorum.", "category": "word_order"}
+{"input": "sonuclandi positif olarak proje", "output": "Proje pozitif olarak sonuçlandı.", "category": "word_order"}
+{"input": "kaybettim cuzdan ben sehirde", "output": "Ben şehirde cüzdanı kaybettim.", "category": "word_order"}
+{"input": "sorulardi bize her zaman bu", "output": "Bu her zaman bize sorulurdu.", "category": "word_order"}
+{"input": "yazacak raporu takim bu hafta", "output": "Takım bu hafta raporu yazacak.", "category": "word_order"}
+{"input": "cagirdi beni ofise patron", "output": "Patron beni ofise çağırdı.", "category": "word_order"}
+{"input": "verdim teklifi musteriye resmi", "output": "Müşteriye resmi teklifi verdim.", "category": "word_order"}
+{"input": "verdi onay mudur projeye", "output": "Müdür projeye onay verdi.", "category": "word_order"}
+{"input": "duzenleyecek etkinligi ekip", "output": "Ekip etkinliği düzenleyecek.", "category": "word_order"}
+{"input": "hazirlaniyorum sunuma ben aktif olarak", "output": "Ben sunuma aktif olarak hazırlanıyorum.", "category": "word_order"}
+{"input": "kapandik erken isin olmadigi icin", "output": "İş olmadığı için erken kapandık.", "category": "word_order"}
+{"input": "konustum seninle dün ben", "output": "Ben dün seninle konuştum.", "category": "word_order"}
+{"input": "unuttu anahtarini eve girmeden once", "output": "Eve girmeden önce anahtarını unuttu.", "category": "word_order"}
+{"input": "yaptim alısveriş liste baz alarak", "output": "Listeyi baz alarak alışveriş yaptım.", "category": "word_order"}
+{"input": "bitirecek kursu bu ay", "output": "Bu ay kursu bitirecek.", "category": "word_order"}
+{"input": "cekildi sozlesme imzadan once", "output": "Sözleşme imzadan önce çekildi.", "category": "word_order"}
+{"input": "alinacak karar bugun", "output": "Karar bugün alınacak.", "category": "word_order"}
+{"input": "anlatacak bize durumu mudur", "output": "Müdür bize durumu anlatacak.", "category": "word_order"}
+{"input": "gecikti tren tekrar bugun", "output": "Tren bugün tekrar geçikti.", "category": "word_order"}
+{"input": "yaptim is basvurumunu internetten", "output": "İş başvurumu internetten yaptım.", "category": "word_order"}
+{"input": "cikardim anahtarimi cantadan", "output": "Anahtarımı çantadan çıkardım.", "category": "word_order"}
+{"input": "gonderdi mesaji yanlislikla o", "output": "O mesajı yanlışlıkla gönderdi.", "category": "word_order"}
+{"input": "odeyecek faturasini kac gun sonra", "output": "Faturasını kaç gün sonra ödeyecek.", "category": "word_order"}
+{"input": "kaldirdi engeli mudur hizlica", "output": "Müdür engeli hızlıca kaldırdı.", "category": "word_order"}
+{"input": "basladi proje gelistirme safhasina", "output": "Proje geliştirme safhasına başladı.", "category": "word_order"}
+{"input": "anlamadim soruyu hic", "output": "Soruyu hiç anlamadım.", "category": "word_order"}
+{"input": "hazırladı takim sunumu son dakikada", "output": "Takım sunumu son dakikada hazırladı.", "category": "word_order"}
+{"input": "kapanacak dukkan saat altida", "output": "Dükkan saat altıda kapanacak.", "category": "word_order"}
+{"input": "gonderiyorum paketi kargo ile", "output": "Paketi kargo ile gönderiyorum.", "category": "word_order"}
+{"input": "alacak param bankadan bugun", "output": "Bugün bankadan paramı alacak.", "category": "word_order"}
+{"input": "yaptik rezervasyonu otele biz", "output": "Biz otele rezervasyon yaptık.", "category": "word_order"}
+{"input": "anlastik fiyat konusunda", "output": "Fiyat konusunda anlaştık.", "category": "word_order"}
+{"input": "konustum mudurle toplantida", "output": "Toplantıda müdürle konuştum.", "category": "word_order"}
+{"input": "soylemedi bana kimse", "output": "Kimse bana söylemedi.", "category": "word_order"}
+{"input": "ogrendi hizli yeni sistemi sekreter", "output": "Sekreter yeni sistemi hızla öğrendi.", "category": "word_order"}
+{"input": "cevap verdi hemen bana", "output": "Bana hemen cevap verdi.", "category": "word_order"}
+{"input": "planliyoruz toplantisini yeni hafta icin", "output": "Yeni hafta için toplantısını planlıyoruz.", "category": "word_order"}
+{"input": "girmedi sisteme sifre dogru", "output": "Doğru şifre sisteme girmedi.", "category": "word_order"}
+{"input": "bitirdi projesini erken guzel sekilde", "output": "Projesini güzel şekilde erken bitirdi.", "category": "word_order"}
+{"input": "anlattim konuyu ekip arkadasima", "output": "Ekip arkadaşıma konuyu anlattım.", "category": "word_order"}
+{"input": "koyacak canti arabaya", "output": "Çantayı arabaya koyacak.", "category": "word_order"}
+{"input": "aldim kitabi dukkandan ben", "output": "Ben kitabı dükkândan aldım.", "category": "word_order"}
+{"input": "tartistik konuyu uzun sure", "output": "Konuyu uzun süre tartıştık.", "category": "word_order"}
+{"input": "aciyor pencereyi babam her sabah", "output": "Babam her sabah pencereyi açıyor.", "category": "word_order"}
+{"input": "gonderdik daveti butun ekibe", "output": "Daveti bütün ekibe gönderdik.", "category": "word_order"}
+{"input": "bozduk planlarimizi ani yagmur yuzunden", "output": "Ani yağmur yüzünden planlarımızı bozduk.", "category": "word_order"}
+{"input": "anlasiyoruz guzel onunla biz", "output": "Biz onunla güzel anlaşıyoruz.", "category": "word_order"}
+{"input": "gormek istiyorum seni yakinda", "output": "Seni yakında görmek istiyorum.", "category": "word_order"}
+{"input": "sorduk soruyu net sekilde", "output": "Soruyu net şekilde sorduk.", "category": "word_order"}
+{"input": "duzenlenmeli dosyalar cok once", "output": "Dosyalar çok önce düzenlenmeli.", "category": "word_order"}
+{"input": "anlatamadim durumu dogru sekilde", "output": "Durumu doğru şekilde anlatamadım.", "category": "word_order"}
+{"input": "alinan karar duzeltilmeli", "output": "Alınan karar düzeltilmeli.", "category": "word_order"}
+{"input": "aciktim bugun ogle yemegine kadar", "output": "Bugün öğle yemeğine kadar acıktım.", "category": "word_order"}
+{"input": "verdi musteriye fiyat teklif", "output": "Müşteriye fiyat teklifi verdi.", "category": "word_order"}
+{"input": "toparladik ofisi hep birlikte", "output": "Hep birlikte ofisi topardık.", "category": "word_order"}
+{"input": "hazirladim listeyi alısveris icin", "output": "Alışveriş için listeyi hazırladım.", "category": "word_order"}
+{"input": "odedi faturasini gecikmeden o", "output": "O faturasını gecikmeden ödedi.", "category": "word_order"}
+{"input": "cevir dokumani ingilizceye hizlica", "output": "Dokümanı hızlıca İngilizceye çevir.", "category": "word_order"}
+{"input": "ekleyecek sisteme yeni kullanici", "output": "Sisteme yeni kullanıcı ekleyecek.", "category": "word_order"}
+{"input": "kaldirdik verileri eski sunucudan", "output": "Eski sunucudan verileri kaldırdık.", "category": "word_order"}
+{"input": "acmaniz gerekiyor sistemi ilk once", "output": "İlk önce sistemi açmanız gerekiyor.", "category": "word_order"}
+{"input": "calisiyor iyi ekip birlikte", "output": "Ekip birlikte iyi çalışıyor.", "category": "word_order"}
+{"input": "yaziyorum kodu yeni proje icin", "output": "Yeni proje için kodu yazıyorum.", "category": "word_order"}
+{"input": "guncellendi sistem yeni surume", "output": "Sistem yeni sürüme güncellendi.", "category": "word_order"}
+{"input": "bekliyoruz onay icin hala", "output": "Onay için hâlâ bekliyoruz.", "category": "word_order"}
+{"input": "indirdim yazilimi bilgisayara", "output": "Yazılımı bilgisayara indirdim.", "category": "word_order"}
+{"input": "konfigure ettim sunucuyu doğru sekilde", "output": "Sunucuyu doğru şekilde konfigure ettim.", "category": "word_order"}
+{"input": "tamamlandi yükleme dosya basariyla", "output": "Dosya yükleme başarıyla tamamlandı.", "category": "word_order"}
+{"input": "acamadim uygulamayi bir turlu", "output": "Uygulamayı bir türlü açamadım.", "category": "word_order"}
+{"input": "derlendi hatasiz kod", "output": "Kod hatasız derlendi.", "category": "word_order"}
+{"input": "kuruyorum api endpoint yeni", "output": "Yeni API endpoint kuruyorum.", "category": "word_order"}
+{"input": "test edecek ekip kodu cuma gun", "output": "Ekip kodu cuma günü test edecek.", "category": "word_order"}
+{"input": "baglanti kesildi internetten aniden", "output": "İnternet bağlantısı aniden kesildi.", "category": "word_order"}
+{"input": "guncelliyorum driver'i yazici icin", "output": "Yazıcı için driver'ı güncelliyorum.", "category": "word_order"}
+{"input": "yapildi deployment production ortamina", "output": "Production ortamına deployment yapıldı.", "category": "word_order"}
+{"input": "kurulumu tamamlandı yazilimin", "output": "Yazılımın kurulumu tamamlandı.", "category": "word_order"}
+{"input": "test sonuclari gosterdi hatalar", "output": "Test sonuçları hataları gösterdi.", "category": "word_order"}
+{"input": "optimize etti kodu gelistirici", "output": "Geliştirici kodu optimize etti.", "category": "word_order"}
+{"input": "kopyaladim dosyayi yeni dizine", "output": "Dosyayı yeni dizine kopyaladım.", "category": "word_order"}
+{"input": "acilmadi program iki kez denedim", "output": "İki kez denedim program açılmadı.", "category": "word_order"}
+{"input": "guncellendi veritabani yedegi", "output": "Veritabanı yedeği güncellendi.", "category": "word_order"}
+{"input": "paylaştim ekranımı toplantida", "output": "Toplantıda ekranımı paylaştım.", "category": "word_order"}
+{"input": "bitirdim kurulumu makinede", "output": "Makinedeki kurulumu bitirdim.", "category": "word_order"}
+{"input": "calistiriyorum scripti arka planda", "output": "Scripti arka planda çalıştırıyorum.", "category": "word_order"}
+{"input": "giriyor sistem hizli", "output": "Sistem hızlı giriyor.", "category": "word_order"}
+{"input": "gonderildi log dosyasi sunucuya", "output": "Log dosyası sunucuya gönderildi.", "category": "word_order"}
+{"input": "yukseltilecek bellek makinenin", "output": "Makinenin belleği yükseltilecek.", "category": "word_order"}
+{"input": "teslim ettim projeyi son gune", "output": "Projeyi son güne teslim ettim.", "category": "word_order"}
+{"input": "degistirdik tasarimi arayuzun", "output": "Arayüzün tasarımını değiştirdik.", "category": "word_order"}
+{"input": "cagirdi hata konsol", "output": "Konsol hata çağırdı.", "category": "word_order"}
+{"input": "kullaniyorum editor kodu icin", "output": "Kod için editörü kullanıyorum.", "category": "word_order"}
+{"input": "guncellendi paket yeni surume", "output": "Paket yeni sürüme güncellendi.", "category": "word_order"}
+{"input": "baktim logları hatalar icin", "output": "Hatalar için loglara baktım.", "category": "word_order"}
+{"input": "aciyorum terminali komut calistirmak icin", "output": "Komut çalıştırmak için terminali açıyorum.", "category": "word_order"}
+{"input": "tasindi veriler yeni sunucuya", "output": "Veriler yeni sunucuya taşındı.", "category": "word_order"}
+{"input": "yazdim fonksiyonu yeni", "output": "Yeni fonksiyonu yazdım.", "category": "word_order"}
+{"input": "bitirecek sprint'i ekip hafta sonu", "output": "Ekip sprint'i hafta sonu bitirecek.", "category": "word_order"}
+{"input": "duzeltildi bug hizlica", "output": "Bug hızlıca düzeltildi.", "category": "word_order"}
+{"input": "koydum yorum koda anlasilsin diye", "output": "Kodun anlaşılması için yorum koydum.", "category": "word_order"}
+{"input": "geldi güncelleme telefonuma", "output": "Telefonuma güncelleme geldi.", "category": "word_order"}
+{"input": "sildim gerekmeyen dosyalari", "output": "Gerekmeyen dosyaları sildim.", "category": "word_order"}
+{"input": "kapandim gece gec saate kadar ekran", "output": "Gece geç saate kadar ekran kapandı.", "category": "word_order"}
+{"input": "hazırlandi rapor son taslak olarak", "output": "Rapor son taslak olarak hazırlandı.", "category": "word_order"}
+{"input": "cekildim gruptan arkadasim", "output": "Arkadaşım gruptan çekildi.", "category": "word_order"}
+{"input": "eklendi yeni ozellik uygulamaya", "output": "Uygulamaya yeni özellik eklendi.", "category": "word_order"}
+{"input": "acıkladı problemi teknik ekibe gelistirici", "output": "Geliştirici problemi teknik ekibe açıkladı.", "category": "word_order"}
+{"input": "yaptim commit dun gece", "output": "Dün gece commit yaptım.", "category": "word_order"}
+{"input": "derleme hatasi cikti beklenmedik", "output": "Beklenmedik derleme hatası çıktı.", "category": "word_order"}
+{"input": "tasinacak veri yedek sunucuya", "output": "Veri yedek sunucuya taşınacak.", "category": "word_order"}
+{"input": "catisti surumler iki", "output": "İki sürüm çatıştı.", "category": "word_order"}
+{"input": "onaylandı pr ekip tarafindan", "output": "PR ekip tarafından onaylandı.", "category": "word_order"}
+{"input": "basarisiz oldu test beklenmedik bicimde", "output": "Test beklenmedik biçimde başarısız oldu.", "category": "word_order"}
+{"input": "guncellendi repo main branch", "output": "Repo main branch güncellendi.", "category": "word_order"}
+{"input": "ogrendi kullanimini yeni toolun gelistirici", "output": "Geliştirici yeni toolun kullanımını öğrendi.", "category": "word_order"}
+{"input": "hazirladim environment dosyasini", "output": "Environment dosyasını hazırladım.", "category": "word_order"}
+{"input": "ulastim hedefe sprint sonu", "output": "Sprint sonunda hedefe ulaştım.", "category": "word_order"}
+{"input": "basladi error aynı kod ile tekrar", "output": "Hata aynı kodla tekrar başladı.", "category": "word_order"}
+{"input": "yaptim merge'i kodu iki branch", "output": "İki branch'in kodunu merge yaptım.", "category": "word_order"}
+{"input": "degistirildi schema veritabaninin", "output": "Veritabanının şeması değiştirildi.", "category": "word_order"}
+{"input": "planliyorum mimarimizi yenilemeyi", "output": "Mimarimizi yenilemeyi planlıyorum.", "category": "word_order"}
+{"input": "gonderildi bildirim kullanicilara otomatik", "output": "Bildirim kullanıcılara otomatik gönderildi.", "category": "word_order"}
+{"input": "kisisellestirildi panel yonetici icin", "output": "Panel yönetici için kişiselleştirildi.", "category": "word_order"}
+{"input": "duzeldi sorun yeniden baslatma ile", "output": "Sorun yeniden başlatma ile düzeldi.", "category": "word_order"}
+{"input": "calistirildi sistem bakimdan sonra", "output": "Sistem bakımdan sonra çalıştırıldı.", "category": "word_order"}
+{"input": "yaziyorum test caselerini kod icin", "output": "Kod için test caselerini yazıyorum.", "category": "word_order"}
+{"input": "bitti kaynak tahsisi proje icin", "output": "Proje için kaynak tahsisi bitti.", "category": "word_order"}
+{"input": "eklendi yeni kolonu tabloya", "output": "Tabloya yeni kolon eklendi.", "category": "word_order"}
+{"input": "cevrildi model yeni formata", "output": "Model yeni formata çevrildi.", "category": "word_order"}
+{"input": "yaptik code review birlikte", "output": "Birlikte code review yaptık.", "category": "word_order"}
+{"input": "calistirdi pipeline ci/cd sistemi", "output": "CI/CD sistemi pipeline çalıştırdı.", "category": "word_order"}
+{"input": "donduruldü surum yeni deploy icin", "output": "Sürüm yeni deploy için donduruldu.", "category": "word_order"}
+{"input": "alindi yedek son degisikliklerden once", "output": "Son değişikliklerden önce yedek alındı.", "category": "word_order"}
+{"input": "tamamlandı migrasyon basariyla", "output": "Migrasyon başarıyla tamamlandı.", "category": "word_order"}
+{"input": "olceklendi servis yeni trafige gore", "output": "Servis yeni trafiğe göre ölçeklendi.", "category": "word_order"}
+{"input": "izleniyor performans sistem yakindan", "output": "Sistem performansı yakından izleniyor.", "category": "word_order"}
+{"input": "aldi oge arkadasim magazadan", "output": "Arkadaşım mağazadan ürün aldı.", "category": "word_order"}
+{"input": "ödedi hesabi restoranda o", "output": "O restoranda hesabı ödedi.", "category": "word_order"}
+{"input": "hazirladik yemegi eve gelmeden", "output": "Eve gelmeden yemeği hazırladık.", "category": "word_order"}
+{"input": "satin aldik kanepeyi yeni", "output": "Yeni kanepeyi satın aldık.", "category": "word_order"}
+{"input": "secim yapti guvenilir bir ürün fiyat karsilastirarak", "output": "Fiyat karşılaştırarak güvenilir bir ürün seçtim.", "category": "word_order"}
+{"input": "sikayet etti urun hakkinda musteri", "output": "Müşteri ürün hakkında şikâyet etti.", "category": "word_order"}
+{"input": "iade etti bluzunu dukkan", "output": "Bluzunu dükkâna iade etti.", "category": "word_order"}
+{"input": "doldurdu sepeti internette o", "output": "O internette sepetini doldurdu.", "category": "word_order"}
+{"input": "inceledi yorumlari satin almadan once", "output": "Satın almadan önce yorumları inceledi.", "category": "word_order"}
+{"input": "kullandim kart odeme icin kredi", "output": "Ödeme için kredi kartı kullandım.", "category": "word_order"}
+{"input": "bekledim siradaki musteriden sonra", "output": "Sıradaki müşteriden sonra bekledim.", "category": "word_order"}
+{"input": "verdi kampanya bilgilerini kasiyer", "output": "Kasiyer kampanya bilgilerini verdi.", "category": "word_order"}
+{"input": "indirim var urunlerde sezon sonu", "output": "Sezon sonu ürünlerde indirim var.", "category": "word_order"}
+{"input": "bitirmistim bütcemi ay basi", "output": "Bütçemi ay başında bitirmiştim.", "category": "word_order"}
+{"input": "secebiliyorum begendigimi fiyata göre", "output": "Fiyata göre beğendiğimi seçebiliyorum.", "category": "word_order"}
+{"input": "koydu sepete indirimli urunu hemen", "output": "İndirimli ürünü hemen sepete koydu.", "category": "word_order"}
+{"input": "teslim alacak paketini yarin", "output": "Yarın paketini teslim alacak.", "category": "word_order"}
+{"input": "geri alindi siparis son dakikada", "output": "Sipariş son dakikada geri alındı.", "category": "word_order"}
+{"input": "kargolandi urun hizli sekilde", "output": "Ürün hızlı şekilde kargolandı.", "category": "word_order"}
+{"input": "bulamadim beden istedigim magazada", "output": "İstediğim bedeni mağazada bulamadım.", "category": "word_order"}
+{"input": "fatura geldi elektronik olarak bana", "output": "Fatura bana elektronik olarak geldi.", "category": "word_order"}
+{"input": "arastiriyorum fiyat en iyi hangisini", "output": "En iyi fiyatı hangisinin olduğunu araştırıyorum.", "category": "word_order"}
+{"input": "ürün yorumladi olumlu musteri", "output": "Müşteri ürünü olumlu yorumladı.", "category": "word_order"}
+{"input": "hesap yapti yanlıs kasa", "output": "Kasa yanlış hesap yaptı.", "category": "word_order"}
+{"input": "yaptim liste alısveris icin onceden", "output": "Önceden alışveriş için liste yaptım.", "category": "word_order"}
+{"input": "gonderdi hediyeyi ona arkadasim", "output": "Arkadaşım ona hediyeyi gönderdi.", "category": "word_order"}
+{"input": "arastirdi markalar arasindaki farki", "output": "Markalar arasındaki farkı araştırdı.", "category": "word_order"}
+{"input": "bitti stok begendigim renk", "output": "Beğendiğim renk stoku bitti.", "category": "word_order"}
+{"input": "ödeme yaptim taksitle ben", "output": "Ben taksitle ödeme yaptım.", "category": "word_order"}
+{"input": "oynadi bahce de cocuklar", "output": "Çocuklar bahçede oynadı.", "category": "word_order"}
+{"input": "verdi kucagi ona annesi", "output": "Annesi ona kucak verdi.", "category": "word_order"}
+{"input": "kaldi eve erken annem bugun", "output": "Annem bugün eve erken kaldı.", "category": "word_order"}
+{"input": "yaptik tatil planını hep birlikte", "output": "Hep birlikte tatil planı yaptık.", "category": "word_order"}
+{"input": "babaannem koydu yemek masaya", "output": "Babaannem yemeği masaya koydu.", "category": "word_order"}
+{"input": "gezmeye gitti ormanda aile", "output": "Aile ormanda gezmeye gitti.", "category": "word_order"}
+{"input": "agladi bebek gece yarisi", "output": "Bebek gece yarısı ağladı.", "category": "word_order"}
+{"input": "severim ben çok annem yemegini", "output": "Ben annemin yemeğini çok severim.", "category": "word_order"}
+{"input": "buyudu kadar ne hızlı cocuk", "output": "Çocuk ne kadar hızlı büyüdü.", "category": "word_order"}
+{"input": "yardim etti bana abim ev odevinde", "output": "Abim ev ödevinde bana yardım etti.", "category": "word_order"}
+{"input": "aradı telefonu annem beni saat birde", "output": "Annem beni saat birde telefonu aradı.", "category": "word_order"}
+{"input": "geldi ziyarete bizi akrabalarimiz hafta sonu", "output": "Akrabalarımız hafta sonu bizi ziyarete geldi.", "category": "word_order"}
+{"input": "sevdi cok hediyeyi kızım", "output": "Kızım hediyeyi çok sevdi.", "category": "word_order"}
+{"input": "anlatti masali uyumadan once bana babam", "output": "Babam uyumadan önce bana masal anlattı.", "category": "word_order"}
+{"input": "yonetiyorum aileyi zor donemde ben", "output": "Zor dönemde aileyi ben yönetiyorum.", "category": "word_order"}
+{"input": "pisirir kahvalti her sabah babam", "output": "Babam her sabah kahvaltı pişirir.", "category": "word_order"}
+{"input": "geriyor gelecek yakında ailem", "output": "Ailem yakında geri gelecek.", "category": "word_order"}
+{"input": "dayaniyoruz birbirimize zor zamanlarda", "output": "Zor zamanlarda birbirimize dayanıyoruz.", "category": "word_order"}
+{"input": "hatırlatıyor bana annemi bu yemek kokusu", "output": "Bu yemek kokusu bana annemi hatırlatıyor.", "category": "word_order"}
+{"input": "geziyor parkta cocugumu ben her aksam", "output": "Ben her akşam çocuğumu parkta gezdiriyorum.", "category": "word_order"}
+{"input": "iyilesti cocuk hastaneden cikis sonrasi", "output": "Çocuk hastaneden çıkış sonrası iyileşti.", "category": "word_order"}
+{"input": "aldim not derse dikkatli", "output": "Derse dikkatli not aldım.", "category": "word_order"}
+{"input": "dinledi hocayi sabırla ogrenci", "output": "Öğrenci hocayı sabırla dinledi.", "category": "word_order"}
+{"input": "cikardi kitabini cantadan ogrenci sinifta", "output": "Öğrenci sınıfta kitabını çantadan çıkardı.", "category": "word_order"}
+{"input": "sordu soruyu tahtaya cikan ogrenci", "output": "Tahtaya çıkan öğrenci soruyu sordu.", "category": "word_order"}
+{"input": "anlattı hikayeyi guzel bir sekilde ogretmen", "output": "Öğretmen hikâyeyi güzel bir şekilde anlattı.", "category": "word_order"}
+{"input": "calıstı gece geç saate kadar odev icin", "output": "Ödev için gece geç saate kadar çalıştı.", "category": "word_order"}
+{"input": "geçti sinavı zorlikla ogrenci", "output": "Öğrenci sınavı zorlukla geçti.", "category": "word_order"}
+{"input": "basarili oldu sinav sonuclari aciklaninca", "output": "Sınav sonuçları açıklanınca başarılı oldu.", "category": "word_order"}
+{"input": "takdir etti ogrenci calismasini hoca", "output": "Hoca öğrencinin çalışmasını takdir etti.", "category": "word_order"}
+{"input": "katildik geziye sinif arkadaşlarımla", "output": "Sınıf arkadaşlarımla geziye katıldık.", "category": "word_order"}
+{"input": "elde etti basarısini yillar sonra", "output": "Başarısını yıllar sonra elde etti.", "category": "word_order"}
+{"input": "sundu projeyi bitirince sinifta", "output": "Projeyi bitirince sınıfta sundu.", "category": "word_order"}
+{"input": "yazdi odevini kursun kalemle o", "output": "O ödevini kurşun kalemle yazdı.", "category": "word_order"}
+{"input": "aldım kursumu onceden istedigimi", "output": "Önceden istediğim kursu aldım.", "category": "word_order"}
+{"input": "cevap yazdi doğru butun sorulara", "output": "Bütün sorulara doğru cevap yazdı.", "category": "word_order"}
+{"input": "izin aldim okuldan gunluk", "output": "Okuldan günlük izin aldım.", "category": "word_order"}
+{"input": "hazirlandim sinav oncesi gece", "output": "Sınav öncesi gece hazırlandım.", "category": "word_order"}
+{"input": "gezdik kampusu yeni ogrencilerle", "output": "Yeni öğrencilerle kampüsü gezdik.", "category": "word_order"}
+{"input": "duzeltilmesi lazim hatanin bu", "output": "Bu hatanın düzeltilmesi lazım.", "category": "word_order"}
+{"input": "duser tembellige kimse motivasyonsuz kaldikca", "output": "Kimse motivasyonsuz kaldıkça tembelliğe düşer.", "category": "word_order"}
+{"input": "kapandik derse erken hoca izni ile", "output": "Hoca izni ile derse erken kapandık.", "category": "word_order"}
+{"input": "aldik karar bitirme sinav oncesi", "output": "Bitirme sınavından önce karar aldık.", "category": "word_order"}
+{"input": "ozgurce yazdi dusuncelerini ogrenci", "output": "Öğrenci düşüncelerini özgürce yazdı.", "category": "word_order"}
+{"input": "bulustuk arkadaslarimizla bugun kahvede", "output": "Bugün arkadaşlarımızla kahvede buluştuk.", "category": "word_order"}
+{"input": "konustuk saatlerce biz kahvaltida", "output": "Biz kahvaltıda saatlerce konuştuk.", "category": "word_order"}
+{"input": "gezdik şehri dun yürüyerek", "output": "Dün şehri yürüyerek gezdik.", "category": "word_order"}
+{"input": "eglendik gece filmle biz", "output": "Biz gece filmle eğlendik.", "category": "word_order"}
+{"input": "anlattigim hikayeyi hayretle dinledi arkadaşim", "output": "Arkadaşım anlattığım hikâyeyi hayretle dinledi.", "category": "word_order"}
+{"input": "giydim sevdigim elbisemi partiye", "output": "Partiye sevdiğim elbisemi giydim.", "category": "word_order"}
+{"input": "cekti selfie bizi arkadasim parkta", "output": "Arkadaşım parkta bizi selfie çekti.", "category": "word_order"}
+{"input": "gulduk cok esprisine arkadasimin", "output": "Arkadaşımın esprisine çok güldük.", "category": "word_order"}
+{"input": "yaptik planlari yıllık tatil icin", "output": "Yıllık tatil için planları yaptık.", "category": "word_order"}
+{"input": "anlattiginda oldugumu saskin arkadasim", "output": "Arkadaşım anlattığında şaşkın kaldım.", "category": "word_order"}
+{"input": "uzulduk ayrilisindan arkadasimizin", "output": "Arkadaşımızın ayrılışından üzüldük.", "category": "word_order"}
+{"input": "karsilastik yillar sonra tesadüfen biz", "output": "Biz yıllar sonra tesadüfen karşılaştık.", "category": "word_order"}
+{"input": "hatirladim guldugumu nedeni", "output": "Neden güldüğümü hatırladım.", "category": "word_order"}
+{"input": "paylastik herseyi biz yillar boyunca", "output": "Biz yıllar boyunca her şeyi paylaştık.", "category": "word_order"}
+{"input": "aradik yolda kaybolmus arkadasimizi", "output": "Yolda kaybolmuş arkadaşımızı aradık.", "category": "word_order"}
+{"input": "unutamam guzel anilari bizim", "output": "Bizim güzel anılarımızı unutamam.", "category": "word_order"}
+{"input": "yaptik sürpriz dogum günü icin ona", "output": "Ona doğum günü için sürpriz yaptık.", "category": "word_order"}
+{"input": "gelmedi arkadasim vaat etmesine ragmen", "output": "Arkadaşım vaat etmesine rağmen gelmedi.", "category": "word_order"}
+{"input": "ugrandi bize o", "output": "O bize uğradı.", "category": "word_order"}
+{"input": "anlasiyoruz cok iyi birlikte", "output": "Birlikte çok iyi anlaşıyoruz.", "category": "word_order"}
+{"input": "karar verdik hep birlikte tatile gitmeye", "output": "Hep birlikte tatile gitmeye karar verdik.", "category": "word_order"}
+{"input": "destekledi beni zor zamanımda", "output": "Zor zamanımda beni destekledi.", "category": "word_order"}
+{"input": "görduk seninle cok oldu ne zaman", "output": "Seninle ne zaman görsek çok oluyor.", "category": "word_order"}
+{"input": "pasta kesti dogum gununde o", "output": "O doğum gününde pastayı kesti.", "category": "word_order"}
+{"input": "oturuyoruz balkonda hava guzelken", "output": "Hava güzelken balkonda oturuyoruz.", "category": "word_order"}
+{"input": "aldim derse girmeden once kahve", "output": "Derse girmeden önce kahve aldım.", "category": "word_order"}
+{"input": "gezdik parkta aile ile hafta sonu", "output": "Hafta sonu aile ile parkta gezdik.", "category": "word_order"}
+{"input": "acik havada yedik aksam yemegini", "output": "Akşam yemeğini açık havada yedik.", "category": "word_order"}
+{"input": "bozuldu planlarimiz yamur nedeniyle", "output": "Planlarımız yağmur nedeniyle bozuldu.", "category": "word_order"}
+{"input": "geldi cok guzel hediye bana", "output": "Bana çok güzel hediye geldi.", "category": "word_order"}
+{"input": "hatırladim dogum gununu annemin son dakikada", "output": "Annemin doğum gününü son dakikada hatırladım.", "category": "word_order"}
+{"input": "oturuyoruz sıcak cay icip evde", "output": "Evde sıcak çay içip oturuyoruz.", "category": "word_order"}
+{"input": "geziyoruz parka ciktigimizda biz", "output": "Biz parka çıktığımızda geziyoruz.", "category": "word_order"}
+{"input": "gitmeye karar verdik pikniğe bugun", "output": "Bugün pikniğe gitmeye karar verdik.", "category": "word_order"}
+{"input": "yaptim rezervasyonu restorana aksam icin", "output": "Akşam için restorana rezervasyon yaptım.", "category": "word_order"}
+{"input": "pisligi temizledik birlikte mutfakta", "output": "Mutfaktaki pisliği birlikte temizledik.", "category": "word_order"}
+{"input": "siparisi verdim telefonda pizza", "output": "Pizzayı telefonda sipariş verdim.", "category": "word_order"}
+{"input": "giderken markete sormak istiyorum sana", "output": "Markete giderken sana sormak istiyorum.", "category": "word_order"}
+{"input": "alacak cocuga oyuncak onlar", "output": "Onlar çocuğa oyuncak alacak.", "category": "word_order"}
+{"input": "dinliyoruz muzik aksam", "output": "Akşam müzik dinliyoruz.", "category": "word_order"}
+{"input": "yaptim keki evde bugün", "output": "Bugün evde kek yaptım.", "category": "word_order"}
+{"input": "tarifini buldum internette yemeğin", "output": "Yemeğin tarifini internette buldum.", "category": "word_order"}
+{"input": "toplantidan once ogrenilmeli gundem", "output": "Gündem toplantıdan önce öğrenilmeli.", "category": "word_order"}
+{"input": "inceledi sunumda mudur konuyu", "output": "Müdür sunumda konuyu inceledi.", "category": "word_order"}
+{"input": "onaylandi rapor mudur tarafindan", "output": "Rapor müdür tarafından onaylandı.", "category": "word_order"}
+{"input": "tamamlandı ajanda o toplanti için", "output": "O toplantı için ajanda tamamlandı.", "category": "word_order"}
+{"input": "cagirdi toplantiya herkesi mudur", "output": "Müdür herkesi toplantıya çağırdı.", "category": "word_order"}
+{"input": "belirlendi hedefler yıllık bütçe ile birlikte", "output": "Hedefler yıllık bütçe ile birlikte belirlendi.", "category": "word_order"}
+{"input": "hazirlandı sunum haftalık degerlendirme icin", "output": "Haftalık değerlendirme için sunum hazırlandı.", "category": "word_order"}
+{"input": "paylasildi bilgiler toplantida ekiple", "output": "Bilgiler toplantıda ekiple paylaşıldı.", "category": "word_order"}
+{"input": "koydu mudur gundem maddesini tablo icine", "output": "Müdür gündem maddesini tablonun içine koydu.", "category": "word_order"}
+{"input": "konustuk strateji konusunda birlikte", "output": "Birlikte strateji konusunda konuştuk.", "category": "word_order"}
+{"input": "atandi yonetici pozisyonuna calisan yetkin", "output": "Yetkin çalışan yönetici pozisyonuna atandı.", "category": "word_order"}
+{"input": "analiz edildi rakip firmalar detayli sekilde", "output": "Rakip firmalar detaylı şekilde analiz edildi.", "category": "word_order"}
+{"input": "ulasildi satış hedefine bu ay", "output": "Bu ay satış hedefine ulaşıldı.", "category": "word_order"}
+{"input": "taninacak calisan basarili tarafindan sirket", "output": "Başarılı çalışan şirket tarafından tanınacak.", "category": "word_order"}
+{"input": "geldi geri musterinin sorusu", "output": "Müşterinin sorusu geri geldi.", "category": "word_order"}
+{"input": "yapildi degerlendirme calismanlarin yillik", "output": "Çalışanların yıllık değerlendirmesi yapıldı.", "category": "word_order"}
+{"input": "belirtildi gelistirme alanlari calisana", "output": "Çalışana gelişme alanları belirtildi.", "category": "word_order"}
+{"input": "kontrol edildi butce haftalik", "output": "Bütçe haftalık kontrol edildi.", "category": "word_order"}
+{"input": "hazirlandı teklif musteriye gonderilmek üzere", "output": "Müşteriye gönderilmek üzere teklif hazırlandı.", "category": "word_order"}
+{"input": "imzalandi sozlesme her iki tarafca da", "output": "Sözleşme her iki tarafça da imzalandı.", "category": "word_order"}
+{"input": "duzeltildi hata raporda", "output": "Rapordaki hata düzeltildi.", "category": "word_order"}
+{"input": "dondurdu mudur butceyi yeni giderlere kadar", "output": "Müdür yeni giderlere kadar bütçeyi dondurdu.", "category": "word_order"}
+{"input": "hazirladik brifing yeni calisan icin", "output": "Yeni çalışan için brifing hazırladık.", "category": "word_order"}
+{"input": "verildi tesvik calisan basariliya", "output": "Başarılı çalışana teşvik verildi.", "category": "word_order"}
+{"input": "kuruldu sistem yedek güvenlik icin", "output": "Güvenlik için yedek sistem kuruldu.", "category": "word_order"}
+{"input": "acikladi fiyati urunun satis ekibi", "output": "Satış ekibi ürünün fiyatını açıkladı.", "category": "word_order"}
+{"input": "yatirıldı para firmaya yatirimcilar tarafindan", "output": "Para yatırımcılar tarafından firmaya yatırıldı.", "category": "word_order"}
+{"input": "test edildi urun yayinlanmadan once", "output": "Ürün yayınlanmadan önce test edildi.", "category": "word_order"}
+{"input": "bitti sozlesmemiz bu ay sonunda", "output": "Sözleşmemiz bu ay sonunda bitti.", "category": "word_order"}
+{"input": "planlandi yeni kampanya sonbahara ait", "output": "Yeni kampanya sonbahar için planlandı.", "category": "word_order"}
+{"input": "iletisim kuruldu partner firmalarla yeni", "output": "Yeni partner firmalarla iletişim kuruldu.", "category": "word_order"}
+{"input": "kiralik daire aradim sehir merkezinde", "output": "Şehir merkezinde kiralık daire aradım.", "category": "word_order"}
+{"input": "tasinmak istiyorum baska bir sehre ben", "output": "Ben başka bir şehre taşınmak istiyorum.", "category": "word_order"}
+{"input": "baktik daireye beraber biz", "output": "Biz birlikte daireye baktık.", "category": "word_order"}
+{"input": "yaptirdim boya degisikligini odanin", "output": "Odanın boya değişikliğini yaptırdım.", "category": "word_order"}
+{"input": "aradi ev sahibi beni dunden beri", "output": "Ev sahibi beni dünden beri aradı.", "category": "word_order"}
+{"input": "bitti sözlesmemiz kiranin bu ay", "output": "Bu ay kiranın sözleşmesi bitti.", "category": "word_order"}
+{"input": "giremiyorum eve anahtarim kayboldu cunku", "output": "Çünkü anahtarım kayboldu, eve giremiyorum.", "category": "word_order"}
+{"input": "tamirciye verdim muslugu bozulan", "output": "Bozulan musluğu tamirciye verdim.", "category": "word_order"}
+{"input": "komsum cok gurultulu gece her", "output": "Komşum her gece çok gürültülü.", "category": "word_order"}
+{"input": "acıldı bahce kapisindan kedi", "output": "Kedi bahçe kapısından açıldı.", "category": "word_order"}
+{"input": "doldurdu çöp tenekesini cocuk", "output": "Çocuk çöp tenekesini doldurdu.", "category": "word_order"}
+{"input": "dikkate aldim komsu sikayet", "output": "Komşunun şikâyetini dikkate aldım.", "category": "word_order"}
+{"input": "geldi elektirikci tamiri icin sabah", "output": "Sabah tamiri için elektrikçi geldi.", "category": "word_order"}
+{"input": "uzatildi kira sozlesmesi yeni donem icin", "output": "Kira sözleşmesi yeni dönem için uzatıldı.", "category": "word_order"}
+{"input": "yurudum sahile ben sabah erken", "output": "Ben sabah erken sahile yürüdüm.", "category": "word_order"}
+{"input": "soruyor benden her gün hesap patronum", "output": "Patronum benden her gün hesap soruyor.", "category": "word_order"}
+{"input": "ihtiyacim var yenilenmis pasaporta", "output": "Yenilenmiş pasaporta ihtiyacım var.", "category": "word_order"}
+{"input": "gitmem lazim bankaya bugun", "output": "Bugün bankaya gitmem lazım.", "category": "word_order"}
+{"input": "durumumu anlatmak zorundayim sana", "output": "Sana durumumu anlatmak zorundayım.", "category": "word_order"}
+{"input": "anlamam zor bu konuyu tek basima", "output": "Bu konuyu tek başıma anlamam zor.", "category": "word_order"}
+{"input": "dusunmek istiyorum biraz daha ben", "output": "Ben biraz daha düşünmek istiyorum.", "category": "word_order"}
+{"input": "sormam gereken soruyu unuttum", "output": "Sormam gereken soruyu unuttum.", "category": "word_order"}
+{"input": "yardim istiyorum senden bu konuda ben", "output": "Ben bu konuda senden yardım istiyorum.", "category": "word_order"}
+{"input": "gitmeyi dusunuyorum yurticine bu yaz", "output": "Bu yaz yurt içine gitmeyi düşünüyorum.", "category": "word_order"}
+{"input": "hazir degilim toplantiya hic", "output": "Toplantıya hiç hazır değilim.", "category": "word_order"}
+{"input": "yakin zamanda yapacagim o is", "output": "O işi yakın zamanda yapacağım.", "category": "word_order"}
+{"input": "zaman harcıyorum gereğinden fazla bunda ben", "output": "Ben bunda gereğinden fazla zaman harcıyorum.", "category": "word_order"}
+{"input": "anlasildı konu tartismadan sonra", "output": "Konu tartışmadan sonra anlaşıldı.", "category": "word_order"}
+{"input": "gitti bos vaktinde ormana babam", "output": "Babam boş vaktinde ormana gitti.", "category": "word_order"}
+{"input": "kucuk kardesim cok merak ediyor", "output": "Küçük kardeşim çok merak ediyor.", "category": "word_order"}
+{"input": "verdim hediyeyi ona ben", "output": "Ben ona hediyeyi verdim.", "category": "word_order"}
+{"input": "gitmeye hazirlaniyorum ise ben", "output": "Ben işe gitmeye hazırlanıyorum.", "category": "word_order"}
+{"input": "kapandı yol trafik kazası nedeniyle", "output": "Yol trafik kazası nedeniyle kapandı.", "category": "word_order"}
+{"input": "bozuldu araba yolda hareket halindeyken", "output": "Araba hareket halindeyken yolda bozuldu.", "category": "word_order"}
+{"input": "geldi yardim etmeye arkadas bana", "output": "Arkadaş bana yardım etmeye geldi.", "category": "word_order"}
+{"input": "derse cok dikkat ettim bugun", "output": "Bugün derse çok dikkat ettim.", "category": "word_order"}
+{"input": "aliskanlik edindim erken uyanmaya artık", "output": "Artık erken uyanmaya alışkanlık edindim.", "category": "word_order"}
+{"input": "degistirdim programi verimlilik icin ben", "output": "Ben verimliliği artırmak için programımı değiştirdim.", "category": "word_order"}
+{"input": "yapmak istiyorum her gun egzersiz", "output": "Her gün egzersiz yapmak istiyorum.", "category": "word_order"}
+{"input": "hazırlandim saatler onceden konusma icin", "output": "Konuşma için saatler öncesinden hazırlandım.", "category": "word_order"}
+{"input": "geldim toplantiya geç biraz", "output": "Toplantıya biraz geç geldim.", "category": "word_order"}
+{"input": "anlatabildim fikrimi net sekilde", "output": "Fikrimi net şekilde anlatabildim.", "category": "word_order"}
+{"input": "onaylandi teklifim sonunda", "output": "Teklifim sonunda onaylandı.", "category": "word_order"}
+{"input": "atladim sanki o adim over", "output": "O adımı atlayıp geçtim.", "category": "word_order"}
+{"input": "çıkardim listeden eski kalemleri", "output": "Eski kalemleri listeden çıkardım.", "category": "word_order"}
+{"input": "bakıyorum haberlere her sabah ben", "output": "Ben her sabah haberlere bakıyorum.", "category": "word_order"}
+{"input": "guncelliyorum bilgilerimi duzenli aralıklarla", "output": "Bilgilerimi düzenli aralıklarla güncelliyorum.", "category": "word_order"}
+{"input": "bekliyorum senden bir cevap", "output": "Senden bir cevap bekliyorum.", "category": "word_order"}
+{"input": "uyardi trafik levha surucuyu", "output": "Trafik levhası sürücüyü uyardı.", "category": "word_order"}
+{"input": "gorustum seninle mutlulukla ben", "output": "Ben seninle mutlulukla görüştüm.", "category": "word_order"}
+{"input": "ogrendi beden dilini iyi kullanan usta", "output": "Usta beden dilini iyi kullanmayı öğrendi.", "category": "word_order"}
+{"input": "yapti planlama haftalik calisan", "output": "Çalışan haftalık planlama yaptı.", "category": "word_order"}
+{"input": "tamamladim kursu ben bu hafta", "output": "Ben bu hafta kursu tamamladım.", "category": "word_order"}
+{"input": "aldım sozunü ben senden", "output": "Ben söz aldım senden.", "category": "word_order"}
+{"input": "cevap bulunamadi soruna dogru", "output": "Soruna doğru cevap bulunamadı.", "category": "word_order"}
+{"input": "bitirdik toplantiyi erken biz", "output": "Biz toplantıyı erken bitirdik.", "category": "word_order"}
+{"input": "anlatamadim sorunumu kimseye", "output": "Sorunumu kimseye anlatamadım.", "category": "word_order"}
+{"input": "ogrettim cocuga okumayı", "output": "Çocuğa okumayı öğrettim.", "category": "word_order"}
+{"input": "gordum resmi ailesinin duvarda", "output": "Duvarında ailesinin resmini gördüm.", "category": "word_order"}
+{"input": "tuttu soz verdigini anne", "output": "Anne verdiği sözü tuttu.", "category": "word_order"}
+{"input": "tanımak istiyorum seni daha iyi", "output": "Seni daha iyi tanımak istiyorum.", "category": "word_order"}
+{"input": "bitti kargo gunlerde uc secilmis urun", "output": "Seçilmiş ürünün kargosu üç günde bitti.", "category": "word_order"}
+{"input": "kapandim sayfayi yanlilikla ben", "output": "Ben sayfayı yanlışlıkla kapattım.", "category": "word_order"}
+{"input": "anlatacak bize deneyimini o", "output": "O bize deneyimini anlatacak.", "category": "word_order"}
+{"input": "sordum neden gelmediklerini onlara", "output": "Onlara neden gelmediklerini sordum.", "category": "word_order"}
+{"input": "hatırladım adi filminin", "output": "Filmin adını hatırladım.", "category": "word_order"}
+{"input": "cevap bulamadim soruya doğru", "output": "Soruya doğru cevap bulamadım.", "category": "word_order"}
+{"input": "yazildi ozlu soz duvara", "output": "Duvara öz lü söz yazıldı.", "category": "word_order"}
+{"input": "aldim soz mudurumden terfi icin", "output": "Terfi için müdürümden söz aldım.", "category": "word_order"}
+{"input": "bitti projenin son asamasi", "output": "Projenin son aşaması bitti.", "category": "word_order"}
+{"input": "tamamlandi test en son", "output": "En son test tamamlandı.", "category": "word_order"}
+{"input": "aldim geri bildirimi olumlu", "output": "Olumlu geri bildirim aldım.", "category": "word_order"}
+{"input": "basariyla tamamlandı sprint bu", "output": "Bu sprint başarıyla tamamlandı.", "category": "word_order"}
+{"input": "koydum sona raporumu ben", "output": "Ben raporumu sona koydum.", "category": "word_order"}
+{"input": "sordu benden ek bilgi mudur", "output": "Müdür benden ek bilgi sordu.", "category": "word_order"}
+{"input": "anlamadim konuyu hic ben", "output": "Ben konuyu hiç anlamadım.", "category": "word_order"}
+{"input": "ugrastic sistemle uzun sure", "output": "Sistemle uzun süre uğraştı.", "category": "word_order"}
+{"input": "duzenledi sunum icin dosyayi", "output": "Sunum için dosyayı düzenledi.", "category": "word_order"}
+{"input": "sordu guvenilir kaynak olup olmadigi", "output": "Güvenilir kaynak olup olmadığını sordu.", "category": "word_order"}
+{"input": "anlatti bize haberi o heyecanla", "output": "O heyecanla bize haberi anlattı.", "category": "word_order"}
+{"input": "bizi uyardi mudur son gelismelerden", "output": "Müdür bizi son gelişmelerden uyardı.", "category": "word_order"}
+{"input": "sundu projeyi mudure hizlica ekip", "output": "Ekip projeyi müdüre hızlıca sundu.", "category": "word_order"}
+{"input": "dinledi konusmaci butun kalabalik dikkatle", "output": "Bütün kalabalık konuşmacıyı dikkatle dinledi.", "category": "word_order"}
+{"input": "planladık tatilimizi yaz icin once", "output": "Yaz için tatilimizi önceden planladık.", "category": "word_order"}
+{"input": "yapmasını istedim o isi", "output": "O işi yapmasını istedim.", "category": "word_order"}
+{"input": "bozuldu yemek dolap acik kalinca", "output": "Dolap açık kalınca yemek bozuldu.", "category": "word_order"}
+{"input": "alindi teslim kargodan paket", "output": "Paket kargodan teslim alındı.", "category": "word_order"}
+{"input": "hazir olmak istiyorum konusmaya ben", "output": "Ben konuşmaya hazır olmak istiyorum.", "category": "word_order"}
+{"input": "kapattim sesi telefon notifikasyon", "output": "Telefon bildiriminin sesini kapattım.", "category": "word_order"}
+{"input": "eklendi liste yeni madde", "output": "Listeye yeni madde eklendi.", "category": "word_order"}
+{"input": "donduruldu hesap güvenlik ihlali", "output": "Güvenlik ihlali nedeniyle hesap donduruldu.", "category": "word_order"}
+{"input": "baslatildi proje resmen bugun", "output": "Proje bugün resmen başlatıldı.", "category": "word_order"}
+{"input": "hazirladik dogrudan sunum icin ekip", "output": "Ekip sunum için doğrudan hazırladık.", "category": "word_order"}
+{"input": "yazdi maili mudure calisan", "output": "Çalışan müdüre mail yazdı.", "category": "word_order"}
+{"input": "ozur diledi gecikmesinden dolayi o", "output": "O gecikmesinden dolayı özür diledi.", "category": "word_order"}
+{"input": "tamamlayacak odevi aksama kadar ogrenci", "output": "Öğrenci ödevi akşama kadar tamamlayacak.", "category": "word_order"}
+{"input": "basladi calisma haftalik planlari ile", "output": "Haftalık planları ile çalışma başladı.", "category": "word_order"}
+{"input": "raporlaşildi sistem hatasiyla ilgili", "output": "Sistem hatasıyla ilgili raporlandı.", "category": "word_order"}
+{"input": "hazırlanıyor ikinci aşama proje şu an", "output": "Proje şu an ikinci aşamaya hazırlanıyor.", "category": "word_order"}
+{"input": "degerlendirdi mudur calisanı yıllık bazda", "output": "Müdür çalışanı yıllık bazda değerlendirdi.", "category": "word_order"}
+{"input": "konusuldu calısma koşullarından bu toplantida", "output": "Bu toplantıda çalışma koşullarından konuşuldu.", "category": "word_order"}
+{"input": "yayinladi sirket raporu yillik", "output": "Şirket yıllık raporu yayınladı.", "category": "word_order"}
+{"input": "basarildi hedef ekip tarafindan bu ceyrek", "output": "Bu çeyrekte hedef ekip tarafından başarıldı.", "category": "word_order"}
+{"input": "gozden gecirildi plan onay icin", "output": "Plan onay için gözden geçirildi.", "category": "word_order"}
+{"input": "yenilemek gerekiyor altyapimizi biz", "output": "Biz altyapımızı yenilememiz gerekiyor.", "category": "word_order"}
+{"input": "toplantida katıldım ben gec saate kadar", "output": "Ben toplantıya geç saate kadar katıldım.", "category": "word_order"}
+{"input": "calisti proje on bes saat araliksiz", "output": "Proje on beş saat aralıksız çalıştı.", "category": "word_order"}
+{"input": "hazir bulunmak zorundayim bu toplantida", "output": "Bu toplantıda hazır bulunmak zorundayım.", "category": "word_order"}
+{"input": "bitmis neredeyse proje", "output": "Proje neredeyse bitmek üzere.", "category": "word_order"}
+{"input": "cevap verecegim sorularına yakin zamanda", "output": "Sorularına yakın zamanda cevap vereceğim.", "category": "word_order"}
+{"input": "bitmis kahvesi makinenin dün gece", "output": "Makinenin kahvesi dün gece bitmişti.", "category": "word_order"}
+{"input": "secildi calisan basarili ayin en", "output": "Başarılı çalışan ayın en iyisi seçildi.", "category": "word_order"}
+{"input": "oldugunu ogrendim yeni bir sey", "output": "Yeni bir şey olduğunu öğrendim.", "category": "word_order"}
+{"input": "aldik kararı oybirligiyle", "output": "Kararı oybirliğiyle aldık.", "category": "word_order"}
+{"input": "duzenlenecek haftalık toplantı yeni formatta", "output": "Haftalık toplantı yeni formatta düzenlenecek.", "category": "word_order"}
+{"input": "yapacagiz degerlendirme performansi ekibin", "output": "Ekibin performansını değerlendireceğiz.", "category": "word_order"}
+{"input": "bitirildi sunum son dakikada", "output": "Sunum son dakikada bitirildi.", "category": "word_order"}
+{"input": "alindi geribildirim musteri tarafindan", "output": "Geri bildirim müşteri tarafından alındı.", "category": "word_order"}
+{"input": "aciklandi calisanlara yeni sistem", "output": "Yeni sistem çalışanlara açıklandı.", "category": "word_order"}
+{"input": "secildi urun musteri tarafindan dikkatlice", "output": "Ürün müşteri tarafından dikkatlice seçildi.", "category": "word_order"}
+{"input": "kontrol ettim duzenligi ofisteki", "output": "Ofisteki düzeni kontrol ettim.", "category": "word_order"}
+{"input": "kapatildi dosya tamamlanmasi ile", "output": "Dosya tamamlanması ile kapatıldı.", "category": "word_order"}
+{"input": "geri alacak karar mudur bu durumda", "output": "Müdür bu durumda kararı geri alacak.", "category": "word_order"}
+{"input": "aldim siraya ben onlardan sonra", "output": "Ben onlardan sonra sıraya girdim.", "category": "word_order"}
+{"input": "calısmama basladi yeni sistem kurulduktan sonra", "output": "Yeni sistem kurulduktan sonra çalışmaya başladı.", "category": "word_order"}
+{"input": "gelisti cok hizli surec", "output": "Süreç çok hızlı gelişti.", "category": "word_order"}
+{"input": "onayliyorum bu plani ben tamamen", "output": "Ben bu planı tamamen onaylıyorum.", "category": "word_order"}
+{"input": "verildi ödül ayin calisanina", "output": "Ödül ayın çalışanına verildi.", "category": "word_order"}
+{"input": "acıkladı hedeflerini çalışanlara yeni mudur", "output": "Yeni müdür hedeflerini çalışanlara açıkladı.", "category": "word_order"}
+{"input": "gorustuk bugun video konferansta", "output": "Bugün video konferansta görüştük.", "category": "word_order"}
+{"input": "elde edildi veri analiz yoluyla", "output": "Veri analiz yoluyla elde edildi.", "category": "word_order"}
+{"input": "ozet cikardi hepimiz icin asistan toplanti notlari", "output": "Asistan toplantı notlarından hepimiz için özet çıkardı.", "category": "word_order"}
+{"input": "hazırlandı bütçe sunumu yarınki toplantı icin", "output": "Yarınki toplantı için bütçe sunumu hazırlandı.", "category": "word_order"}
+{"input": "acılandı bize bilgi mudur tarafindan", "output": "Müdür tarafından bize bilgi açıklandı.", "category": "word_order"}
+{"input": "not aldim toplantida önemli konuları", "output": "Toplantıda önemli konuları not aldım.", "category": "word_order"}
+{"input": "gorustuk bütçe konusunda biz detaylı sekilde", "output": "Biz bütçe konusunda detaylı şekilde görüştük.", "category": "word_order"}
+{"input": "yapilacak duzeltmeler onaylandiktan sonra", "output": "Onaylandıktan sonra düzeltmeler yapılacak.", "category": "word_order"}
+{"input": "basladi yeni donem belirlenen tarihten itibaren", "output": "Yeni dönem belirlenen tarihten itibaren başladı.", "category": "word_order"}
+{"input": "dagitildi belgeler tüm ekibe", "output": "Belgeler tüm ekibe dağıtıldı.", "category": "word_order"}
+{"input": "hazirladik raporu ay sonu icin", "output": "Ay sonu için raporu hazırladık.", "category": "word_order"}
+{"input": "aciklama yapildi yoneticiler tarafindan detayli", "output": "Yöneticiler tarafından detaylı açıklama yapıldı.", "category": "word_order"}
+{"input": "kaldirdi mudur engeli onayı ile", "output": "Müdür onayı ile engeli kaldırdı.", "category": "word_order"}
+{"input": "tartisaldi konu uzun sure", "output": "Konu uzun süre tartışıldı.", "category": "word_order"}
+{"input": "yapıldı sunum mükemmel bir sekilde ekip", "output": "Ekip sunumu mükemmel bir şekilde yaptı.", "category": "word_order"}
+{"input": "alindi siparis telefon ile", "output": "Sipariş telefon ile alındı.", "category": "word_order"}
+{"input": "onaylandi taslak son hali ile", "output": "Taslak son hali ile onaylandı.", "category": "word_order"}
+{"input": "kapanacak kayit donemi hafta sonu", "output": "Kayıt dönemi hafta sonu kapanacak.", "category": "word_order"}
+{"input": "hazirlaniyoruz yeni stantart icin biz", "output": "Biz yeni standart için hazırlanıyoruz.", "category": "word_order"}
+{"input": "ilerletti proje mudur hizla", "output": "Müdür projeyi hızla ilerletti.", "category": "word_order"}
+{"input": "gonderildi sunum finali mudure", "output": "Sunum finali müdüre gönderildi.", "category": "word_order"}
+{"input": "verildi karar oybirligiyle", "output": "Karar oybirliğiyle verildi.", "category": "word_order"}
+{"input": "sürüme guncellendi yazılım", "output": "Yazılım sürüme güncellendi.", "category": "word_order"}
+{"input": "belirlendi is tamamlama tarihi", "output": "İş tamamlama tarihi belirlendi.", "category": "word_order"}
+{"input": "acılandı yeni politika tum calısanlara", "output": "Yeni politika tüm çalışanlara açıklandı.", "category": "word_order"}
+{"input": "bitti yazılım testi basarıyla sonuclandı", "output": "Yazılım testi başarıyla sonuçlandı.", "category": "word_order"}
+{"input": "teslim edildi proje mudure zamaninda", "output": "Proje müdüre zamanında teslim edildi.", "category": "word_order"}

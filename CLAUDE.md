@@ -96,6 +96,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **After ANY Swift build**: Accessibility izni sıfırlanır → System Settings → Privacy → Accessibility → VoiceFlow'u etkinleştir. Auto-paste sessizce çalışmaz.
 - **Fn key**: Release eventi güvenilmez — double-tap toggle + Force Stop yedek. Asla sadece key-up'a güvenme.
 - **7B minimum**: 1.5B/3B Türkçe'de hallüsinasyon yapıyor (doğrulandı). 7B altına inme.
+- **Whisper eğitilmez**: Whisper frozen kalır — sadece çıktısını düzelten LoRA adapter eğitilir. Whisper eğitimi milyonlarca ses/metin çifti + günlerce GPU gerektirir; Türkçe karakter/filler düzeltme için overkill.
 - **faster-whisper**: numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`.
 - **MLX LLM on-demand**: Correction açılınca yükle, kapanınca unload (~4GB boşalt).
 - **Mode capture**: `RecordingService.stop()`'ta `active_mode = corrector.config.mode` ilk önce yakala — concurrent `/api/config` race condition önler.

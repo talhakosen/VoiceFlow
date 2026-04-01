@@ -70,15 +70,19 @@ class MenuBarController: NSObject {
 
         menu.addItem(disabled("Ready", tag: 100))
         menu.addItem(.separator())
-        menu.addItem(action("Toggle Recording", sel: #selector(toggleRecording), key: "r"))
-        menu.addItem(action("Force Stop",       sel: #selector(forceStop),       key: "s"))
+        menu.addItem(action("Kaydı Durdur",         sel: #selector(forceStop),        key: "s"))
+        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),  key: ""))
         menu.addItem(.separator())
-        menu.addItem(action("Settings...",      sel: #selector(openSettings),    key: ","))
+        menu.addItem(action("Settings...",           sel: #selector(openSettings),     key: ","))
         let role = viewModel.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
             menu.addItem(action("Admin Panel...", sel: #selector(openAdminPanel), key: ""))
         }
-        menu.addItem(action("Quit",             sel: #selector(quit),            key: "q"))
+        menu.addItem(action("Quit",                  sel: #selector(quit),             key: "q"))
+        menu.addItem(.separator())
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        menu.addItem(disabled("v\(version) (\(build))"))
 
         statusItem?.menu = menu
     }
@@ -87,15 +91,9 @@ class MenuBarController: NSObject {
 
     @objc private func statusBarButtonClicked() {}
 
-    @objc private func toggleRecording() {
-        if viewModel.isRecording {
-            Task { await viewModel.stopAndTranscribe() }
-        } else {
-            viewModel.startRecording()
-        }
-    }
-
     @objc private func forceStop() { viewModel.forceStop() }
+
+    @objc private func restartService() { viewModel.restartBackend() }
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
