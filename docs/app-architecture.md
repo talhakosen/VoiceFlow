@@ -6,6 +6,7 @@
 **Framework:** SwiftUI + AppKit
 **Pattern:** MVVM + Protocol-based DI
 **Dağıtım:** Debug build → `/Applications/VoiceFlow.app`
+**Versiyon:** 0.3.0 (Info.plist `CFBundleShortVersionString`)
 
 ---
 
@@ -54,6 +55,7 @@ var isCorrectionEnabled: Bool
 **Business logic:**
 - `startRecording()` / `stopAndTranscribe()` / `forceStop()`
   - `stopAndTranscribe`: overlay + Pop sesi backend response beklemeden **hemen** çalar — uzun Whisper/RAG işlemleri UI'ı bloke etmez
+  - Backend erişilemezse: `statusText = "⚠ Servis başlatılıyor..."` (start hatası) veya `"⚠ Bağlantı hatası — servisi yeniden başlatın"` (stop hatası)
 - `selectLanguageMode(_:)` / `selectAppMode(_:)` / `toggleCorrection()`
 - `loadDictionary()` / `addDictionaryEntry()` / `deleteDictionaryEntry()`
 - `loadSnippets()` / `addSnippet()` / `deleteSnippet()`
@@ -198,7 +200,7 @@ pkill -f "VoiceFlow.app" 2>/dev/null || true
 rm -rf ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*
 xcodebuild -project VoiceFlowApp/VoiceFlowApp.xcodeproj \
            -scheme VoiceFlowApp -configuration Debug clean build
-cp -R ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*/Build/Products/Debug/VoiceFlow.app \
+ditto ~/Library/Developer/Xcode/DerivedData/VoiceFlowApp-*/Build/Products/Debug/VoiceFlow.app \
       /Applications/VoiceFlow.app
 open /Applications/VoiceFlow.app
 ```

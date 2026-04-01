@@ -70,7 +70,7 @@ private struct WelcomeStep: View {
                 HStack(spacing: 16) {
                     Label("Kişisel Sözlük", systemImage: "character.book.closed")
                     Label("Sesli Şablonlar", systemImage: "text.badge.plus")
-                    Label("Knowledge Base", systemImage: "books.vertical")
+                    Label("Bilgi Tabanı", systemImage: "books.vertical")
                 }
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -97,9 +97,9 @@ private struct ModeSelectionStep: View {
     @Binding var path: [OnboardingStep]
 
     private let modes: [(id: String, title: String, description: String, icon: String)] = [
-        ("general",     "General",     "Günlük Türkçe dikte — karakter düzeltmeli",        "text.bubble"),
-        ("engineering", "Engineering", "Teknik terimler korunur, kod isimleri değişmez",    "chevron.left.forwardslash.chevron.right"),
-        ("office",      "Office",      "Resmi dil, kısaltma açma, iş yazışması tonu",       "envelope"),
+        ("general",     "Genel",        "Günlük Türkçe dikte — karakter düzeltmeli",        "text.bubble"),
+        ("engineering", "Mühendislik", "Teknik terimler korunur, kod isimleri değişmez",    "chevron.left.forwardslash.chevron.right"),
+        ("office",      "Ofis",        "Resmi dil, kısaltma açma, iş yazışması tonu",       "envelope"),
     ]
 
     var body: some View {
@@ -135,7 +135,7 @@ private struct ModeSelectionStep: View {
 
             HStack(spacing: 6) {
                 Image(systemName: "gearshape").foregroundStyle(.secondary)
-                Text("Dil, mod ve LLM düzeltme ayarlarını dilediğiniz zaman Settings'ten değiştirebilirsiniz.")
+                Text("Dil, mod ve yapay zeka düzeltme ayarlarını dilediğiniz zaman Ayarlar'dan değiştirebilirsiniz.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -138,7 +138,7 @@ final class AppViewModel {
             } catch {
                 NSLog("VoiceFlow: startRecording failed: %@", error.localizedDescription)
                 isRecording = false
-                statusText = "Ready"
+                statusText = "⚠ Servis başlatılıyor..."
                 onHideRecordingOverlay?()
             }
         }
@@ -191,7 +191,7 @@ final class AppViewModel {
             }
         } catch {
             NSLog("VoiceFlow: stopAndTranscribe failed: %@", error.localizedDescription)
-            statusText = "Ready"
+            statusText = "⚠ Bağlantı hatası — servisi yeniden başlatın"
         }
     }
 

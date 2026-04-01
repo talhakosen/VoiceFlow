@@ -22,13 +22,13 @@ private extension View {
 // MARK: - Settings Section
 
 private enum SettingsSection: String, CaseIterable, Identifiable {
-    case general       = "General"
-    case recording     = "Recording"
-    case dictionary    = "Dictionary"
-    case snippets      = "Snippets"
-    case knowledgeBase = "Knowledge Base"
-    case account       = "Account"
-    case about         = "About"
+    case general       = "Genel"
+    case recording     = "Kayıt"
+    case dictionary    = "Sözlük"
+    case snippets      = "Şablonlar"
+    case knowledgeBase = "Bilgi Tabanı"
+    case account       = "Hesap"
+    case about         = "Hakkında"
 
     var id: String { rawValue }
 
@@ -117,32 +117,32 @@ private struct GeneralSection: View {
 
     var body: some View {
         Form {
-            Section("Shortcut") {
-                LabeledContent("Hotkey") {
-                    Text("Fn × 2  (double-tap to toggle recording)")
+            Section("Kısayol") {
+                LabeledContent("Tuş") {
+                    Text("Fn × 2  (kayıt başlat/durdur)")
                         .foregroundStyle(.secondary)
                 }
-                LabeledContent("Force Stop") {
-                    Text("⌘S  from menu bar")
+                LabeledContent("Zorla Durdur") {
+                    Text("⌘S  menü çubuğundan")
                         .foregroundStyle(.secondary)
                 }
             }
 
-            Section("Connection") {
-                Picker("Deployment Mode", selection: $deploymentMode) {
-                    Text("Local (Mac — MLX)").tag("local")
-                    Text("Server (On-Premise)").tag("server")
+            Section("Bağlantı") {
+                Picker("Dağıtım Modu", selection: $deploymentMode) {
+                    Text("Yerel (Mac — MLX)").tag("local")
+                    Text("Sunucu (Şirket İçi)").tag("server")
                 }
                 .onChange(of: deploymentMode) { showRestartNotice = true }
 
                 if deploymentMode == "server" {
-                    LabeledContent("Server URL") {
+                    LabeledContent("Sunucu Adresi") {
                         TextField("https://voiceflow.company.internal:8765", text: $serverURL)
                             .textFieldStyle(.roundedBorder)
                             .frame(minWidth: 360)
                     }
-                    LabeledContent("API Key") {
-                        SecureField("Paste API key here", text: $apiKey)
+                    LabeledContent("API Anahtarı") {
+                        SecureField("API anahtarını yapıştırın", text: $apiKey)
                             .textFieldStyle(.roundedBorder)
                             .frame(minWidth: 360)
                     }
@@ -158,7 +158,7 @@ private struct GeneralSection: View {
                 Section {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
-                        Text("Restart VoiceFlow to apply mode change.")
+                        Text("Modu değiştirmek için VoiceFlow'u yeniden başlatın.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -329,7 +329,8 @@ private struct SnippetsSection: View {
         Form {
             Section {
                 if viewModel.snippetEntries.isEmpty {
-                    Text("No snippets yet.").foregroundStyle(.secondary)
+                    Text("Henüz şablon yok. Ses kaydında tetikleyici söyleyince şablon yapıştırılır.")
+                        .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.snippetEntries) { entry in
                         HStack {
@@ -340,7 +341,7 @@ private struct SnippetsSection: View {
                             Text(entry.expansion)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .lineLimit(2)
-                            Text(entry.scope)
+                            Text(entry.scope == "personal" ? "Kişisel" : "Takım")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 60)
@@ -357,22 +358,22 @@ private struct SnippetsSection: View {
                     }
                 }
             } header: {
-                Text("Snippets")
+                Text("Şablon Listesi")
             }
 
-            Section("Add Snippet") {
+            Section("Şablon Ekle") {
                 HStack(spacing: 8) {
-                    TextField("trigger phrase (e.g. aç toplantı)", text: $newTrigger)
+                    TextField("tetikleyici (örn: standart imza)", text: $newTrigger)
                         .textFieldStyle(.roundedBorder)
                     Image(systemName: "arrow.right").foregroundStyle(.secondary)
-                    TextField("expansion text", text: $newExpansion)
+                    TextField("içerik (açılacak metin)", text: $newExpansion)
                         .textFieldStyle(.roundedBorder)
                     Picker("", selection: $newScope) {
-                        Text("Personal").tag("personal")
-                        Text("Team").tag("team")
+                        Text("Kişisel").tag("personal")
+                        Text("Takım").tag("team")
                     }
                     .frame(width: 90)
-                    Button("Add") {
+                    Button("Ekle") {
                         guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
                         viewModel.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
                         newTrigger = ""
@@ -382,7 +383,7 @@ private struct SnippetsSection: View {
                     .disabled(newTrigger.isEmpty || newExpansion.isEmpty)
                 }
 
-                Text("Exact-match trigger replaces the entire transcript. Applied after Dictionary, before LLM correction.")
+                Text("Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -403,8 +404,8 @@ private struct RecordingSection: View {
 
     var body: some View {
         Form {
-            Section("Language") {
-                Picker("Language", selection: Binding(
+            Section("Dil") {
+                Picker("Dil", selection: Binding(
                     get: { viewModel.currentLanguageMode },
                     set: { viewModel.selectLanguageMode($0) }
                 )) {
@@ -414,8 +415,8 @@ private struct RecordingSection: View {
                 }
             }
 
-            Section("Mode") {
-                Picker("Transcription Mode", selection: Binding(
+            Section("Bağlam") {
+                Picker("Kullanım Alanı", selection: Binding(
                     get: { viewModel.currentAppMode },
                     set: { viewModel.selectAppMode($0) }
                 )) {
@@ -425,19 +426,19 @@ private struct RecordingSection: View {
                 }
                 .pickerStyle(.radioGroup)
 
-                Text("Mode adjusts the LLM system prompt for better context-specific corrections.")
+                Text("Seçilen alan, düzeltme kalitesini artırmak için bağlamı ayarlar.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 
-            Section("LLM Correction") {
-                Toggle("Smart Correction", isOn: Binding(
+            Section("Akıllı Düzeltme") {
+                Toggle("Akıllı Düzeltme", isOn: Binding(
                     get: { viewModel.isCorrectionEnabled },
                     set: { _ in viewModel.toggleCorrection() }
                 ))
 
-                Picker("LLM Backend", selection: $llmMode) {
-                    Text("Local (Mac — MLX Qwen 7B)").tag("local")
-                    Text("Cloud (RunPod — Ollama Qwen 7B)").tag("cloud")
+                Picker("Yapay Zeka Motoru", selection: $llmMode) {
+                    Text("Yerel (Mac — MLX Qwen 7B)").tag("local")
+                    Text("Bulut (RunPod — Ollama Qwen 7B)").tag("cloud")
                     Text("Alibaba (Qwen Max — API)").tag("alibaba")
                 }
                 .onChange(of: llmMode) { showRestartNotice = true }
@@ -462,20 +463,20 @@ private struct RecordingSection: View {
                 if showRestartNotice {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
-                        Text("Restart backend to apply LLM change.")
+                        Text("Değişikliği uygulamak için servisi yeniden başlatın.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
             }
 
-            Section("Training Mode") {
-                Toggle("Training Mode", isOn: $trainingMode)
+            Section("Kişisel Ses Tanıma") {
+                Toggle("Kişisel Ses Tanıma", isOn: $trainingMode)
                     .onChange(of: trainingMode) { _, val in
                         UserDefaults.standard.set(val, forKey: AppSettings.trainingMode)
                         viewModel.trainingModeEnabled = val
                     }
 
-                Text("After each transcription, a feedback pill appears. Your corrections help improve future accuracy.")
+                Text("Her transkripsiyondan sonra geri bildirim ekranı görünür. Düzeltmeleriniz doğruluğu artırır.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -492,29 +493,29 @@ private struct KnowledgeBaseSection: View {
 
     var body: some View {
         Form {
-            Section("Index Status") {
+            Section("Durum") {
                 HStack {
                     Image(systemName: viewModel.contextChunkCount > 0 ? "checkmark.circle.fill" : "circle")
                         .foregroundStyle(viewModel.contextChunkCount > 0 ? .green : .secondary)
                     if viewModel.contextChunkCount > 0 {
-                        Text("\(viewModel.contextChunkCount) chunks indexed")
+                        Text("\(viewModel.contextChunkCount) bölüm eklendi")
                     } else {
-                        Text("Not indexed").foregroundStyle(.secondary)
+                        Text("Henüz eklenmedi").foregroundStyle(.secondary)
                     }
                     Spacer()
                     if viewModel.contextChunkCount > 0 {
-                        Button("Clear") { viewModel.clearContext() }
+                        Button("Temizle") { viewModel.clearContext() }
                             .buttonStyle(.plain).foregroundStyle(.red)
                     }
                 }
             }
 
-            Section("Index a Folder") {
+            Section("Klasör Ekle") {
                 HStack {
-                    TextField("Folder path", text: $selectedFolderPath)
+                    TextField("Klasör yolu", text: $selectedFolderPath)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(.body, design: .monospaced))
-                    Button("Browse…") { pickFolder() }
+                    Button("Seç…") { pickFolder() }
                 }
 
                 Text("Supported: .txt .md .py .swift .ts .js .go .java .yaml .json")
@@ -530,7 +531,7 @@ private struct KnowledgeBaseSection: View {
                             Text("Indexing…")
                         }
                     } else {
-                        Text("Index Now")
+                        Text("Ekle")
                     }
                 }
                 .buttonStyle(.borderedProminent)
@@ -618,23 +619,23 @@ private struct AboutSection: View {
     var body: some View {
         Form {
             Section("VoiceFlow") {
-                LabeledContent("Version") {
+                LabeledContent("Sürüm") {
                     Text("v\(appVersion)").foregroundStyle(.secondary)
                 }
-                LabeledContent("Backend") {
+                LabeledContent("Durum") {
                     Text(viewModel.statusText).foregroundStyle(.secondary)
                 }
             }
 
-            Section("Backend Control") {
-                Button("Restart Backend") { viewModel.restartBackend() }
+            Section("Servis Yönetimi") {
+                Button("Servisi Yeniden Başlat") { viewModel.restartBackend() }
                     .buttonStyle(.bordered)
 
-                Button("Hard Reset Backend") { viewModel.hardReset() }
+                Button("Sıfırla") { viewModel.hardReset() }
                     .buttonStyle(.bordered)
                     .foregroundStyle(.red)
 
-                Text("Hard reset kills the backend process and restarts from scratch.")
+                Text("Sıfırlama, arka plan servisini tamamen durdurur ve yeniden başlatır.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
