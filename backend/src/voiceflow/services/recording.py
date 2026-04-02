@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from ..audio import AudioCapture, AudioConfig
-from ..core.interfaces import AbstractCorrector, AbstractRetriever, AbstractTranscriber, TranscriptionResult
+from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
 from ..db import save_transcription, get_dictionary, get_snippets
 from ..services.dictionary import apply_dictionary
 from ..services.snippets import apply_snippets
@@ -33,12 +33,10 @@ class RecordingService:
         self,
         transcriber: AbstractTranscriber,
         corrector: AbstractCorrector,
-        retriever: AbstractRetriever | None = None,
     ) -> None:
         self._audio = AudioCapture(config=AudioConfig())
         self._transcriber = transcriber
         self._corrector = corrector
-        self._retriever = retriever
 
     # ------------------------------------------------------------------
     # Status
@@ -103,7 +101,7 @@ class RecordingService:
 
         # Dictionary substitution (Whisper → Dictionary → Snippets → LLM)
         if result.text and user_id:
-            entries = await get_dictionary(user_id=user_id)
+            entries = await get_dictionary(user_id=user_id, include_smart=True)
             if entries:
                 result.text = apply_dictionary(result.text, entries)
             snippets = await get_snippets(user_id=user_id)
@@ -113,31 +111,18 @@ class RecordingService:
                     snippet_used = True
                 result.text = expanded
 
-        # Retrieve context (skip if retriever absent or knowledge base empty)
-        context_chunks: list[str] = []
-        if self._retriever is not None and result.text:
-            try:
-                t_retrieval = time.perf_counter()
-                context_chunks = await loop.run_in_executor(
-                    None, self._retriever.retrieve, result.text
-                )
-                if context_chunks:
-                    logger.info("RAG retrieved %d chunks in %.3fs", len(context_chunks), time.perf_counter() - t_retrieval)
-            except Exception as e:
-                logger.warning("RAG retrieval failed, continuing without context: %s", e)
-
         # Correct (if enabled)
         if self._corrector.config.enabled and result.text:
             t_llm = time.perf_counter()
             if hasattr(self._corrector, "correct_async"):
                 corrected = await self._corrector.correct_async(
-                    result.text, result.language, context_chunks or None, active_app,
+                    result.text, result.language, None, active_app,
                     window_title=window_title, selected_text=selected_text,
                 )
             else:
                 _correct_fn = functools.partial(
                     self._corrector.correct,
-                    result.text, result.language, context_chunks or None, active_app,
+                    result.text, result.language, None, active_app,
                     window_title=window_title, selected_text=selected_text,
                 )
                 corrected = await loop.run_in_executor(_mlx_executor, _correct_fn)
@@ -146,6 +131,14 @@ class RecordingService:
                 was_corrected = True
                 logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
             result.text = corrected
+
+        # Symbol injection — metinde bilinen semboller varsa @file:line ekle
+        if result.text and user_id:
+            try:
+                from .symbol_indexer import inject_symbol_refs
+                result.text = await inject_symbol_refs(result.text, user_id)
+            except Exception as e:
+                logger.debug("Symbol injection skipped: %s", e)
 
         processing_ms = int((time.perf_counter() - t_start) * 1000)
         logger.info("Total stop→result: %dms", processing_ms)
@@ -201,13 +194,6 @@ class RecordingService:
     @property
     def corrector(self) -> AbstractCorrector:
         return self._corrector
-
-    @property
-    def retriever(self) -> AbstractRetriever | None:
-        return self._retriever
-
-    def update_retriever(self, retriever: AbstractRetriever | None) -> None:
-        self._retriever = retriever
 
     # ------------------------------------------------------------------
     # Model preload (called at startup)

@@ -493,17 +493,28 @@ private struct KnowledgeBaseSection: View {
 
     var body: some View {
         Form {
-            Section("Durum") {
-                HStack {
-                    Image(systemName: viewModel.contextChunkCount > 0 ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(viewModel.contextChunkCount > 0 ? .green : .secondary)
-                    if viewModel.contextChunkCount > 0 {
-                        Text("\(viewModel.contextChunkCount) bölüm eklendi")
-                    } else {
+            Section("İndekslenen Projeler") {
+                if viewModel.indexedProjects.isEmpty {
+                    HStack {
+                        Image(systemName: "circle").foregroundStyle(.secondary)
                         Text("Henüz eklenmedi").foregroundStyle(.secondary)
                     }
-                    Spacer()
-                    if viewModel.contextChunkCount > 0 {
+                } else {
+                    ForEach(viewModel.indexedProjects) { project in
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(project.name).font(.system(.body, design: .monospaced))
+                                Text("\(project.symbolCount) sembol")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                    }
+                    HStack {
+                        Text("\(viewModel.contextChunkCount) sözcük · \(viewModel.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
                         Button("Temizle") { viewModel.clearContext() }
                             .buttonStyle(.plain).foregroundStyle(.red)
                     }
@@ -518,7 +529,7 @@ private struct KnowledgeBaseSection: View {
                     Button("Seç…") { pickFolder() }
                 }
 
-                Text("Supported: .txt .md .py .swift .ts .js .go .java .yaml .json")
+                Text("Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.")
                     .font(.caption).foregroundStyle(.secondary)
 
                 Button {

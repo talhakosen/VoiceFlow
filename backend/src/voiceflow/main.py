@@ -44,24 +44,6 @@ def _build_corrector():
     return LLMCorrector(config=CorrectorConfig())
 
 
-def _build_retriever():
-    """Build ChromaRetriever if chromadb is available.
-
-    Does NOT initialize the collection at startup — lazy-loaded on first use.
-    This avoids downloading the embedding model on a fresh install.
-    """
-    try:
-        from .context.chroma_retriever import ChromaRetriever
-        logger.info("chromadb available, RAG enabled (collection lazy-loaded on first use)")
-        return ChromaRetriever()
-    except ImportError:
-        logger.info("chromadb not installed, RAG disabled (install with: pip install 'voiceflow[context]')")
-        return None
-    except Exception as e:
-        logger.warning("ChromaDB init failed, RAG disabled: %s", e)
-        return None
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -70,7 +52,6 @@ async def lifespan(app: FastAPI):
     service = RecordingService(
         transcriber=_build_transcriber(),
         corrector=_build_corrector(),
-        retriever=_build_retriever(),
     )
     app.state.recording_service = service
 

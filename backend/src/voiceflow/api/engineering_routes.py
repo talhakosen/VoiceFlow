@@ -76,29 +76,17 @@ async def extract_symbols_endpoint(
 async def index_repo_endpoint(
     body: IndexRepoRequest,
     request: Request,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    """Index a git repo into ChromaDB (background task)."""
-    from ..services.engineering import ingest_git_repo
-    from ..context.chroma_retriever import ChromaRetriever
+    """Scan git repo, extract identifiers, populate smart dictionary."""
+    from ..services.smart_dictionary import build_smart_dictionary
 
-    loop = asyncio.get_running_loop()
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
 
     async def _run():
-        svc = request.app.state.recording_service
-        retriever = svc.retriever
-        if retriever is None:
-            retriever = ChromaRetriever()
-            svc.update_retriever(retriever)
-
-        result = await loop.run_in_executor(
-            None, ingest_git_repo, body.repo_path, "default", retriever
-        )
-        logger.info(
-            "index_repo done: %d files, %d chunks, %d errors",
-            result.files_processed, result.chunks_added, len(result.errors),
-        )
+        added = await build_smart_dictionary(body.repo_path, user_id)
+        logger.info("index_repo smart dictionary: %d entries added for %s", added, user_id)
 
     task = asyncio.create_task(_run())
     request.app.state.engineering_ingest_task = task
-
-    return {"status": "started", "repo_path": body.repo_path, "message": "Git repo indexing in background"}
+    return {"status": "started", "repo_path": body.repo_path, "message": "Smart dictionary scan in background"}

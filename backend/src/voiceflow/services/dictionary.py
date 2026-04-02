@@ -37,13 +37,19 @@ def apply_dictionary(text: str, entries: list[dict]) -> str:
         reverse=True,
     )
 
-    for entry in sorted_entries:
-        trigger = entry.get("trigger", "").strip()
-        replacement = entry.get("replacement", "").strip()
-        if not trigger or not replacement:
-            continue
-        # Use word boundary anchors around the full trigger phrase
-        pattern = r"(?<!\w)" + re.escape(trigger) + r"(?!\w)"
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    def _apply_pass(t: str) -> str:
+        for entry in sorted_entries:
+            trigger = entry.get("trigger", "").strip()
+            replacement = entry.get("replacement", "").strip()
+            if not trigger or not replacement:
+                continue
+            pattern = r"(?<!\w)" + re.escape(trigger) + r"(?!\w)"
+            t = re.sub(pattern, replacement, t, flags=re.IGNORECASE)
+        return t
+
+    # Two passes: first pass may expand short triggers (e.g. "super 5" → "Supabase"),
+    # second pass catches compound triggers that now match after the first substitution.
+    text = _apply_pass(text)
+    text = _apply_pass(text)
 
     return text

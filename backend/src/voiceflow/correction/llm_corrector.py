@@ -3,6 +3,7 @@
 import gc
 import logging
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -270,6 +271,13 @@ class LLMCorrector:
             mx.metal.clear_cache()
 
             corrected = corrected.strip()
+
+            # Strip non-Latin/Turkish characters (e.g. CJK hallucinations like 取得, 的, etc.)
+            corrected = re.sub(
+                r'[^\u0000-\u024F\u011E\u011F\u0130\u0131\u015E\u015F\u00C7\u00E7\u00D6\u00F6\u00DC\u00FC\s]',
+                '',
+                corrected,
+            ).strip()
 
             # Safety: return original if output is empty or suspiciously long
             if not corrected:

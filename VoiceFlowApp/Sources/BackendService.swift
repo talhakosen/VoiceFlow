@@ -72,6 +72,30 @@ struct ContextStatus: Decodable {
     }
 }
 
+struct IndexedProject: Decodable, Identifiable {
+    var id: String { path }
+    let path: String
+    let name: String
+    let symbolCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case path, name
+        case symbolCount = "symbol_count"
+    }
+}
+
+struct ContextProjects: Decodable {
+    let projects: [IndexedProject]
+    let smartWordCount: Int
+    let totalSymbols: Int
+
+    enum CodingKeys: String, CodingKey {
+        case projects
+        case smartWordCount = "smart_word_count"
+        case totalSymbols   = "total_symbols"
+    }
+}
+
 struct DictionaryEntry: Codable, Identifiable {
     let id: Int
     let trigger: String
@@ -148,6 +172,7 @@ protocol BackendServiceProtocol: Actor {
     func getHistory(limit: Int) async throws -> [HistoryItem]
     func clearHistory() async throws
     func getContextStatus() async throws -> ContextStatus
+    func getContextProjects() async throws -> ContextProjects
     func ingestContext(path: String) async throws
     func clearContext() async throws
     func getDictionary() async throws -> [DictionaryEntry]
@@ -363,6 +388,15 @@ actor BackendService: BackendServiceProtocol {
             throw BackendError.requestFailed
         }
         return try JSONDecoder().decode(ContextStatus.self, from: data)
+    }
+
+    func getContextProjects() async throws -> ContextProjects {
+        let request = makeRequest(path: "context/projects")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(ContextProjects.self, from: data)
     }
 
     func ingestContext(path: String) async throws {

@@ -102,6 +102,20 @@ async def init_db() -> None:
         await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_feedback_tenant ON correction_feedback(tenant_id, created_at)"
         )
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS symbol_index (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     TEXT NOT NULL DEFAULT '',
+                project_path TEXT NOT NULL DEFAULT '',
+                file_path   TEXT NOT NULL,
+                symbol_type TEXT NOT NULL,
+                symbol_name TEXT NOT NULL,
+                line_number INTEGER NOT NULL
+            )
+        """)
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_symbol_user ON symbol_index(user_id, symbol_name)"
+        )
         # Migration: add user_id column if missing (existing DBs)
         async with db.execute("PRAGMA table_info(transcriptions)") as cursor:
             columns = {row[1] async for row in cursor}
@@ -193,16 +207,23 @@ async def set_config(key: str, value: str) -> None:
 # Dictionary CRUD
 # ------------------------------------------------------------------
 
-async def get_dictionary(user_id: str, tenant_id: str = "default") -> list[dict]:
-    """Return personal entries for user + all team entries for tenant."""
+async def get_dictionary(user_id: str, tenant_id: str = "default", include_smart: bool = False) -> list[dict]:
+    """Return dictionary entries for user.
+
+    include_smart=False (default): only manual entries (personal/team) — for UI display.
+    include_smart=True: all entries including auto-generated smart dict — for pipeline use.
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
-        async with db.execute(
-            """SELECT * FROM user_dictionary
-               WHERE tenant_id = ? AND (scope = 'team' OR user_id = ?)
-               ORDER BY scope, trigger""",
-            (tenant_id, user_id),
-        ) as cursor:
+        if include_smart:
+            query = """SELECT * FROM user_dictionary
+                       WHERE tenant_id = ? AND (scope = 'team' OR user_id = ?)
+                       ORDER BY length(trigger) DESC, trigger"""
+        else:
+            query = """SELECT * FROM user_dictionary
+                       WHERE tenant_id = ? AND (scope = 'team' OR (user_id = ? AND scope IN ('personal')))
+                       ORDER BY scope, trigger"""
+        async with db.execute(query, (tenant_id, user_id)) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
 

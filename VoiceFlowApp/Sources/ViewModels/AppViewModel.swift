@@ -14,7 +14,7 @@ final class AppViewModel {
     var lastResult: TranscriptionResult?
     var currentLanguageMode: LanguageMode = .turkish
     var currentAppMode: AppMode = .general
-    var isCorrectionEnabled = false
+    var isCorrectionEnabled = true
 
     // Training Mode (Katman 4)
     var trainingModeEnabled: Bool = UserDefaults.standard.bool(forKey: AppSettings.trainingMode)
@@ -400,6 +400,7 @@ final class AppViewModel {
     // MARK: - Context Engine (Phase 2)
 
     var contextChunkCount: Int = 0
+    var indexedProjects: [IndexedProject] = []
     var isIndexing: Bool = false
     var contextIndexingError: String? = nil
 
@@ -407,6 +408,10 @@ final class AppViewModel {
         Task {
             if let status = try? await backend.getContextStatus() {
                 contextChunkCount = status.count
+            }
+            if let projects = try? await backend.getContextProjects() {
+                indexedProjects = projects.projects
+                contextChunkCount = projects.smartWordCount
             }
         }
     }
@@ -417,16 +422,15 @@ final class AppViewModel {
         Task {
             do {
                 try await backend.ingestContext(path: folderPath)
-                // Poll until chunk count stabilizes (ingestion runs in background on server)
                 var previousCount = -1
-                for _ in 0..<30 {  // max ~60s
+                for _ in 0..<30 {
                     try? await Task.sleep(nanoseconds: 2_000_000_000)
-                    if let status = try? await backend.getContextStatus() {
-                        contextChunkCount = status.count
-                        if status.count > 0 && status.count == previousCount {
-                            break  // stable — ingestion complete
-                        }
-                        previousCount = status.count
+                    if let projects = try? await backend.getContextProjects() {
+                        indexedProjects = projects.projects
+                        contextChunkCount = projects.smartWordCount
+                        let total = projects.totalSymbols
+                        if total > 0 && total == previousCount { break }
+                        previousCount = total
                     }
                 }
             } catch {
@@ -440,6 +444,7 @@ final class AppViewModel {
         Task {
             try? await backend.clearContext()
             contextChunkCount = 0
+            indexedProjects = []
         }
     }
 

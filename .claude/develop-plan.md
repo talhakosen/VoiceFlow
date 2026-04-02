@@ -10,7 +10,9 @@
 - Auto-paste (Cmd+V)
 - SQLite persistent history + tenant izolasyonu
 - Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
-- Knowledge Base (ChromaDB RAG — lazy load, MiniLM embeddings)
+- Smart Dictionary (kod tabanı identifier tarama — class/method isimlerini otomatik user_dictionary'e ekler, Türkçe fonetik varyantlar, scope=smart)
+- Symbol Index (class/struct/func → file_path:line_number, fuzzy lookup, @dosya:satır enjeksiyonu)
+- ChromaDB kaldırıldı — embedding/RAG yok, sıfır bağımlılık
 - Recording overlay floating pill + ses efektleri
 - 2-panel Settings (Genel/Kayıt/Sözlük/Şablonlar/Bilgi Tabanı/Hesap/Hakkında) — tam Türkçe
 - App icon tüm boyutlar doğru (Xcode warning yok)
@@ -246,7 +248,7 @@
 - **Local-first, server optional:** Aynı Mac app her iki modda çalışır
 - **Açık kaynak modeller:** Cloud API yok — Whisper, Qwen/Llama self-hosted
 - **MLX (Mac) + NVIDIA (server):** İki farklı inference engine, env ile seçilir
-- **ChromaDB multi-tenancy:** `tenant=company_id` — şirket izolasyonu built-in
+- **Smart Dictionary:** ChromaDB kaldırıldı; Bilgi Tabanı = kod tabanı identifier tarama → `user_dictionary` tablosuna fonetik varyantlar
 - **Mac App Store değil, DMG:** Sandbox global hotkey + paste'i kısıtlar
 - **7B minimum LLM:** 1.5B ve 3B Türkçe'de hallüsinasyon yapıyor (doğrulandı)
 - **faster-whisper input:** numpy array değil BytesIO — soundfile ile dönüştür
@@ -259,4 +261,4 @@
 - [DONE] Phase 0: Demo altyapısı (BACKEND_MODE, faster-whisper, Ollama, API key auth)
 - [DONE] Phase 0.5: Architecture refactor (layered backend, MVVM Swift)
 - [DONE] Phase 1: Foundation (SQLite, mod sistemi, onboarding, kullanıcı profili, history)
-- [DONE] Phase 2 (kısmi): Context Engine (ChromaDB RAG, MiniLM, ingestion pipeline, Knowledge Base UI)
+- [DONE 2026-04-02] Phase 2: Smart Dictionary + Symbol Index — ChromaDB kaldırıldı; kod tabanı regex tarama → user_dictionary (scope=smart) + symbol_index (file_path:line_number); 2-pass dict matching; CJK hallucination guard; @dosya:satır enjeksiyonu; Bilgi Tabanı UI proje listesi

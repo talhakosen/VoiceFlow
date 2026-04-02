@@ -222,59 +222,123 @@ class IngestRequest(BaseModel):
 
 
 @router.post("/context/ingest")
-async def context_ingest(body: IngestRequest, request: Request):
-    """Start background ingestion of a folder into the knowledge base."""
-    from ..context.ingestion import ingest_folder
-    from ..context.chroma_retriever import ChromaRetriever
+async def context_ingest(
+    body: IngestRequest,
+    request: Request,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    """Scan folder, extract identifiers, populate smart dictionary."""
+    from ..services.smart_dictionary import build_smart_dictionary
 
-    loop = asyncio.get_running_loop()
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
 
     async def _run():
-        # Reuse or create the retriever so both ingestion and retrieval share the same instance
-        svc = request.app.state.recording_service
-        retriever = svc.retriever
-        if retriever is None:
-            retriever = ChromaRetriever()
-            svc.update_retriever(retriever)
-
-        result = await loop.run_in_executor(None, ingest_folder, body.path, "default", retriever)
-        logger.info(
-            "Ingestion done: %d files, %d chunks, %d errors",
-            result.files_processed, result.chunks_added, len(result.errors),
-        )
+        try:
+            added = await build_smart_dictionary(body.path, user_id)
+            logger.info("Smart dictionary: %d entries added for user %s", added, user_id)
+        except Exception as e:
+            logger.warning("Smart dictionary failed: %s", e)
+        try:
+            from ..services.symbol_indexer import build_symbol_index
+            sym_count = await build_symbol_index(body.path, user_id)
+            logger.info("Symbol index: %d symbols for user %s", sym_count, user_id)
+        except Exception as e:
+            logger.warning("Symbol index failed: %s", e)
 
     task = asyncio.create_task(_run())
-    # Keep a strong reference so GC doesn't collect the task mid-run
     request.app.state.ingest_task = task
-    return {"status": "started", "path": body.path, "message": "Indexing in background"}
+    return {"status": "started", "path": body.path, "message": "Smart dictionary scan in background"}
 
 
 @router.get("/context/status")
-async def context_status(svc=Depends(get_service)):
-    """Return knowledge base stats."""
-    retriever = svc.retriever
-    if retriever is None:
-        return {"count": 0, "is_ready": False, "is_empty": True}
-    try:
-        n = retriever.count()
-        return {"count": n, "is_ready": True, "is_empty": n == 0}
-    except Exception as e:
-        logger.warning("Context status check failed: %s", e)
-        return {"count": 0, "is_ready": False, "is_empty": True}
+async def context_status(
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+    request: Request = None,
+):
+    """Return smart dictionary entry count."""
+    import aiosqlite
+    from pathlib import Path
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
+    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    async with aiosqlite.connect(db_path) as db:
+        async with db.execute(
+            "SELECT COUNT(*) FROM user_dictionary WHERE user_id = ? AND scope = 'smart'",
+            (user_id,),
+        ) as cursor:
+            row = await cursor.fetchone()
+            n = row[0] if row else 0
+    return {"count": n, "is_ready": True, "is_empty": n == 0}
+
+
+@router.get("/context/projects")
+async def context_projects(
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+    request: Request = None,
+):
+    """Return indexed projects with smart dictionary + symbol counts."""
+    import aiosqlite
+    from pathlib import Path
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
+    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    async with aiosqlite.connect(db_path) as db:
+        # Symbol counts per project
+        async with db.execute(
+            "SELECT project_path, COUNT(*) FROM symbol_index WHERE user_id = ? GROUP BY project_path",
+            (user_id,),
+        ) as cursor:
+            symbol_rows = {row[0]: row[1] for row in await cursor.fetchall()}
+
+        # Smart dictionary total (all belong to latest ingest — no per-project tracking yet)
+        async with db.execute(
+            "SELECT COUNT(*) FROM user_dictionary WHERE user_id = ? AND scope = 'smart'",
+            (user_id,),
+        ) as cursor:
+            row = await cursor.fetchone()
+            smart_total = row[0] if row else 0
+
+    projects = []
+    for path, sym_count in symbol_rows.items():
+        projects.append({
+            "path": path,
+            "name": Path(path).name,
+            "symbol_count": sym_count,
+        })
+
+    return {
+        "projects": projects,
+        "smart_word_count": smart_total,
+        "total_symbols": sum(p["symbol_count"] for p in projects),
+    }
+
+
+@router.get("/symbol/lookup")
+async def symbol_lookup(
+    q: str,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+    request: Request = None,
+    limit: int = 5,
+):
+    """Fuzzy symbol lookup. Returns file_path:line_number matches."""
+    from ..services.symbol_indexer import lookup_symbol
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
+    results = await lookup_symbol(query=q, user_id=user_id, limit=limit)
+    return {"query": q, "results": results}
 
 
 @router.delete("/context")
-async def context_clear(svc=Depends(get_service)):
-    """Clear the entire knowledge base."""
-    retriever = svc.retriever
-    if retriever is None:
-        return {"status": "nothing_to_clear"}
-    try:
-        retriever.clear()
-        return {"status": "cleared"}
-    except Exception as e:
-        logger.error("Context clear failed: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+async def context_clear(
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+    request: Request = None,
+):
+    """Clear smart dictionary entries for this user."""
+    import aiosqlite
+    from pathlib import Path
+    user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
+    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    async with aiosqlite.connect(db_path) as db:
+        await db.execute("DELETE FROM user_dictionary WHERE user_id = ?", (user_id,))
+        await db.commit()
+    return {"status": "cleared"}
 
 
 # ------------------------------------------------------------------

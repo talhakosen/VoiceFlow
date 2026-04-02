@@ -105,6 +105,7 @@ def main() -> None:
             Path("data_gen/word_order_pairs.jsonl"),
             Path("data_gen/gecturk_pairs.jsonl"),
             Path("data_gen/issai/issai_pairs_clean.jsonl"),
+            Path("data_gen/oneri_pairs.jsonl"),
         ],
         help="JSONL source files to merge.",
     )

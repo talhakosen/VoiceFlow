@@ -46,14 +46,7 @@ class AbstractCorrector(ABC):
 
     @abstractmethod
     def correct(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
-        """Synchronous correction. Used in MLX executor.
-
-        Args:
-            text: Raw transcription text.
-            language: Detected language code (e.g. "tr").
-            context: Optional RAG context chunks injected into the prompt.
-            active_app: Bundle ID of the frontmost app at recording start (for tone override).
-        """
+        """Synchronous correction. Used in MLX executor."""
 
     @abstractmethod
     def _ensure_model_loaded(self) -> None:
@@ -64,17 +57,3 @@ class AbstractCorrector(ABC):
         """Release model from memory."""
 
 
-class AbstractRetriever(ABC):
-    """Protocol for RAG retrieval engines (ChromaDB, etc.)"""
-
-    @abstractmethod
-    def retrieve(self, query: str, top_k: int = 3) -> list[str]:
-        """Return top-k relevant text chunks for the query."""
-
-    @abstractmethod
-    def is_empty(self) -> bool:
-        """Return True if no documents have been indexed yet."""
-
-    @abstractmethod
-    def count(self) -> int:
-        """Return number of indexed chunks."""

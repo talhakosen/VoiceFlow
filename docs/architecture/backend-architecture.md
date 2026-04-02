@@ -22,8 +22,10 @@ backend/src/voiceflow/
 ├── services/
 │   ├── recording.py           # RecordingService — TÜM iş mantığı
 │   ├── auth_service.py        # JWT create/decode, bcrypt, require_role() dependency
-│   ├── dictionary.py          # apply_dictionary() — word-boundary substitution
-│   └── snippets.py            # apply_snippets() — exact-match expansion
+│   ├── dictionary.py          # apply_dictionary() — 2-pass word-boundary substitution
+│   ├── snippets.py            # apply_snippets() — exact-match expansion
+│   ├── smart_dictionary.py    # build_smart_dictionary() — kod tabanından identifier çıkar, Türkçe fonetik varyantları user_dictionary'e ekler (scope='smart')
+│   └── symbol_indexer.py      # build_symbol_index() — class/func/struct sembollerini file_path+line_number ile SQLite'a yazar; lookup_symbol() fuzzy arama
 ├── db/
 │   └── storage.py             # aiosqlite CRUD (~/.voiceflow/voiceflow.db)
 ├── audio/
@@ -61,6 +63,12 @@ class RecordingService:
     async def preload_models() → None
 ```
 Pipeline sırası: **Whisper → Dictionary → Snippets → RAG retrieval → LLM correction → SQLite**
+
+**Smart Dictionary** (`services/smart_dictionary.py`): `POST /api/context/ingest` tetiklenince çalışır. Klasördeki `.swift/.dart/.py/.ts` dosyalarını tarar, PascalCase/camelCase identifier'ları regex ile çıkarır, `_TURKISH_VARIANTS` ile Türkçe fonetik varyantlar üretir (örn. `SupabaseSavedOutfitRepository` → `"superbase saved outfit reposteri"`) ve `user_dictionary` tablosuna `scope='smart'` ile ekler. Tekrar indexlemede var olan trigger'lar üzerine yazılmaz.
+
+**2-pass Dictionary** (`services/dictionary.py`): İki geçişte uygular — ilk geçiş kısa trigger'ları dönüştürür (`super bass` → `Supabase`), ikinci geçiş ortaya çıkan yeni eşleşmeleri yakalar (`Supabase saved outfit repository` → `SupabaseSavedOutfitRepository`).
+
+**Symbol Index** (`services/symbol_indexer.py`): `POST /api/context/ingest` sonrası çalışır. Swift/Dart/Python/TS/Go/Kotlin dosyalarından class/struct/enum/func sembollerini regex ile çıkarır, `symbol_index` tablosuna `file_path + line_number` ile yazar. `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82` döner. Fuzzy match: tam eşleşme → prefix → substring sırasıyla.
 
 **Snippet matching notu:** `apply_snippets()` tüm metni trigger ile karşılaştırır (tam eşleşme). Whisper cümle sonuna noktalama ekler — bu nedenle karşılaştırma öncesi `rstrip(".,!?;:")` uygulanır. Snippet expand olduysa `snippet_used=True` response'a eklenir; Training Pill bu durumda gösterilmez.
 
@@ -129,7 +137,12 @@ POST /api/config              → {language?, task?, correction_enabled?, mode?,
 GET  /api/devices             → Ses girişi cihazları listesi
 GET  /api/history             → SQLite geçmişi [?limit=&offset=] — tenant filtered
 DELETE /api/history           → Geçmişi sil
-POST /api/context/ingest      → Klasör indexle (async, ChromaDB)
+POST /api/context/ingest      → Smart Dictionary + Symbol Index taraması (async, ChromaDB yok)
+GET  /api/context/status      → {count: smart_dict_entry_count, is_ready, is_empty}
+GET  /api/context/projects    → [{name, path, symbol_count}] + smart_word_count + total_symbols
+DELETE /api/context           → kullanıcının smart dict (scope=smart) entry'lerini sil
+GET  /api/symbol/lookup?q=X   → [{symbol_name, symbol_type, file_path, line_number}] fuzzy arama
+POST /api/feedback            → {raw_whisper, model_output, user_action, user_edit, ...}
 GET  /api/context/status      → {count, is_ready, is_empty}
 DELETE /api/context           → Knowledge base'i temizle
 GET  /api/dictionary          → Kullanıcı sözlüğü
@@ -224,6 +237,7 @@ JWT_ACCESS_TTL_MINUTES=60
 - **Lazy loading:** Model ilk kullanımda yükler, `_ensure_model_loaded()` idempotent
 - **LLM on-demand:** Correction açılınca yükle, kapanınca unload (~4GB boşalt)
 - **Metal cache:** Her inference sonrası `mx.metal.clear_cache()` — bellek sızıntısı önler
+- **CJK hallucination guard:** LLM çıktısında Latin/Türkçe dışı karakter (örn. Japonca 取得, Çince 的) varsa `re.sub` ile silinir — Qwen'in CJK eğitim verisinden kaynaklanan sızma önlenir
 - **Ollama async:** `correct_async()` → `httpx.AsyncClient` — MLX executor'ı bloklamaz
 - **Mode capture:** `active_mode = corrector.config.mode` → concurrent `/api/config` race'i önler
 - **faster-whisper:** numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`
@@ -270,7 +284,19 @@ CREATE TABLE user_dictionary (
     user_id     TEXT NOT NULL DEFAULT '',
     trigger     TEXT NOT NULL,
     replacement TEXT NOT NULL,
-    scope       TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team'
+    scope       TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team' | 'smart'
+);
+-- scope='smart': build_smart_dictionary() tarafından otomatik eklenir, UI'da gösterilmez
+-- scope='personal'/'team': kullanıcı tarafından manuel eklenir, Sözlük UI'da görünür
+
+CREATE TABLE symbol_index (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      TEXT NOT NULL DEFAULT '',
+    project_path TEXT NOT NULL DEFAULT '',
+    file_path    TEXT NOT NULL,
+    symbol_type  TEXT NOT NULL,   -- 'class' | 'struct' | 'func' | 'enum' | 'protocol' | ...
+    symbol_name  TEXT NOT NULL,
+    line_number  INTEGER NOT NULL
 );
 
 CREATE TABLE snippets (
@@ -319,19 +345,21 @@ soundfile>=0.12.0
 
 ---
 
-## Phase 2 — Context Engine (Aktif, v0.4)
+## Phase 2 — Smart Dictionary + Symbol Index (Aktif)
 
-```
-backend/src/voiceflow/context/
-├── chroma_retriever.py   # ChromaRetriever: MiniLM embeddings + ChromaDB
-└── ingestion.py          # ingest_folder() → parse → embed → store
-```
+ChromaDB kaldırıldı. Embedding/RAG yok. İki hafif SQLite tabanlı sistem:
 
-- **Embeddings:** `all-MiniLM-L6-v2` (CPU, ~22MB, lazy loaded)
-- **Store:** ChromaDB `~/.voiceflow/chroma/`, `tenant="default"`
-- **Retrieval:** top-3 chunks inject edilir LLM correction prompt'una
-- **Lazy:** RecordingService'e opsiyonel 3. parametre — `retriever=None` ise RAG atlanır
-- **is_ready guard:** `retrieve()` MiniLM henüz yüklenmemişse (`_collection is None`) anında `[]` döner — stop pipeline'ı 30-40s bloke etmez. MiniLM ilk kez `ingest` sırasında yüklenir.
+**Smart Dictionary** (`user_dictionary` tablosu, `scope='smart'`):
+- Klasör taranır → PascalCase/camelCase identifier'lar → Türkçe fonetik varyantlar
+- Whisper pipeline'da apply_dictionary() 2-pass ile uygular
+- `GET /api/dictionary` sadece manual (personal/team) entry döner — 6K+ smart entry UI'ı ezmez
+- `RecordingService.stop()` → `get_dictionary(include_smart=True)` ile hem manual hem smart entry'leri kullanır
+
+**Symbol Index** (`symbol_index` tablosu):
+- Klasör taranır → class/struct/func/enum → file_path + line_number
+- Swift, Dart, Python, TypeScript, Kotlin, Go desteklenir
+- `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82`
+- Tam eşleşme → prefix → substring sırasıyla fuzzy match
 
 ---
 
@@ -349,14 +377,14 @@ backend/src/voiceflow/context/
 
 ---
 
-## Katman 4 — Planlanan Backend Değişiklikleri
+## Katman 4 — Tamamlanan Backend Değişiklikleri
 
-### Yeni Endpoint (P1)
+### ✅ Yeni Endpoint
 ```
 POST /api/feedback   → {raw_whisper, model_output, user_action, user_edit, app_context}
 ```
 
-### Yeni SQLite Tablosu (P1)
+### ✅ Yeni SQLite Tablosu
 ```sql
 CREATE TABLE correction_feedback (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -374,7 +402,7 @@ CREATE TABLE correction_feedback (
 );
 ```
 
-### Yeni Headers (P1)
+### ✅ Yeni Headers
 `POST /api/stop`'a ek header'lar — Swift Context Capture'dan gelir:
 ```
 X-Window-Title: "Re: Q3 Roadmap - Mail"   (max 300 char, sanitized)

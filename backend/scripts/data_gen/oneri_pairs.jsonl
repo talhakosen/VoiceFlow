@@ -1,0 +1,535 @@
+{"input": "supabase saved outfit repository üzerinden query çalıştır", "output": "SupabaseSavedOutfitRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "user preferences objesini oluştur", "output": "UserPreferences objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase user repository ile outfit'i kaydet", "output": "SupabaseUserRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe items notifier'e error state'i ekle", "output": "WardrobeItemsNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "normalized product tipini kontrol et", "output": "NormalizedProduct tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "supabase notification repository'den veri çek", "output": "SupabaseNotificationRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe screen widget'ını ekle", "output": "WardrobeScreen widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item card widget'ını ekle", "output": "WardrobeItemCard widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "outfit order'ı refactor et", "output": "OutfitOrder'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "user preferences interface'ini implement et", "output": "UserPreferences interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "body type selector sheet'in tasarımını değiştir", "output": "BodyTypeSelectorSheet'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "wardrobe items notifier'ı dinle", "output": "WardrobeItemsNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "sig lip kaç boyutlu", "output": "SigLIP kaç boyutlu.", "category": "domain_oneri_ml"}
+{"input": "supabase auth repository dependency'sini düzelt", "output": "SupabaseAuthRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "compatible products section'de loading göster", "output": "CompatibleProductsSection'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "user profile'ı refactor et", "output": "UserProfile'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository'den veri çek", "output": "WardrobeRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "outfit order'ı inject et", "output": "OutfitOrder'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "feed filter'ı refactor et", "output": "FeedFilter'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "compatible products section widget'ını ekle", "output": "CompatibleProductsSection widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "pipeline health notifier'den veri al", "output": "PipelineHealthNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "normalized product'ı inject et", "output": "NormalizedProduct'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "style profile notifier provider'ını tanımla", "output": "StyleProfileNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "notifications notifier refresh et", "output": "NotificationsNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "supabase notification repository'den kullanıcıyı getir", "output": "SupabaseNotificationRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "item feedback data objesini oluştur", "output": "ItemFeedbackData objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase product repository metodunu override et", "output": "SupabaseProductRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "outfit order repository'den veri çek", "output": "OutfitOrderRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "outfit order tipini kontrol et", "output": "OutfitOrder tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "pipeline health notifier'ı dinle", "output": "PipelineHealthNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "style profile'ı inject et", "output": "StyleProfile'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "feed filter notifier state'ini sıfırla", "output": "FeedFilterNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "blog notifier'e error state'i ekle", "output": "BlogNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "auth notifier refresh et", "output": "AuthNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "outfit card'de loading göster", "output": "OutfitCard'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item objesini oluştur", "output": "WardrobeItem objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "item feedback data neden çalışmıyor", "output": "ItemFeedbackData neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "auth notifier'ı dinle", "output": "AuthNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "bu user preferences ne yapıyor", "output": "Bu UserPreferences ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository'e kaydet", "output": "WardrobeRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe repository'e yeni method ekle", "output": "WardrobeRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "bu user profile ne yapıyor", "output": "Bu UserProfile ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "wardrobe enrichment status card'de loading göster", "output": "WardrobeEnrichmentStatusCard'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "feed filter testini yaz", "output": "FeedFilter testini yaz.", "category": "domain_oneri_classes"}
+{"input": "supabase outfit order repository'den veri çek", "output": "SupabaseOutfitOrderRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "supabase alert repository ile outfit'i kaydet", "output": "SupabaseAlertRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "blog post testini yaz", "output": "BlogPost testini yaz.", "category": "domain_oneri_classes"}
+{"input": "profile screen'de loading göster", "output": "ProfileScreen'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "outfit feedback notifier refresh et", "output": "OutfitFeedbackNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "kiyafet kategorisini bul", "output": "Kıyafet kategorisini bul.", "category": "domain_oneri_turkish"}
+{"input": "outfit order'ın metodunu ekle", "output": "OutfitOrder'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "yeni bir price alert oluştur", "output": "Yeni bir PriceAlert oluştur.", "category": "domain_oneri_classes"}
+{"input": "outfit feedback data testini yaz", "output": "OutfitFeedbackData testini yaz.", "category": "domain_oneri_classes"}
+{"input": "blog post'ı refactor et", "output": "BlogPost'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "onboarding screen'ı açtığında", "output": "OnboardingScreen'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "auth notifier provider'ını tanımla", "output": "AuthNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe style analysis card'e animasyon ekle", "output": "WardrobeStyleAnalysisCard'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "profile screen'in tasarımını değiştir", "output": "ProfileScreen'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "supabase product repository'den veri çek", "output": "SupabaseProductRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe enrichment status card'de navigation düzelt", "output": "WardrobeEnrichmentStatusCard'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "seg former modelini yükle", "output": "SegFormer modelini yükle.", "category": "domain_oneri_ml"}
+{"input": "saved outfit'ın metodunu ekle", "output": "SavedOutfit'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "supabase notification repository dependency'sini düzelt", "output": "SupabaseNotificationRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "compatible products section'in tasarımını değiştir", "output": "CompatibleProductsSection'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "outfit feedback data kullanarak veriyi çek", "output": "OutfitFeedbackData kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "supabase user repository'e yeni method ekle", "output": "SupabaseUserRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "product browse notifier'den veri al", "output": "ProductBrowseNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "outfit card'in tasarımını değiştir", "output": "OutfitCard'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "body type selector sheet widget'ını ekle", "output": "BodyTypeSelectorSheet widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "supabase product repository üzerinden query çalıştır", "output": "SupabaseProductRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "supabase pipeline repository'e kaydet", "output": "SupabasePipelineRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "outfit feedback data interface'ini implement et", "output": "OutfitFeedbackData interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "bu body measurement guide çok fazla rebuild alıyor", "output": "Bu BodyMeasurementGuide çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "supabase auth repository metodunu override et", "output": "SupabaseAuthRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "yeni bir normalized product oluştur", "output": "Yeni bir NormalizedProduct oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase notification repository'e yeni method ekle", "output": "SupabaseNotificationRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "supabase saved outfit repository metodunu override et", "output": "SupabaseSavedOutfitRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "saved outfit class'ına bak", "output": "SavedOutfit class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "supabase saved outfit repository'den kullanıcıyı getir", "output": "SupabaseSavedOutfitRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "outfit feedback notifier'ın loading state'ini yönet", "output": "OutfitFeedbackNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "supabase outfit order repository'i mock'la", "output": "SupabaseOutfitOrderRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "supabase auth repository ile outfit'i kaydet", "output": "SupabaseAuthRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "compatibility scorer ile embedding hesapla", "output": "CompatibilityScorer ile embedding hesapla.", "category": "domain_oneri_ml"}
+{"input": "supabase saved outfit repository'den veri çek", "output": "SupabaseSavedOutfitRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "item feedback data içinde bir hata var", "output": "ItemFeedbackData içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "price alert class'ına bak", "output": "PriceAlert class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "style profile'ın metodunu ekle", "output": "StyleProfile'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item detail screen widget'ını ekle", "output": "WardrobeItemDetailScreen widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "normalized product neden çalışmıyor", "output": "NormalizedProduct neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "notifications notifier'den veri al", "output": "NotificationsNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "bu outfit feedback notifier neden tekrar build alıyor", "output": "Bu OutfitFeedbackNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "yeni bir user profile oluştur", "output": "Yeni bir UserProfile oluştur.", "category": "domain_oneri_classes"}
+{"input": "bu onboarding screen çok fazla rebuild alıyor", "output": "Bu OnboardingScreen çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "body measurement guide'in tasarımını değiştir", "output": "BodyMeasurementGuide'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item card'in tasarımını değiştir", "output": "WardrobeItemCard'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "sig lip modeli eğit", "output": "SigLIP modeli eğit.", "category": "domain_oneri_ml"}
+{"input": "price alert objesini oluştur", "output": "PriceAlert objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "user preferences class'ına bak", "output": "UserPreferences class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "order form notifier state'ini sıfırla", "output": "OrderFormNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "outfit feedback notifier provider'ını tanımla", "output": "OutfitFeedbackNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "item feedback data kullanarak veriyi çek", "output": "ItemFeedbackData kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "bu outfit feedback data ne yapıyor", "output": "Bu OutfitFeedbackData ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "feed filter class'ına bak", "output": "FeedFilter class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "blog post objesini oluştur", "output": "BlogPost objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "outfit order repository metodunu override et", "output": "OutfitOrderRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "outfit order repository'e kaydet", "output": "OutfitOrderRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "supabase pipeline repository üzerinden query çalıştır", "output": "SupabasePipelineRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "bu body type selector sheet çok fazla rebuild alıyor", "output": "Bu BodyTypeSelectorSheet çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "wardrobe enrichment status card'in tasarımını değiştir", "output": "WardrobeEnrichmentStatusCard'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "pipeline health notifier'ın loading state'ini yönet", "output": "PipelineHealthNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "price alert modelini güncelle", "output": "PriceAlert modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "item feedback data modelini güncelle", "output": "ItemFeedbackData modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "supabase wardrobe repository'e yeni method ekle", "output": "SupabaseWardrobeRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "normalized product'ı refactor et", "output": "NormalizedProduct'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "body type selector sheet'de navigation düzelt", "output": "BodyTypeSelectorSheet'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "supabase feedback repository üzerinden query çalıştır", "output": "SupabaseFeedbackRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "product browse notifier state'ini sıfırla", "output": "ProductBrowseNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "bu product feed notifier neden tekrar build alıyor", "output": "Bu ProductFeedNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "bu notifications notifier neden tekrar build alıyor", "output": "Bu NotificationsNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "bu wardrobe screen çok fazla rebuild alıyor", "output": "Bu WardrobeScreen çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "outfit feedback data'ın metodunu ekle", "output": "OutfitFeedbackData'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "type aware projeksiyon inference çalıştır", "output": "TypeAwareProjection inference çalıştır.", "category": "domain_oneri_ml"}
+{"input": "outfit feedback notifier'ı dinle", "output": "OutfitFeedbackNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe screen'de loading göster", "output": "WardrobeScreen'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "body measurement guide'ı açtığında", "output": "BodyMeasurementGuide'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "compatibility scorer inference çalıştır", "output": "CompatibilityScorer inference çalıştır.", "category": "domain_oneri_ml"}
+{"input": "blog notifier provider'ını tanımla", "output": "BlogNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "saved outfit'ı inject et", "output": "SavedOutfit'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "blog post'ı inject et", "output": "BlogPost'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "style profile constructor'ına parametre ekle", "output": "StyleProfile constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "style profile notifier'e error state'i ekle", "output": "StyleProfileNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe items notifier'ın loading state'ini yönet", "output": "WardrobeItemsNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "user profile notifier refresh et", "output": "UserProfileNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "bu user profile notifier neden tekrar build alıyor", "output": "Bu UserProfileNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "outfit order repository'den kullanıcıyı getir", "output": "OutfitOrderRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe item'ı refactor et", "output": "WardrobeItem'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "compatibility scorer pipeline'ını çalıştır", "output": "CompatibilityScorer pipeline'ını çalıştır.", "category": "domain_oneri_ml"}
+{"input": "compatibility scorer modeli eğit", "output": "CompatibilityScorer modeli eğit.", "category": "domain_oneri_ml"}
+{"input": "type aware projeksiyon score'u hesapla", "output": "TypeAwareProjection score'u hesapla.", "category": "domain_oneri_ml"}
+{"input": "user profile interface'ini implement et", "output": "UserProfile interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "blog post neden çalışmıyor", "output": "BlogPost neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "order form notifier'e error state'i ekle", "output": "OrderFormNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "onboarding screen'de loading göster", "output": "OnboardingScreen'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "style profile testini yaz", "output": "StyleProfile testini yaz.", "category": "domain_oneri_classes"}
+{"input": "user preferences neden çalışmıyor", "output": "UserPreferences neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "style profile interface'ini implement et", "output": "StyleProfile interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item detail screen'in tasarımını değiştir", "output": "WardrobeItemDetailScreen'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "kombim uyumu hesapla", "output": "Kombin uyumu hesapla.", "category": "domain_oneri_turkish"}
+{"input": "item feedback data testini yaz", "output": "ItemFeedbackData testini yaz.", "category": "domain_oneri_classes"}
+{"input": "item feedback data'ın metodunu ekle", "output": "ItemFeedbackData'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "feed filter constructor'ına parametre ekle", "output": "FeedFilter constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "outfit orders notifier provider'ını tanımla", "output": "OutfitOrdersNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "seg former checkpoint'ini kaydet", "output": "SegFormer checkpoint'ini kaydet.", "category": "domain_oneri_ml"}
+{"input": "product feed card'ı açtığında", "output": "ProductFeedCard'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "supabase auth repository'i mock'la", "output": "SupabaseAuthRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "outfit feedback data objesini oluştur", "output": "OutfitFeedbackData objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "bu item feedback data ne yapıyor", "output": "Bu ItemFeedbackData ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "normalized product interface'ini implement et", "output": "NormalizedProduct interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item içinde bir hata var", "output": "WardrobeItem içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "supabase auth repository'e kaydet", "output": "SupabaseAuthRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "outfit order repository ile outfit'i kaydet", "output": "OutfitOrderRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "user profile modelini güncelle", "output": "UserProfile modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "sig lip ile embedding hesapla", "output": "SigLIP ile embedding hesapla.", "category": "domain_oneri_ml"}
+{"input": "feed filter notifier provider'ını tanımla", "output": "FeedFilterNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "supabase alert repository üzerinden query çalıştır", "output": "SupabaseAlertRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "outfit orders notifier'den veri al", "output": "OutfitOrdersNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "supabase saved outfit repository ile outfit'i kaydet", "output": "SupabaseSavedOutfitRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "product feed card'e animasyon ekle", "output": "ProductFeedCard'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "style profile objesini oluştur", "output": "StyleProfile objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase saved outfit repository dependency'sini düzelt", "output": "SupabaseSavedOutfitRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "yeni bir feed filter oluştur", "output": "Yeni bir FeedFilter oluştur.", "category": "domain_oneri_classes"}
+{"input": "blog post constructor'ına parametre ekle", "output": "BlogPost constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "product browse notifier provider'ını tanımla", "output": "ProductBrowseNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "outfit feedback data içinde bir hata var", "output": "OutfitFeedbackData içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item card'e animasyon ekle", "output": "WardrobeItemCard'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "supabase wardrobe repository'e kaydet", "output": "SupabaseWardrobeRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "item feedback data'ı inject et", "output": "ItemFeedbackData'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "product feed notifier'e error state'i ekle", "output": "ProductFeedNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "product feed card widget'ını ekle", "output": "ProductFeedCard widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "seg former modeli eğit", "output": "SegFormer modeli eğit.", "category": "domain_oneri_ml"}
+{"input": "onboarding screen'e animasyon ekle", "output": "OnboardingScreen'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "bu blog post ne yapıyor", "output": "Bu BlogPost ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "profile screen widget'ını ekle", "output": "ProfileScreen widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "yeni bir user preferences oluştur", "output": "Yeni bir UserPreferences oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase alert repository'e kaydet", "output": "SupabaseAlertRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "compatible products section'ı açtığında", "output": "CompatibleProductsSection'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "bu outfit orders notifier neden tekrar build alıyor", "output": "Bu OutfitOrdersNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "type aware projeksiyon kaç boyutlu", "output": "TypeAwareProjection kaç boyutlu.", "category": "domain_oneri_ml"}
+{"input": "wardrobe item interface'ini implement et", "output": "WardrobeItem interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "bu product feed card çok fazla rebuild alıyor", "output": "Bu ProductFeedCard çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item kullanarak veriyi çek", "output": "WardrobeItem kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "bu feed filter ne yapıyor", "output": "Bu FeedFilter ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "supabase outfit order repository'e kaydet", "output": "SupabaseOutfitOrderRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "user profile notifier state'ini sıfırla", "output": "UserProfileNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "blog notifier'ı dinle", "output": "BlogNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "feed filter notifier'ın loading state'ini yönet", "output": "FeedFilterNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "user profile notifier'e error state'i ekle", "output": "UserProfileNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "blog post'ın metodunu ekle", "output": "BlogPost'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "supabase auth repository üzerinden query çalıştır", "output": "SupabaseAuthRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "auth notifier'den veri al", "output": "AuthNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "notifications notifier'ı dinle", "output": "NotificationsNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "feed filter notifier'den veri al", "output": "FeedFilterNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "embeding boyutunu kontrol et", "output": "Embedding boyutunu kontrol et.", "category": "domain_oneri_turkish"}
+{"input": "style profile notifier'den veri al", "output": "StyleProfileNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "supabase product repository dependency'sini düzelt", "output": "SupabaseProductRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe style analysis card'ı açtığında", "output": "WardrobeStyleAnalysisCard'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "normalized product'ın metodunu ekle", "output": "NormalizedProduct'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "supabase notification repository metodunu override et", "output": "SupabaseNotificationRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "user profile class'ına bak", "output": "UserProfile class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "product repository'e yeni method ekle", "output": "ProductRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "outfit order constructor'ına parametre ekle", "output": "OutfitOrder constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "supabase pipeline repository dependency'sini düzelt", "output": "SupabasePipelineRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "product feed card'de navigation düzelt", "output": "ProductFeedCard'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "outfit order repository'i mock'la", "output": "OutfitOrderRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "supabase alert repository'den kullanıcıyı getir", "output": "SupabaseAlertRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "supabase pipeline repository'den kullanıcıyı getir", "output": "SupabasePipelineRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "supabase product repository'e yeni method ekle", "output": "SupabaseProductRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "yeni bir outfit feedback data oluştur", "output": "Yeni bir OutfitFeedbackData oluştur.", "category": "domain_oneri_classes"}
+{"input": "bu profile screen çok fazla rebuild alıyor", "output": "Bu ProfileScreen çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "compatibility scorer modelini yükle", "output": "CompatibilityScorer modelini yükle.", "category": "domain_oneri_ml"}
+{"input": "wardrobe style analysis card'de navigation düzelt", "output": "WardrobeStyleAnalysisCard'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "notifications notifier state'ini sıfırla", "output": "NotificationsNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "supabase outfit order repository üzerinden query çalıştır", "output": "SupabaseOutfitOrderRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "product feed notifier provider'ını tanımla", "output": "ProductFeedNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "user preferences constructor'ına parametre ekle", "output": "UserPreferences constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "auth notifier'e error state'i ekle", "output": "AuthNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "supabase notification repository'e kaydet", "output": "SupabaseNotificationRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "outfit card widget'ını ekle", "output": "OutfitCard widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item class'ına bak", "output": "WardrobeItem class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "wardrobe items notifier state'ini sıfırla", "output": "WardrobeItemsNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "supabase feedback repository'den kullanıcıyı getir", "output": "SupabaseFeedbackRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "blog notifier state'ini sıfırla", "output": "BlogNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "user profile notifier provider'ını tanımla", "output": "UserProfileNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "style profile notifier state'ini sıfırla", "output": "StyleProfileNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "silüet bilgisini kaydet", "output": "Siluet bilgisini kaydet.", "category": "domain_oneri_turkish"}
+{"input": "outfit order testini yaz", "output": "OutfitOrder testini yaz.", "category": "domain_oneri_classes"}
+{"input": "style profile class'ına bak", "output": "StyleProfile class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "supabase feedback repository'e kaydet", "output": "SupabaseFeedbackRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "supabase wardrobe repository'i mock'la", "output": "SupabaseWardrobeRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "supabase user repository'i mock'la", "output": "SupabaseUserRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe style analysis card'de loading göster", "output": "WardrobeStyleAnalysisCard'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "product feed notifier'ı dinle", "output": "ProductFeedNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "supabase saved outfit repository'e yeni method ekle", "output": "SupabaseSavedOutfitRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "type aware projeksiyon modeli eğit", "output": "TypeAwareProjection modeli eğit.", "category": "domain_oneri_ml"}
+{"input": "body type selector sheet'ı açtığında", "output": "BodyTypeSelectorSheet'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "normalized product testini yaz", "output": "NormalizedProduct testini yaz.", "category": "domain_oneri_classes"}
+{"input": "versatiliti score'unu hesapla", "output": "Versatility score'unu hesapla.", "category": "domain_oneri_turkish"}
+{"input": "blog post kullanarak veriyi çek", "output": "BlogPost kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "order form notifier'ın loading state'ini yönet", "output": "OrderFormNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "type aware projection inference çalıştır", "output": "TypeAwareProjection inference çalıştır.", "category": "domain_oneri_ml"}
+{"input": "supabase notification repository ile outfit'i kaydet", "output": "SupabaseNotificationRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "price alert'ı inject et", "output": "PriceAlert'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item neden çalışmıyor", "output": "WardrobeItem neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "blog notifier refresh et", "output": "BlogNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "body measurement guide'de loading göster", "output": "BodyMeasurementGuide'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "outfit card'e animasyon ekle", "output": "OutfitCard'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "type aware projeksiyon pipeline'ını çalıştır", "output": "TypeAwareProjection pipeline'ını çalıştır.", "category": "domain_oneri_ml"}
+{"input": "type aware projection kaç boyutlu", "output": "TypeAwareProjection kaç boyutlu.", "category": "domain_oneri_ml"}
+{"input": "user preferences içinde bir hata var", "output": "UserPreferences içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "wardrobe screen'in tasarımını değiştir", "output": "WardrobeScreen'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "type aware projection score'u hesapla", "output": "TypeAwareProjection score'u hesapla.", "category": "domain_oneri_ml"}
+{"input": "supabase pipeline repository metodunu override et", "output": "SupabasePipelineRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "product repository dependency'sini düzelt", "output": "ProductRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "profile screen'ı açtığında", "output": "ProfileScreen'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "feed filter tipini kontrol et", "output": "FeedFilter tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "bu saved outfit ne yapıyor", "output": "Bu SavedOutfit ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "product feed notifier'ın loading state'ini yönet", "output": "ProductFeedNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "supabase outfit order repository dependency'sini düzelt", "output": "SupabaseOutfitOrderRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "outfit order modelini güncelle", "output": "OutfitOrder modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "saved outfit kullanarak veriyi çek", "output": "SavedOutfit kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "body measurement guide widget'ını ekle", "output": "BodyMeasurementGuide widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "product browse notifier'ı dinle", "output": "ProductBrowseNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "supabase saved outfit repository'i mock'la", "output": "SupabaseSavedOutfitRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe items notifier refresh et", "output": "WardrobeItemsNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe item detail screen'ı açtığında", "output": "WardrobeItemDetailScreen'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "supabase feedback repository metodunu override et", "output": "SupabaseFeedbackRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "product feed card'in tasarımını değiştir", "output": "ProductFeedCard'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "saved outfit içinde bir hata var", "output": "SavedOutfit içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "user preferences tipini kontrol et", "output": "UserPreferences tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "supabase saved outfit repository'e kaydet", "output": "SupabaseSavedOutfitRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "onboarding screen'de navigation düzelt", "output": "OnboardingScreen'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "feed filter neden çalışmıyor", "output": "FeedFilter neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "supabase user repository dependency'sini düzelt", "output": "SupabaseUserRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "style profile tipini kontrol et", "output": "StyleProfile tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe items notifier'den veri al", "output": "WardrobeItemsNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "price alert neden çalışmıyor", "output": "PriceAlert neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "notifications notifier'e error state'i ekle", "output": "NotificationsNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe enrichment status card'ı açtığında", "output": "WardrobeEnrichmentStatusCard'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "feed filter modelini güncelle", "output": "FeedFilter modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "supabase notification repository üzerinden query çalıştır", "output": "SupabaseNotificationRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "outfit order repository dependency'sini düzelt", "output": "OutfitOrderRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "outfit feedback data neden çalışmıyor", "output": "OutfitFeedbackData neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "sig lip modelini yükle", "output": "SigLIP modelini yükle.", "category": "domain_oneri_ml"}
+{"input": "outfit order neden çalışmıyor", "output": "OutfitOrder neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "bu order form notifier neden tekrar build alıyor", "output": "Bu OrderFormNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "body measurement guide'e animasyon ekle", "output": "BodyMeasurementGuide'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item card'ı açtığında", "output": "WardrobeItemCard'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "normalized product içinde bir hata var", "output": "NormalizedProduct içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "wardrobe style analysis card widget'ını ekle", "output": "WardrobeStyleAnalysisCard widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "body type selector sheet'de loading göster", "output": "BodyTypeSelectorSheet'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "feed filter notifier'e error state'i ekle", "output": "FeedFilterNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "product feed notifier refresh et", "output": "ProductFeedNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "bu normalized product ne yapıyor", "output": "Bu NormalizedProduct ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "outfit feedback data'ı inject et", "output": "OutfitFeedbackData'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "type aware projection checkpoint'ini kaydet", "output": "TypeAwareProjection checkpoint'ini kaydet.", "category": "domain_oneri_ml"}
+{"input": "bu price alert ne yapıyor", "output": "Bu PriceAlert ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "type aware projection modeli eğit", "output": "TypeAwareProjection modeli eğit.", "category": "domain_oneri_ml"}
+{"input": "style profile modelini güncelle", "output": "StyleProfile modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "supabase pipeline repository ile outfit'i kaydet", "output": "SupabasePipelineRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "supabase notification repository'i mock'la", "output": "SupabaseNotificationRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "supabase feedback repository dependency'sini düzelt", "output": "SupabaseFeedbackRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "pipeline health notifier state'ini sıfırla", "output": "PipelineHealthNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "body measurement guide'de navigation düzelt", "output": "BodyMeasurementGuide'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "item feedback data constructor'ına parametre ekle", "output": "ItemFeedbackData constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "user preferences testini yaz", "output": "UserPreferences testini yaz.", "category": "domain_oneri_classes"}
+{"input": "bu auth notifier neden tekrar build alıyor", "output": "Bu AuthNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "compatibility scorer score'u hesapla", "output": "CompatibilityScorer score'u hesapla.", "category": "domain_oneri_ml"}
+{"input": "product browse notifier'ın loading state'ini yönet", "output": "ProductBrowseNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "outfit orders notifier'e error state'i ekle", "output": "OutfitOrdersNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "bu feed filter notifier neden tekrar build alıyor", "output": "Bu FeedFilterNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "type aware projection pipeline'ını çalıştır", "output": "TypeAwareProjection pipeline'ını çalıştır.", "category": "domain_oneri_ml"}
+{"input": "user profile constructor'ına parametre ekle", "output": "UserProfile constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "formalite seviyesini ayarla", "output": "Formality seviyesini ayarla.", "category": "domain_oneri_turkish"}
+{"input": "supabase auth repository'den veri çek", "output": "SupabaseAuthRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "style profile kullanarak veriyi çek", "output": "StyleProfile kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "style profile neden çalışmıyor", "output": "StyleProfile neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "product repository üzerinden query çalıştır", "output": "ProductRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "bu wardrobe style analysis card çok fazla rebuild alıyor", "output": "Bu WardrobeStyleAnalysisCard çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "supabase auth repository'den kullanıcıyı getir", "output": "SupabaseAuthRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "yeni bir outfit order oluştur", "output": "Yeni bir OutfitOrder oluştur.", "category": "domain_oneri_classes"}
+{"input": "wardrobe enrichment status card'e animasyon ekle", "output": "WardrobeEnrichmentStatusCard'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "seg former ile embedding hesapla", "output": "SegFormer ile embedding hesapla.", "category": "domain_oneri_ml"}
+{"input": "feed filter içinde bir hata var", "output": "FeedFilter içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item'ın metodunu ekle", "output": "WardrobeItem'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "feed filter interface'ini implement et", "output": "FeedFilter interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "item feedback data tipini kontrol et", "output": "ItemFeedbackData tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "order form notifier provider'ını tanımla", "output": "OrderFormNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "notifications notifier provider'ını tanımla", "output": "NotificationsNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "normalized product constructor'ına parametre ekle", "output": "NormalizedProduct constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "segmentasyon sonucunu parse et", "output": "Segmentation sonucunu parse et.", "category": "domain_oneri_turkish"}
+{"input": "outfit feedback data class'ına bak", "output": "OutfitFeedbackData class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "outfit orders notifier state'ini sıfırla", "output": "OutfitOrdersNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "normalized product class'ına bak", "output": "NormalizedProduct class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "product repository'e kaydet", "output": "ProductRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "product repository ile outfit'i kaydet", "output": "ProductRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "user profile tipini kontrol et", "output": "UserProfile tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "supabase wardrobe repository üzerinden query çalıştır", "output": "SupabaseWardrobeRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "outfit feedback notifier'den veri al", "output": "OutfitFeedbackNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "user preferences'ı refactor et", "output": "UserPreferences'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe screen'e animasyon ekle", "output": "WardrobeScreen'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "blog notifier'den veri al", "output": "BlogNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "bu wardrobe enrichment status card çok fazla rebuild alıyor", "output": "Bu WardrobeEnrichmentStatusCard çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "item feedback data interface'ini implement et", "output": "ItemFeedbackData interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "bu wardrobe items notifier neden tekrar build alıyor", "output": "Bu WardrobeItemsNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "saved outfit constructor'ına parametre ekle", "output": "SavedOutfit constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "supabase alert repository'e yeni method ekle", "output": "SupabaseAlertRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "user preferences modelini güncelle", "output": "UserPreferences modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "supabase alert repository metodunu override et", "output": "SupabaseAlertRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "type aware projection ile embedding hesapla", "output": "TypeAwareProjection ile embedding hesapla.", "category": "domain_oneri_ml"}
+{"input": "normalized product modelini güncelle", "output": "NormalizedProduct modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item detail screen'e animasyon ekle", "output": "WardrobeItemDetailScreen'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "user profile kullanarak veriyi çek", "output": "UserProfile kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "supabase feedback repository ile outfit'i kaydet", "output": "SupabaseFeedbackRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "onboarding screen widget'ını ekle", "output": "OnboardingScreen widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "saved outfit testini yaz", "output": "SavedOutfit testini yaz.", "category": "domain_oneri_classes"}
+{"input": "compatible products section'e animasyon ekle", "output": "CompatibleProductsSection'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "bu style profile notifier neden tekrar build alıyor", "output": "Bu StyleProfileNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe item card'de loading göster", "output": "WardrobeItemCard'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "compatible products section'de navigation düzelt", "output": "CompatibleProductsSection'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "wardrobe item card'de navigation düzelt", "output": "WardrobeItemCard'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "yeni bir saved outfit oluştur", "output": "Yeni bir SavedOutfit oluştur.", "category": "domain_oneri_classes"}
+{"input": "feed filter notifier'ı dinle", "output": "FeedFilterNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "bu product browse notifier neden tekrar build alıyor", "output": "Bu ProductBrowseNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "normalized product kullanarak veriyi çek", "output": "NormalizedProduct kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository metodunu override et", "output": "WardrobeRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "feed filter'ı inject et", "output": "FeedFilter'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "product repository'den veri çek", "output": "ProductRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "supabase user repository'den kullanıcıyı getir", "output": "SupabaseUserRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "type aware projection modelini yükle", "output": "TypeAwareProjection modelini yükle.", "category": "domain_oneri_ml"}
+{"input": "supabase wardrobe repository ile outfit'i kaydet", "output": "SupabaseWardrobeRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "supabase wardrobe repository dependency'sini düzelt", "output": "SupabaseWardrobeRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "kiyafet önerisi oluştur", "output": "Kıyafet önerisi oluştur.", "category": "domain_oneri_turkish"}
+{"input": "outfit orders notifier'ı dinle", "output": "OutfitOrdersNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "supabase feedback repository'den veri çek", "output": "SupabaseFeedbackRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "pipeline health notifier provider'ını tanımla", "output": "PipelineHealthNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "user profile objesini oluştur", "output": "UserProfile objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "profile screen'e animasyon ekle", "output": "ProfileScreen'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "user profile içinde bir hata var", "output": "UserProfile içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "saved outfit'ı refactor et", "output": "SavedOutfit'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe item constructor'ına parametre ekle", "output": "WardrobeItem constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "outfit feedback notifier state'ini sıfırla", "output": "OutfitFeedbackNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "saved outfit modelini güncelle", "output": "SavedOutfit modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "supabase alert repository'den veri çek", "output": "SupabaseAlertRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "supabase alert repository dependency'sini düzelt", "output": "SupabaseAlertRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "bu style profile ne yapıyor", "output": "Bu StyleProfile ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "type aware projeksiyon ile embedding hesapla", "output": "TypeAwareProjection ile embedding hesapla.", "category": "domain_oneri_ml"}
+{"input": "profile screen'de navigation düzelt", "output": "ProfileScreen'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "supabase outfit order repository ile outfit'i kaydet", "output": "SupabaseOutfitOrderRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "product feed notifier state'ini sıfırla", "output": "ProductFeedNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "supabase feedback repository'i mock'la", "output": "SupabaseFeedbackRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "product feed notifier'den veri al", "output": "ProductFeedNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "product browse notifier'e error state'i ekle", "output": "ProductBrowseNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "feed filter'ın metodunu ekle", "output": "FeedFilter'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "product repository'den kullanıcıyı getir", "output": "ProductRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe repository dependency'sini düzelt", "output": "WardrobeRepository dependency'sini düzelt.", "category": "domain_oneri_repositories"}
+{"input": "product browse notifier refresh et", "output": "ProductBrowseNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "feed filter objesini oluştur", "output": "FeedFilter objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "style profile'ı refactor et", "output": "StyleProfile'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "bu outfit card çok fazla rebuild alıyor", "output": "Bu OutfitCard çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "yeni bir style profile oluştur", "output": "Yeni bir StyleProfile oluştur.", "category": "domain_oneri_classes"}
+{"input": "supabase user repository'den veri çek", "output": "SupabaseUserRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "user profile notifier'ı dinle", "output": "UserProfileNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "supabase outfit order repository metodunu override et", "output": "SupabaseOutfitOrderRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "supabase alert repository'i mock'la", "output": "SupabaseAlertRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "user profile notifier'ın loading state'ini yönet", "output": "UserProfileNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "seg former inference çalıştır", "output": "SegFormer inference çalıştır.", "category": "domain_oneri_ml"}
+{"input": "seg former score'u hesapla", "output": "SegFormer score'u hesapla.", "category": "domain_oneri_ml"}
+{"input": "notifications notifier'ın loading state'ini yönet", "output": "NotificationsNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "outfit order repository üzerinden query çalıştır", "output": "OutfitOrderRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "price alert içinde bir hata var", "output": "PriceAlert içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "outfit order içinde bir hata var", "output": "OutfitOrder içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "blog post interface'ini implement et", "output": "BlogPost interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "supabase outfit order repository'e yeni method ekle", "output": "SupabaseOutfitOrderRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "item feedback data'ı refactor et", "output": "ItemFeedbackData'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "compatibility scorer kaç boyutlu", "output": "CompatibilityScorer kaç boyutlu.", "category": "domain_oneri_ml"}
+{"input": "wardrobe item modelini güncelle", "output": "WardrobeItem modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "seg former kaç boyutlu", "output": "SegFormer kaç boyutlu.", "category": "domain_oneri_ml"}
+{"input": "price alert testini yaz", "output": "PriceAlert testini yaz.", "category": "domain_oneri_classes"}
+{"input": "yeni bir wardrobe item oluştur", "output": "Yeni bir WardrobeItem oluştur.", "category": "domain_oneri_classes"}
+{"input": "order form notifier refresh et", "output": "OrderFormNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "order form notifier'ı dinle", "output": "OrderFormNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "sig lip score'u hesapla", "output": "SigLIP score'u hesapla.", "category": "domain_oneri_ml"}
+{"input": "outfit feedback data modelini güncelle", "output": "OutfitFeedbackData modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "pipeline health notifier'e error state'i ekle", "output": "PipelineHealthNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "price alert tipini kontrol et", "output": "PriceAlert tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository ile outfit'i kaydet", "output": "WardrobeRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "bu pipeline health notifier neden tekrar build alıyor", "output": "Bu PipelineHealthNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "style profile notifier'ın loading state'ini yönet", "output": "StyleProfileNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "blog post içinde bir hata var", "output": "BlogPost içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "wardrobe enrichment status card widget'ını ekle", "output": "WardrobeEnrichmentStatusCard widget'ını ekle.", "category": "domain_oneri_screens"}
+{"input": "supabase user repository üzerinden query çalıştır", "output": "SupabaseUserRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe item detail screen'de navigation düzelt", "output": "WardrobeItemDetailScreen'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "feed filter kullanarak veriyi çek", "output": "FeedFilter kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "outfit card'de navigation düzelt", "output": "OutfitCard'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "product repository'i mock'la", "output": "ProductRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "user profile testini yaz", "output": "UserProfile testini yaz.", "category": "domain_oneri_classes"}
+{"input": "bu wardrobe item detail screen çok fazla rebuild alıyor", "output": "Bu WardrobeItemDetailScreen çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "outfit orders notifier'ın loading state'ini yönet", "output": "OutfitOrdersNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "outfit order objesini oluştur", "output": "OutfitOrder objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "user profile notifier'den veri al", "output": "UserProfileNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "pipeline health notifier refresh et", "output": "PipelineHealthNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "blog notifier'ın loading state'ini yönet", "output": "BlogNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "blog post modelini güncelle", "output": "BlogPost modelini güncelle.", "category": "domain_oneri_classes"}
+{"input": "auth notifier'ın loading state'ini yönet", "output": "AuthNotifier'ın loading state'ini yönet.", "category": "domain_oneri_notifiers"}
+{"input": "price alert interface'ini implement et", "output": "PriceAlert interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "supabase product repository'e kaydet", "output": "SupabaseProductRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "supabase wardrobe repository'den veri çek", "output": "SupabaseWardrobeRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "user profile'ı inject et", "output": "UserProfile'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "supabase product repository ile outfit'i kaydet", "output": "SupabaseProductRepository ile outfit'i kaydet.", "category": "domain_oneri_repositories"}
+{"input": "sig lip inference çalıştır", "output": "SigLIP inference çalıştır.", "category": "domain_oneri_ml"}
+{"input": "style profile notifier refresh et", "output": "StyleProfileNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "supabase pipeline repository'e yeni method ekle", "output": "SupabasePipelineRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "bu compatible products section çok fazla rebuild alıyor", "output": "Bu CompatibleProductsSection çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "product feed card'de loading göster", "output": "ProductFeedCard'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "saved outfit objesini oluştur", "output": "SavedOutfit objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "wardrobe screen'de navigation düzelt", "output": "WardrobeScreen'de navigation düzelt.", "category": "domain_oneri_screens"}
+{"input": "price alert'ın metodunu ekle", "output": "PriceAlert'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "type aware projeksiyon checkpoint'ini kaydet", "output": "TypeAwareProjection checkpoint'ini kaydet.", "category": "domain_oneri_ml"}
+{"input": "onboarding screen'in tasarımını değiştir", "output": "OnboardingScreen'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "yeni bir blog post oluştur", "output": "Yeni bir BlogPost oluştur.", "category": "domain_oneri_classes"}
+{"input": "order form notifier'den veri al", "output": "OrderFormNotifier'den veri al.", "category": "domain_oneri_notifiers"}
+{"input": "price alert'ı refactor et", "output": "PriceAlert'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "auth notifier state'ini sıfırla", "output": "AuthNotifier state'ini sıfırla.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe item'ı inject et", "output": "WardrobeItem'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "outfit order kullanarak veriyi çek", "output": "OutfitOrder kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "bu blog notifier neden tekrar build alıyor", "output": "Bu BlogNotifier neden tekrar build alıyor.", "category": "domain_oneri_notifiers"}
+{"input": "user preferences'ı inject et", "output": "UserPreferences'ı inject et.", "category": "domain_oneri_classes"}
+{"input": "outfit order repository'e yeni method ekle", "output": "OutfitOrderRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "supabase product repository'den kullanıcıyı getir", "output": "SupabaseProductRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe screen'ı açtığında", "output": "WardrobeScreen'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "bu wardrobe item card çok fazla rebuild alıyor", "output": "Bu WardrobeItemCard çok fazla rebuild alıyor.", "category": "domain_oneri_screens"}
+{"input": "wardrobe items notifier provider'ını tanımla", "output": "WardrobeItemsNotifier provider'ını tanımla.", "category": "domain_oneri_notifiers"}
+{"input": "style profile notifier'ı dinle", "output": "StyleProfileNotifier'ı dinle.", "category": "domain_oneri_notifiers"}
+{"input": "seg former pipeline'ını çalıştır", "output": "SegFormer pipeline'ını çalıştır.", "category": "domain_oneri_ml"}
+{"input": "item feedback data class'ına bak", "output": "ItemFeedbackData class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository'i mock'la", "output": "WardrobeRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "bu outfit order ne yapıyor", "output": "Bu OutfitOrder ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "supabase wardrobe repository metodunu override et", "output": "SupabaseWardrobeRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe style analysis card'in tasarımını değiştir", "output": "WardrobeStyleAnalysisCard'in tasarımını değiştir.", "category": "domain_oneri_screens"}
+{"input": "style profile içinde bir hata var", "output": "StyleProfile içinde bir hata var.", "category": "domain_oneri_classes"}
+{"input": "product repository metodunu override et", "output": "ProductRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "supabase user repository'e kaydet", "output": "SupabaseUserRepository'e kaydet.", "category": "domain_oneri_repositories"}
+{"input": "feed filter notifier refresh et", "output": "FeedFilterNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "wardrobe item tipini kontrol et", "output": "WardrobeItem tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "compatibility scorer checkpoint'ini kaydet", "output": "CompatibilityScorer checkpoint'ini kaydet.", "category": "domain_oneri_ml"}
+{"input": "blog post class'ına bak", "output": "BlogPost class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "outfit orders notifier refresh et", "output": "OutfitOrdersNotifier refresh et.", "category": "domain_oneri_notifiers"}
+{"input": "outfit feedback data'ı refactor et", "output": "OutfitFeedbackData'ı refactor et.", "category": "domain_oneri_classes"}
+{"input": "type aware projeksiyon modelini yükle", "output": "TypeAwareProjection modelini yükle.", "category": "domain_oneri_ml"}
+{"input": "supabase product repository'i mock'la", "output": "SupabaseProductRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "saved outfit neden çalışmıyor", "output": "SavedOutfit neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "supabase wardrobe repository'den kullanıcıyı getir", "output": "SupabaseWardrobeRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "saved outfit interface'ini implement et", "output": "SavedOutfit interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "saved outfit tipini kontrol et", "output": "SavedOutfit tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "outfit feedback data tipini kontrol et", "output": "OutfitFeedbackData tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "outfit feedback notifier'e error state'i ekle", "output": "OutfitFeedbackNotifier'e error state'i ekle.", "category": "domain_oneri_notifiers"}
+{"input": "outfit card'ı açtığında", "output": "OutfitCard'ı açtığında.", "category": "domain_oneri_screens"}
+{"input": "price alert kullanarak veriyi çek", "output": "PriceAlert kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "user profile neden çalışmıyor", "output": "UserProfile neden çalışmıyor.", "category": "domain_oneri_classes"}
+{"input": "arketib etiketlerini güncelle", "output": "Arketip etiketlerini güncelle.", "category": "domain_oneri_turkish"}
+{"input": "outfit feedback data constructor'ına parametre ekle", "output": "OutfitFeedbackData constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
+{"input": "gardrap analizi yap", "output": "Gardrop analizi yap.", "category": "domain_oneri_turkish"}
+{"input": "yeni bir item feedback data oluştur", "output": "Yeni bir ItemFeedbackData oluştur.", "category": "domain_oneri_classes"}
+{"input": "normalized product objesini oluştur", "output": "NormalizedProduct objesini oluştur.", "category": "domain_oneri_classes"}
+{"input": "wardrobe repository'den kullanıcıyı getir", "output": "WardrobeRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe item detail screen'de loading göster", "output": "WardrobeItemDetailScreen'de loading göster.", "category": "domain_oneri_screens"}
+{"input": "supabase pipeline repository'den veri çek", "output": "SupabasePipelineRepository'den veri çek.", "category": "domain_oneri_repositories"}
+{"input": "sig lip checkpoint'ini kaydet", "output": "SigLIP checkpoint'ini kaydet.", "category": "domain_oneri_ml"}
+{"input": "supabase outfit order repository'den kullanıcıyı getir", "output": "SupabaseOutfitOrderRepository'den kullanıcıyı getir.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe item testini yaz", "output": "WardrobeItem testini yaz.", "category": "domain_oneri_classes"}
+{"input": "body type selector sheet'e animasyon ekle", "output": "BodyTypeSelectorSheet'e animasyon ekle.", "category": "domain_oneri_screens"}
+{"input": "supabase user repository metodunu override et", "output": "SupabaseUserRepository metodunu override et.", "category": "domain_oneri_repositories"}
+{"input": "supabase feedback repository'e yeni method ekle", "output": "SupabaseFeedbackRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "user preferences kullanarak veriyi çek", "output": "UserPreferences kullanarak veriyi çek.", "category": "domain_oneri_classes"}
+{"input": "outfit order class'ına bak", "output": "OutfitOrder class'ına bak.", "category": "domain_oneri_classes"}
+{"input": "outfit order interface'ini implement et", "output": "OutfitOrder interface'ini implement et.", "category": "domain_oneri_classes"}
+{"input": "sig lip pipeline'ını çalıştır", "output": "SigLIP pipeline'ını çalıştır.", "category": "domain_oneri_ml"}
+{"input": "user profile'ın metodunu ekle", "output": "UserProfile'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "user preferences'ın metodunu ekle", "output": "UserPreferences'ın metodunu ekle.", "category": "domain_oneri_classes"}
+{"input": "blog post tipini kontrol et", "output": "BlogPost tipini kontrol et.", "category": "domain_oneri_classes"}
+{"input": "supabase pipeline repository'i mock'la", "output": "SupabasePipelineRepository'i mock'la.", "category": "domain_oneri_repositories"}
+{"input": "supabase auth repository'e yeni method ekle", "output": "SupabaseAuthRepository'e yeni method ekle.", "category": "domain_oneri_repositories"}
+{"input": "wardrobe repository üzerinden query çalıştır", "output": "WardrobeRepository üzerinden query çalıştır.", "category": "domain_oneri_repositories"}
+{"input": "bu wardrobe item ne yapıyor", "output": "Bu WardrobeItem ne yapıyor.", "category": "domain_oneri_classes"}
+{"input": "price alert constructor'ına parametre ekle", "output": "PriceAlert constructor'ına parametre ekle.", "category": "domain_oneri_classes"}
