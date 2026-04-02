@@ -20,6 +20,12 @@ final class AppViewModel {
     var trainingModeEnabled: Bool = UserDefaults.standard.bool(forKey: AppSettings.trainingMode)
     var showTrainingPill = false
     var trainingPillResult: TranscriptionResult? = nil
+
+    // IT Dataset recording
+    var itDatasetActive = false
+    var itDatasetCurrentIndex = -1
+    var itDatasetLastWhisper = ""
+    var itDatasetLastWavPath = ""
     private var autoDismissTask: Task<Void, Never>? = nil
 
     // MARK: - Dependencies
@@ -213,7 +219,8 @@ final class AppViewModel {
                 activeAppBundleID: bundleID,
                 windowTitle: windowTitle,
                 selectedText: selectedText,
-                cmdIntervals: cmdIntervals.isEmpty ? nil : cmdIntervals
+                cmdIntervals: cmdIntervals.isEmpty ? nil : cmdIntervals,
+                itDatasetIndex: nil
             )
             lastResult = result
             guard !result.text.isEmpty else {
@@ -387,6 +394,56 @@ final class AppViewModel {
     func loadSnippets() {
         Task {
             snippetEntries = (try? await backend.getSnippets()) ?? []
+        }
+    }
+
+    // IT Dataset
+    func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse {
+        try await backend.getITDatasetNext(offset: offset)
+    }
+
+    func deleteITDatasetPair(wavPath: String) {
+        Task {
+            try? await backend.deleteITDatasetPair(wavPath: wavPath)
+        }
+    }
+
+    func startRecordingForDataset() {
+        guard !isRecording else { return }
+        isRecording = true
+        statusText = "Dataset Recording..."
+        Task {
+            do {
+                try await backend.startRecording()
+            } catch {
+                isRecording = false
+                statusText = "Ready"
+            }
+        }
+    }
+
+    func stopRecordingForDataset() {
+        guard isRecording else { return }
+        isRecording = false
+        statusText = "Processing..."
+        Task {
+            do {
+                let result = try await backend.stopRecording(
+                    activeAppBundleID: nil,
+                    windowTitle: nil,
+                    selectedText: nil,
+                    cmdIntervals: nil,
+                    itDatasetIndex: itDatasetCurrentIndex >= 0 ? itDatasetCurrentIndex : nil
+                )
+                // Update UI with Whisper result
+                if itDatasetActive && itDatasetCurrentIndex >= 0 {
+                    itDatasetLastWhisper = result.rawText ?? result.text
+                    itDatasetLastWavPath = result.itWavPath ?? ""
+                }
+                statusText = "Ready"
+            } catch {
+                statusText = "Ready"
+            }
         }
     }
 

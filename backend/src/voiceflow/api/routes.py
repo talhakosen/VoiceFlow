@@ -6,8 +6,10 @@ No business logic here.
 
 import asyncio
 import gc
+import json
 import logging
 import os
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
@@ -42,7 +44,9 @@ class TranscriptionResponse(BaseModel):
     snippet_used: bool = False
     language: str | None = None
     duration: float | None = None
+    processing_ms: int | None = None
     id: int | None = None
+    it_wav_path: str | None = None
 
 
 class ConfigRequest(BaseModel):
@@ -89,6 +93,7 @@ async def stop_recording(
     x_window_title: str | None = Header(default=None, alias="X-Window-Title"),
     x_selected_text: str | None = Header(default=None, alias="X-Selected-Text"),
     x_cmd_intervals: str | None = Header(default=None, alias="X-Cmd-Intervals"),
+    x_it_dataset_index: str | None = Header(default=None, alias="X-IT-Dataset-Index"),
 ):
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
@@ -107,6 +112,14 @@ async def stop_recording(
         except Exception:
             cmd_intervals = None
 
+    # Parse IT dataset index
+    it_dataset_idx: int | None = None
+    if x_it_dataset_index:
+        try:
+            it_dataset_idx = int(x_it_dataset_index)
+        except ValueError:
+            it_dataset_idx = None
+
     try:
         result = await svc.stop(
             user_id=user_id,
@@ -115,6 +128,7 @@ async def stop_recording(
             window_title=x_window_title or None,
             selected_text=x_selected_text or None,
             cmd_intervals=cmd_intervals,
+            it_dataset_index=it_dataset_idx,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -496,4 +510,128 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
         mode=req.mode,
         language=req.language,
     )
+    return {"status": "ok"}
+
+# ------------------------------------------------------------------
+# IT Dataset Recording (Engineering Whisper training)
+# ------------------------------------------------------------------
+
+_IT_DATASET_PATH = Path(__file__).parents[3] / "scripts" / "data_gen" / "whisper_sentences.jsonl"
+_IT_PAIRS_PATH = Path(__file__).parents[3] / "scripts" / "data_gen" / "it_dataset_pairs.jsonl"
+_IT_RECORDINGS_DIR = Path(__file__).parents[3] / "scripts" / "data_gen" / "it_recordings"
+
+
+class ITRecording(BaseModel):
+    whisper: str
+    wav_path: str
+
+
+class ITDatasetResponse(BaseModel):
+    index: int
+    total: int
+    sentence: str
+    persona: str | None = None
+    scenario: str | None = None
+    recordings: list[ITRecording] = []
+
+
+class ITRecordRequest(BaseModel):
+    index: int
+    whisper_output: str
+    audio_b64: str | None = None
+
+
+def _load_sentences() -> list[dict]:
+    if not _IT_DATASET_PATH.exists():
+        return []
+    with open(_IT_DATASET_PATH) as f:
+        return [json.loads(l) for l in f if l.strip()]
+
+
+def _get_next_sentence(offset: int = 0) -> dict | None:
+    sentences = _load_sentences()
+    if offset >= len(sentences):
+        return None
+    return sentences[offset]
+
+
+def _get_recordings_for_index(idx: int) -> list[dict]:
+    """Load existing recordings for a sentence index from JSONL."""
+    if not _IT_PAIRS_PATH.exists():
+        return []
+    recs = []
+    for line in _IT_PAIRS_PATH.read_text().splitlines():
+        if not line.strip():
+            continue
+        pair = json.loads(line)
+        if pair.get("index") == idx:
+            recs.append({"whisper": pair.get("input", ""), "wav_path": pair.get("wav_path", "")})
+    return recs
+
+
+@router.get("/it-dataset/next")
+async def get_next_it_sentence(offset: int = 0) -> ITDatasetResponse:
+    sentence = _get_next_sentence(offset)
+    if sentence is None:
+        return ITDatasetResponse(index=-1, total=len(_load_sentences()), sentence="", persona=None, scenario=None)
+    recs = _get_recordings_for_index(offset)
+    return ITDatasetResponse(
+        index=offset,
+        total=len(_load_sentences()),
+        sentence=sentence.get("text", ""),
+        persona=sentence.get("persona"),
+        scenario=sentence.get("scenario"),
+        recordings=[ITRecording(**r) for r in recs],
+    )
+
+
+@router.post("/it-dataset/record")
+async def record_it_pair(req: ITRecordRequest, request: Request) -> dict:
+    sentence = _get_next_sentence(req.index)
+    if sentence is None:
+        raise HTTPException(status_code=400, detail="Invalid index")
+    ground_truth = sentence.get("text", "")
+
+    # Save audio if provided
+    wav_path_str = ""
+    if req.audio_b64:
+        import base64
+        _IT_RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
+        audio_bytes = base64.b64decode(req.audio_b64)
+        wav_path = _IT_RECORDINGS_DIR / f"{req.index:05d}.wav"
+        wav_path.write_bytes(audio_bytes)
+        wav_path_str = str(wav_path)
+
+    # Append pair to JSONL
+    _IT_PAIRS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(_IT_PAIRS_PATH, "a") as f:
+        pair = {"input": req.whisper_output, "output": ground_truth, "category": "it_dataset", "index": req.index}
+        if wav_path_str:
+            pair["wav_path"] = wav_path_str
+        f.write(json.dumps(pair) + "\n")
+        f.flush()
+    logger.info("IT pair saved: index=%d, whisper='%s'", req.index, req.whisper_output[:60])
+    return {"status": "ok"}
+
+
+class ITDeleteRequest(BaseModel):
+    wav_path: str
+
+
+@router.delete("/it-dataset/record")
+async def delete_it_pair(req: ITDeleteRequest) -> dict:
+    """Delete a WAV file and its JSONL entry."""
+    # Delete WAV
+    wav = Path(req.wav_path)
+    if wav.exists():
+        wav.unlink()
+        logger.info("IT WAV deleted: %s", wav)
+
+    # Remove matching line from JSONL
+    if _IT_PAIRS_PATH.exists():
+        lines = _IT_PAIRS_PATH.read_text().splitlines()
+        remaining = [l for l in lines if req.wav_path not in l]
+        _IT_PAIRS_PATH.write_text("\n".join(remaining) + "\n" if remaining else "")
+        logger.info("IT pair removed, %d→%d lines", len(lines), len(remaining))
+
     return {"status": "ok"}

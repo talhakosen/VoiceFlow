@@ -9,6 +9,7 @@ struct TranscriptionResult: Codable {
     let duration: Double?
     let processingMs: Int?
     let id: Int?
+    let itWavPath: String?
 
     enum CodingKeys: String, CodingKey {
         case text
@@ -19,6 +20,7 @@ struct TranscriptionResult: Codable {
         case duration
         case processingMs = "processing_ms"
         case id
+        case itWavPath = "it_wav_path"
     }
 }
 
@@ -163,7 +165,7 @@ struct HealthResponse: Decodable {
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?) async throws -> TranscriptionResult
     func forceStop() async throws
     func getHealth() async throws -> HealthResponse
     func getStatus() async throws -> StatusResponse
@@ -190,6 +192,11 @@ protocol BackendServiceProtocol: Actor {
 
     // Training Mode (Katman 4)
     func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String?) async throws
+
+    // IT Dataset (Engineering Whisper)
+    func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse
+    func saveITDatasetPair(index: Int, whisperOutput: String) async throws
+    func deleteITDatasetPair(wavPath: String) async throws
 }
 
 // MARK: - Concrete implementation
@@ -293,7 +300,7 @@ actor BackendService: BackendServiceProtocol {
         }
     }
 
-    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil) async throws -> TranscriptionResult {
+    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil, itDatasetIndex: Int? = nil) async throws -> TranscriptionResult {
         var request = makeRequest(path: "stop", method: "POST")
         if let bundleID = activeAppBundleID {
             request.setValue(bundleID, forHTTPHeaderField: "X-Active-App")
@@ -307,6 +314,9 @@ actor BackendService: BackendServiceProtocol {
         if let intervals = cmdIntervals, !intervals.isEmpty {
             let header = intervals.map { "\(String(format: "%.2f", $0.0))-\(String(format: "%.2f", $0.1))" }.joined(separator: ",")
             request.setValue(header, forHTTPHeaderField: "X-Cmd-Intervals")
+        }
+        if let idx = itDatasetIndex {
+            request.setValue(String(idx), forHTTPHeaderField: "X-IT-Dataset-Index")
         }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -581,5 +591,59 @@ struct RefreshTokens: Decodable {
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
         case tokenType   = "token_type"
+    }
+}
+
+// MARK: - IT Dataset
+
+struct ITRecordingItem: Decodable {
+    let whisper: String
+    let wavPath: String
+
+    enum CodingKeys: String, CodingKey {
+        case whisper
+        case wavPath = "wav_path"
+    }
+}
+
+struct ITDatasetResponse: Decodable {
+    let index: Int
+    let total: Int
+    let sentence: String
+    let persona: String?
+    let scenario: String?
+    let recordings: [ITRecordingItem]?
+}
+
+extension BackendService {
+    func getITDatasetNext(offset: Int = 0) async throws -> ITDatasetResponse {
+        let request = makeRequest(path: "it-dataset/next?offset=\(offset)")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
+    }
+
+    func saveITDatasetPair(index: Int, whisperOutput: String) async throws {
+        var request = makeRequest(path: "it-dataset/record", method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: Any] = ["index": index, "whisper_output": whisperOutput]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func deleteITDatasetPair(wavPath: String) async throws {
+        var request = makeRequest(path: "it-dataset/record", method: "DELETE")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: String] = ["wav_path": wavPath]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
     }
 }

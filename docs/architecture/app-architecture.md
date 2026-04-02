@@ -105,6 +105,7 @@ protocol BackendServiceProtocol: Actor {
     func getSnippets() async throws -> [SnippetEntry]
     func addSnippet(triggerPhrase:expansion:scope:) async throws -> SnippetEntry
     func deleteSnippet(id:) async throws
+    func getITDatasetNext(offset:) async throws -> ITDatasetResponse
 }
 ```
 `BackendService` bu protokolü implement eder. Test/preview'da `MockBackendService` kullanılabilir.

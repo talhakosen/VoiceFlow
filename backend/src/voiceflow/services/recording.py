@@ -132,6 +132,7 @@ class RecordingService:
         window_title: str | None = None,
         selected_text: str | None = None,
         cmd_intervals: list[tuple[float, float]] | None = None,
+        it_dataset_index: int | None = None,
     ) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
@@ -163,7 +164,65 @@ class RecordingService:
         raw_text = result.text
         was_corrected = False
         snippet_used = False
+
+        # IT Dataset: save WAV + pair for Whisper training
+        _it_wav_path: str | None = None
+        if it_dataset_index is not None and len(audio_data) > 0:
+            try:
+                import soundfile as sf
+                from pathlib import Path as _Path
+                import time as _t
+                import json as _json
+                data_dir = _Path(__file__).parents[3] / "scripts" / "data_gen"
+                wav_dir = data_dir / "it_recordings"
+                wav_dir.mkdir(parents=True, exist_ok=True)
+                ts = int(_t.time() * 1000)
+                wav_path = wav_dir / f"{it_dataset_index:05d}_{ts}.wav"
+                sf.write(str(wav_path), audio_data, _SAMPLE_RATE)
+                _it_wav_path = str(wav_path)
+                logger.info("IT dataset WAV saved: %s", wav_path)
+
+                # Load ground truth sentence
+                sentences_path = data_dir / "whisper_sentences.jsonl"
+                ground_truth = ""
+                if sentences_path.exists():
+                    with open(sentences_path) as f:
+                        for i, line in enumerate(f):
+                            if i == it_dataset_index:
+                                ground_truth = _json.loads(line).get("text", "")
+                                break
+
+                # Save pair: whisper raw → ground truth + wav path
+                pairs_path = data_dir / "it_dataset_pairs.jsonl"
+                with open(pairs_path, "a") as f:
+                    f.write(_json.dumps({
+                        "input": raw_text,
+                        "output": ground_truth,
+                        "wav_path": str(wav_path),
+                        "index": it_dataset_index,
+                        "category": "it_dataset",
+                    }) + "\n")
+                    f.flush()
+                logger.info("IT pair: whisper='%s' → truth='%s'", raw_text[:60], ground_truth[:60])
+            except Exception as e:
+                logger.warning("IT dataset save failed: %s", e)
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
+
+        # IT Dataset mode: skip all post-processing, return raw Whisper output
+        if it_dataset_index is not None:
+            processing_ms = int((time.perf_counter() - t_start) * 1000)
+            row_id = await save_transcription(
+                text=raw_text, raw_text=None, corrected=False,
+                language=result.language, duration=result.duration,
+                mode=active_mode, user_id=user_id, tenant_id=tenant_id,
+                processing_ms=processing_ms,
+            )
+            return {
+                "text": raw_text, "raw_text": raw_text, "corrected": False,
+                "snippet_used": False, "language": result.language,
+                "duration": result.duration, "processing_ms": processing_ms,
+                "id": row_id, "it_wav_path": _it_wav_path,
+            }
 
         # Dictionary substitution (Whisper → Dictionary → Snippets → LLM)
         if result.text and user_id:
@@ -224,6 +283,7 @@ class RecordingService:
             "duration": result.duration,
             "processing_ms": processing_ms,
             "id": row_id,
+            "it_wav_path": _it_wav_path,
         }
 
     def force_stop(self) -> bool:

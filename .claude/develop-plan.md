@@ -245,9 +245,10 @@
 
 - [DONE 2026-04-02] **`persona_terms.py`** — 8 IT persona (backend/frontend/flutter/.NET/mobile/devops/junior/ml) × terim listesi + Türkçe telaffuz varyantları; 169 benzersiz terim, 294 varyant
 - [DONE 2026-04-02] **`sentence_generator.py`** — Qwen-max (Alibaba DashScope) → persona × senaryo + terim-odaklı → **4.495 cümle** (1.115 persona-based + 3.380 terim-focused); whisper_sentences.jsonl
-- [DONE 2026-04-02] **`tts_generator.py`** — OpenAI tts-1-hd (alloy/nova/onyx/shimmer) + Edge TTS fallback → 16kHz mono WAV; TTS kalite testi: Edge=yapay, OpenAI=yabancı aksanlı → XTTS v2 araştırılıyor
+- [DONE 2026-04-02] **`tts_generator.py`** — OpenAI tts-1-hd (alloy/nova/onyx/shimmer) + Edge TTS fallback → 16kHz mono WAV; TTS kalite testi: Edge=yapay, OpenAI=yabancı aksanlı → gerçek insan kaydına pivot
+- [DONE 2026-04-02] **IT Dataset Kayıt UI** — Settings > IT Dataset sekmesi; özel Kayıt butonu (Fn2'den bağımsız); WAV + Whisper pair otomatik kaydedilir; play/stop/sil per varyasyon; Finder'da Aç; aynı cümle için birden fazla varyasyon
 - [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
-- [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT sentetik → HF dataset format
+- [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT gerçek kayıt → HF dataset format
 - [ ] **`whisper_finetune.py`** — RunPod RTX 4090, whisper-large-v3-turbo + LoRA (r=16), 5000 step
 - [ ] **`convert_whisper_mlx.py`** — HF adapter → MLX format → engineering mode entegrasyon
 - [ ] **Başarı kriteri**: IT term WER < %5 (mevcut > %30), genel Türkçe kötüleşme < %2
