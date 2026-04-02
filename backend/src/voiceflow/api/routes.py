@@ -143,9 +143,17 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
             svc.update_transcriber(WhisperTranscriber(config=new_cfg))
         gc.collect()
 
-    # Update mode
+    # Update mode — engineering mode auto-disables LLM correction
     if config.mode is not None:
         corrector.config.mode = config.mode
+        if config.mode == "engineering" and corrector.config.enabled:
+            logger.info("Engineering mode: auto-disabling LLM correction")
+            corrector.config.enabled = False
+            from ..services.recording import _mlx_executor
+            if hasattr(corrector, "correct_async"):
+                await loop.run_in_executor(None, corrector.unload)
+            else:
+                await loop.run_in_executor(_mlx_executor, corrector.unload)
 
     # Update output format
     if config.output_format is not None:

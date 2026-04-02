@@ -71,6 +71,38 @@ _TURKISH_VARIANTS: dict[str, list[str]] = {
     "enrichment":     ["zenginleştirme", "enrichmınt"],
     "inference":      ["inferans", "çıkarım"],
     "pipeline":       ["payplayn", "boru hattı"],
+    # Genel yazılım — Whisper İngilizce kelime hataları
+    "menu":           ["many", "meny", "menue"],
+    "paste":          ["pace", "paced", "peyst", "pest"],
+    "bar":            ["bar", "bır"],
+    "view":           ["viu", "viev", "viev"],
+    "model":          ["modıl", "modil"],
+    "binding":        ["bayning", "bayndıng"],
+    "fetch":          ["feç", "fech"],
+    "cache":          ["keş", "kayş", "caş"],
+    "mock":           ["mok", "moc"],
+    "store":          ["stor", "stör"],
+    "router":         ["rutır", "rautır"],
+    "stack":          ["stek", "steck"],
+    "query":          ["kueri", "query"],
+    "token":          ["tökın", "tokin"],
+    "hook":           ["huk", "hook"],
+    "render":         ["rendır", "rendır"],
+    "layout":         ["leyaut", "leayout"],
+    "payload":        ["peyload", "paylod"],
+    # Yazılım terimleri (kavramsal)
+    "coupling":       ["kaplıng", "coupling", "kaplıng"],
+    "dependency":     ["dependensi", "dipendenci", "bağımlılık"],
+    "injection":      ["injeksiyon", "injecşon"],
+    "abstraction":    ["abstraksiyon", "soyutlama"],
+    "refactor":       ["rifaktör", "refaktör"],
+    "architecture":   ["arkitektür", "arşitekçır", "mimari"],
+    "migration":      ["migrasyon", "migrasyon"],
+    "deployment":     ["dıploymınt", "deploy"],
+    "concurrency":    ["concurrency", "eşzamanlılık"],
+    "inheritance":    ["inheritance", "kalıtım"],
+    "polymorphism":   ["polimorfizm", "çok biçimlilik"],
+    "encapsulation":  ["enkapsülasyon", "kapsülleme"],
     # Genel yazılım
     "callback":       ["kolbek", "geri çağırma"],
     "async":          ["eysink", "asenkron"],
@@ -148,46 +180,12 @@ def _extract_identifiers(folder_path: Path) -> set[str]:
 def _generate_triggers(identifier: str) -> list[tuple[str, str]]:
     """Bir identifier için (trigger, replacement) çiftleri üret.
 
-    Returns list of (whisper_might_say, correct_identifier)
+    tech_lexicon.generate_triggers() kullanır:
+      UserService → ["user servis", "kullanıcı servis", "yuzır out", ...]
     """
-    words = _split_camel_case(identifier)
-    if not words:
-        return []
-
-    pairs: list[tuple[str, str]] = []
-
-    # 1. Temel: kelimeleri boşlukla birleştir (küçük harf) — en sık kullanım
-    base_spoken = " ".join(w.lower() for w in words)
-    pairs.append((base_spoken, identifier))
-
-    # 2. Her kelimenin Türkçe varyantlarını oluştur, kombinasyon yap
-    word_variants: list[list[str]] = []
-    for word in words:
-        wl = word.lower()
-        variants = [wl]  # orijinal her zaman dahil
-        if wl in _TURKISH_VARIANTS:
-            variants.extend(_TURKISH_VARIANTS[wl])
-        word_variants.append(variants)
-
-    # En fazla 2^n kombinasyon üret, fazla patlamasın
-    # Her pozisyon için sadece ilk varyantı al (en yaygın hata)
-    if len(word_variants) > 1:
-        turkish_spoken = " ".join(
-            variants[1] if len(variants) > 1 else variants[0]
-            for variants in word_variants
-        )
-        if turkish_spoken != base_spoken:
-            pairs.append((turkish_spoken, identifier))
-
-        # Sadece ilk kelime değişmiş hali (en sık senaryo: ilk kelime bozulur)
-        if len(word_variants[0]) > 1:
-            first_variant = " ".join(
-                [word_variants[0][1]] + [v[0] for v in word_variants[1:]]
-            )
-            if first_variant not in {p[0] for p in pairs}:
-                pairs.append((first_variant, identifier))
-
-    return pairs
+    from voiceflow.services.tech_lexicon import generate_triggers
+    triggers = generate_triggers(identifier)
+    return [(t, identifier) for t in triggers if t != identifier.lower()]
 
 
 async def build_smart_dictionary(folder_path: str, user_id: str) -> int:

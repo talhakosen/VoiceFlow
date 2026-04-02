@@ -11,7 +11,11 @@
 - SQLite persistent history + tenant izolasyonu
 - Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
 - Smart Dictionary (kod tabanı identifier tarama — class/method isimlerini otomatik user_dictionary'e ekler, Türkçe fonetik varyantlar, scope=smart)
-- Symbol Index (class/struct/func → file_path:line_number, fuzzy lookup, @dosya:satır enjeksiyonu)
+- Symbol Index (class/struct/func → file_path:line_number, fuzzy lookup, inline @dosya:satır enjeksiyonu)
+- @-trigger: "at/et/add/edd Symbol" → explicit sembol arama, 2-part kuralı bypass
+- Engineering mode → LLM correction otomatik kapalı (backend + Swift sync)
+- Whisper hallucination loop guard (_strip_hallucination_loop: unigram/bigram/trigram repeat detect)
+- Tech Lexicon 2-katman (UNIVERSAL_SUFFIXES + COMMON_DOMAINS + project lexicon, cartesian product trigger generation)
 - ChromaDB kaldırıldı — embedding/RAG yok, sıfır bağımlılık
 - Recording overlay floating pill + ses efektleri
 - 2-panel Settings (Genel/Kayıt/Sözlük/Şablonlar/Bilgi Tabanı/Hesap/Hakkında) — tam Türkçe
@@ -160,6 +164,7 @@
 - [DONE 2026-03-30] Teknik terminoloji çıkarma: extract_symbols() regex, POST /api/engineering/extract-symbols
 - [DONE 2026-03-30] Çıktı formatları: output_format config (prose/code_comment/pr_description/jira_ticket)
 - [DONE 2026-03-30] VS Code entegrasyonu: docs/vscode-integration.md URL scheme dökümantasyonu
+- [DONE 2026-04-02] Engineering mode → LLM correction otomatik kapalı (routes.py auto-unload + AppViewModel UI sync)
 
 ### 3.3 Office Package (Derinleştirme)
 
@@ -262,3 +267,4 @@
 - [DONE] Phase 0.5: Architecture refactor (layered backend, MVVM Swift)
 - [DONE] Phase 1: Foundation (SQLite, mod sistemi, onboarding, kullanıcı profili, history)
 - [DONE 2026-04-02] Phase 2: Smart Dictionary + Symbol Index — ChromaDB kaldırıldı; kod tabanı regex tarama → user_dictionary (scope=smart) + symbol_index (file_path:line_number); 2-pass dict matching; CJK hallucination guard; @dosya:satır enjeksiyonu; Bilgi Tabanı UI proje listesi
+- [DONE 2026-04-02] Phase 2.1: Symbol Injection iyileştirmeleri — inline replace (başa ekleme değil); Pass 0 @-trigger (at/et/add/edd + 1-word/2-word compact fuzzy); 2-part module kuralı (Server/Model gibi generic kelimeler inject edilmez, explicit class tanımları inject edilir); Engineering mode → LLM auto-off; Whisper hallucination loop guard; Tech Lexicon 2-katman

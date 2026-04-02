@@ -11,6 +11,32 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+def _strip_hallucination_loop(text: str, max_repeats: int = 3) -> str:
+    """Whisper tekrar loop'unu temizle: 'Yar Yar Yar Yar...' → ''
+
+    Ardışık aynı kelime veya n-gram max_repeats kez tekrarlanıyorsa,
+    ilk tekrar başladığı noktadan itibaren metnin geri kalanını sil.
+    """
+    words = text.split()
+    if len(words) < max_repeats * 2:
+        return text
+
+    for n in range(1, 4):  # unigram, bigram, trigram
+        for i in range(len(words) - n * max_repeats + 1):
+            gram = tuple(words[i:i + n])
+            repeats = 0
+            j = i + n
+            while j + n <= len(words) + 1 and tuple(words[j:j + n]) == gram:
+                repeats += 1
+                j += n
+            if repeats >= max_repeats:
+                stripped = " ".join(words[:i]).strip()
+                logger.warning("Hallucination loop detected (%dx %r) — stripped tail", repeats + 1, " ".join(gram))
+                return stripped
+
+    return text
+
+
 @dataclass
 class TranscriptionResult:
     """Result of transcription."""
@@ -96,8 +122,9 @@ class WhisperTranscriber:
         # Free Metal GPU buffers to prevent memory growth
         mx.metal.clear_cache()
 
+        text = _strip_hallucination_loop(result.get("text", "").strip())
         return TranscriptionResult(
-            text=result.get("text", "").strip(),
+            text=text,
             language=result.get("language"),
             duration=len(audio) / sample_rate,
         )

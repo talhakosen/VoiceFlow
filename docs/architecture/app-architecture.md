@@ -58,6 +58,7 @@ var isLLMReady: Bool           // /health llm_loaded alanından — recording ba
   - `stopAndTranscribe`: overlay + Pop sesi backend response beklemeden **hemen** çalar — uzun Whisper/LLM işlemleri UI'ı bloke etmez
   - Backend erişilemezse: `statusText = "⚠ Servis başlatılıyor..."` (start hatası) veya `"⚠ Bağlantı hatası — servisi yeniden başlatın"` (stop hatası)
 - `selectLanguageMode(_:)` / `selectAppMode(_:)` / `toggleCorrection()`
+  - `selectAppMode(.engineering)` → `isCorrectionEnabled = false` (LLM correction otomatik kapatılır; backend de enforce eder)
 - `loadDictionary()` / `addDictionaryEntry()` / `deleteDictionaryEntry()`
 - `loadSnippets()` / `addSnippet()` / `deleteSnippet()`
 - `ingestContext()` / `loadContextStatus()` / `clearContext()` — Smart Dictionary: klasörü tarar, class/method identifier'larını `user_dictionary`'e ekler. ChromaDB/RAG yok.

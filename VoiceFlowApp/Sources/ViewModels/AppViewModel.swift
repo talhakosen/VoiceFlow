@@ -324,6 +324,10 @@ final class AppViewModel {
 
     func selectAppMode(_ mode: AppMode) {
         currentAppMode = mode
+        // Engineering mode: auto-disable LLM correction (backend also enforces this)
+        if mode == .engineering {
+            isCorrectionEnabled = false
+        }
         UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
         Task {
             try? await backend.updateConfig(
