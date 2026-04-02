@@ -80,7 +80,8 @@ backend/.voiceflow.pid
 .claude/worktrees/
 
 # ISSAI data files (large, generated)
-backend/scripts/data_gen/issai/
 
 # Claude session files
 .claude/scheduled_tasks.lock
+backend/scripts/data_gen/issai/issai_pairs_all.jsonl
+backend/scripts/data_gen/issai/issai_pairs_fixed.jsonl
