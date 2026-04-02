@@ -78,3 +78,9 @@ temp/
 # Runtime
 backend/.voiceflow.pid
 .claude/worktrees/
+
+# ISSAI data files (large, generated)
+backend/scripts/data_gen/issai/
+
+# Claude session files
+.claude/scheduled_tasks.lock
