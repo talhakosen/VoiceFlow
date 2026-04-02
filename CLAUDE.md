@@ -34,6 +34,7 @@ open /Applications/VoiceFlow.app
 | **3** | v0.5+ | Style/ton, gamification, Docker, RunPod, DMG |
 
 Detaylar: `.claude/develop-plan.md`
+Docs: `docs/architecture/`, `docs/ml/`, `docs/deployment/`, `docs/enterprise/`, `docs/discussions/`
 
 ## Architecture (v0.2)
 
@@ -109,4 +110,10 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **venv bozulursa**: `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev,context]"`
 - **BACKEND_MODE=server kullanma (Mac'te)**: faster-whisper + JWT_SECRET zorunlu hale gelir. Mac'te sadece Ollama corrector istiyorsan `LLM_BACKEND=ollama` + `LLM_ENDPOINT` yeterli.
 - **RunPod Ollama**: SECURE cloud kullan (Community'de Docker Hub timeout). Pod restart sonrası `OLLAMA_HOST=0.0.0.0 ollama serve > ollama.log 2>&1 &` tekrar çalıştır.
+- **RunPod fine-tuning GPU util**: batch=2 + default optimizer → %7 GPU (CPU darboğazı). Kullan: `batch=8, grad_accum=2, optim="adamw_8bit", packing=True, dataloader_pin_memory=True`. Detay: `docs/ml/runpod-finetuning.md`.
+- **RunPod disk**: `/workspace` (volume, 20GB kota) ≠ container disk (120GB). `df -h` yanıltıcı (257TB gösterir). Büyük dosyaları `/root/`'a indir.
+- **ISSAI/Whisper paralel shard**: Kısa ses dosyalarında `BatchedInferencePipeline` yavaş (7K/saat). 3 paralel process = %99 GPU, ~9 saat (tek process 26 saat). `large-v3 float16` = 3.5GB → 3 instance = 10.5GB, RTX 4090'a rahat sığar. `SHARD_INDEX=N SHARD_TOTAL=3 python process_issai.py`. Detay: `docs/ml/runpod-finetuning.md`.
 - **RunPod Pod ID**: `.env`'deki `RUNPOD_VOICEFLOW_POD_ID` ve `RUNPOD_OLLAMA_URL` pod değişince güncelle.
+- **backend/.env yok**: Tüm env config root `.env`'de. AppDelegate root `.env` okur; backend kendisi dotenv okumaz. `backend/.env` oluşturma.
+- **LoRA adapter (fine-tuned)**: `scripts/training/adapters_mlx/` (39MB). `LLM_ADAPTER_PATH=scripts/training/adapters_mlx` root `.env`'de set. HF PEFT → MLX dönüşüm scripti: `scripts/training/convert_adapter.py`. Raw HF adapter: `adapters_mlx/raw/`.
+- **2. round training**: ISSAI dataset (186K gerçek Whisper hata çifti) + mevcut dataset → retrain. ISSAI bittikten sonra `backend/scripts/data_gen/issai_pairs_all.jsonl` Mac'e SCP → `prepare_dataset.py` → yeni RunPod training.

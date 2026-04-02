@@ -58,7 +58,7 @@ Launch `reviewer` agent with the changed files, then report findings.
 Any backend API change must be reflected in:
 - Python `routes.py` + `RecordingService` if needed
 - Swift `BackendServiceProtocol` + `BackendService.swift`
-- `docs/backend-architecture.md` if API contract changes
+- `docs/architecture/backend-architecture.md` if API contract changes
 
 ## Output
 

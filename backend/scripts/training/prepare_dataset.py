@@ -101,10 +101,10 @@ def main() -> None:
         type=Path,
         default=[
             Path("data_gen/corruption_pairs.jsonl"),
-            Path("data_gen/claude_pairs.jsonl"),
-            Path("data_gen/whisper_pairs.jsonl"),
+            Path("data_gen/asr_training_data.jsonl"),
             Path("data_gen/word_order_pairs.jsonl"),
             Path("data_gen/gecturk_pairs.jsonl"),
+            Path("data_gen/issai/issai_pairs_clean.jsonl"),
         ],
         help="JSONL source files to merge.",
     )

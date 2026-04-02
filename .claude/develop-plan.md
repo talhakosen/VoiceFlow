@@ -189,7 +189,7 @@
 
 > Amaç: Wispr Flow kalitesinde correction — fine-tuned model, training flywheel, deep context.
 > Ön koşul: Katman 3 tamamlanmış, ilk müşteri demosu yapılmış olmalı.
-> Detaylar: `docs/discussions/` (5 doküman), `docs/fine-tuning-plan.md`, `docs/research-wispr-flow.md`
+> Detaylar: `docs/discussions/` (5 doküman), `docs/ml/fine-tuning-plan.md`, `docs/enterprise/research-wispr-flow.md`
 
 ### 4.1 P0 — Prompt İyileştirmesi (hemen, 30 dk)
 
@@ -225,9 +225,11 @@
 - [DONE 2026-04-01] **Dataset genişletme** — word_order_pairs (531 pair) + GECTurk-generation (68.745 pair, tüm split'ler); toplam **71.437 pair** → 57K train / 7K valid / 7K test; lora_config.yaml: num_layers=4, iters=3000
 - [DONE 2026-03-31] **`evaluate.py`** — WER/CER/exact_match/backtracking metrik raporu
 - [DONE 2026-03-31] **LLMCorrector adapter_path desteği** — adapter varsa kısa prompt, yoksa fallback
-- [IN PROGRESS 2026-04-01] **Genişletilmiş dataset ile RunPod LoRA fine-tune** — unsloth SFTTrainer, Qwen2.5-7B, 14115 step, RTX 4090; voiceflow-finetuning pod (ep3rj4khxnkg4m); ~%60 tamamlandı
-- [IN PROGRESS 2026-04-01] **ISSAI Turkish Speech Corpus processing** — 186K wav → faster-whisper large-v3 → ASR error pairs → issai_pairs.jsonl; voiceflow-issai pod (qzln0jqssykk19); ~%10 tamamlandı
+- [DONE 2026-04-02] **Genişletilmiş dataset ile RunPod LoRA fine-tune** — unsloth SFTTrainer, Qwen2.5-7B, 14115 step, 7 saat RTX 4090; loss=0.78; adapter indirildi → adapters_runpod/ + MLX'e dönüştürüldü → adapters_mlx/; LLM_ADAPTER_PATH .env'e eklendi; model çalışıyor ("korrektat"→"korrekt", "ham"→"hem")
+- [DONE 2026-04-02] **ISSAI Turkish Speech Corpus processing** — 186K wav → faster-whisper large-v3 → 177K raw pair; issai_pairs_clean.jsonl: 164K (output ≤ input*1.5 filtresi); data_gen/issai/ altında organize edildi
+- [DONE 2026-04-02] **1. round adapter canlı test** — 3 kriter geçti: noktalama ✅, filler temizleme ✅, Türkçe karakter ✅; ISSAI 2. round riski tespit edildi (ground truth noktalamasız → model noktalama silmeyi öğrenir)
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
+- [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 
 ### 4.5 P3 — Müşteriye Özel Adapter (Killer Feature)

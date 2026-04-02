@@ -52,11 +52,12 @@ feat(auth): add JWT authentication and tenant isolation
 ## After Commit
 
 Check if `docs/` needs updating:
-- Architecture change? → `docs/architecture.md`
-- New API endpoint? → `docs/backend-architecture.md`
-- New app feature? → `docs/app-architecture.md`
-- Katman completed? → `docs/enterprise-strategy.md` roadmap güncelle
-- Competitor positioning changed? → `docs/research-wispr-flow.md`
+- Architecture change? → `docs/architecture/architecture.md`
+- New API endpoint? → `docs/architecture/backend-architecture.md`
+- New app feature? → `docs/architecture/app-architecture.md`
+- Katman completed? → `docs/enterprise/enterprise-strategy.md` roadmap güncelle
+- Competitor positioning changed? → `docs/enterprise/research-wispr-flow.md`
+- ML/training change? → `docs/ml/runpod-finetuning.md` veya `docs/ml/fine-tuning-plan.md`
 
 ## Trello Güncelleme
 
