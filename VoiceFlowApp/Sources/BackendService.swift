@@ -163,7 +163,7 @@ struct HealthResponse: Decodable {
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?) async throws -> TranscriptionResult
     func forceStop() async throws
     func getHealth() async throws -> HealthResponse
     func getStatus() async throws -> StatusResponse
@@ -293,7 +293,7 @@ actor BackendService: BackendServiceProtocol {
         }
     }
 
-    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil) async throws -> TranscriptionResult {
+    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil) async throws -> TranscriptionResult {
         var request = makeRequest(path: "stop", method: "POST")
         if let bundleID = activeAppBundleID {
             request.setValue(bundleID, forHTTPHeaderField: "X-Active-App")
@@ -303,6 +303,10 @@ actor BackendService: BackendServiceProtocol {
         }
         if let selected = selectedText {
             request.setValue(selected, forHTTPHeaderField: "X-Selected-Text")
+        }
+        if let intervals = cmdIntervals, !intervals.isEmpty {
+            let header = intervals.map { "\(String(format: "%.2f", $0.0))-\(String(format: "%.2f", $0.1))" }.joined(separator: ",")
+            request.setValue(header, forHTTPHeaderField: "X-Cmd-Intervals")
         }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {

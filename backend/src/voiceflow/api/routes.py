@@ -88,11 +88,25 @@ async def stop_recording(
     x_active_app: str | None = Header(default=None, alias="X-Active-App"),
     x_window_title: str | None = Header(default=None, alias="X-Window-Title"),
     x_selected_text: str | None = Header(default=None, alias="X-Selected-Text"),
+    x_cmd_intervals: str | None = Header(default=None, alias="X-Cmd-Intervals"),
 ):
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
     user_id = state_user_id or x_user_id or None
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+
+    # Parse "1.10-2.30,4.50-5.10" → [(1.10, 2.30), (4.50, 5.10)]
+    cmd_intervals: list[tuple[float, float]] | None = None
+    if x_cmd_intervals:
+        try:
+            cmd_intervals = [
+                (float(a), float(b))
+                for part in x_cmd_intervals.split(",")
+                for a, b in [part.strip().split("-", 1)]
+            ]
+        except Exception:
+            cmd_intervals = None
+
     try:
         result = await svc.stop(
             user_id=user_id,
@@ -100,6 +114,7 @@ async def stop_recording(
             active_app=x_active_app or None,
             window_title=x_window_title or None,
             selected_text=x_selected_text or None,
+            cmd_intervals=cmd_intervals,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

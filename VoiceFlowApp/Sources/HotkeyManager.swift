@@ -30,6 +30,28 @@ class HotkeyManager {
     private let doubleTapThreshold: TimeInterval = 0.4
     private let cooldownAfterAction: TimeInterval = 0.8
 
+    // Cmd-held intervals during recording: [(startOffset, endOffset)] in seconds since recordingStartTime
+    private var recordingStartTime: Date?
+    private var cmdPressTime: Date?
+    private(set) var cmdIntervals: [(Double, Double)] = []
+
+    /// Call when recording starts — resets cmd tracking
+    func recordingDidStart() {
+        recordingStartTime = Date()
+        cmdIntervals = []
+        cmdPressTime = nil
+    }
+
+    /// Call when recording stops — closes any open interval
+    func recordingDidStop() {
+        if let pressTime = cmdPressTime, let start = recordingStartTime {
+            let end = Date().timeIntervalSince(start)
+            let s = pressTime.timeIntervalSince(start)
+            cmdIntervals.append((s, end))
+            cmdPressTime = nil
+        }
+    }
+
     func start() {
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
             self?.handleFlagsChanged(event)
@@ -56,9 +78,24 @@ class HotkeyManager {
 
     private func handleFlagsChanged(_ event: NSEvent) {
         let fnPressed = event.modifierFlags.contains(.function)
+        let cmdPressed = event.modifierFlags.contains(.command)
         let rawFlags = event.modifierFlags.rawValue
 
-        log("flags fn=\(fnPressed ? "Y":"N") wasFn=\(isFnPressed ? "Y":"N") raw=0x\(String(rawFlags, radix:16)) rec=\(isRecordingActive ? "Y":"N")")
+        log("flags fn=\(fnPressed ? "Y":"N") cmd=\(cmdPressed ? "Y":"N") wasFn=\(isFnPressed ? "Y":"N") raw=0x\(String(rawFlags, radix:16)) rec=\(isRecordingActive ? "Y":"N")")
+
+        // Track Cmd press/release during active recording for segment-aware injection
+        if isRecordingActive, let start = recordingStartTime {
+            let offset = Date().timeIntervalSince(start)
+            if cmdPressed && cmdPressTime == nil {
+                cmdPressTime = Date()
+                log("Cmd DOWN at offset \(String(format: "%.2f", offset))s")
+            } else if !cmdPressed, let pressTime = cmdPressTime {
+                let s = pressTime.timeIntervalSince(start)
+                cmdIntervals.append((s, offset))
+                cmdPressTime = nil
+                log("Cmd UP → interval (\(String(format: "%.2f", s))s, \(String(format: "%.2f", offset))s)")
+            }
+        }
 
         if fnPressed && !isFnPressed {
             handleFnDown()
@@ -135,6 +172,9 @@ class HotkeyManager {
         isFnPressed = false
         lastFnDownTime = nil
         lastActionTime = nil
+        recordingStartTime = nil
+        cmdPressTime = nil
+        cmdIntervals = []
     }
 
     deinit {

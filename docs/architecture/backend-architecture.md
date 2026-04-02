@@ -56,19 +56,31 @@ Sıfır iş mantığı. Sadece:
 Tüm pipeline koordinasyonu:
 ```python
 class RecordingService:
-    def __init__(self, transcriber, corrector, retriever=None)
+    def __init__(self, transcriber, corrector)
     def start() → None
-    async def stop(user_id) → dict      # transcribe → dict → snippets → RAG → LLM → save
+    async def stop(user_id, cmd_intervals=None, ...) → dict
     def force_stop() → bool
     async def preload_models() → None
 ```
-Pipeline sırası: **Whisper → Dictionary → Snippets → RAG retrieval → LLM correction → SQLite**
+Pipeline sırası: **Whisper (+Symbol Injection) → Dictionary → Snippets → LLM correction → SQLite**
+
+**Cmd-interval injection** (`cmd_intervals` doluysa, `_transcribe_segmented()`):
+Ses numpy array olarak cmd sınırlarında bölünür. Her segment ayrı Whisper → cmd-held segmentlere `inject_symbol_refs()` uygulanır → normal segmentler olduğu gibi bırakılır → birleştirilir.
+Symbol injection sadece cmd-held segmentlerde çalışır (normal konuşmada injection yok). `word_timestamps` kullanılmaz.
 
 **Smart Dictionary** (`services/smart_dictionary.py`): `POST /api/context/ingest` tetiklenince çalışır. Klasördeki `.swift/.dart/.py/.ts` dosyalarını tarar, PascalCase/camelCase identifier'ları regex ile çıkarır, `_TURKISH_VARIANTS` ile Türkçe fonetik varyantlar üretir (örn. `SupabaseSavedOutfitRepository` → `"superbase saved outfit reposteri"`) ve `user_dictionary` tablosuna `scope='smart'` ile ekler. Tekrar indexlemede var olan trigger'lar üzerine yazılmaz.
 
 **2-pass Dictionary** (`services/dictionary.py`): İki geçişte uygular — ilk geçiş kısa trigger'ları dönüştürür (`super bass` → `Supabase`), ikinci geçiş ortaya çıkan yeni eşleşmeleri yakalar (`Supabase saved outfit repository` → `SupabaseSavedOutfitRepository`).
 
-**Symbol Index** (`services/symbol_indexer.py`): `POST /api/context/ingest` sonrası çalışır. Swift/Dart/Python/TS/Go/Kotlin dosyalarından class/struct/enum/func sembollerini regex ile çıkarır, `symbol_index` tablosuna `file_path + line_number` ile yazar. `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82` döner. Fuzzy match: tam eşleşme → prefix → substring sırasıyla.
+**Symbol Index** (`services/symbol_indexer.py`): `POST /api/context/ingest` sonrası çalışır. Swift/Dart/Python/TS/Go/Kotlin dosyalarından class/struct/enum/func sembollerini regex ile çıkarır, `symbol_index` tablosuna `file_path + line_number` ile yazar. `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82` döner.
+
+`inject_symbol_refs(text, user_id)` — **sadece cmd-held segmentler için çağrılır** (normal konuşmada injection yok):
+- **Pass 0: directory matching** — `symbol_index.file_path` + filesystem walk'tan dizin adları toplanır; her kelime (ve ardışık 2 kelime bigram) JW ile karşılaştırılır. `"voiceflow"` → `@VoiceFlowApp/`, `"Voice flow"` (Whisper split) → bigram `"voiceflow"` → `@VoiceFlowApp/`. Eşik: 0.82 JW veya prefix bonus (≥5 karakter prefix = 0.95 skor).
+- Pass 1: exact PascalCase token → DB exact match
+- Pass 2: JW fuzzy PascalCase (OutService → AuthService)
+- Pass 3: phonetic sliding window ("recording service" → RecordingService)
+
+Sözcük tetikleyici yok ("at/et/folder" kaldırıldı). Cmd tuşu = tek injection sinyali.
 
 **Snippet matching notu:** `apply_snippets()` tüm metni trigger ile karşılaştırır (tam eşleşme). Whisper cümle sonuna noktalama ekler — bu nedenle karşılaştırma öncesi `rstrip(".,!?;:")` uygulanır. Snippet expand olduysa `snippet_used=True` response'a eklenir; Training Pill bu durumda gösterilmez.
 
@@ -238,6 +250,8 @@ JWT_ACCESS_TTL_MINUTES=60
 - **LLM on-demand:** Correction açılınca yükle, kapanınca unload (~4GB boşalt)
 - **Metal cache:** Her inference sonrası `mx.metal.clear_cache()` — bellek sızıntısı önler
 - **CJK hallucination guard:** LLM çıktısında Latin/Türkçe dışı karakter (örn. Japonca 取得, Çince 的) varsa `re.sub` ile silinir — Qwen'in CJK eğitim verisinden kaynaklanan sızma önlenir
+- **Whisper hallucination — loop guard:** `_strip_hallucination_loop()` — unigram/bigram/trigram 3+ tekrar algılar, kuyruk silinir (ör. "Yar Yar Yar...")
+- **Whisper hallucination — fixed phrase guard:** `_strip_hallucination_phrases()` — "İzlediğiniz için teşekkür ederim", "Altyazı M.K.", "Thank you for watching" gibi YouTube training data kalıntılarını metnin sonundan siler. Liste `_HALLUCINATION_PHRASES` sabitinde, DB tablosuna geçiş Quality Monitor ile planlandı (bkz. `docs/discussions/006-quality-monitor.md`)
 - **Ollama async:** `correct_async()` → `httpx.AsyncClient` — MLX executor'ı bloklamaz
 - **Mode capture:** `active_mode = corrector.config.mode` → concurrent `/api/config` race'i önler
 - **faster-whisper:** numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`
@@ -407,8 +421,10 @@ CREATE TABLE correction_feedback (
 ```
 X-Window-Title: "Re: Q3 Roadmap - Mail"   (max 300 char, sanitized)
 X-Selected-Text: "Lütfen bütçeyi..."      (max 300 char, sanitized)
+X-Cmd-Intervals: "2.16-10.19,22.82-25.78" (Cmd basılı saniye aralıkları)
 ```
-Backend, bunları OllamaCorrector'a "untrusted metadata" olarak iletir.
+Backend, `X-Window-Title` / `X-Selected-Text`'i OllamaCorrector'a "untrusted metadata" olarak iletir.
+`X-Cmd-Intervals` varsa ses bölünür, o segmentlere symbol injection uygulanır.
 
 ### Fine-Tuning Scripts
 

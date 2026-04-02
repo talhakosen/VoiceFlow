@@ -90,7 +90,7 @@ Sadece UI — sıfır iş mantığı.
 ```swift
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording() async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?) async throws -> TranscriptionResult
     func forceStop() async throws
     func getStatus() async throws -> StatusResponse
     func updateConfig(language:task:correctionEnabled:mode:) async throws
@@ -110,6 +110,13 @@ protocol BackendServiceProtocol: Actor {
 `BackendService` bu protokolü implement eder. Test/preview'da `MockBackendService` kullanılabilir.
 
 ---
+
+### HotkeyManager
+Fn double-tap → start/stop. Ek olarak **Cmd-interval tracking**:
+- `recordingDidStart()` → zaman sıfırla, `cmdIntervals = []`
+- Kayıt sırasında `NSEvent.flagsChanged` ile Cmd basma/bırakma zamanları kaydedilir
+- `recordingDidStop()` → açık aralığı kapat
+- `cmdIntervals: [(Double, Double)]` → `AppViewModel` bunu `/api/stop` isteğine `X-Cmd-Intervals` header olarak gönderir
 
 ### AppDelegate
 Sadece lifecycle:
@@ -276,15 +283,14 @@ final class RecordingOverlayWindow: NSPanel {
 ### Training Pill (P1 — Tamamlandı)
 Paste sonrası NSPanel — Training Mode açıksa gösterilir. Ekranın alt ortasında konumlanır.
 
-**Kelime chip UX:**
-- **Tek tık** → kelime kırmızı ("bu yanlış")
-- **İkinci tık** → NSAlert dialog — orijinal kelime gösterilir, düzeltme yazılır
-- **Düzenlenen kelime** → yeşil gösterilir
-- **Onayla ✓** → feedback gönderilir + düzeltilen kelimeler Personal Dictionary'e eklenir
+**Basit metin UX** (word chip UI kaldırıldı):
+- Transkript metni tek satır olarak gösterilir
+- **Onayla ✓** → feedback gönderilir, pill kapanır
+- **Düzenle** → metin alanı açılır (`@FocusState`), kullanıcı düzeltir → gönderir
 - **✗ (dismiss)** → pill kapanır, gönderilmez
-- **Otomatik kapanma yok** — kullanıcı explicit action gerektirir
+- **5 saniye otomatik kapanma** — kullanıcı etkileşim yapmadıysa `dismissFeedback()` çağrılır
 
-**Dictionary auto-add:** Onayla'da `token.original → token.text` farkı olan her kelime, `scope=personal` olarak Dictionary'e eklenir. Bir dahaki kayıtta Whisper aynı hatayı yapsa otomatik düzeltilir.
+**Dictionary auto-add:** Edit modunda kaydet'e basınca orijinal ve düzeltilmiş metin kelime kelime karşılaştırılır (aynı kelime sayısı şartıyla); farklı olan her çift `scope=personal` olarak Dictionary'e eklenir.
 
 ```swift
 // AppViewModel state:
@@ -293,14 +299,13 @@ var showTrainingPill: Bool
 var trainingPillResult: TranscriptionResult?
 
 // Actions:
-func approveFeedback() async   // tüm kelimeler doğru
-func editFeedback(corrected:)  // düzeltme veya yanlış işareti
+func approveFeedback() async   // metin doğru
+func editFeedback(corrected:)  // düzeltilmiş metin gönder
 func dismissFeedback()         // iptal
 
 // Feedback payload:
 // - hasEdits → user_action="edited", user_edit=correctedText
-// - hasWrongMarks (no edit) → user_action="edited", user_edit="__wrong_words__: kelime1, kelime2"
-// - clean → user_action="approved"
+// - clean    → user_action="approved"
 ```
 
 `AppSettings.trainingMode` — Bool UserDefaults key.

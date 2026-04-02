@@ -11,6 +11,33 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+# Bilinen Whisper fixed-phrase hallüsinasyonları (YouTube training data kalıntıları)
+_HALLUCINATION_PHRASES = [
+    "izlediğiniz için teşekkür ederim",
+    "izlediğiniz için teşekkürler",
+    "abone olmayı unutmayın",
+    "beğenmeyi unutmayın",
+    "altyazı m.k.",
+    "altyazı:",
+    "thank you for watching",
+    "thanks for watching",
+    "please subscribe",
+    "don't forget to subscribe",
+    "subtitles by",
+]
+
+
+def _strip_hallucination_phrases(text: str) -> str:
+    """Bilinen sabit hallüsinasyon cümlelerini metnin sonundan sil."""
+    lower = text.lower().rstrip(" .")
+    for phrase in _HALLUCINATION_PHRASES:
+        if lower.endswith(phrase):
+            stripped = text[:len(lower) - len(phrase)].rstrip(" .,")
+            logger.warning("Hallucination phrase stripped: %r", phrase)
+            return stripped
+    return text
+
+
 def _strip_hallucination_loop(text: str, max_repeats: int = 3) -> str:
     """Whisper tekrar loop'unu temizle: 'Yar Yar Yar Yar...' → ''
 
@@ -122,7 +149,7 @@ class WhisperTranscriber:
         # Free Metal GPU buffers to prevent memory growth
         mx.metal.clear_cache()
 
-        text = _strip_hallucination_loop(result.get("text", "").strip())
+        text = _strip_hallucination_phrases(_strip_hallucination_loop(result.get("text", "").strip()))
         return TranscriptionResult(
             text=text,
             language=result.get("language"),

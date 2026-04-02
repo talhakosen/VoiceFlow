@@ -168,6 +168,7 @@ final class AppViewModel {
         // Capture context at recording start (best moment: user has focus on the target app)
         capturedWindowTitle = captureWindowTitle()
         capturedSelectedText = captureSelectedText()
+        hotkey.recordingDidStart()
         NSSound(named: "Tink")?.play()
         onShowRecordingOverlay?()
 
@@ -205,11 +206,14 @@ final class AppViewModel {
         // Reset captured context so it doesn't leak to the next recording
         capturedWindowTitle = nil
         capturedSelectedText = nil
+        hotkey.recordingDidStop()
+        let cmdIntervals = hotkey.cmdIntervals
         do {
             let result = try await backend.stopRecording(
                 activeAppBundleID: bundleID,
                 windowTitle: windowTitle,
-                selectedText: selectedText
+                selectedText: selectedText,
+                cmdIntervals: cmdIntervals.isEmpty ? nil : cmdIntervals
             )
             lastResult = result
             guard !result.text.isEmpty else {

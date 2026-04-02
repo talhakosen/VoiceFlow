@@ -22,6 +22,67 @@ logger = logging.getLogger(__name__)
 _mlx_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mlx")
 
 
+_SAMPLE_RATE = 16000
+_MIN_CHUNK_SECONDS = 0.3  # daha kısa parçaları atla (gürültü)
+
+
+async def _transcribe_segmented(
+    audio_data,
+    cmd_intervals: list[tuple[float, float]],
+    transcriber: "AbstractTranscriber",
+    user_id: str,
+    loop,
+) -> tuple[str, str | None, float]:
+    """Sesi cmd aralıklarına göre böl, her parçayı ayrı transcribe et.
+
+    Cmd-held parçalar → transcribe → inject_symbol_refs
+    Normal parçalar   → transcribe → olduğu gibi bırak
+
+    word_timestamps kullanılmaz — Whisper'a ekstra yük yok.
+
+    Returns: (merged_text, language, total_duration_seconds)
+    """
+    import numpy as np
+    from .symbol_indexer import inject_symbol_refs
+
+    total_samples = len(audio_data)
+    total_duration = total_samples / _SAMPLE_RATE
+
+    # Tüm segmentleri (start, end, is_cmd) olarak listele
+    segments: list[tuple[float, float, bool]] = []
+    prev = 0.0
+    for s, e in sorted(cmd_intervals):
+        s = max(0.0, min(s, total_duration))
+        e = max(0.0, min(e, total_duration))
+        if s > prev + _MIN_CHUNK_SECONDS:
+            segments.append((prev, s, False))
+        if e > s + _MIN_CHUNK_SECONDS:
+            segments.append((s, e, True))
+        prev = e
+    if prev + _MIN_CHUNK_SECONDS < total_duration:
+        segments.append((prev, total_duration, False))
+
+    parts: list[str] = []
+    detected_language: str | None = None
+
+    for start, end, is_cmd in segments:
+        chunk = audio_data[int(start * _SAMPLE_RATE): int(end * _SAMPLE_RATE)]
+        if len(chunk) < int(_MIN_CHUNK_SECONDS * _SAMPLE_RATE):
+            continue
+        seg_result = await loop.run_in_executor(_mlx_executor, transcriber.transcribe, chunk)
+        if not seg_result.text.strip():
+            continue
+        if detected_language is None and seg_result.language:
+            detected_language = seg_result.language
+        text = seg_result.text.strip()
+        if is_cmd and user_id:
+            text = await inject_symbol_refs(text, user_id)
+            logger.info("Cmd segment injected: '%s'", text[:80])
+        parts.append(text)
+
+    return " ".join(parts), detected_language, total_duration
+
+
 class RecordingService:
     """Coordinates the full voice recording pipeline.
 
@@ -70,6 +131,7 @@ class RecordingService:
         active_app: str | None = None,
         window_title: str | None = None,
         selected_text: str | None = None,
+        cmd_intervals: list[tuple[float, float]] | None = None,
     ) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
@@ -87,11 +149,15 @@ class RecordingService:
 
         loop = asyncio.get_running_loop()
 
-        # Transcribe
         t_whisper = time.perf_counter()
-        result: TranscriptionResult = await loop.run_in_executor(
-            _mlx_executor, self._transcriber.transcribe, audio_data
-        )
+        if cmd_intervals:
+            # Sesi böl: cmd parçaları ayrı transcribe → inject, diğerleri düz
+            merged_text, language, duration = await _transcribe_segmented(
+                audio_data, cmd_intervals, self._transcriber, user_id, loop
+            )
+            result = TranscriptionResult(text=merged_text, language=language, duration=duration)
+        else:
+            result = await loop.run_in_executor(_mlx_executor, self._transcriber.transcribe, audio_data)
         logger.info("Whisper: %.3fs → '%s'", time.perf_counter() - t_whisper, result.text[:80])
 
         raw_text = result.text
@@ -131,14 +197,6 @@ class RecordingService:
                 was_corrected = True
                 logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
             result.text = corrected
-
-        # Symbol injection — metinde bilinen semboller varsa @file:line ekle
-        if result.text and user_id:
-            try:
-                from .symbol_indexer import inject_symbol_refs
-                result.text = await inject_symbol_refs(result.text, user_id)
-            except Exception as e:
-                logger.debug("Symbol injection skipped: %s", e)
 
         processing_ms = int((time.perf_counter() - t_start) * 1000)
         logger.info("Total stop→result: %dms", processing_ms)

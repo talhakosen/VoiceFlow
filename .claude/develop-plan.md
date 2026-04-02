@@ -239,7 +239,31 @@
 - [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
 
-### 4.5 P3 — Müşteriye Özel Adapter (Killer Feature)
+### 4.5 P2 — Engineering Whisper: Türkiye IT ASR
+
+> "Kubernetes deploy ettim" → Whisper direkt doğru yazsın. Engineering mode'a özel fine-tuned model.
+
+- [DONE 2026-04-02] **`persona_terms.py`** — 8 IT persona (backend/frontend/flutter/.NET/mobile/devops/junior/ml) × terim listesi + Türkçe telaffuz varyantları; 169 benzersiz terim, 294 varyant
+- [DONE 2026-04-02] **`sentence_generator.py`** — Qwen-max (Alibaba DashScope) → persona × senaryo + terim-odaklı → **4.495 cümle** (1.115 persona-based + 3.380 terim-focused); whisper_sentences.jsonl
+- [DONE 2026-04-02] **`tts_generator.py`** — OpenAI tts-1-hd (alloy/nova/onyx/shimmer) + Edge TTS fallback → 16kHz mono WAV; TTS kalite testi: Edge=yapay, OpenAI=yabancı aksanlı → XTTS v2 araştırılıyor
+- [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
+- [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT sentetik → HF dataset format
+- [ ] **`whisper_finetune.py`** — RunPod RTX 4090, whisper-large-v3-turbo + LoRA (r=16), 5000 step
+- [ ] **`convert_whisper_mlx.py`** — HF adapter → MLX format → engineering mode entegrasyon
+- [ ] **Başarı kriteri**: IT term WER < %5 (mevcut > %30), genel Türkçe kötüleşme < %2
+> Detay: `docs/discussions/007-engineering-whisper-finetune.md`
+
+### 4.6 P2 — Quality Monitor: Self-Improving Pipeline
+
+- [ ] **`hallucination_phrases` DB tablosu** — hardcoded liste yerine dinamik; Whisper DB + hardcoded birleşimini okur
+- [ ] **Trailing phrase detector** — son 200 transkripsiyonun sonu analiz; %15+ tekrar → hallucination_phrases'e otomatik ekle
+- [ ] **Correction pair aggregator** — `raw_text→text` token diff; 3+ tekrar → `dict_suggestions` kuyruğu
+- [ ] **Feedback pattern analyzer** — training pill işaretlemeleri → frekans analizi → dict_suggestions
+- [ ] **Settings UI: Öneriler bölümü** — "VoiceFlow öğrendi: X → Y [Ekle] [Yoksay]"
+- [ ] **WAV cache + drift detection** (P3) — son 20 WAV geçici sakla, analiz sonrası sil (KVKK)
+> Detay: `docs/discussions/006-quality-monitor.md`
+
+### 4.6 P3 — Müşteriye Özel Adapter (Killer Feature)
 
 - [ ] **Müşteri adapter sistemi** — base adapter üzerine domain fine-tune
       Örnek: Akbank (+bankacılık), Turkcell (+telekom), THY (+havacılık)
@@ -258,6 +282,21 @@
 - **7B minimum LLM:** 1.5B ve 3B Türkçe'de hallüsinasyon yapıyor (doğrulandı)
 - **faster-whisper input:** numpy array değil BytesIO — soundfile ile dönüştür
 - **Ollama keep_alive=-1:** Model GPU'da sürekli yüklü, cold start yok
+
+### İki Adapter Mimarisi (ML Katmanı)
+
+```
+Ses → [Whisper + Whisper Adapter] → [Qwen 7B + Qwen Adapter] → Metin
+```
+
+| Adapter | Sorumluluk | Durum |
+|---|---|---|
+| **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
+| **Whisper Adapter** (~50-100MB) | IT terim telaffuzu → doğru yazım ("doker"→"Docker") | 🔲 Planlandı |
+
+- Engineering mode: Whisper Adapter aktif, Qwen Adapter kapalı
+- General/Office: Qwen Adapter aktif (correction toggle ile), Whisper base
+- Detay: `docs/ml/two-adapter-architecture.md`
 
 ---
 

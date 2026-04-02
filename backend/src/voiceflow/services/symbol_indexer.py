@@ -5,6 +5,7 @@ Desteklenen diller: Swift, Dart, Python, TypeScript/JavaScript, Go, Kotlin
 Her sembol için: file_path + symbol_name + symbol_type + line_number
 """
 
+import os
 import re
 import logging
 from pathlib import Path
@@ -164,32 +165,64 @@ async def build_symbol_index(folder_path: str, user_id: str) -> int:
     return added
 
 
+
+_PUNCT_STRIP = re.compile(r'^[\W_]+|[\W_]+$')
+
+
+def _clean_word(w: str) -> str:
+    """Strip leading/trailing punctuation for matching (keeps inner chars)."""
+    return _PUNCT_STRIP.sub("", w)
+
+
+_FS_NOISE_DIRS = {'pods', 'node_modules', 'build', '.build', 'deriveddata',
+                  '__pycache__', '.venv', 'dist', 'vendor', 'carthage',
+                  '.git', '.svn', 'target', 'out', '.gradle'}
+
+
+def _fs_scan(root: Path, dir_query: str, dir_scores: dict[str, float], max_depth: int = 4) -> None:
+    """Filesystem walk to find directories matching dir_query.
+
+    Fallback for non-code dirs (templates/, assets/, etc.) that have no
+    indexed symbols and therefore don't appear in symbol_index.file_path.
+    Paths are relative to root, consistent with symbol_index storage.
+    """
+    for dirpath_str, dirnames, _ in os.walk(str(root)):
+        dirpath = Path(dirpath_str)
+        try:
+            rel = dirpath.relative_to(root)
+        except ValueError:
+            continue
+        depth = len(rel.parts)
+        if depth >= max_depth:
+            dirnames.clear()
+            continue
+        dirnames[:] = [d for d in dirnames
+                       if d.lower() not in _FS_NOISE_DIRS and not d.startswith('.')]
+        for dname in dirnames:
+            score = jellyfish.jaro_winkler_similarity(dir_query, dname.lower())
+            rel_dir = (str(rel / dname) if str(rel) != "." else dname).replace("\\", "/") + "/"
+            if score > dir_scores.get(rel_dir, 0.0):
+                dir_scores[rel_dir] = score
+
+
 _JW_THRESHOLD = 0.85
 _TR_SUFFIX_RE = re.compile(r"'[a-zA-ZığüşöçİĞÜŞÖÇ]+$")
 
 
 def _strip_tr_suffix(word: str) -> str:
-    """'PasteService'i → 'PasteService', possessive/case suffixes after apostrophe."""
+    """'PasteService'i → 'PasteService'"""
     return _TR_SUFFIX_RE.sub("", word)
 
 
 def _split_pascal(name: str) -> list[str]:
-    """PascalCase → lowercase word parts. 'PasteService' → ['paste', 'service']"""
+    """PascalCase → lowercase parts. 'PasteService' → ['paste', 'service']"""
     parts = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', name)
     parts = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1 \2', parts)
     return [p.lower() for p in parts.split() if len(p) > 1]
 
 
 def _phonetic_match(sym_parts: list[str], text_words: list[str]) -> bool:
-    """True if every sym_part phonetically matches its text_word.
-
-    Strategy: Jaro-Winkler on Metaphone codes (not raw words).
-    This handles:
-      'paste' → PST,  'pace' → PS    → meta_JW 0.91 ✓
-      'menu'  → MN,   'many' → MN    → meta_JW 1.00 ✓
-      'view'  → F,    'viu'  → F     → meta_JW 1.00 ✓
-      'service' → SRFS, 'servisi' → SRFS  → meta_JW 1.00 ✓
-    """
+    """Her sym_part, karşılık gelen text_word ile fonetik eşleşiyor mu."""
     if len(sym_parts) != len(text_words):
         return False
     for sp, tw in zip(sym_parts, text_words):
@@ -203,194 +236,123 @@ def _phonetic_match(sym_parts: list[str], text_words: list[str]) -> bool:
     return True
 
 
-_PUNCT_STRIP = re.compile(r'^[\W_]+|[\W_]+$')
-
-
-def _clean_word(w: str) -> str:
-    """Strip leading/trailing punctuation for matching (keeps inner chars)."""
-    return _PUNCT_STRIP.sub("", w)
+_DIR_THRESHOLD = 0.82
+_DIR_MIN_LEN = 4
 
 
 async def inject_symbol_refs(text: str, user_id: str) -> str:
-    """Metindeki bilinen sembolleri tespit et, yerinde @file:line SymbolName ile değiştir.
+    """Cmd-held segment metnindeki dizin ve sembolleri tespit et, @ref ile değiştir.
 
-    Üç pass:
-    0. Explicit @-trigger: "at Word" or "@Word" → force lookup, no part-count restriction
-    1. Exact: PascalCase token → DB name lookup
-    2. Full-name JW fuzzy: unresolved PascalCase tokens (OutService → AuthService)
-    3. Phonetic sliding window: lowercase multi-word matches (paste service → PasteService)
+    SADECE cmd-held segmentler için çağrılır — normal konuşmada çağrılmaz.
+    Tetikleyici sözcük gerekmez; Cmd tuşu zaten niyet sinyali.
 
-    Örnekler:
-      "at server"                → "@server.ts:1 Server" (explicit trigger, no restriction)
-      "OutService nedir"         → "@auth_service.py:1 AuthService nedir"
-      "paste service detayları"  → "@PasteService.swift:3 PasteService detayları"
-      "many bar controller"      → "@MenuBarController.swift:9 MenuBarController"
+    Pass 0: directory name matching ("voiceflow" → @VoiceFlowApp/)
+    Pass 1: exact PascalCase token → DB exact match
+    Pass 2: JW fuzzy PascalCase (OutService → AuthService)
+    Pass 3: phonetic sliding window ("recording service" → RecordingService)
     """
     words = text.split()
     if not words:
         return text
 
-    # replacements: (start_word_idx, end_word_idx_exclusive, replacement_str)
     replacements: list[tuple[int, int, str]] = []
-    seen: set[str] = set()   # matched symbol names
-    covered: set[int] = set()  # word indices already replaced
+    seen: set[str] = set()
+    covered: set[int] = set()
 
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
 
-        # ── Pass 0: explicit @-trigger ───────────────────────────────────────
-        # "at Word" or "@Word" → user explicitly wants a symbol ref, bypass all filters
-        # Whisper outputs "@" as "at" in speech, or keeps "@" if already in text.
-        all_syms_for_at: list[dict] | None = None
-        i = 0
-        while i < len(words):
-            raw = words[i]
-            query: str | None = None
-            span_end = i + 1
+        # ── Pass 0: directory name matching ─────────────────────────────────
+        # Collect all known dir names from indexed file paths + filesystem scan
+        dir_map: dict[str, str] = {}  # lowercase_dirname → rel_path/
 
-            if raw.startswith('@') and len(raw) > 1:
-                # "@Server" — Whisper kept the @ symbol
-                query = _clean_word(raw[1:])
-            elif raw.lower() in {'at', 'et', 'ed', 'edd', 'add', 'hat', 'it'} and i + 1 < len(words):
-                # "at/et/add/edd Word" — Whisper phonetic variants of @ symbol
-                query = _clean_word(words[i + 1])
-                span_end = i + 2
+        async with db.execute(
+            "SELECT DISTINCT project_path, file_path FROM symbol_index WHERE user_id = ?",
+            (user_id,),
+        ) as cursor:
+            file_rows = await cursor.fetchall()
 
-            if query and query not in seen:
-                _AT_JW = 0.91
+        project_roots: set[str] = set()
+        for row in file_rows:
+            proj_path, file_path = row[0], row[1]
+            project_roots.add(proj_path)
+            parts = Path(file_path).parts
+            for depth in range(1, len(parts)):
+                dname = parts[depth - 1]
+                rel = "/".join(parts[:depth]) + "/"
+                dir_map.setdefault(dname.lower(), rel)
 
-                def _len_ok(a: str, b: str) -> bool:
-                    return min(len(a), len(b)) / max(len(a), len(b)) >= 0.55 if a and b else False
-
-                async def _exact(q: str) -> dict | None:
-                    async with db.execute(
-                        """SELECT symbol_name, file_path, line_number, symbol_type
-                           FROM symbol_index
-                           WHERE user_id = ? AND LOWER(symbol_name) = LOWER(?)
-                             AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')
-                           ORDER BY CASE symbol_type WHEN 'class' THEN 0 WHEN 'struct' THEN 1 ELSE 2 END
-                           LIMIT 1""",
-                        (user_id, q),
-                    ) as cur:
-                        return await cur.fetchone()
-
-                # 1. Exact 1-word match (most precise — preserves rest of sentence)
-                row = await _exact(query)
-
-                if not row and raw.lower() in {'at', 'et', 'ed', 'edd', 'add', 'hat', 'it'} and i + 2 < len(words):
-                    # 2. Exact 2-word match: "out service" → "OutService"
-                    q2 = query + " " + _clean_word(words[i + 2])
-                    row = await _exact(q2)
-                    if row:
-                        span_end = i + 3
-
-                if not row:
-                    # 3. Fuzzy — load all symbols once
-                    if all_syms_for_at is None:
-                        async with db.execute(
-                            """SELECT symbol_name, file_path, line_number, symbol_type
-                               FROM symbol_index WHERE user_id = ?
-                               AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
-                            (user_id,),
-                        ) as cursor:
-                            all_syms_for_at = [dict(r) for r in await cursor.fetchall()]
-
-                    # Try 2-word compact first: "out service" → "outservice" vs "authservice"
-                    # Slightly lower threshold for 2-word since user explicitly said both words
-                    if raw.lower() in {'at', 'et', 'ed', 'edd', 'add', 'hat', 'it'} and i + 2 < len(words):
-                        q2_compact = (query + _clean_word(words[i + 2])).lower()
-                        best_score, best_row = 0.0, None
-                        for sym in all_syms_for_at:
-                            sym_lower = sym['symbol_name'].lower()
-                            if not _len_ok(q2_compact, sym_lower):
-                                continue
-                            score = jellyfish.jaro_winkler_similarity(q2_compact, sym_lower)
-                            if score > best_score:
-                                best_score, best_row = score, sym
-                        if best_score >= 0.90:
-                            row = best_row
-                            span_end = i + 3
-
-                    # 1-word fuzzy fallback
-                    if not row:
-                        q_lower = query.lower()
-                        best_score, best_row = 0.0, None
-                        for sym in all_syms_for_at:
-                            sym_lower = sym['symbol_name'].lower()
-                            if not _len_ok(q_lower, sym_lower):
-                                continue
-                            score = jellyfish.jaro_winkler_similarity(q_lower, sym_lower)
-                            if score > best_score:
-                                best_score, best_row = score, sym
-                        if best_score >= _AT_JW:
-                            row = best_row
-                            span_end = i + 2
-
-                if row:
-                    repl = f"@{row['file_path']}:{row['line_number']} {row['symbol_name']}"
-                    replacements.append((i, span_end, repl))
-                    seen.add(row['symbol_name'])
-                    covered.update(range(i, span_end))
-                    i = span_end
+        # Filesystem scan for non-code dirs not in symbol_index
+        for root_str in project_roots:
+            root_p = Path(root_str)
+            if not root_p.exists():
+                continue
+            for dirpath_str, dirnames, _ in os.walk(str(root_p)):
+                dirpath = Path(dirpath_str)
+                try:
+                    rel_p = dirpath.relative_to(root_p)
+                except ValueError:
                     continue
-            i += 1
+                depth_p = len(rel_p.parts)
+                if depth_p >= 4:
+                    dirnames.clear()
+                    continue
+                dirnames[:] = [d for d in dirnames
+                               if d.lower() not in _FS_NOISE_DIRS and not d.startswith('.')]
+                for dname in dirnames:
+                    rel = (str(rel_p / dname) if str(rel_p) != "." else dname) + "/"
+                    dir_map.setdefault(dname.lower(), rel)
 
-        # ── Pass 0b: folder trigger ──────────────────────────────────────────
-        # "folder services" / "klasör services" → "@backend/src/voiceflow/services/"
-        _FOLDER_TRIGGERS = {'folder', 'folcder', 'klasör', 'klasor', 'dir', 'dizin', 'directory', 'foldır', 'foldir'}
-        i = 0
-        while i < len(words):
-            raw = words[i]
-            if raw.lower() in _FOLDER_TRIGGERS and i + 1 < len(words) and i not in covered:
-                dir_query = _clean_word(words[i + 1]).lower()
-                if dir_query:
-                    # Extract unique directories from indexed file_path entries
-                    async with db.execute(
-                        "SELECT DISTINCT file_path FROM symbol_index WHERE user_id = ?",
-                        (user_id,),
-                    ) as cursor:
-                        all_paths = [row[0] for row in await cursor.fetchall()]
+        if dir_map:
+            def _dir_score(token: str, dname_lower: str) -> float:
+                """Bir token'ın bir dizin adına benzerlik skorunu hesapla."""
+                if dname_lower.startswith(token) and len(token) >= 5:
+                    return 0.95
+                if token.startswith(dname_lower) and len(dname_lower) >= 5:
+                    return 0.90
+                return jellyfish.jaro_winkler_similarity(token, dname_lower)
 
-                    # Collect all directory segments from paths
-                    # Exclude vendor/generated dirs; max depth 5 to avoid Pods noise
-                    _NOISE_DIRS = {'pods', 'node_modules', 'build', '.build', 'deriveddata',
-                                   '__pycache__', '.venv', 'dist', 'vendor', 'carthage'}
-                    dir_scores: dict[str, float] = {}
-                    for fp in all_paths:
-                        parts = fp.replace("\\", "/").split("/")
-                        if any(p.lower() in _NOISE_DIRS for p in parts):
-                            continue
-                        for depth in range(1, min(len(parts), 6)):  # max depth 5
-                            dir_path = "/".join(parts[:depth]) + "/"
-                            dir_name = parts[depth - 1].lower()
-                            if not dir_name:
-                                continue
-                            score = jellyfish.jaro_winkler_similarity(dir_query, dir_name)
-                            if score > dir_scores.get(dir_path, 0):
-                                dir_scores[dir_path] = score
+            def _best_dir(token: str) -> tuple[float, str | None]:
+                best_score, best_rel = 0.0, None
+                for dname_lower, rel in dir_map.items():
+                    s = _dir_score(token, dname_lower)
+                    if s > best_score:
+                        best_score, best_rel = s, rel
+                return best_score, best_rel
 
-                    if dir_scores:
-                        threshold = 0.85
-                        top_score = max(dir_scores.values())
-                        if top_score >= threshold:
-                            # All dirs at the top score (ties = multiple projects have same dir name)
-                            top_dirs = sorted(
-                                [d for d, s in dir_scores.items() if s >= top_score - 0.001],
-                                key=len,
-                            )
-                            repl = " ".join(f"@{d}" for d in top_dirs)
-                            replacements.append((i, i + 2, repl))
+            # Try window=2 (bigram) first to handle Whisper word splits
+            # e.g. "Voice flow" → "voiceflow" → @VoiceFlowApp/
+            i = 0
+            while i < len(words):
+                if i in covered:
+                    i += 1
+                    continue
+                matched = False
+                if i + 1 < len(words) and (i + 1) not in covered:
+                    bigram = (_clean_word(words[i]) + _clean_word(words[i + 1])).lower()
+                    if len(bigram) >= _DIR_MIN_LEN:
+                        score, rel = _best_dir(bigram)
+                        if score >= _DIR_THRESHOLD and rel and rel not in seen:
+                            replacements.append((i, i + 2, f"@{rel}"))
+                            seen.add(rel)
                             covered.update([i, i + 1])
-                            i += 2
-                            continue
-            i += 1
+                            logger.info("Pass 0 dir bigram: '%s' → @%s (%.2f)", bigram, rel, score)
+                            matched = True
+                if not matched:
+                    token = _clean_word(words[i]).lower()
+                    if len(token) >= _DIR_MIN_LEN:
+                        score, rel = _best_dir(token)
+                        if score >= _DIR_THRESHOLD and rel and rel not in seen:
+                            replacements.append((i, i + 1, f"@{rel}"))
+                            seen.add(rel)
+                            covered.add(i)
+                            logger.info("Pass 0 dir unigram: '%s' → @%s (%.2f)", token, rel, score)
+                i += 1
 
         # ── Pass 1: exact PascalCase match ──────────────────────────────────
-        # Single-word module entries (file-derived) are too generic — require 2+ parts.
-        # Explicit class/struct/etc. definitions are allowed even if single-word.
         for i, word in enumerate(words):
             clean = _clean_word(word)
-            if not re.match(r'^[A-Z][a-zA-Z0-9]{3,}$', clean):
+            if not re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', clean):
                 continue
             if clean in seen or i in covered:
                 continue
@@ -405,107 +367,88 @@ async def inject_symbol_refs(text: str, user_id: str) -> str:
             ) as cursor:
                 row = await cursor.fetchone()
                 if row:
-                    # Module entries (file-derived) need 2+ parts — too generic otherwise
                     if row['symbol_type'] == 'module' and len(_split_pascal(row['symbol_name'])) < 2:
                         continue
-                    repl = f"@{row['file_path']}:{row['line_number']} {row['symbol_name']}"
-                    replacements.append((i, i + 1, repl))
+                    replacements.append((i, i + 1, f"@{row['file_path']}:{row['line_number']} {row['symbol_name']}"))
                     seen.add(row['symbol_name'])
                     covered.add(i)
 
-        # ── Pass 1.5: full-name JW fuzzy for unresolved PascalCase tokens ───
-        # Same rule: module single-word excluded
-        unresolved_pascal: list[tuple[str, int]] = [
+        # ── Pass 2: JW fuzzy for unresolved PascalCase tokens ───────────────
+        unresolved = [
             (_clean_word(words[i]), i)
             for i in range(len(words))
-            if i not in covered
-            and re.match(r'^[A-Z][a-zA-Z0-9]{3,}$', _clean_word(words[i]))
+            if i not in covered and re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', _clean_word(words[i]))
             and _clean_word(words[i]) not in seen
         ]
-        if unresolved_pascal:
+        if unresolved:
             async with db.execute(
                 """SELECT symbol_name, file_path, line_number, symbol_type
-                   FROM symbol_index
-                   WHERE user_id = ?
-                     AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
+                   FROM symbol_index WHERE user_id = ?
+                   AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
                 (user_id,),
             ) as cursor:
-                candidate_syms = [dict(r) for r in await cursor.fetchall()]
+                candidates = [dict(r) for r in await cursor.fetchall()]
 
-            for token, widx in unresolved_pascal:
+            for token, widx in unresolved:
                 if widx in covered:
                     continue
-                token_lower = token.lower()
                 best_score, best_sym = 0.0, None
-                for sym in candidate_syms:
+                for sym in candidates:
                     if sym['symbol_name'] in seen:
                         continue
-                    score = jellyfish.jaro_winkler_similarity(token_lower, sym['symbol_name'].lower())
+                    score = jellyfish.jaro_winkler_similarity(token.lower(), sym['symbol_name'].lower())
                     if score > best_score:
                         best_score, best_sym = score, sym
                 if best_score >= _JW_THRESHOLD and best_sym:
-                    if best_sym.get('symbol_type') == 'module' and len(_split_pascal(best_sym['symbol_name'])) < 2:
+                    if best_sym['symbol_type'] == 'module' and len(_split_pascal(best_sym['symbol_name'])) < 2:
                         continue
-                    repl = f"@{best_sym['file_path']}:{best_sym['line_number']} {best_sym['symbol_name']}"
-                    replacements.append((widx, widx + 1, repl))
+                    replacements.append((widx, widx + 1, f"@{best_sym['file_path']}:{best_sym['line_number']} {best_sym['symbol_name']}"))
                     seen.add(best_sym['symbol_name'])
                     covered.add(widx)
 
-        # ── Pass 2: phonetic sliding-window match ────────────────────────────
+        # ── Pass 3: phonetic sliding window ─────────────────────────────────
         async with db.execute(
-            """SELECT symbol_name, file_path, line_number
-               FROM symbol_index
+            """SELECT symbol_name, file_path, line_number FROM symbol_index
                WHERE user_id = ?
-                 AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
+               AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
             (user_id,),
         ) as cursor:
             all_symbols = [dict(r) for r in await cursor.fetchall()]
 
-        if all_symbols:
-            sym_by_len: dict[int, list[tuple[list[str], dict]]] = {}
-            for sym in all_symbols:
-                if sym['symbol_name'] in seen:
-                    continue
-                parts = _split_pascal(sym['symbol_name'])
-                if len(parts) >= 2:
-                    sym_by_len.setdefault(len(parts), []).append((parts, sym))
+        sym_by_len: dict[int, list[tuple[list[str], dict]]] = {}
+        for sym in all_symbols:
+            if sym['symbol_name'] in seen:
+                continue
+            parts = _split_pascal(sym['symbol_name'])
+            if len(parts) >= 2:
+                sym_by_len.setdefault(len(parts), []).append((parts, sym))
 
-            for i in range(len(words)):
-                if i in covered:
+        for i in range(len(words)):
+            if i in covered:
+                continue
+            for size, candidates in sym_by_len.items():
+                if i + size > len(words):
                     continue
-                for size, candidates in sym_by_len.items():
-                    if i + size > len(words):
+                if any(j in covered for j in range(i, i + size)):
+                    continue
+                window = [_clean_word(w) for w in words[i:i + size]]
+                for sym_parts, sym in candidates:
+                    if sym['symbol_name'] in seen:
                         continue
-                    if any(j in covered for j in range(i, i + size)):
-                        continue
-                    window = [_clean_word(w) for w in words[i:i + size]]
-                    for sym_parts, sym in candidates:
-                        if sym['symbol_name'] in seen:
-                            continue
-                        if _phonetic_match(sym_parts, window):
-                            repl = f"@{sym['file_path']}:{sym['line_number']} {sym['symbol_name']}"
-                            replacements.append((i, i + size, repl))
-                            seen.add(sym['symbol_name'])
-                            covered.update(range(i, i + size))
-                            break
+                    if _phonetic_match(sym_parts, window):
+                        replacements.append((i, i + size, f"@{sym['file_path']}:{sym['line_number']} {sym['symbol_name']}"))
+                        seen.add(sym['symbol_name'])
+                        covered.update(range(i, i + size))
+                        break
 
     if not replacements:
         return text
 
-    # Apply in reverse order to preserve word indices
     replacements.sort(key=lambda x: x[0], reverse=True)
     result = list(words)
     for start, end, repl in replacements:
         result[start:end] = [repl]
-
-    # Remove stray "at" left before an injected @-ref (Pass 2 matched, Pass 0 didn't consume "at")
-    cleaned: list[str] = []
-    for j, w in enumerate(result):
-        if w.lower() in {'at', 'et', 'ed', 'edd', 'add', 'hat', 'it', 'folder', 'folcder', 'klasör', 'klasor', 'dir', 'dizin', 'directory', 'foldır', 'foldir'} and j + 1 < len(result) and result[j + 1].startswith('@'):
-            continue
-        cleaned.append(w)
-
-    return " ".join(cleaned)
+    return " ".join(result)
 
 
 async def lookup_symbol(query: str, user_id: str, limit: int = 5) -> list[dict]:
