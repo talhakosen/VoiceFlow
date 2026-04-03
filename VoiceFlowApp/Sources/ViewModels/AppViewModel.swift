@@ -14,7 +14,7 @@ final class AppViewModel {
     var lastResult: TranscriptionResult?
     var currentLanguageMode: LanguageMode = .turkish
     var currentAppMode: AppMode = .general
-    var isCorrectionEnabled = true
+    var isCorrectionEnabled = false
 
     // Training Mode (Katman 4)
     var trainingModeEnabled: Bool = UserDefaults.standard.bool(forKey: AppSettings.trainingMode)
@@ -99,6 +99,13 @@ final class AppViewModel {
 
         let savedLang = UserDefaults.standard.string(forKey: AppSettings.defaultLanguage) ?? LanguageMode.turkish.rawValue
         currentLanguageMode = LanguageMode(rawValue: savedLang) ?? .turkish
+
+        // Correction: engineering → always off; others → use persisted value (default false)
+        if currentAppMode == .engineering {
+            isCorrectionEnabled = false
+        } else {
+            isCorrectionEnabled = UserDefaults.standard.bool(forKey: AppSettings.correctionEnabled)
+        }
     }
 
     // MARK: - Hotkey wiring
@@ -336,23 +343,31 @@ final class AppViewModel {
 
     func selectAppMode(_ mode: AppMode) {
         currentAppMode = mode
-        // Engineering mode: auto-disable LLM correction (backend also enforces this)
-        if mode == .engineering {
+        // Mode defaults: Engineering → always off; Office → on; General → off
+        switch mode {
+        case .engineering:
+            isCorrectionEnabled = false
+        case .office:
+            isCorrectionEnabled = true
+        case .general:
             isCorrectionEnabled = false
         }
         UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
+        UserDefaults.standard.set(isCorrectionEnabled, forKey: AppSettings.correctionEnabled)
         Task {
             try? await backend.updateConfig(
                 language: currentLanguageMode.language,
                 task: currentLanguageMode.task,
-                correctionEnabled: nil,
+                correctionEnabled: isCorrectionEnabled,
                 mode: mode.rawValue
             )
         }
     }
 
     func toggleCorrection() {
+        guard currentAppMode != .engineering else { return }  // Engineering: always off
         isCorrectionEnabled.toggle()
+        UserDefaults.standard.set(isCorrectionEnabled, forKey: AppSettings.correctionEnabled)
         Task {
             try? await backend.updateConfig(
                 language: currentLanguageMode.language,

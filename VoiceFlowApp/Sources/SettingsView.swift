@@ -439,6 +439,12 @@ private struct RecordingSection: View {
                     get: { viewModel.isCorrectionEnabled },
                     set: { _ in viewModel.toggleCorrection() }
                 ))
+                .disabled(viewModel.currentAppMode == .engineering)
+
+                if viewModel.currentAppMode == .engineering {
+                    Text("Engineering modda düzeltme kapalıdır — teknik terimler korunur.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
 
                 Picker("Yapay Zeka Motoru", selection: $llmMode) {
                     Text("Yerel (Mac — MLX Qwen 7B)").tag("local")

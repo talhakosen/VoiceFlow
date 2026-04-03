@@ -15,7 +15,8 @@ enum AppSettings {
     static let userDepartment      = "userDepartment"
     static let llmMode             = "llmMode"      // "local" | "cloud" | "alibaba"
     static let llmEndpoint         = "llmEndpoint"  // cloud Ollama URL
-    static let trainingMode        = "trainingMode" // Bool — show feedback pill after paste
+    static let trainingMode        = "trainingMode"    // Bool — show feedback pill after paste
+    static let correctionEnabled   = "correctionEnabled" // Bool — persisted per-mode preference
 }
 
 // MARK: - LanguageMode
