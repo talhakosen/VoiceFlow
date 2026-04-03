@@ -76,6 +76,7 @@ private struct NewSentenceTab: View {
     @State private var isLoading = false
     @State private var playingIndex: Int? = nil
     @State private var currentSound: NSSound? = nil
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -100,14 +101,26 @@ private struct NewSentenceTab: View {
                     .padding(.bottom, 24)
             }
         }
+        .focusable()
+        .focused($isFocused)
         .onAppear {
             viewModel.itDatasetActive = true
+            isFocused = true
             Task { await loadRandom() }
         }
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
             currentSound?.stop()
+        }
+        .onKeyPress(.space) {
+            guard !currentSentence.isEmpty else { return .ignored }
+            if viewModel.isRecording {
+                viewModel.stopRecordingForDataset()
+            } else if !viewModel.itDatasetProcessing {
+                viewModel.startRecordingForDataset()
+            }
+            return .handled
         }
         .onChange(of: viewModel.itDatasetLastWhisper) {
             if !viewModel.itDatasetLastWhisper.isEmpty {
