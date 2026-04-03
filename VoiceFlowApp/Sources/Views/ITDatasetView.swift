@@ -1,6 +1,15 @@
 import SwiftUI
 import AppKit
 
+// MARK: - Sound delegate helper
+private final class SoundDelegate: NSObject, NSSoundDelegate {
+    var onFinish: () -> Void
+    init(_ onFinish: @escaping () -> Void) { self.onFinish = onFinish }
+    func sound(_ sound: NSSound, didFinishPlaying flag: Bool) {
+        DispatchQueue.main.async { self.onFinish() }
+    }
+}
+
 // MARK: - ITDatasetView
 // Standalone sentence recording screen. Launched from menu bar, not Settings.
 // "Yeni" tab: big card with random unrecorded sentence + mic + shuffle.
@@ -76,6 +85,7 @@ private struct NewSentenceTab: View {
     @State private var isLoading = false
     @State private var playingIndex: Int? = nil
     @State private var currentSound: NSSound? = nil
+    @State private var soundDelegate: SoundDelegate? = nil
     @State private var keyMonitor: Any? = nil
 
     var body: some View {
@@ -219,11 +229,13 @@ private struct NewSentenceTab: View {
         HStack(spacing: 8) {
             Button {
                 if playingIndex == i {
-                    currentSound?.stop(); currentSound = nil; playingIndex = nil
+                    currentSound?.stop(); currentSound = nil; soundDelegate = nil; playingIndex = nil
                 } else if !rec.wavPath.isEmpty {
                     currentSound?.stop()
                     let s = NSSound(contentsOfFile: rec.wavPath, byReference: true)
-                    s?.play(); currentSound = s; playingIndex = i
+                    let d = SoundDelegate { playingIndex = nil; currentSound = nil; soundDelegate = nil }
+                    s?.delegate = d; s?.play()
+                    currentSound = s; soundDelegate = d; playingIndex = i
                 }
             } label: {
                 let isPlaying = playingIndex == i
@@ -398,6 +410,7 @@ private struct PracticeDetailCard: View {
     @State private var liveRecordings: [ITRecordingItem] = []
     @State private var playingIndex: Int? = nil
     @State private var currentSound: NSSound? = nil
+    @State private var soundDelegate: SoundDelegate? = nil
 
     private var recordings: [ITRecordingItem] {
         liveRecordings.isEmpty ? (item.recordings ?? []) : liveRecordings
@@ -432,11 +445,13 @@ private struct PracticeDetailCard: View {
                 HStack(spacing: 10) {
                     Button {
                         if playingIndex == i {
-                            currentSound?.stop(); currentSound = nil; playingIndex = nil
+                            currentSound?.stop(); currentSound = nil; soundDelegate = nil; playingIndex = nil
                         } else if !rec.wavPath.isEmpty {
                             currentSound?.stop()
                             let s = NSSound(contentsOfFile: rec.wavPath, byReference: true)
-                            s?.play(); currentSound = s; playingIndex = i
+                            let d = SoundDelegate { playingIndex = nil; currentSound = nil; soundDelegate = nil }
+                            s?.delegate = d; s?.play()
+                            currentSound = s; soundDelegate = d; playingIndex = i
                         }
                     } label: {
                         Image(systemName: playingIndex == i ? "stop.circle.fill" : "play.circle.fill")
