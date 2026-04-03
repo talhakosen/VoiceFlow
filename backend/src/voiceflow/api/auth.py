@@ -5,10 +5,9 @@ import os
 
 from fastapi import Header, HTTPException, Request
 from jose import JWTError
+from ..core.config import BACKEND_MODE as _BACKEND_MODE
 
 logger = logging.getLogger(__name__)
-
-_BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 _VALID_KEYS: set[str] = set(filter(None, os.getenv("API_KEYS", "").split(",")))
 
 if _BACKEND_MODE == "server" and not _VALID_KEYS:

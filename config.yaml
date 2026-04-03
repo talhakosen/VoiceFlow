@@ -1,0 +1,12 @@
+# VoiceFlow — App Configuration
+# Non-secret settings. Secrets (API keys, tokens) → .env
+
+backend:
+  mode: local          # local | server
+  db_path: voiceflow.db  # relative → repo root; absolute also works
+
+llm:
+  backend: mlx         # mlx | ollama
+  endpoint: ""         # Ollama endpoint; empty = local MLX
+  model: qwen2.5:7b    # Ollama model name
+  adapter_path: ml/qwen/adapters_mlx  # LoRA adapter; empty = no adapter

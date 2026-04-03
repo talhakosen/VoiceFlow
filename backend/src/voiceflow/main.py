@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,9 +11,9 @@ from starlette.requests import Request
 from .api import router, engineering_router
 from .api.auth_routes import router as auth_router
 from .api.admin_routes import router as admin_router
+from .core.config import BACKEND_MODE as _BACKEND_MODE, LLM_BACKEND, LLM_ENDPOINT
 from .db import init_db
 
-_BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
 _HOST = "0.0.0.0" if _BACKEND_MODE == "server" else "127.0.0.1"
 
 logger = logging.getLogger(__name__)
@@ -31,13 +30,13 @@ def _build_transcriber():
 
 def _build_corrector():
     use_ollama = (
-        os.getenv("LLM_BACKEND", "") == "ollama"
+        LLM_BACKEND == "ollama"
         or _BACKEND_MODE == "server"
-        or bool(os.getenv("LLM_ENDPOINT", ""))
+        or bool(LLM_ENDPOINT)
     )
     if use_ollama:
         from .correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
-        logger.info("Using OllamaCorrector (endpoint: %s)", os.getenv("LLM_ENDPOINT", "http://localhost:11434"))
+        logger.info("Using OllamaCorrector (endpoint: %s)", LLM_ENDPOINT or "http://localhost:11434")
         return OllamaCorrector(config=OllamaCorrectorConfig())
     from .correction import LLMCorrector, CorrectorConfig
     logger.info("Using MLX LLMCorrector")

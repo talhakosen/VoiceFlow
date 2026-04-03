@@ -1,25 +1,13 @@
 """SQLite persistent storage for VoiceFlow."""
 
 import logging
-import os
 import uuid
 from pathlib import Path
 
 import aiosqlite
+from ..core.config import DB_PATH
 
 logger = logging.getLogger(__name__)
-
-def _resolve_db_path() -> Path:
-    raw = os.getenv("DB_PATH")
-    if raw:
-        p = Path(raw)
-        if not p.is_absolute():
-            # Relative → repo root (backend/../)
-            p = Path(__file__).parents[4] / p
-        return p
-    return Path.home() / ".voiceflow" / "voiceflow.db"
-
-DB_PATH = _resolve_db_path()
 
 
 async def init_db() -> None:

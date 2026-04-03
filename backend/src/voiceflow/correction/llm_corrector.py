@@ -2,9 +2,10 @@
 
 import gc
 import logging
-import os
 import re
 from dataclasses import dataclass, field
+
+from ..core import config as _cfg
 from typing import Any
 
 import mlx.core as mx
@@ -136,7 +137,7 @@ class CorrectorConfig:
     enabled: bool = False
     mode: str = "general"  # "general" | "engineering" | "office"
     output_format: str = "prose"  # "prose" | "code_comment" | "pr_description" | "jira_ticket"
-    adapter_path: str | None = field(default_factory=lambda: os.getenv("LLM_ADAPTER_PATH"))  # LoRA adapter; None → full prompt fallback
+    adapter_path: str | None = field(default_factory=lambda: str(_cfg.LLM_ADAPTER_PATH) if _cfg.LLM_ADAPTER_PATH else None)  # LoRA adapter; None → full prompt fallback
 
 
 @dataclass

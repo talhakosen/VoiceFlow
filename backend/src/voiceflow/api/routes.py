@@ -25,7 +25,7 @@ from ..db import (
     get_recorded_sentences,
 )
 
-_BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
+from ..core.config import BACKEND_MODE as _BACKEND_MODE
 logger = logging.getLogger(__name__)
 
 router = APIRouter(dependencies=[Depends(verify_api_key)])

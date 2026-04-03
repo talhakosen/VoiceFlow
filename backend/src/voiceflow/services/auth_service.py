@@ -14,7 +14,8 @@ SECRET_KEY = os.getenv("JWT_SECRET", "voiceflow-dev-secret-change-in-prod")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TTL_MINUTES", "60"))
 
-if os.getenv("BACKEND_MODE", "local") == "server" and SECRET_KEY == "voiceflow-dev-secret-change-in-prod":
+from ..core.config import BACKEND_MODE as _BACKEND_MODE
+if _BACKEND_MODE == "server" and SECRET_KEY == "voiceflow-dev-secret-change-in-prod":
     import logging as _logging
     _logging.getLogger(__name__).warning("JWT_SECRET not set in server mode — using insecure default. Set JWT_SECRET in production.")
 REFRESH_TOKEN_EXPIRE_DAYS = 7

@@ -1,8 +1,9 @@
 """Server-mode LLM correction via Ollama (OpenAI-compatible API)."""
 
 import logging
-import os
 from dataclasses import dataclass, field
+
+from ..core import config as _cfg
 
 logger = logging.getLogger(__name__)
 
@@ -111,8 +112,8 @@ _FEW_SHOT_EXAMPLES = [
 class OllamaCorrectorConfig:
     """Ollama corrector configuration."""
 
-    model_name: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "qwen2.5:7b"))
-    llm_endpoint: str = field(default_factory=lambda: os.getenv("LLM_ENDPOINT", "http://localhost:11434"))
+    model_name: str = field(default_factory=lambda: _cfg.LLM_MODEL)
+    llm_endpoint: str = field(default_factory=lambda: _cfg.LLM_ENDPOINT or "http://localhost:11434")
     api_key: str = field(default_factory=lambda: os.getenv("LLM_API_KEY", ""))
     max_tokens: int = 512
     enabled: bool = False
