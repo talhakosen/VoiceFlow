@@ -195,8 +195,7 @@ async def build_smart_dictionary(folder_path: str, user_id: str) -> int:
     """
     import aiosqlite
     from pathlib import Path as P
-
-    DB_PATH = P.home() / ".voiceflow" / "voiceflow.db"
+    from ..db.storage import DB_PATH
 
     root = P(folder_path).expanduser().resolve()
     if not root.exists():

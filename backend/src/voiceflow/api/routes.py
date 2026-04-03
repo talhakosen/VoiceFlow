@@ -299,7 +299,7 @@ async def context_status(
     import aiosqlite
     from pathlib import Path
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    from ..db.storage import DB_PATH as db_path
     async with aiosqlite.connect(db_path) as db:
         async with db.execute(
             "SELECT COUNT(*) FROM user_dictionary WHERE user_id = ? AND scope = 'smart'",
@@ -319,7 +319,7 @@ async def context_projects(
     import aiosqlite
     from pathlib import Path
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    from ..db.storage import DB_PATH as db_path
     async with aiosqlite.connect(db_path) as db:
         # Symbol counts per project
         async with db.execute(
@@ -374,7 +374,7 @@ async def context_clear(
     import aiosqlite
     from pathlib import Path
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    db_path = Path.home() / ".voiceflow" / "voiceflow.db"
+    from ..db.storage import DB_PATH as db_path
     async with aiosqlite.connect(db_path) as db:
         await db.execute("DELETE FROM user_dictionary WHERE user_id = ?", (user_id,))
         await db.commit()

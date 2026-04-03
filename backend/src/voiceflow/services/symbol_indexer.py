@@ -15,7 +15,7 @@ import jellyfish
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = Path.home() / ".voiceflow" / "voiceflow.db"
+from ..db.storage import DB_PATH
 
 # Her dil için (symbol_type, regex) çiftleri
 _EXTRACTORS: dict[str, list[tuple[str, re.Pattern]]] = {
