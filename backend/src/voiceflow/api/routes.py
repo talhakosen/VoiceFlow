@@ -520,7 +520,13 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
 # ------------------------------------------------------------------
 
 _IT_DATASET_PATH = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "whisper_sentences.jsonl"
+_IT_TERMS_PATH   = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "it_terms.jsonl"
 _IT_RECORDINGS_DIR = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings"
+
+_TRAINING_DATA_PATHS: dict[str, Path] = {
+    "it_dataset": _IT_DATASET_PATH,
+    "it_terms":   _IT_TERMS_PATH,
+}
 
 
 class ITRecording(BaseModel):
@@ -549,9 +555,10 @@ class ITDeleteRequest(BaseModel):
 
 async def _ensure_sentences_imported(training_set: str = "it_dataset") -> None:
     """Import sentences from JSONL on first run (idempotent — skips if already imported)."""
-    if not _IT_DATASET_PATH.exists():
+    data_path = _TRAINING_DATA_PATHS.get(training_set, _IT_DATASET_PATH)
+    if not data_path.exists():
         return
-    with open(_IT_DATASET_PATH) as f:
+    with open(data_path) as f:
         sentences = [json.loads(l) for l in f if l.strip()]
     if not sentences:
         return

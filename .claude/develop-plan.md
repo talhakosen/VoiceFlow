@@ -260,6 +260,7 @@
 - [DONE 2026-04-02] **`tts_generator.py`** — OpenAI tts-1-hd (alloy/nova/onyx/shimmer) + Edge TTS fallback → 16kHz mono WAV; TTS kalite testi: Edge=yapay, OpenAI=yabancı aksanlı → gerçek insan kaydına pivot
 - [DONE 2026-04-02] **IT Dataset Kayıt UI** — Settings > IT Dataset sekmesi; özel Kayıt butonu (Fn2'den bağımsız); WAV + Whisper pair otomatik kaydedilir; play/stop/sil per varyasyon; Finder'da Aç; aynı cümle için birden fazla varyasyon
 - [DONE 2026-04-03] **IT Dataset SQLite migration** — training_sentences + training_recordings tabloları; JSONL → SQLite one-time migration; WAV → ~/.voiceflow/training/it_dataset/; multi-training-set (training_set param); ORDER BY RANDOM() shuffle; "Yeni" (unrecorded) + "Pratik" (recorded) tab ayrımı
+- [DONE 2026-04-03] **IT Dataset Eğitim Modülleri** — TrainingModule enum (IT Cümleleri / IT Terimleri); kapsül modül seçici UI; IT Terimleri: 192 bireysel terim (Repository/ViewModel/Kubernetes vb.) büyük font ile telaffuz pratiği; backend _TRAINING_DATA_PATHS sözlüğü it_terms.jsonl desteği; BackendService + AppViewModel trainingSet param geçişi
 - [DONE 2026-04-03] **ml/ reorganization** — backend/scripts/ → ml/ (data_gen/, qwen/, whisper/); ml/qwen/{scripts,datasets,adapters_mlx}/; .gitignore güncellendi; tüm docs güncellendi
 - [DONE 2026-04-03] **ML Architecture doc** — `docs/architecture/ml-architecture.md`: iki adapter tablosu, ml/ + docs/ dizin rehberi, Qwen ve Whisper eğitim pipeline'ları, config.yaml referansı
 #### Katman 1 — voiceflow-whisper-tr (ISSAI base)

@@ -38,6 +38,20 @@ Docs: `docs/architecture/`, `docs/ml/`, `docs/deployment/`, `docs/enterprise/`, 
 
 ## Architecture (v0.2)
 
+### Web — Marketing Landing Page (`web/`)
+```
+Next.js 14 + Tailwind + Framer Motion — statik marketing sitesi
+src/app/page.tsx        ← 8 section orchestration
+src/components/sections/ ← Hero, Stats, Speed, HowItWorks, Features, Security, Testimonials, CTA
+src/components/ui/      ← Button, Card, Badge, GradientText, FadeUp, Container
+src/lib/constants.ts    ← tüm copy/data burada (type-safe)
+src/types/index.ts      ← NavLink, Feature, Stat, Testimonial vb.
+```
+- Çalıştır: `cd web && npm run dev` (port 3000)
+- İçerik değişikliği → sadece `constants.ts` düzenle
+- Pricing section henüz yok (`PricingTier` tipi hazır, section eklenmedi)
+- Social linkler `#` placeholder — canlıya geçmeden güncelle
+
 ### Backend — Layered Architecture
 ```
 api/routes.py          ← HTTP only: validate → Depends(get_service) → response

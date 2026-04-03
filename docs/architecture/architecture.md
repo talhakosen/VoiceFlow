@@ -45,6 +45,36 @@
 
 ---
 
+## Web — Marketing Landing Page (`web/`)
+
+**Stack:** Next.js 14.2.5 · Tailwind CSS · Framer Motion · TypeScript
+
+```
+web/src/
+├── app/
+│   ├── page.tsx          ← tüm section'ları sıralar
+│   ├── layout.tsx        ← global metadata, font, layout
+│   └── globals.css       ← design tokens, animasyon keyframe'leri
+├── components/
+│   ├── sections/         ← Hero, Stats, Speed, HowItWorks, Features, Security, Testimonials, CTA
+│   ├── layout/           ← Navbar (scroll-aware), Footer
+│   └── ui/               ← Button, Card, Badge, GradientText, FadeUp, Container
+├── lib/constants.ts      ← tüm copy ve veri (type-safe sabitler)
+└── types/index.ts        ← NavLink, Feature, Stat, Testimonial, PricingTier vb.
+```
+
+**Çalıştır:** `cd web && npm run dev` → http://localhost:3000
+
+**İçerik değişikliği:** Sadece `src/lib/constants.ts` düzenle.
+
+**Eksik / TODO:**
+- Pricing section (`PricingTier` tipi hazır ama henüz section yok)
+- Social linkler placeholder (`twitter.com` / `linkedin.com` — gerçek URL'ler girilmeli)
+- Trusted logos text — gerçek SVG logolar eklenecek
+- Footer link'leri çoğu `#` — canlıya geçmeden önce doldurulacak
+
+---
+
 ## Mimari Prensipler
 
 ### Backend — Layered Architecture

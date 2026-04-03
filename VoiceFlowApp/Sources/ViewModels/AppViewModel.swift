@@ -27,6 +27,7 @@ final class AppViewModel {
     var itDatasetLastWhisper = ""
     var itDatasetLastWavPath = ""
     var itDatasetProcessing = false        // true while Whisper result pending (blocks new start)
+    var itDatasetCurrentModule: String = "it_dataset"  // active training module
     private var isDatasetRecordingActive = false  // Fn+Space path — Fn path'ini izole eder
     private var autoDismissTask: Task<Void, Never>? = nil
 
@@ -419,15 +420,15 @@ final class AppViewModel {
 
     // IT Dataset
     func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse {
-        try await backend.getITDatasetNext(offset: offset)
+        try await backend.getITDatasetNext(offset: offset, trainingSet: itDatasetCurrentModule)
     }
 
     func getITDatasetRandom() async throws -> ITDatasetResponse {
-        try await backend.getITDatasetRandom()
+        try await backend.getITDatasetRandom(trainingSet: itDatasetCurrentModule)
     }
 
     func getITDatasetRecorded() async throws -> [ITDatasetResponse] {
-        try await backend.getITDatasetRecorded()
+        try await backend.getITDatasetRecorded(trainingSet: itDatasetCurrentModule)
     }
 
     func deleteITDatasetPair(wavPath: String) {

@@ -1,6 +1,24 @@
 import SwiftUI
 import AppKit
 
+// MARK: - Training Module
+
+enum TrainingModule: String, CaseIterable, Identifiable {
+    case itSentences = "it_dataset"
+    case itTerms     = "it_terms"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .itSentences: return "IT Cümleleri"
+        case .itTerms:     return "IT Terimleri"
+        }
+    }
+
+    var isTerm: Bool { self == .itTerms }
+}
+
 // MARK: - Sound delegate helper
 private final class SoundDelegate: NSObject, NSSoundDelegate {
     var onFinish: () -> Void
@@ -11,23 +29,28 @@ private final class SoundDelegate: NSObject, NSSoundDelegate {
 }
 
 // MARK: - ITDatasetView
-// Standalone sentence recording screen. Launched from menu bar, not Settings.
-// "Yeni" tab: big card with random unrecorded sentence + mic + shuffle.
-// "Pratik" tab: list of recorded sentences.
+// Standalone recording screen. Launched from menu bar.
+// Module picker at top: "IT Cümleleri" (sentences) / "IT Terimleri" (terms)
 
 struct ITDatasetView: View {
     var viewModel: AppViewModel
 
+    @State private var selectedModule: TrainingModule = .itSentences
     @State private var selectedTab: Int = 0
     @State private var totalSentences: Int = 0
     @State private var recordedCount: Int = 0
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top progress bar
-            progressHeader
+            // Module picker
+            modulePicker
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
+                .padding(.bottom, 4)
+
+            // Progress header
+            progressHeader
+                .padding(.horizontal, 20)
                 .padding(.bottom, 8)
 
             // Tab picker
@@ -43,30 +66,63 @@ struct ITDatasetView: View {
 
             // Content
             if selectedTab == 0 {
-                NewSentenceTab(viewModel: viewModel, totalSentences: $totalSentences, recordedCount: $recordedCount)
+                NewSentenceTab(viewModel: viewModel, module: selectedModule,
+                               totalSentences: $totalSentences, recordedCount: $recordedCount)
             } else {
-                PracticedTab(viewModel: viewModel, recordedCount: $recordedCount)
+                PracticedTab(viewModel: viewModel, module: selectedModule, recordedCount: $recordedCount)
             }
         }
-        .frame(width: 520, height: 560)
+        .frame(width: 520, height: 600)
         .background(Color(NSColor.windowBackgroundColor))
+        .onChange(of: selectedModule) { _, newModule in
+            // Reset per-module counts when switching
+            totalSentences = 0
+            recordedCount = 0
+            viewModel.itDatasetCurrentModule = newModule.rawValue
+        }
+        .onAppear {
+            viewModel.itDatasetCurrentModule = selectedModule.rawValue
+        }
+    }
+
+    private var modulePicker: some View {
+        HStack(spacing: 8) {
+            ForEach(TrainingModule.allCases) { module in
+                Button {
+                    selectedModule = module
+                } label: {
+                    Text(module.displayName)
+                        .font(.caption.weight(selectedModule == module ? .semibold : .regular))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(selectedModule == module
+                            ? Color.accentColor
+                            : Color(NSColor.controlBackgroundColor))
+                        .foregroundStyle(selectedModule == module ? .white : .primary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+        }
     }
 
     private var progressHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("Ses Egitimi")
+                Text(selectedModule.isTerm ? "Telaffuz Pratiği" : "Ses Egitimi")
                     .font(.title3.weight(.semibold))
                 Spacer()
                 if totalSentences > 0 {
-                    Text("\(recordedCount) / \(totalSentences) cumle")
+                    let unit = selectedModule.isTerm ? "terim" : "cumle"
+                    Text("\(recordedCount) / \(totalSentences) \(unit)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             if totalSentences > 0 {
                 ProgressView(value: Double(recordedCount), total: Double(totalSentences))
-                    .tint(.green)
+                    .tint(selectedModule.isTerm ? .orange : .green)
             }
         }
     }
@@ -76,6 +132,7 @@ struct ITDatasetView: View {
 
 private struct NewSentenceTab: View {
     var viewModel: AppViewModel
+    let module: TrainingModule
     @Binding var totalSentences: Int
     @Binding var recordedCount: Int
 
@@ -97,9 +154,15 @@ private struct NewSentenceTab: View {
             } else if currentSentence.isEmpty {
                 emptyState
             } else {
-                sentenceCard
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                if module.isTerm {
+                    termCard
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                } else {
+                    sentenceCard
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                }
 
                 recordingsList
                     .padding(.horizontal, 20)
@@ -114,7 +177,6 @@ private struct NewSentenceTab: View {
         .onAppear {
             viewModel.itDatasetActive = true
             Task { await loadRandom() }
-            // Fn+Space: keyCode 49 + .function modifier
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 guard event.keyCode == 49,
                       event.modifierFlags.contains(.function),
@@ -126,7 +188,7 @@ private struct NewSentenceTab: View {
                         self.viewModel.startRecordingForDataset()
                     }
                 }
-                return nil  // event'i yut — başka yere gitmesin
+                return nil
             }
         }
         .onDisappear {
@@ -137,6 +199,9 @@ private struct NewSentenceTab: View {
                 NSEvent.removeMonitor(monitor)
                 keyMonitor = nil
             }
+        }
+        .onChange(of: module) { _, _ in
+            Task { await loadRandom() }
         }
         .onChange(of: viewModel.itDatasetLastWhisper) {
             if !viewModel.itDatasetLastWhisper.isEmpty {
@@ -154,11 +219,46 @@ private struct NewSentenceTab: View {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(.green)
-            Text("Tum cumleler kaydedildi!")
+            Text(module.isTerm ? "Tum terimler kaydedildi!" : "Tum cumleler kaydedildi!")
                 .font(.title3.weight(.medium))
             Text("Harika is cikardin.")
                 .foregroundStyle(.secondary)
             Spacer()
+        }
+    }
+
+    // Large centered term display for IT Terimleri module
+    private var termCard: some View {
+        VStack(spacing: 16) {
+            Text(currentSentence)
+                .font(.system(size: 42, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 32)
+                .padding(.horizontal, 24)
+                .background(Color.orange.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+
+            HStack {
+                if !recordings.isEmpty {
+                    Label("\(recordings.count) kayit", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+                Spacer()
+                Button {
+                    currentSound?.stop()
+                    currentSound = nil
+                    playingIndex = nil
+                    Task { await loadRandom() }
+                } label: {
+                    Label("Sonraki", systemImage: "arrow.right.circle")
+                        .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(isLoading)
+            }
         }
     }
 
@@ -305,6 +405,8 @@ private struct NewSentenceTab: View {
     }
 
     private func loadRandom() async {
+        currentSentence = ""
+        recordings = []
         isLoading = true
         defer { isLoading = false }
         do {
@@ -325,6 +427,7 @@ private struct NewSentenceTab: View {
 
 private struct PracticedTab: View {
     var viewModel: AppViewModel
+    let module: TrainingModule
     @Binding var recordedCount: Int
 
     @State private var items: [ITDatasetResponse] = []
@@ -340,7 +443,8 @@ private struct PracticedTab: View {
                     Spacer()
                     Image(systemName: "waveform.slash").font(.system(size: 36)).foregroundStyle(.secondary)
                     Text("Henuz kayit yok").foregroundStyle(.secondary)
-                    Text("\"Yeni\" sekmesinden cumle kaydet.").font(.caption).foregroundStyle(.tertiary)
+                    Text("\"Yeni\" sekmesinden \(module.isTerm ? "terim" : "cumle") kaydet.")
+                        .font(.caption).foregroundStyle(.tertiary)
                     Spacer()
                 }
             } else if let sel = selected {
@@ -354,6 +458,7 @@ private struct PracticedTab: View {
             }
         }
         .onAppear { Task { await loadRecorded() } }
+        .onChange(of: module) { _, _ in Task { await loadRecorded() } }
     }
 
     private var recordedList: some View {
@@ -502,7 +607,7 @@ final class ITDatasetWindowController: NSObject {
         if let w = window, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
         let hosting = NSHostingController(rootView: ITDatasetView(viewModel: viewModel))
         let w = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 560),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 600),
             styleMask: [.titled, .closable, .nonactivatingPanel],
             backing: .buffered,
             defer: false

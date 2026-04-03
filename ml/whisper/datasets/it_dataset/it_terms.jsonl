@@ -1,0 +1,194 @@
+{"persona": "term", "scenario": "term", "text": "Repository"}
+{"persona": "term", "scenario": "term", "text": "ViewModel"}
+{"persona": "term", "scenario": "term", "text": "Controller"}
+{"persona": "term", "scenario": "term", "text": "Service"}
+{"persona": "term", "scenario": "term", "text": "Interface"}
+{"persona": "term", "scenario": "term", "text": "Protocol"}
+{"persona": "term", "scenario": "term", "text": "Delegate"}
+{"persona": "term", "scenario": "term", "text": "Observable"}
+{"persona": "term", "scenario": "term", "text": "Singleton"}
+{"persona": "term", "scenario": "term", "text": "Factory"}
+{"persona": "term", "scenario": "term", "text": "Dependency Injection"}
+{"persona": "term", "scenario": "term", "text": "Design Pattern"}
+{"persona": "term", "scenario": "term", "text": "Refactoring"}
+{"persona": "term", "scenario": "term", "text": "Abstraction"}
+{"persona": "term", "scenario": "term", "text": "Encapsulation"}
+{"persona": "term", "scenario": "term", "text": "Inheritance"}
+{"persona": "term", "scenario": "term", "text": "Polymorphism"}
+{"persona": "term", "scenario": "term", "text": "Override"}
+{"persona": "term", "scenario": "term", "text": "Extension"}
+{"persona": "term", "scenario": "term", "text": "Generic"}
+{"persona": "term", "scenario": "term", "text": "Optional"}
+{"persona": "term", "scenario": "term", "text": "Closure"}
+{"persona": "term", "scenario": "term", "text": "Callback"}
+{"persona": "term", "scenario": "term", "text": "Async"}
+{"persona": "term", "scenario": "term", "text": "Await"}
+{"persona": "term", "scenario": "term", "text": "Concurrency"}
+{"persona": "term", "scenario": "term", "text": "Thread"}
+{"persona": "term", "scenario": "term", "text": "MainActor"}
+{"persona": "term", "scenario": "term", "text": "DispatchQueue"}
+{"persona": "term", "scenario": "term", "text": "SwiftUI"}
+{"persona": "term", "scenario": "term", "text": "UIKit"}
+{"persona": "term", "scenario": "term", "text": "AppKit"}
+{"persona": "term", "scenario": "term", "text": "CoreData"}
+{"persona": "term", "scenario": "term", "text": "Combine"}
+{"persona": "term", "scenario": "term", "text": "Codable"}
+{"persona": "term", "scenario": "term", "text": "Decodable"}
+{"persona": "term", "scenario": "term", "text": "Encodable"}
+{"persona": "term", "scenario": "term", "text": "NSObject"}
+{"persona": "term", "scenario": "term", "text": "NSPanel"}
+{"persona": "term", "scenario": "term", "text": "NSWindow"}
+{"persona": "term", "scenario": "term", "text": "Endpoint"}
+{"persona": "term", "scenario": "term", "text": "Middleware"}
+{"persona": "term", "scenario": "term", "text": "Payload"}
+{"persona": "term", "scenario": "term", "text": "Request"}
+{"persona": "term", "scenario": "term", "text": "Response"}
+{"persona": "term", "scenario": "term", "text": "Authentication"}
+{"persona": "term", "scenario": "term", "text": "Authorization"}
+{"persona": "term", "scenario": "term", "text": "JWT"}
+{"persona": "term", "scenario": "term", "text": "OAuth"}
+{"persona": "term", "scenario": "term", "text": "Token"}
+{"persona": "term", "scenario": "term", "text": "Microservice"}
+{"persona": "term", "scenario": "term", "text": "Container"}
+{"persona": "term", "scenario": "term", "text": "Pipeline"}
+{"persona": "term", "scenario": "term", "text": "Kubernetes"}
+{"persona": "term", "scenario": "term", "text": "Docker"}
+{"persona": "term", "scenario": "term", "text": "Deploy"}
+{"persona": "term", "scenario": "term", "text": "Infrastructure"}
+{"persona": "term", "scenario": "term", "text": "Cluster"}
+{"persona": "term", "scenario": "term", "text": "Namespace"}
+{"persona": "term", "scenario": "term", "text": "Pod"}
+{"persona": "term", "scenario": "term", "text": "Helm"}
+{"persona": "term", "scenario": "term", "text": "CI/CD"}
+{"persona": "term", "scenario": "term", "text": "Build"}
+{"persona": "term", "scenario": "term", "text": "Migration"}
+{"persona": "term", "scenario": "term", "text": "Schema"}
+{"persona": "term", "scenario": "term", "text": "Transaction"}
+{"persona": "term", "scenario": "term", "text": "Index"}
+{"persona": "term", "scenario": "term", "text": "Query"}
+{"persona": "term", "scenario": "term", "text": "Aggregate"}
+{"persona": "term", "scenario": "term", "text": "Cache"}
+{"persona": "term", "scenario": "term", "text": "Redis"}
+{"persona": "term", "scenario": "term", "text": "PostgreSQL"}
+{"persona": "term", "scenario": "term", "text": "MongoDB"}
+{"persona": "term", "scenario": "term", "text": "SQLite"}
+{"persona": "term", "scenario": "term", "text": "ORM"}
+{"persona": "term", "scenario": "term", "text": "FastAPI"}
+{"persona": "term", "scenario": "term", "text": "gRPC"}
+{"persona": "term", "scenario": "term", "text": "GraphQL"}
+{"persona": "term", "scenario": "term", "text": "REST API"}
+{"persona": "term", "scenario": "term", "text": "WebSocket"}
+{"persona": "term", "scenario": "term", "text": "Kafka"}
+{"persona": "term", "scenario": "term", "text": "RabbitMQ"}
+{"persona": "term", "scenario": "term", "text": "Celery"}
+{"persona": "term", "scenario": "term", "text": "Pydantic"}
+{"persona": "term", "scenario": "term", "text": "SQLAlchemy"}
+{"persona": "term", "scenario": "term", "text": "Component"}
+{"persona": "term", "scenario": "term", "text": "Reducer"}
+{"persona": "term", "scenario": "term", "text": "Hook"}
+{"persona": "term", "scenario": "term", "text": "State"}
+{"persona": "term", "scenario": "term", "text": "TypeScript"}
+{"persona": "term", "scenario": "term", "text": "JavaScript"}
+{"persona": "term", "scenario": "term", "text": "Bundle"}
+{"persona": "term", "scenario": "term", "text": "Webpack"}
+{"persona": "term", "scenario": "term", "text": "Merge Conflict"}
+{"persona": "term", "scenario": "term", "text": "Pull Request"}
+{"persona": "term", "scenario": "term", "text": "Code Review"}
+{"persona": "term", "scenario": "term", "text": "Branch"}
+{"persona": "term", "scenario": "term", "text": "Commit"}
+{"persona": "term", "scenario": "term", "text": "Rebase"}
+{"persona": "term", "scenario": "term", "text": "Cherry Pick"}
+{"persona": "term", "scenario": "term", "text": "Stash"}
+{"persona": "term", "scenario": "term", "text": "Unit Test"}
+{"persona": "term", "scenario": "term", "text": "Integration Test"}
+{"persona": "term", "scenario": "term", "text": "Mock"}
+{"persona": "term", "scenario": "term", "text": "Stub"}
+{"persona": "term", "scenario": "term", "text": "Coverage"}
+{"persona": "term", "scenario": "term", "text": "Linter"}
+{"persona": "term", "scenario": "term", "text": "Formatter"}
+{"persona": "term", "scenario": "term", "text": "Debugger"}
+{"persona": "term", "scenario": "term", "text": "Breakpoint"}
+{"persona": "term", "scenario": "term", "text": "Profiler"}
+{"persona": "term", "scenario": "term", "text": "Memory Leak"}
+{"persona": "term", "scenario": "term", "text": "Deadlock"}
+{"persona": "term", "scenario": "term", "text": "Race Condition"}
+{"persona": "term", "scenario": "term", "text": "Stack Overflow"}
+{"persona": "term", "scenario": "term", "text": "Null Pointer"}
+{"persona": "term", "scenario": "term", "text": "Exception"}
+{"persona": "term", "scenario": "term", "text": "Error Handling"}
+{"persona": "term", "scenario": "term", "text": "Logging"}
+{"persona": "term", "scenario": "term", "text": "Monitoring"}
+{"persona": "term", "scenario": "term", "text": "Observability"}
+{"persona": "term", "scenario": "term", "text": "Tracing"}
+{"persona": "term", "scenario": "term", "text": "Metrics"}
+{"persona": "term", "scenario": "term", "text": "Dashboard"}
+{"persona": "term", "scenario": "term", "text": "Alert"}
+{"persona": "term", "scenario": "term", "text": "On-Call"}
+{"persona": "term", "scenario": "term", "text": "Incident"}
+{"persona": "term", "scenario": "term", "text": "Rollback"}
+{"persona": "term", "scenario": "term", "text": "Feature Flag"}
+{"persona": "term", "scenario": "term", "text": "A/B Test"}
+{"persona": "term", "scenario": "term", "text": "Canary Deploy"}
+{"persona": "term", "scenario": "term", "text": "Blue-Green Deploy"}
+{"persona": "term", "scenario": "term", "text": "Load Balancer"}
+{"persona": "term", "scenario": "term", "text": "Rate Limiting"}
+{"persona": "term", "scenario": "term", "text": "Throttling"}
+{"persona": "term", "scenario": "term", "text": "Backoff"}
+{"persona": "term", "scenario": "term", "text": "Circuit Breaker"}
+{"persona": "term", "scenario": "term", "text": "Retry Logic"}
+{"persona": "term", "scenario": "term", "text": "Idempotent"}
+{"persona": "term", "scenario": "term", "text": "Idempotency"}
+{"persona": "term", "scenario": "term", "text": "Scalability"}
+{"persona": "term", "scenario": "term", "text": "Throughput"}
+{"persona": "term", "scenario": "term", "text": "Latency"}
+{"persona": "term", "scenario": "term", "text": "Bottleneck"}
+{"persona": "term", "scenario": "term", "text": "Benchmark"}
+{"persona": "term", "scenario": "term", "text": "Profiling"}
+{"persona": "term", "scenario": "term", "text": "Optimization"}
+{"persona": "term", "scenario": "term", "text": "Algorithm"}
+{"persona": "term", "scenario": "term", "text": "Data Structure"}
+{"persona": "term", "scenario": "term", "text": "Hash Map"}
+{"persona": "term", "scenario": "term", "text": "Binary Tree"}
+{"persona": "term", "scenario": "term", "text": "Linked List"}
+{"persona": "term", "scenario": "term", "text": "Queue"}
+{"persona": "term", "scenario": "term", "text": "Stack"}
+{"persona": "term", "scenario": "term", "text": "Heap"}
+{"persona": "term", "scenario": "term", "text": "Graph"}
+{"persona": "term", "scenario": "term", "text": "Recursion"}
+{"persona": "term", "scenario": "term", "text": "Iteration"}
+{"persona": "term", "scenario": "term", "text": "Big O Notation"}
+{"persona": "term", "scenario": "term", "text": "Complexity"}
+{"persona": "term", "scenario": "term", "text": "Serialization"}
+{"persona": "term", "scenario": "term", "text": "Deserialization"}
+{"persona": "term", "scenario": "term", "text": "Encryption"}
+{"persona": "term", "scenario": "term", "text": "Hashing"}
+{"persona": "term", "scenario": "term", "text": "SSL/TLS"}
+{"persona": "term", "scenario": "term", "text": "HTTPS"}
+{"persona": "term", "scenario": "term", "text": "CORS"}
+{"persona": "term", "scenario": "term", "text": "Cookie"}
+{"persona": "term", "scenario": "term", "text": "Session"}
+{"persona": "term", "scenario": "term", "text": "Header"}
+{"persona": "term", "scenario": "term", "text": "Webhook"}
+{"persona": "term", "scenario": "term", "text": "Event Driven"}
+{"persona": "term", "scenario": "term", "text": "Pub/Sub"}
+{"persona": "term", "scenario": "term", "text": "Broadcast"}
+{"persona": "term", "scenario": "term", "text": "Streaming"}
+{"persona": "term", "scenario": "term", "text": "Batch Processing"}
+{"persona": "term", "scenario": "term", "text": "ETL"}
+{"persona": "term", "scenario": "term", "text": "Data Pipeline"}
+{"persona": "term", "scenario": "term", "text": "Machine Learning"}
+{"persona": "term", "scenario": "term", "text": "Fine-Tuning"}
+{"persona": "term", "scenario": "term", "text": "LoRA"}
+{"persona": "term", "scenario": "term", "text": "Inference"}
+{"persona": "term", "scenario": "term", "text": "Embedding"}
+{"persona": "term", "scenario": "term", "text": "Transformer"}
+{"persona": "term", "scenario": "term", "text": "Tokenizer"}
+{"persona": "term", "scenario": "term", "text": "Checkpoint"}
+{"persona": "term", "scenario": "term", "text": "Epoch"}
+{"persona": "term", "scenario": "term", "text": "Batch Size"}
+{"persona": "term", "scenario": "term", "text": "Learning Rate"}
+{"persona": "term", "scenario": "term", "text": "Gradient Descent"}
+{"persona": "term", "scenario": "term", "text": "Backpropagation"}
+{"persona": "term", "scenario": "term", "text": "Overfitting"}
+{"persona": "term", "scenario": "term", "text": "Regularization"}
+{"persona": "term", "scenario": "term", "text": "Hyperparameter"}

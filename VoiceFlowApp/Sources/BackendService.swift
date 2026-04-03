@@ -194,9 +194,9 @@ protocol BackendServiceProtocol: Actor {
     func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String?) async throws
 
     // IT Dataset (Engineering Whisper)
-    func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse
-    func getITDatasetRandom() async throws -> ITDatasetResponse
-    func getITDatasetRecorded() async throws -> [ITDatasetResponse]
+    func getITDatasetNext(offset: Int, trainingSet: String) async throws -> ITDatasetResponse
+    func getITDatasetRandom(trainingSet: String) async throws -> ITDatasetResponse
+    func getITDatasetRecorded(trainingSet: String) async throws -> [ITDatasetResponse]
     func saveITDatasetPair(index: Int, whisperOutput: String) async throws
     func deleteITDatasetPair(wavPath: String) async throws
 }
@@ -618,8 +618,8 @@ struct ITDatasetResponse: Decodable {
 }
 
 extension BackendService {
-    func getITDatasetNext(offset: Int = 0) async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "it-dataset/next?offset=\(offset)")
+    func getITDatasetNext(offset: Int = 0, trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
+        let request = makeRequest(path: "it-dataset/next?offset=\(offset)&training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -627,8 +627,8 @@ extension BackendService {
         return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
     }
 
-    func getITDatasetRandom() async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "it-dataset/random")
+    func getITDatasetRandom(trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
+        let request = makeRequest(path: "it-dataset/random?training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -636,8 +636,8 @@ extension BackendService {
         return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
     }
 
-    func getITDatasetRecorded() async throws -> [ITDatasetResponse] {
-        let request = makeRequest(path: "it-dataset/recorded")
+    func getITDatasetRecorded(trainingSet: String = "it_dataset") async throws -> [ITDatasetResponse] {
+        let request = makeRequest(path: "it-dataset/recorded?training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
