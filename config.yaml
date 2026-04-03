@@ -12,8 +12,8 @@ llm:
   adapter_path: ml/qwen/adapters_mlx  # LoRA adapter; empty = no adapter
 
 whisper:
-  model: mlx-community/whisper-large-v3-turbo  # MLX model
-  server_model: large-v3                        # faster-whisper (server mode)
+  model: ml/whisper/models/voiceflow-whisper-tr-mlx  # fine-tuned TR model (ISSAI 164K)
+  server_model: large-v3                             # faster-whisper (server mode)
 
 auth:
   jwt_access_ttl_minutes: 60

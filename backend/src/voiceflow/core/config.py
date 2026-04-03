@@ -48,7 +48,10 @@ LLM_ENDPOINT:    str       = _get("llm", "endpoint",         "")
 LLM_MODEL:       str       = _get("llm", "model",            "qwen2.5:7b")
 LLM_ADAPTER_PATH: Path | None = _resolve_path(_get("llm", "adapter_path", ""))
 
-WHISPER_MODEL:        str  = _get("whisper", "model",        "mlx-community/whisper-large-v3-turbo")
+_whisper_model_raw = _get("whisper", "model", "mlx-community/whisper-large-v3-turbo")
+_whisper_model_path = _resolve_path(_whisper_model_raw)
+# Use absolute path if it resolves to an existing local dir; else keep as HF repo name
+WHISPER_MODEL: str = str(_whisper_model_path) if (_whisper_model_path and _whisper_model_path.exists()) else _whisper_model_raw
 WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
 
 JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))
