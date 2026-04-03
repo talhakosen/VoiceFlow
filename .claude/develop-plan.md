@@ -43,6 +43,7 @@
 - [DONE 2026-03-30] **Menü sadeleştirme** — Wispr Flow gibi minimal:
       Sadece: Status | Toggle Recording | Force Stop | ─ | Settings | Quit
       Dil, mod, correction → Settings'e taşı
+- [DONE 2026-04-03] **Menü v2 polish** — SF Symbol ikonlar (isTemplate), Kaydı Başlat/Durdur toggle, kısayolsuz, Zorla Yeniden Başlat, status satırı mixed-font (Ready + küçük versiyon), NSMenuDelegate.menuWillOpen sync fix
 
 - [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
       Sol nav: General | Recording | Knowledge Base | Account | About

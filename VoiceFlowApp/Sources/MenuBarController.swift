@@ -102,7 +102,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
                                 key: "", icon: "shield.lefthalf.filled"))
         }
 
-        menu.addItem(action("Quit", sel: #selector(quit), key: "q", icon: "power"))
+        menu.addItem(action("Quit", sel: #selector(quit), key: "", icon: "power"))
         menu.addItem(.separator())
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
@@ -185,14 +185,18 @@ class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     private func makeVersionStatusAttr(version: String, build: String, status: String) -> NSAttributedString {
-        let para = NSMutableParagraphStyle()
-        para.tabStops = [NSTextTab(textAlignment: .right, location: 260)]
-        let attrs: [NSAttributedString.Key: Any] = [
-            .paragraphStyle: para,
+        let small = NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)
+        let tiny  = NSFont.menuFont(ofSize: NSFont.smallSystemFontSize - 1.5)
+        let result = NSMutableAttributedString()
+        result.append(NSAttributedString(string: status, attributes: [
             .foregroundColor: NSColor.secondaryLabelColor,
-            .font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)
-        ]
-        return NSAttributedString(string: "v\(version) (\(build))\t\(status)", attributes: attrs)
+            .font: small
+        ]))
+        result.append(NSAttributedString(string: "  (v\(version) · \(build))", attributes: [
+            .foregroundColor: NSColor.tertiaryLabelColor,
+            .font: tiny
+        ]))
+        return result
     }
 
     private func disabled(_ title: String, tag: Int = 0) -> NSMenuItem {
