@@ -26,7 +26,8 @@ final class AppViewModel {
     var itDatasetCurrentIndex = -1
     var itDatasetLastWhisper = ""
     var itDatasetLastWavPath = ""
-    var itDatasetProcessing = false   // true while Whisper result pending (blocks new start)
+    var itDatasetProcessing = false        // true while Whisper result pending (blocks new start)
+    private var isDatasetRecordingActive = false  // Fn+Space path — Fn path'ini izole eder
     private var autoDismissTask: Task<Void, Never>? = nil
 
     // MARK: - Dependencies
@@ -170,7 +171,7 @@ final class AppViewModel {
     }
 
     func startRecording() {
-        guard !isRecording else { return }
+        guard !isRecording && !isDatasetRecordingActive else { return }
         isRecording = true
         if isCorrectionEnabled && !isLLMReady {
             statusText = "⚠ LLM yükleniyor — düzeltme bu kayıtta çalışmayabilir"
@@ -199,6 +200,7 @@ final class AppViewModel {
     }
 
     func stopAndTranscribe() async {
+        guard !isDatasetRecordingActive else { return }  // Fn+Space kaydını Fn kesmemeli
         guard isRecording else {
             // Sync local state with backend
             if let status = try? await backend.getStatus(), status.isRecording {
@@ -435,6 +437,7 @@ final class AppViewModel {
     func startRecordingForDataset() {
         guard !isRecording && !itDatasetProcessing else { return }
         isRecording = true
+        isDatasetRecordingActive = true
         statusText = "Dataset Recording..."
         Task {
             do {
@@ -447,8 +450,9 @@ final class AppViewModel {
     }
 
     func stopRecordingForDataset() {
-        guard isRecording else { return }
+        guard isRecording && isDatasetRecordingActive else { return }
         isRecording = false
+        isDatasetRecordingActive = false
         itDatasetProcessing = true
         statusText = "Processing..."
         Task {
