@@ -281,16 +281,23 @@
 - [DONE 2026-04-03] **ml/ reorganization** — backend/scripts/ → ml/ (data_gen/, qwen/, whisper/); ml/qwen/{scripts,datasets,adapters_mlx}/; .gitignore güncellendi; tüm docs güncellendi
 - [DONE 2026-04-03] **ML Architecture doc** — `docs/architecture/ml-architecture.md`: iki adapter tablosu, ml/ + docs/ dizin rehberi, Qwen ve Whisper eğitim pipeline'ları, config.yaml referansı
 #### Katman 1 — voiceflow-whisper-tr (ISSAI base)
-- [ ] **RunPod pod oluştur** — H100 veya RTX 4090 (SECURE cloud), ISSAI için ~4 saat
-- [ ] **ISSAI WAV indir** — RunPod'da `~21GB`, `/root/issai_wav/` altına
-- [ ] **`whisper_issai_finetune.py`** — whisper-small (PoC) veya whisper-large-v3-turbo (prod), LoRA r=16, ISSAI 164K pair, 3 epoch
-- [ ] **merge_and_unload()** → `voiceflow-whisper-tr` kaydet → MLX'e dönüştür
-> Not: ISSAI ground truth noktalama içermiyor → öğrenme hedefi yalnızca fonetik doğruluk
+- [DONE 2026-04-03] **RunPod pod oluştur** — H100 80GB SECURE, `python runpod/create_pod.py issai`
+- [DONE 2026-04-03] **ISSAI WAV indir + eğit** — `whisper_issai_finetune.py`, LoRA r=16, LR=1e-3, 3 epoch, 164K pair, ~4.6 saat H100; train_loss=0.186
+- [DONE 2026-04-03] **merge + MLX dönüşüm** → `tkosen/voiceflow-whisper-tr` (HF) + `ml/whisper/models/voiceflow-whisper-tr-mlx/` (1.5GB float16); `config.yaml`'da aktif
+
+#### Katman 1b — voiceflow-whisper-tr-v2 (Noktalama Stage 2)
+> Motivasyon: Stage 1 akustik doğru ama büyük harf/noktalama yok (ISSAI .txt lowercase). Stage 2 bunu düzeltir.
+- [DONE 2026-04-03] **`issai_punctuated.jsonl` hazırla** — 83 paralel Claude Code agent × 2000 satır; 164,421 satır merge; 60.9% değişiklik; Türkçe i→İ/ı→I kuralları uygulandı
+- [DONE 2026-04-03] **`whisper_stage2_finetune.py`** — Base=voiceflow-whisper-tr, LoRA r=8, LR=5e-6, batch=32, 2 epoch; torch.compile + adamw_bnb_8bit + RAM disk → ~2 saat H100 tahmini
+- [DONE 2026-04-03] **RunPod Stage 2 config** — `runpod/pods/whisper_stage2_h100.json` + `runpod/setup/stage2.sh`; `python runpod/create_pod.py stage2`
+- [ ] **RunPod Stage 2 eğitimi başlat** — pod aç, dosyaları yükle, `bash /workspace/stage2.sh`
+- [ ] **MLX dönüşüm** — `convert_whisper_mlx.py --dtype float16` → `voiceflow-whisper-tr-v2-mlx`
+- [ ] **config.yaml güncelle** → `whisper.model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx`
 
 #### Katman 2 — voiceflow-whisper-it (IT layer)
 - [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
 - [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT gerçek kayıt → HF dataset format
-- [ ] **`whisper_it_finetune.py`** — voiceflow-whisper-tr üzerine IT kayıtlarıyla LoRA, merge → voiceflow-whisper-it
+- [ ] **`whisper_it_finetune.py`** — voiceflow-whisper-tr-v2 üzerine IT kayıtlarıyla LoRA, merge → voiceflow-whisper-it
 - [ ] **`convert_whisper_mlx.py`** — HF adapter → MLX format → engineering mode entegrasyon
 - [ ] **Başarı kriteri**: IT term WER < %5 (mevcut > %30), genel Türkçe kötüleşme < %2
 
@@ -370,8 +377,9 @@ ISSAI (164K) → merge → voiceflow-whisper-tr
 | Adapter | Sorumluluk | Durum |
 |---|---|---|
 | **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
-| **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | 🔲 RunPod eğitimi bekliyor |
-| **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr sonrası |
+| **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | ✅ Canlıda (production, MLX float16) |
+| **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | 🔄 RunPod eğitimi başlatılacak |
+| **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr-v2 sonrası |
 | **Müşteri Adapter** (~30MB) | Domain-specific (on-premise, KVKK uyumlu) | 🔲 İlk kurumsal satış sonrası |
 
 - Engineering mode: voiceflow-whisper-it aktif, Qwen Adapter kapalı

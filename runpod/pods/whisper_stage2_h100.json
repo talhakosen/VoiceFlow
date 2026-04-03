@@ -1,0 +1,26 @@
+{
+  "name": "voiceflow-whisper-stage2",
+  "imageName": "runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04",
+  "gpuTypeId": "NVIDIA H100 80GB HBM3",
+  "gpuCount": 1,
+  "cloudType": "SECURE",
+  "containerDiskInGb": 150,
+  "volumeInGb": 50,
+  "volumeMountPath": "/workspace",
+  "ports": "22/tcp,8888/http",
+  "env": {
+    "PUBLIC_KEY": "__YOUR_SSH_PUBLIC_KEY__",
+    "HF_TOKEN": "__FROM_ENV__"
+  },
+  "_notes": [
+    "Stage 2: voiceflow-whisper-tr üstüne noktalama/büyük harf fine-tune",
+    "Volume 50GB (Stage 1=20GB): ISSAI WAV'lar /workspace/issai/ (~26GB) + v2 model (~3GB)",
+    "ISSAI /workspace/issai/'da saklanırsa pod restart'ta yeniden indirmek gerekmez",
+    "Container 150GB: model (3GB HF) + RAM disk copy (~26GB) + checkpoints (~6GB)",
+    "Optimizasyonlar: batch=32, workers=16, torch.compile, 8-bit Adam → ~2 saat",
+    "SECURE cloud zorunlu — COMMUNITY'de HF download yavaş/kesilir"
+  ],
+  "_setup": "runpod/setup/stage2.sh",
+  "_train_script": "ml/whisper/whisper_stage2_finetune.py",
+  "_output": "/workspace/voiceflow-whisper-tr-v2"
+}

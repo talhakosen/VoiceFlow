@@ -185,8 +185,9 @@ Whisper adapter'ı tek seferde eğitilmez. Üç aşamalı bir katman sistemi:
 | Adapter | Durum | Versiyon |
 |---|---|---|
 | Qwen Adapter | ✅ Canlıda | v1 (GECTurk + corruption, 71K pair, RunPod RTX 4090) |
-| voiceflow-whisper-tr | 🔲 Planlandı | ISSAI (164K pair) eğitimi bekliyor |
-| voiceflow-whisper-it | 🔲 Planlandı | whisper-tr merge sonrası, IT kayıtlarıyla |
+| voiceflow-whisper-tr | ✅ HF'te hazır | Stage 1: ISSAI 164K pair, H100 ~4.6 saat, `tkosen/voiceflow-whisper-tr` |
+| voiceflow-whisper-tr-v2 | 🔄 Başlatılacak | Stage 2: noktalama/büyük harf, aynı ISSAI WAV + _clean_gt() GT |
+| voiceflow-whisper-it | 🔲 Planlandı | whisper-tr-v2 merge sonrası, IT kayıtlarıyla |
 | Müşteri Adapter | 🔲 Planlandı | İlk kurumsal satış sonrası |
 
 ---

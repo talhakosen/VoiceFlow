@@ -199,6 +199,86 @@ Sonra `config.yaml`'da `llm.adapter_path: ml/qwen/adapters_mlx` yap.
 
 ---
 
+## Whisper Stage 2 — H100 Noktalama Fine-Tune
+
+### ISSAI Extraction — Kritik Bilgi
+
+**Tar dosyası:** `ISSAI_TSC_218.tar.gz` — 21.4GB, 186,170 utterance tek tar'da.
+
+**ASLA `/workspace` (NFS)'e extract etme:**
+| Path | Hız | 186K WAV için |
+|---|---|---|
+| `/workspace` (NFS volume) | ~1K WAV/dk | ~167 dakika |
+| `/root/` (container SSD) | ~65K WAV/dk | **~3 dakika** |
+
+```bash
+# Doğru extraction — container SSD'ye (/root), --no-same-owner zorunlu
+mkdir -p /root/issai/extracted
+nohup tar --no-same-owner -xzf /workspace/issai/ISSAI_TSC_218.tar.gz \
+  -C /root/issai/extracted/ > /workspace/extract.log 2>&1 &
+
+# Doğrula (~3 dk sonra)
+find /root/issai/extracted -name "*.wav" | wc -l  # → 186,170 bekleniyor
+```
+
+**`set -e` + tar = ÖLÜMCÜL**: tar chown permission hataları exit code ≠ 0 döner → script ölür, extraction ~8K WAV'da durur. `--no-same-owner` ile bu hatalar bastırılır.
+
+### RAM Disk Trick (Training I/O Optimizasyonu)
+
+H100 pod RAM = 200GB+. ISSAI WAV'lar ~26GB → RAM'e kopyala, disk I/O sıfırla → training ~1 saat kısalır.
+
+```bash
+free -h  # RAM kontrolü
+mkdir -p /dev/shm/issai
+cp -r /root/issai/extracted /dev/shm/issai/  # ~60 saniye
+# Stage 2 script otomatik: /dev/shm → /root → /workspace sırasını dener
+```
+
+### issai_pairs_clean.jsonl Alan Farkı
+
+```json
+{"input": "docker kurdum kubernetes e deploy ettim",  ← Whisper ASR çıktısı (Qwen eğitimi için)
+ "output": "Docker kurdum, Kubernetes'e deploy ettim."  ← Ground truth TXT (Whisper eğitimi için)
+```
+
+**Whisper Stage 2 için:** `output` alanını kullan — TXT dosyasındaki ground truth, `_clean_gt()` ile temel noktalama eklenmiş.
+**Qwen için:** `input → output` çifti — Whisper hatalarını düzeltmeyi öğreniyor.
+
+### Stage 2 Optimizasyon (Stage 1 ile karşılaştırma)
+
+| Faktör | Stage 1 | Stage 2 |
+|---|---|---|
+| Base model | whisper-large-v3-turbo | **voiceflow-whisper-tr** (Stage 1 çıktısı) |
+| Epoch | 3 | **2** |
+| Batch | 16 | **32** |
+| LoRA rank | 16 | **8** (catastrophic forgetting önle) |
+| LR | 1e-3 | **5e-6** (200× düşük) |
+| Workers | 8 | **16** |
+| torch.compile | ✗ | **✓ (+20%)** |
+| Adam | default | **adamw_bnb_8bit** |
+| prefetch_factor | ✗ | **4** |
+| RAM disk | ✗ | **✓** |
+| **Süre** | ~4.6 saat | **~2 saat** |
+| **Maliyet** | ~$18 | **~$8** |
+
+### Stage 2 Çalıştırma
+
+```bash
+python create_pod.py stage2
+
+# 2. Dosyaları yükle
+scp -P <PORT> ml/whisper/whisper_stage2_finetune.py root@<IP>:/workspace/
+scp -P <PORT> runpod/setup/stage2.sh root@<IP>:/workspace/
+
+# 3. Training başlat
+ssh -p <PORT> root@<IP> 'export HF_TOKEN=hf_xxx && bash /workspace/stage2.sh'
+
+# 4. Log takip
+ssh -p <PORT> root@<IP> 'tail -f /workspace/stage2.log'
+```
+
+---
+
 ## ISSAI / Whisper Paralel İşleme
 
 186K ses dosyasını tek process ile işlemek ~26 saat sürer. **3 paralel shard** ile ~9 saate düşer.
