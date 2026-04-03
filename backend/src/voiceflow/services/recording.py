@@ -173,7 +173,7 @@ class RecordingService:
                 from pathlib import Path as _Path
                 import time as _t
                 from ..db import get_training_sentence_by_id, save_training_recording
-                wav_dir = _Path.home() / ".voiceflow" / "training" / "it_dataset"
+                wav_dir = _Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings"
                 wav_dir.mkdir(parents=True, exist_ok=True)
                 ts = int(_t.time() * 1000)
                 wav_path = wav_dir / f"{it_dataset_index:05d}_{ts}.wav"

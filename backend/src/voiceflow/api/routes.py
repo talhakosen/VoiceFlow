@@ -520,7 +520,7 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
 # ------------------------------------------------------------------
 
 _IT_DATASET_PATH = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "whisper_sentences.jsonl"
-_IT_RECORDINGS_DIR = Path.home() / ".voiceflow" / "training" / "it_dataset"
+_IT_RECORDINGS_DIR = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings"
 
 
 class ITRecording(BaseModel):
