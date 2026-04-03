@@ -99,7 +99,7 @@ WHISPER_ADAPTER_PATH=akbank_v1       # müşterinin delta adapter'ı (~30MB, on-
 ### Dosya Yapısı
 
 ```
-~/.voiceflow/ veya scripts/training/
+~/.voiceflow/ veya ml/qwen/
 ├── adapters_mlx/              ← Qwen adapter (mevcut, canlıda)
 │   ├── adapters/
 │   └── config.json
@@ -130,9 +130,47 @@ Sonuç: voiceflow-whisper-it + akbank_v1 deployment MİMARİSİ DOĞRU.
 
 `.env` config:
 ```bash
-LLM_ADAPTER_PATH=scripts/training/adapters_mlx          # Qwen adapter — şu an aktif
-WHISPER_ADAPTER_PATH=scripts/training/whisper_adapters/akbank_v1  # müşteri adapter'ı
+LLM_ADAPTER_PATH=../ml/qwen/adapters_mlx          # Qwen adapter — şu an aktif
+WHISPER_ADAPTER_PATH=~/.voiceflow/whisper_adapters/akbank_v1  # müşteri adapter'ı
 ```
+
+---
+
+## Whisper Adapter — Katmanlı Eğitim Mimarisi
+
+Whisper adapter'ı tek seferde eğitilmez. Üç aşamalı bir katman sistemi:
+
+```
+[1] ISSAI (164K gerçek Türkçe ses)
+        ↓  LoRA → merge_and_unload()
+[2] voiceflow-whisper-tr    ← Genel Türkçe base (bir kez eğitilir, nadiren güncellenir)
+        ↓  + IT kayıtları (gerçek geliştirici sesi)
+        ↓  LoRA → merge_and_unload()
+[3] voiceflow-whisper-it    ← IT base (IT kayıtları arttıkça güncellenir)
+        ↓  + Müşteri verisi
+        ↓  LoRA (MERGE EDİLMEZ — müşteri makinesinde kalır)
+[4] akbank_v1 / turkcell_v1 ← Müşteri delta (~30MB)
+```
+
+### Neden Merge?
+
+- `merge_and_unload()` → LoRA ağırlıkları base modele yazılır → yeni base
+- Yeni base üzerine bir sonraki katmanın LoRA'sı oturur
+- Sonuç: standart HuggingFace/MLX model (inference'ta ek yük yok)
+
+### Neden Müşteri Adapter'ı Merge Edilmez?
+
+- Müşteri adapter'ı (~30MB) müşteri makinesinde on-premise kalır
+- Veri müşteri yerinden çıkmaz → KVKK doğal uyum
+- Bizim IT base'i gönderilir (~1.5GB), üzerine adapter yüklenir
+
+### Güncelleme Stratejisi
+
+| Katman | Ne Zaman Güncellenir |
+|---|---|
+| voiceflow-whisper-tr | Nadiren (ISSAI v2, büyük TR dataset eklenince) |
+| voiceflow-whisper-it | IT kayıt havuzu büyüdükçe (50+ yeni kayıt) |
+| Müşteri adapter | Müşteri kendi datasını genişletince |
 
 ---
 
@@ -141,21 +179,18 @@ WHISPER_ADAPTER_PATH=scripts/training/whisper_adapters/akbank_v1  # müşteri ad
 | Adapter | Durum | Versiyon |
 |---|---|---|
 | Qwen Adapter | ✅ Canlıda | v1 (GECTurk + corruption, 71K pair, RunPod RTX 4090) |
-| Whisper Adapter | 🔲 Planlandı | — |
+| voiceflow-whisper-tr | 🔲 Planlandı | ISSAI (164K pair) eğitimi bekliyor |
+| voiceflow-whisper-it | 🔲 Planlandı | whisper-tr merge sonrası, IT kayıtlarıyla |
+| Müşteri Adapter | 🔲 Planlandı | İlk kurumsal satış sonrası |
 
 ---
 
-## Müşteriye Özel Adapter (Gelecek)
-
-Her iki adapter müşteri bazlı ince ayar alabilir:
+## Müşteriye Özel Adapter
 
 ```
-Qwen base adapter
-    └── + Akbank domain data → Akbank Qwen Adapter
-    └── + Turkcell domain data → Turkcell Qwen Adapter
-
-Whisper IT adapter
-    └── + Akbank ses verisi → Akbank Whisper Adapter
+voiceflow-whisper-it (bizden)
+    └── + Akbank ses verisi → akbank_v1 LoRA (~30MB, on-premise)
+    └── + Turkcell ses verisi → turkcell_v1 LoRA (~30MB, on-premise)
 ```
 
-Veri müşteri makinesinde kalır, adapter ~50MB → KVKK doğal uyum.
+Veri müşteri makinesinde kalır, adapter ~30MB → KVKK doğal uyum.

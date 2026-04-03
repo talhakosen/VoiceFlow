@@ -195,6 +195,8 @@ protocol BackendServiceProtocol: Actor {
 
     // IT Dataset (Engineering Whisper)
     func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse
+    func getITDatasetRandom() async throws -> ITDatasetResponse
+    func getITDatasetRecorded() async throws -> [ITDatasetResponse]
     func saveITDatasetPair(index: Int, whisperOutput: String) async throws
     func deleteITDatasetPair(wavPath: String) async throws
 }
@@ -623,6 +625,24 @@ extension BackendService {
             throw BackendError.requestFailed
         }
         return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
+    }
+
+    func getITDatasetRandom() async throws -> ITDatasetResponse {
+        let request = makeRequest(path: "it-dataset/random")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
+    }
+
+    func getITDatasetRecorded() async throws -> [ITDatasetResponse] {
+        let request = makeRequest(path: "it-dataset/recorded")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode([ITDatasetResponse].self, from: data)
     }
 
     func saveITDatasetPair(index: Int, whisperOutput: String) async throws {

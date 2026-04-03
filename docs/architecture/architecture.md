@@ -40,7 +40,7 @@
 - Knowledge Base (ChromaDB RAG, MiniLM embeddings)
 - Style/ton per-context (bundle ID → formal/casual/technical)
 - LLM backend seçimi: Local MLX / Cloud RunPod Ollama / Alibaba DashScope qwen-max
-- Fine-tuned LoRA adapter (Qwen2.5-7B, 39MB, `scripts/training/adapters_mlx/`) — 1. round tamamlandı, `LLM_ADAPTER_PATH` ile aktif
+- Fine-tuned LoRA adapter (Qwen2.5-7B, 39MB, `ml/qwen/adapters_mlx/`) — 1. round tamamlandı, `LLM_ADAPTER_PATH` ile aktif
 - Yanıt süresi: ~0.5s (LLM kapalı), ~3.5s (local 7B), ~1.5s (Alibaba cloud)
 
 ---

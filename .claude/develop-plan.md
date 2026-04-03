@@ -247,12 +247,49 @@
 - [DONE 2026-04-02] **`sentence_generator.py`** — Qwen-max (Alibaba DashScope) → persona × senaryo + terim-odaklı → **4.495 cümle** (1.115 persona-based + 3.380 terim-focused); whisper_sentences.jsonl
 - [DONE 2026-04-02] **`tts_generator.py`** — OpenAI tts-1-hd (alloy/nova/onyx/shimmer) + Edge TTS fallback → 16kHz mono WAV; TTS kalite testi: Edge=yapay, OpenAI=yabancı aksanlı → gerçek insan kaydına pivot
 - [DONE 2026-04-02] **IT Dataset Kayıt UI** — Settings > IT Dataset sekmesi; özel Kayıt butonu (Fn2'den bağımsız); WAV + Whisper pair otomatik kaydedilir; play/stop/sil per varyasyon; Finder'da Aç; aynı cümle için birden fazla varyasyon
+- [DONE 2026-04-03] **IT Dataset SQLite migration** — training_sentences + training_recordings tabloları; JSONL → SQLite one-time migration; WAV → ~/.voiceflow/training/it_dataset/; multi-training-set (training_set param); ORDER BY RANDOM() shuffle; "Yeni" (unrecorded) + "Pratik" (recorded) tab ayrımı
+- [DONE 2026-04-03] **ml/ reorganization** — backend/scripts/ → ml/ (data_gen/, qwen/, whisper/); ml/qwen/{scripts,datasets,adapters_mlx}/; .gitignore güncellendi; tüm docs güncellendi
+#### Katman 1 — voiceflow-whisper-tr (ISSAI base)
+- [ ] **RunPod pod oluştur** — H100 veya RTX 4090 (SECURE cloud), ISSAI için ~4 saat
+- [ ] **ISSAI WAV indir** — RunPod'da `~21GB`, `/root/issai_wav/` altına
+- [ ] **`whisper_issai_finetune.py`** — whisper-small (PoC) veya whisper-large-v3-turbo (prod), LoRA r=16, ISSAI 164K pair, 3 epoch
+- [ ] **merge_and_unload()** → `voiceflow-whisper-tr` kaydet → MLX'e dönüştür
+> Not: ISSAI ground truth noktalama içermiyor → öğrenme hedefi yalnızca fonetik doğruluk
+
+#### Katman 2 — voiceflow-whisper-it (IT layer)
 - [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
 - [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT gerçek kayıt → HF dataset format
-- [ ] **`whisper_finetune.py`** — RunPod RTX 4090, whisper-large-v3-turbo + LoRA (r=16), 5000 step
+- [ ] **`whisper_it_finetune.py`** — voiceflow-whisper-tr üzerine IT kayıtlarıyla LoRA, merge → voiceflow-whisper-it
 - [ ] **`convert_whisper_mlx.py`** — HF adapter → MLX format → engineering mode entegrasyon
 - [ ] **Başarı kriteri**: IT term WER < %5 (mevcut > %30), genel Türkçe kötüleşme < %2
-> Detay: `docs/discussions/007-engineering-whisper-finetune.md`
+
+#### Katman 2 — Türkçe IT Podcast Veri Toplama (ek kaynak)
+> Trello: https://trello.com/c/lin8J1i8
+
+**Hedef:** YouTube'daki Türkçe IT içeriklerinden gerçek geliştirici konuşması verisi topla.
+IT terimi yoğun içerik seçmek kritik — genel Türkçe bölümler değersiz.
+
+**İçerik önceliği:**
+1. DevNot Summit teknik sunumlar (Kubernetes, microservice, cloud)
+2. Codefiction teknik bölümler (mimari, AWS, Golang başlıklı olanlar)
+3. YouTube: "Kubernetes Türkçe", "Docker tutorial TR", "microservice Türkçe" araması
+
+**Pipeline (test edildi 2026-04-03):**
+- [ ] Codefiction/DevNot'a lisans için yaz
+- [ ] `yt-dlp URL --extract-audio --write-auto-subs --sub-lang tr` → audio + YouTube caption
+- [ ] 30sn chunk'lara böl → (chunk.wav, caption_text) JSONL pair
+- [ ] voiceflow-whisper-tr üzerine ekle → voiceflow-whisper-it'e dahil et
+
+> Not: YouTube auto-caption (Google STT) ground truth olarak yeterli — Whisper large-v3 pseudo-label gerekmez.
+> Not: yt-dlp + ffmpeg RunPod'da kurulu, pipeline hazır.
+
+#### Katman 3 — Müşteri Adapter (Planlandı)
+- [ ] **Müşteri adapter sistemi** — voiceflow-whisper-it üzerine domain LoRA (MERGE EDİLMEZ, on-premise)
+> Detay: `docs/discussions/007-engineering-whisper-finetune.md`, `docs/ml/two-adapter-architecture.md`
+
+#### PoC Sonuçları (2026-04-02, whisper-small, 48 kayıt, RTX 4090)
+- Baseline WER: 40.0% → Fine-tuned WER: 32.5% → **%18.8 iyileşme, 12 saniyede**
+- Mimari doğrulandı: merge_and_unload() → katmanlı LoRA çalışıyor
 
 ### 4.6 P2 — Quality Monitor: Self-Improving Pipeline
 
@@ -284,18 +321,29 @@
 - **faster-whisper input:** numpy array değil BytesIO — soundfile ile dönüştür
 - **Ollama keep_alive=-1:** Model GPU'da sürekli yüklü, cold start yok
 
-### İki Adapter Mimarisi (ML Katmanı)
+### İki Adapter Mimarisi — Katmanlı Eğitim (ML Katmanı)
 
 ```
-Ses → [Whisper + Whisper Adapter] → [Qwen 7B + Qwen Adapter] → Metin
+Ses → [Whisper base → voiceflow-whisper-tr → voiceflow-whisper-it] → [Qwen 7B + Qwen Adapter] → Metin
+```
+
+**Whisper — 3 Katmanlı Eğitim:**
+```
+ISSAI (164K) → merge → voiceflow-whisper-tr
+                              ↓
+                    IT kayıtları → merge → voiceflow-whisper-it   ← deployment base
+                                                  ↓
+                                    Müşteri verisi → LoRA (on-premise, merge edilmez)
 ```
 
 | Adapter | Sorumluluk | Durum |
 |---|---|---|
 | **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
-| **Whisper Adapter** (~50-100MB) | IT terim telaffuzu → doğru yazım ("doker"→"Docker") | 🔲 Planlandı |
+| **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | 🔲 RunPod eğitimi bekliyor |
+| **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr sonrası |
+| **Müşteri Adapter** (~30MB) | Domain-specific (on-premise, KVKK uyumlu) | 🔲 İlk kurumsal satış sonrası |
 
-- Engineering mode: Whisper Adapter aktif, Qwen Adapter kapalı
+- Engineering mode: voiceflow-whisper-it aktif, Qwen Adapter kapalı
 - General/Office: Qwen Adapter aktif (correction toggle ile), Whisper base
 - Detay: `docs/ml/two-adapter-architecture.md`
 

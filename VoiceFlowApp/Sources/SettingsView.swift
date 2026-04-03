@@ -27,7 +27,6 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case dictionary    = "Sözlük"
     case snippets      = "Şablonlar"
     case knowledgeBase = "Bilgi Tabanı"
-    case itDataset     = "IT Dataset"
     case account       = "Hesap"
     case about         = "Hakkında"
 
@@ -40,7 +39,6 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
         case .dictionary:    return "character.book.closed"
         case .snippets:      return "text.badge.plus"
         case .knowledgeBase: return "books.vertical"
-        case .itDataset:     return "waveform.path.ecg"
         case .account:       return "person.circle"
         case .about:         return "info.circle"
         }
@@ -86,7 +84,6 @@ struct SettingsView: View {
                     case .dictionary:    DictionarySection(viewModel: viewModel)
                     case .snippets:      SnippetsSection(viewModel: viewModel)
                     case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
-                    case .itDataset:     ITDatasetSection(viewModel: viewModel)
                     case .account:       AccountSection(viewModel: viewModel)
                     case .about:         AboutSection(viewModel: viewModel)
                     }
@@ -107,13 +104,6 @@ struct SettingsView: View {
             }
         }
         .frame(width: 900, height: 620)
-        .onChange(of: selectedSection) {
-            // IT Dataset sekmesinden çıkınca kayıt modunu kapat
-            if selectedSection != .itDataset {
-                viewModel.itDatasetActive = false
-                viewModel.itDatasetCurrentIndex = -1
-            }
-        }
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
@@ -671,205 +661,3 @@ private struct AboutSection: View {
     }
 }
 
-// MARK: - IT Dataset Recording
-
-private struct ITDatasetSection: View {
-    var viewModel: AppViewModel
-
-    @State private var currentIndex = 0
-    @State private var currentSentence = ""
-    @State private var totalSentences = 0
-    @State private var isLoading = false
-    @State private var recordings: [(whisper: String, wavPath: String)] = []
-    @State private var playingIndex: Int? = nil
-    @State private var currentSound: NSSound? = nil
-    @State private var totalSaved = 0
-
-    private func loadSentence(at index: Int) async {
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            let data = try await viewModel.getITDatasetNext(offset: index)
-            currentIndex = data.index
-            totalSentences = data.total
-            currentSentence = data.sentence
-            recordings = (data.recordings ?? []).map { ($0.whisper, $0.wavPath) }
-            viewModel.itDatasetCurrentIndex = data.index
-            viewModel.itDatasetLastWhisper = ""
-        } catch {
-            print("Error loading IT sentence: \(error)")
-        }
-    }
-
-    var body: some View {
-        Form {
-            // Sentence card
-            Section {
-                if currentSentence.isEmpty {
-                    if isLoading {
-                        ProgressView()
-                    } else if currentIndex == -1 {
-                        Label("Tamamlandı!", systemImage: "checkmark.seal.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        Button("Başla") { Task { await loadSentence(at: 0) } }
-                            .buttonStyle(.borderedProminent)
-                    }
-                } else {
-                    // Ground truth text
-                    Text(currentSentence)
-                        .font(.system(size: 15, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(Color.blue.opacity(0.06))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                    // Recordings list
-                    if !recordings.isEmpty {
-                        ForEach(Array(recordings.enumerated()), id: \.offset) { i, rec in
-                            HStack(spacing: 8) {
-                                // Play/Stop button
-                                Button {
-                                    if playingIndex == i {
-                                        currentSound?.stop()
-                                        currentSound = nil
-                                        playingIndex = nil
-                                    } else if !rec.wavPath.isEmpty {
-                                        currentSound?.stop()
-                                        let sound = NSSound(contentsOfFile: rec.wavPath, byReference: true)
-                                        sound?.play()
-                                        currentSound = sound
-                                        playingIndex = i
-                                    }
-                                } label: {
-                                    Image(systemName: playingIndex == i ? "stop.circle.fill" : "play.circle.fill")
-                                        .font(.title3)
-                                        .foregroundStyle(rec.wavPath.isEmpty ? .gray : playingIndex == i ? .red : .blue)
-                                }
-                                .buttonStyle(.plain)
-                                .disabled(rec.wavPath.isEmpty)
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Varyasyon \(i + 1)")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                    Text(rec.whisper)
-                                        .font(.caption)
-                                }
-                                Spacer()
-
-                                Button {
-                                    currentSound?.stop()
-                                    currentSound = nil
-                                    playingIndex = nil
-                                    viewModel.deleteITDatasetPair(wavPath: rec.wavPath)
-                                    recordings.remove(at: i)
-                                } label: {
-                                    Image(systemName: "trash")
-                                        .font(.caption)
-                                        .foregroundStyle(.red)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(8)
-                            .background(Color.green.opacity(0.05))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    }
-
-                    // Record button
-                    HStack(spacing: 12) {
-                        Button {
-                            if viewModel.isRecording {
-                                viewModel.stopRecordingForDataset()
-                            } else {
-                                viewModel.startRecordingForDataset()
-                            }
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: viewModel.isRecording ? "stop.fill" : "mic.fill")
-                                Text(viewModel.isRecording ? "Durdur" : "Kayıt")
-                            }
-                            .frame(minWidth: 80)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(viewModel.isRecording ? .red : .blue)
-
-                        if viewModel.isRecording {
-                            ProgressView().controlSize(.small)
-                            Text("Kayıt devam ediyor...")
-                                .font(.caption).foregroundStyle(.orange)
-                        } else {
-                            Text("Aynı cümle için birden fazla varyasyon ekleyebilirsin")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            } header: {
-                if totalSentences > 0 {
-                    HStack {
-                        Text("Cümle \(currentIndex + 1) / \(totalSentences)")
-                        Spacer()
-                        Text("\(totalSaved) toplam kayıt").foregroundStyle(.green)
-                    }
-                } else {
-                    Text("IT Dataset Kayıt")
-                }
-            }
-
-            // Progress + navigation
-            if !currentSentence.isEmpty {
-                Section {
-                    ProgressView(value: Double(currentIndex + 1), total: Double(totalSentences))
-
-                    HStack(spacing: 12) {
-                        Button("Sonraki") {
-                            totalSaved += recordings.count
-                            let next = currentIndex + 1
-                            Task { await loadSentence(at: next) }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(recordings.isEmpty || isLoading)
-
-                        Button("Atla") {
-                            let next = currentIndex + 1
-                            Task { await loadSentence(at: next) }
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(isLoading)
-
-                        Spacer()
-
-                        Text("\(recordings.count) varyasyon")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-
-                    Button("Finder'da Aç") {
-                        let path = NSString(string: "~/Developer/utils/voiceflow/backend/scripts/data_gen/it_recordings").expandingTildeInPath
-                        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
-                    }
-                    .buttonStyle(.plain)
-                    .font(.caption)
-                    .foregroundStyle(.blue)
-                }
-            }
-        }
-        .formStyle(.grouped)
-        .padding()
-        .onAppear {
-            viewModel.itDatasetActive = true
-            Task { await loadSentence(at: 0) }
-        }
-        .onDisappear {
-            viewModel.itDatasetActive = false
-            viewModel.itDatasetCurrentIndex = -1
-        }
-        .onChange(of: viewModel.itDatasetLastWhisper) {
-            if !viewModel.itDatasetLastWhisper.isEmpty {
-                recordings.append((whisper: viewModel.itDatasetLastWhisper, wavPath: viewModel.itDatasetLastWavPath))
-                viewModel.itDatasetLastWhisper = ""
-                viewModel.itDatasetLastWavPath = ""
-            }
-        }
-    }
-}

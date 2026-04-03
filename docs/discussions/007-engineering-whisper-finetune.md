@@ -171,7 +171,7 @@ python whisper_finetune.py \
 ```python
 # Engineering mode:
 WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo"
-WHISPER_ADAPTER = "scripts/training/whisper_adapters/it_v1"
+WHISPER_ADAPTER = "~/.voiceflow/whisper_adapters/it_v1"
 
 # Diğer modlar: base model (adapter yok)
 ```
@@ -181,14 +181,14 @@ WHISPER_ADAPTER = "scripts/training/whisper_adapters/it_v1"
 ## Script Yapısı
 
 ```
-backend/scripts/data_gen/
+ml/data_gen/datasets/
 ├── persona_terms.py          # Persona vocabulary + telaffuz varyantları
 ├── sentence_generator.py     # Opus API → cümle üretimi
 ├── tts_generator.py          # Metin → WAV (macOS say / Edge TTS)
 ├── audio_augment.py          # Hız + gürültü augmentasyonu
 └── build_whisper_dataset.py  # Tüm pipeline orchestration
 
-backend/scripts/training/
+ml/qwen/scripts/
 ├── whisper_finetune.py       # HuggingFace LoRA fine-tune
 ├── whisper_evaluate.py       # WER + IT term accuracy
 └── convert_whisper_mlx.py    # HF adapter → MLX format

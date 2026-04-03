@@ -402,6 +402,14 @@ final class AppViewModel {
         try await backend.getITDatasetNext(offset: offset)
     }
 
+    func getITDatasetRandom() async throws -> ITDatasetResponse {
+        try await backend.getITDatasetRandom()
+    }
+
+    func getITDatasetRecorded() async throws -> [ITDatasetResponse] {
+        try await backend.getITDatasetRecorded()
+    }
+
     func deleteITDatasetPair(wavPath: String) {
         Task {
             try? await backend.deleteITDatasetPair(wavPath: wavPath)

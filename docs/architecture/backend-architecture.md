@@ -121,7 +121,7 @@ async def lifespan(app):
 - `BACKEND_MODE=server` → OllamaCorrector
 - Hiçbiri yoksa → MLX LLMCorrector
 
-**LLMCorrector LoRA adapter**: `LLM_ADAPTER_PATH` env var set ise fine-tuned adapter yüklenir (örn. `scripts/training/adapters_mlx`). Yoksa vanilla Qwen2.5-7B çalışır.
+**LLMCorrector LoRA adapter**: `LLM_ADAPTER_PATH` env var set ise fine-tuned adapter yüklenir (örn. `../ml/qwen/adapters_mlx`). Yoksa vanilla Qwen2.5-7B çalışır.
 
 ---
 
@@ -163,6 +163,11 @@ DELETE /api/dictionary/{id}   → Kişisel entry sil
 GET  /api/snippets            → Snippet listesi
 POST /api/snippets            → {trigger_phrase, expansion, scope}
 DELETE /api/snippets/{id}     → Kişisel snippet sil
+GET  /api/it-dataset/next           → Rastgele kaydedilmemiş cümle (Yeni tab / Shuffle)
+GET  /api/it-dataset/random         → Yeni shuffle (next ile aynı)
+POST /api/it-dataset/record         → {index: sentence_id, whisper_output, audio_b64?} → kayıt kaydet
+DELETE /api/it-dataset/record       → {wav_path} → kaydı sil
+GET  /api/it-dataset/recorded       → En az 1 kaydı olan cümleler (Pratik tab)
 ```
 
 **Auth:**
@@ -321,7 +326,30 @@ CREATE TABLE snippets (
     expansion      TEXT NOT NULL,
     scope          TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team'
 );
+
+-- Ses Eğitimi: cümle havuzu (whisper_sentences.jsonl'den import edilir, one-time migration)
+CREATE TABLE training_sentences (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    training_set TEXT NOT NULL DEFAULT 'it_dataset',  -- 'it_dataset' | 'akbank_v1' | ...
+    persona      TEXT,
+    scenario     TEXT,
+    text         TEXT NOT NULL
+);
+
+-- Ses Eğitimi: kullanıcı kayıtları
+CREATE TABLE training_recordings (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    sentence_id  INTEGER NOT NULL REFERENCES training_sentences(id),
+    training_set TEXT NOT NULL DEFAULT 'it_dataset',
+    wav_path     TEXT NOT NULL,
+    whisper_out  TEXT,        -- Whisper'ın duyduğu (ground truth karşılaştırması için)
+    duration_ms  INTEGER,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ```
+
+`training_set` parametresi ile birden fazla veri seti desteklenir (IT, Akbank, Turkcell vb.).
+İlk `/api/it-dataset/next` çağrısında `whisper_sentences.jsonl` otomatik import edilir.
 
 ---
 
@@ -426,34 +454,37 @@ X-Cmd-Intervals: "2.16-10.19,22.82-25.78" (Cmd basılı saniye aralıkları)
 Backend, `X-Window-Title` / `X-Selected-Text`'i OllamaCorrector'a "untrusted metadata" olarak iletir.
 `X-Cmd-Intervals` varsa ses bölünür, o segmentlere symbol injection uygulanır.
 
-### Fine-Tuning Scripts
+### ML Scripts (`ml/`)
 
 ```
-backend/scripts/
-├── data_gen/
-│   ├── corruption_pipeline.py   ← clean text → simüle Whisper hataları (3K pair)
-│   ├── process_issai.py         ← ISSAI 186K ses → faster-whisper large-v3 → ASR hata pair
-│   │                               SHARD_INDEX/SHARD_TOTAL env → 3 paralel process destekler
-│   ├── word_order_generator.py  ← Türkçe kelime sırası düzeltme pair (531 pair)
-│   ├── word_order_pairs.jsonl   ← üretilen kelime sırası verisi
-│   └── gecturk_pairs.jsonl      ← GECTurk-generation HF dataset (138K pair)
-└── training/
-    ├── prepare_dataset.py       ← tüm kaynaklar → train/valid/test.jsonl
-    ├── train_runpod.py          ← Unsloth SFTTrainer, RTX 4090, batch=8, bf16
-    ├── convert_adapter.py       ← HF PEFT adapter → MLX format (transpose lora_A/lora_B)
-    ├── lora_config.yaml         ← MLX LoRA config (Qwen2.5-7B, rank=8)
-    ├── adapters_mlx/            ← aktif MLX adapter (39MB) — LLM_ADAPTER_PATH bu dizini gösterir
-    │   ├── adapters.safetensors
-    │   ├── adapter_config.json
-    │   └── raw/                 ← orijinal HF PEFT dosyaları (RunPod'dan indirildi)
-    └── adapters_runpod/         ← eski referans (adapters_mlx/raw/ ile aynı içerik)
+ml/
+├── qwen/                        ← Qwen ASR correction fine-tuning
+│   ├── scripts/
+│   │   ├── prepare_dataset.py   ← kaynaklar → datasets/train/valid/test.jsonl
+│   │   ├── train_runpod.py      ← Unsloth SFTTrainer, RTX 4090, batch=8, bf16
+│   │   ├── convert_adapter.py   ← HF PEFT → MLX format (transpose lora_A/lora_B)
+│   │   ├── evaluate.py          ← WER/CER/exact-match raporu
+│   │   └── lora_config.yaml     ← MLX LoRA config (Qwen2.5-7B, rank=8)
+│   ├── datasets/
+│   │   ├── train.jsonl          ← 244K pair (Qwen chat format)
+│   │   ├── valid.jsonl          ← 30K pair
+│   │   └── test.jsonl           ← 30K pair
+│   └── adapters_mlx/            ← aktif MLX adapter (39MB) — LLM_ADAPTER_PATH işaret eder
+├── whisper/                     ← Whisper fine-tuning scripts
+│   ├── whisper_issai_finetune.py ← Katman 1: ISSAI 164K → voiceflow-whisper-tr
+│   └── whisper_poc_finetune.py  ← Katman 2: IT kayıtları → voiceflow-whisper-it
+└── data_gen/                    ← veri üretim pipeline'ları
+    ├── sentence_generator.py    ← Qwen-max ile IT cümlesi üretimi
+    ├── tts_generator.py         ← Azure TTS → WAV
+    ├── generators/              ← corruption, process_issai, word_order vb.
+    └── datasets/                ← JSONL dataset'leri (corruption, gecturk, issai vb.)
 ```
 
-**Dataset kaynakları** (`prepare_dataset.py --sources`):
-- `corruption_pairs.jsonl` — 3K sentetik Whisper hata simülasyonu
-- `word_order_pairs.jsonl` — 531 Türkçe kelime sırası (SOV) düzeltme pair
-- `gecturk_pairs.jsonl` — 138K GECTurk Türkçe gramer hata düzeltme (`mcemilg/GECTurk-generation`)
-- `issai_pairs_all.jsonl` — 186K gerçek Whisper hata pair (ISSAI ses → large-v3 transkript) **(1. round'da yok, 2. round'a eklenecek)**
+**Qwen dataset kaynakları** (`prepare_dataset.py --sources`):
+- `ml/data_gen/datasets/corruption_pairs.jsonl` — 3K sentetik Whisper hata simülasyonu
+- `ml/data_gen/datasets/word_order_pairs.jsonl` — 531 Türkçe kelime sırası (SOV) düzeltme pair
+- `ml/data_gen/datasets/gecturk_pairs.jsonl` — 138K GECTurk Türkçe gramer hata düzeltme
+- `ml/data_gen/datasets/issai/issai_pairs_all.jsonl` — 186K gerçek Whisper hata pair **(2. round'a eklenecek)**
 - 1. round toplam: ~141K pair (gecturk 138K + corruption 3K + word_order 531)
 - 2. round hedef: ~327K pair (ISSAI 186K eklendikten sonra)
 

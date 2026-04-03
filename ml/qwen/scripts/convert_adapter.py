@@ -4,8 +4,10 @@ HuggingFace PEFT LoRA adapter → MLX adapter formatına dönüştür
 Kullanım:
   python convert_adapter.py
 
-Giriş:  scripts/training/adapters_runpod/  (unsloth/HF PEFT format)
-Çıkış:  scripts/training/adapters_mlx/     (mlx_lm format)
+Giriş:  ml/qwen/adapters_runpod/   (unsloth/HF PEFT format — RunPod çıktısı)
+Çıkış:  ml/qwen/adapters_mlx/     (mlx_lm format — production)
+
+Çalıştırma: cd ml/qwen/scripts && python convert_adapter.py
 """
 
 import json
@@ -14,8 +16,8 @@ from pathlib import Path
 from safetensors import safe_open
 from safetensors.numpy import save_file
 
-HF_PATH  = Path("scripts/training/adapters_runpod")
-MLX_PATH = Path("scripts/training/adapters_mlx")
+HF_PATH  = Path(__file__).parent.parent / "adapters_runpod"
+MLX_PATH = Path(__file__).parent.parent / "adapters_mlx"
 
 # Qwen2.5-7B = 28 layer
 NUM_LAYERS = 28
@@ -85,7 +87,7 @@ def convert():
     with open(MLX_PATH / "adapter_config.json", "w") as f:
         json.dump(mlx_config, f, indent=2)
     print(f"Saved: {MLX_PATH / 'adapter_config.json'}")
-    print("\nDone! .env'de LLM_ADAPTER_PATH=scripts/training/adapters_mlx olarak güncelle.")
+    print("\nDone! .env'de LLM_ADAPTER_PATH=../ml/qwen/adapters_mlx olarak güncelle.")
 
 if __name__ == "__main__":
     convert()

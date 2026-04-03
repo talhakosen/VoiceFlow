@@ -20,6 +20,9 @@ from ..db import (
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
     append_audit_log, save_feedback,
+    import_training_sentences, get_random_unrecorded_sentence, get_training_sentence_by_id,
+    save_training_recording, delete_training_recording, get_recordings_for_sentence,
+    get_recorded_sentences,
 )
 
 _BACKEND_MODE = os.getenv("BACKEND_MODE", "local")
@@ -516,9 +519,8 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
 # IT Dataset Recording (Engineering Whisper training)
 # ------------------------------------------------------------------
 
-_IT_DATASET_PATH = Path(__file__).parents[3] / "scripts" / "data_gen" / "whisper_sentences.jsonl"
-_IT_PAIRS_PATH = Path(__file__).parents[3] / "scripts" / "data_gen" / "it_dataset_pairs.jsonl"
-_IT_RECORDINGS_DIR = Path(__file__).parents[3] / "scripts" / "data_gen" / "it_recordings"
+_IT_DATASET_PATH = Path(__file__).parents[4] / "ml" / "data_gen" / "datasets" / "whisper_sentences.jsonl"
+_IT_RECORDINGS_DIR = Path.home() / ".voiceflow" / "training" / "it_dataset"
 
 
 class ITRecording(BaseModel):
@@ -527,7 +529,7 @@ class ITRecording(BaseModel):
 
 
 class ITDatasetResponse(BaseModel):
-    index: int
+    index: int          # sentence_id in DB
     total: int
     sentence: str
     persona: str | None = None
@@ -536,102 +538,140 @@ class ITDatasetResponse(BaseModel):
 
 
 class ITRecordRequest(BaseModel):
-    index: int
+    index: int          # sentence_id in DB
     whisper_output: str
     audio_b64: str | None = None
-
-
-def _load_sentences() -> list[dict]:
-    if not _IT_DATASET_PATH.exists():
-        return []
-    with open(_IT_DATASET_PATH) as f:
-        return [json.loads(l) for l in f if l.strip()]
-
-
-def _get_next_sentence(offset: int = 0) -> dict | None:
-    sentences = _load_sentences()
-    if offset >= len(sentences):
-        return None
-    return sentences[offset]
-
-
-def _get_recordings_for_index(idx: int) -> list[dict]:
-    """Load existing recordings for a sentence index from JSONL."""
-    if not _IT_PAIRS_PATH.exists():
-        return []
-    recs = []
-    for line in _IT_PAIRS_PATH.read_text().splitlines():
-        if not line.strip():
-            continue
-        pair = json.loads(line)
-        if pair.get("index") == idx:
-            recs.append({"whisper": pair.get("input", ""), "wav_path": pair.get("wav_path", "")})
-    return recs
-
-
-@router.get("/it-dataset/next")
-async def get_next_it_sentence(offset: int = 0) -> ITDatasetResponse:
-    sentence = _get_next_sentence(offset)
-    if sentence is None:
-        return ITDatasetResponse(index=-1, total=len(_load_sentences()), sentence="", persona=None, scenario=None)
-    recs = _get_recordings_for_index(offset)
-    return ITDatasetResponse(
-        index=offset,
-        total=len(_load_sentences()),
-        sentence=sentence.get("text", ""),
-        persona=sentence.get("persona"),
-        scenario=sentence.get("scenario"),
-        recordings=[ITRecording(**r) for r in recs],
-    )
-
-
-@router.post("/it-dataset/record")
-async def record_it_pair(req: ITRecordRequest, request: Request) -> dict:
-    sentence = _get_next_sentence(req.index)
-    if sentence is None:
-        raise HTTPException(status_code=400, detail="Invalid index")
-    ground_truth = sentence.get("text", "")
-
-    # Save audio if provided
-    wav_path_str = ""
-    if req.audio_b64:
-        import base64
-        _IT_RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
-        audio_bytes = base64.b64decode(req.audio_b64)
-        wav_path = _IT_RECORDINGS_DIR / f"{req.index:05d}.wav"
-        wav_path.write_bytes(audio_bytes)
-        wav_path_str = str(wav_path)
-
-    # Append pair to JSONL
-    _IT_PAIRS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(_IT_PAIRS_PATH, "a") as f:
-        pair = {"input": req.whisper_output, "output": ground_truth, "category": "it_dataset", "index": req.index}
-        if wav_path_str:
-            pair["wav_path"] = wav_path_str
-        f.write(json.dumps(pair) + "\n")
-        f.flush()
-    logger.info("IT pair saved: index=%d, whisper='%s'", req.index, req.whisper_output[:60])
-    return {"status": "ok"}
 
 
 class ITDeleteRequest(BaseModel):
     wav_path: str
 
 
+_IT_PAIRS_LEGACY_PATH = Path(__file__).parents[4] / "ml" / "data_gen" / "datasets" / "it_dataset_pairs_legacy.jsonl"
+
+
+async def _ensure_sentences_imported(training_set: str = "it_dataset") -> None:
+    """Import sentences + legacy recordings from JSONL on first run (one-time migration)."""
+    if not _IT_DATASET_PATH.exists():
+        return
+    with open(_IT_DATASET_PATH) as f:
+        sentences = [json.loads(l) for l in f if l.strip()]
+    if not sentences:
+        return
+    n = await import_training_sentences(training_set, sentences)
+    if n > 0:
+        logger.info("Imported %d training sentences for '%s'", n, training_set)
+        # Migrate existing JSONL recordings (one-time, only when sentences were just imported)
+        if _IT_PAIRS_LEGACY_PATH.exists():
+            migrated = 0
+            for line in _IT_PAIRS_LEGACY_PATH.read_text().splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    pair = json.loads(line)
+                    idx = pair.get("index")
+                    wav = pair.get("wav_path", "")
+                    whisper = pair.get("input", "")
+                    if idx is not None:
+                        # sentence_id = idx + 1 (SQLite AUTOINCREMENT starts at 1)
+                        await save_training_recording(
+                            sentence_id=idx + 1,
+                            training_set=training_set,
+                            wav_path=wav,
+                            whisper_out=whisper,
+                        )
+                        migrated += 1
+                except Exception:
+                    pass
+            logger.info("Migrated %d legacy recordings to SQLite", migrated)
+
+
+@router.get("/it-dataset/next")
+async def get_next_it_sentence(offset: int = 0, training_set: str = "it_dataset") -> ITDatasetResponse:
+    """Return a random unrecorded sentence. `offset` param kept for backwards compat (ignored)."""
+    await _ensure_sentences_imported(training_set)
+    row = await get_random_unrecorded_sentence(training_set)
+    if row is None:
+        return ITDatasetResponse(index=-1, total=0, sentence="")
+    recs = await get_recordings_for_sentence(row["id"])
+    return ITDatasetResponse(
+        index=row["id"],
+        total=row["total"],
+        sentence=row["text"],
+        persona=row["persona"],
+        scenario=row["scenario"],
+        recordings=[ITRecording(whisper=r["whisper_out"] or "", wav_path=r["wav_path"]) for r in recs],
+    )
+
+
+@router.get("/it-dataset/random")
+async def get_random_it_sentence(training_set: str = "it_dataset") -> ITDatasetResponse:
+    """Shuffle — return a different random unrecorded sentence."""
+    await _ensure_sentences_imported(training_set)
+    row = await get_random_unrecorded_sentence(training_set)
+    if row is None:
+        return ITDatasetResponse(index=-1, total=0, sentence="")
+    recs = await get_recordings_for_sentence(row["id"])
+    return ITDatasetResponse(
+        index=row["id"],
+        total=row["total"],
+        sentence=row["text"],
+        persona=row["persona"],
+        scenario=row["scenario"],
+        recordings=[ITRecording(whisper=r["whisper_out"] or "", wav_path=r["wav_path"]) for r in recs],
+    )
+
+
+@router.post("/it-dataset/record")
+async def record_it_pair(req: ITRecordRequest, request: Request) -> dict:
+    sentence = await get_training_sentence_by_id(req.index)
+    if sentence is None:
+        raise HTTPException(status_code=400, detail="Invalid sentence id")
+
+    # Save audio
+    wav_path_str = ""
+    import base64
+    import time
+    if req.audio_b64:
+        _IT_RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
+        audio_bytes = base64.b64decode(req.audio_b64)
+        ts = int(time.time() * 1000)
+        wav_path = _IT_RECORDINGS_DIR / f"{req.index:05d}_{ts}.wav"
+        wav_path.write_bytes(audio_bytes)
+        wav_path_str = str(wav_path)
+
+    await save_training_recording(
+        sentence_id=req.index,
+        training_set=sentence["training_set"],
+        wav_path=wav_path_str,
+        whisper_out=req.whisper_output,
+    )
+    logger.info("IT recording saved: sentence_id=%d whisper='%s'", req.index, req.whisper_output[:60])
+    return {"status": "ok"}
+
+
 @router.delete("/it-dataset/record")
 async def delete_it_pair(req: ITDeleteRequest) -> dict:
-    """Delete a WAV file and its JSONL entry."""
-    # Delete WAV
     wav = Path(req.wav_path)
     if wav.exists():
         wav.unlink()
         logger.info("IT WAV deleted: %s", wav)
-
-    # Remove matching line from JSONL
-    if _IT_PAIRS_PATH.exists():
-        lines = _IT_PAIRS_PATH.read_text().splitlines()
-        remaining = [l for l in lines if req.wav_path not in l]
-        _IT_PAIRS_PATH.write_text("\n".join(remaining) + "\n" if remaining else "")
-        logger.info("IT pair removed, %d→%d lines", len(lines), len(remaining))
-
+    await delete_training_recording(req.wav_path)
     return {"status": "ok"}
+
+
+@router.get("/it-dataset/recorded")
+async def get_recorded_it_sentences(training_set: str = "it_dataset") -> list[ITDatasetResponse]:
+    """All sentences with at least one recording (Pratik tab)."""
+    rows = await get_recorded_sentences(training_set)
+    return [
+        ITDatasetResponse(
+            index=r["id"],
+            total=r["total"],
+            sentence=r["text"],
+            persona=r["persona"],
+            scenario=r["scenario"],
+            recordings=[ITRecording(**rec) for rec in r["recordings"]],
+        )
+        for r in rows
+    ]

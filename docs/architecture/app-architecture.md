@@ -90,7 +90,7 @@ Sadece UI — sıfır iş mantığı.
 ```swift
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?) async throws -> TranscriptionResult
     func forceStop() async throws
     func getStatus() async throws -> StatusResponse
     func updateConfig(language:task:correctionEnabled:mode:) async throws
@@ -105,7 +105,10 @@ protocol BackendServiceProtocol: Actor {
     func getSnippets() async throws -> [SnippetEntry]
     func addSnippet(triggerPhrase:expansion:scope:) async throws -> SnippetEntry
     func deleteSnippet(id:) async throws
+    // IT Dataset (Engineering Whisper fine-tune veri toplama)
     func getITDatasetNext(offset:) async throws -> ITDatasetResponse
+    func saveITDatasetPair(index:whisperOutput:) async throws
+    func deleteITDatasetPair(wavPath:) async throws
 }
 ```
 `BackendService` bu protokolü implement eder. Test/preview'da `MockBackendService` kullanılabilir.
@@ -155,9 +158,11 @@ enum AppSettings                         // UserDefaults key constants
 ```
 
 API modelleri `BackendService.swift`'te:
-- `TranscriptionResult` — `text`, `rawText`, `corrected`, `snippetUsed`, `language`, `duration`, `processingMs`, `id`
+- `TranscriptionResult` — `text`, `rawText`, `corrected`, `snippetUsed`, `language`, `duration`, `processingMs`, `id`, `itWavPath`
 - `StatusResponse`, `HistoryItem`, `HistoryResponse`
 - `ContextStatus`, `DictionaryEntry`, `SnippetEntry`
+- `ITDatasetResponse` — `index`, `total`, `sentence`, `persona`, `scenario`, `recordings: [ITRecordingItem]?`
+- `ITRecordingItem` — `whisper`, `wavPath`
 
 ---
 

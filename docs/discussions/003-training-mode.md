@@ -212,8 +212,8 @@ Kıyaslama: Günde 10 dikte × 5 dakika arası = normal iş temposu.
 ### Python Tarafı
 - `correction_feedback` SQLite tablosu
 - `POST /api/feedback` endpoint
-- `scripts/training/harvest_feedback.py` → JSONL'e çevir
-- `scripts/training/prepare_dataset.py` → synthetic + feedback birleştir
+- `ml/qwen/scripts/harvest_feedback.py` → JSONL'e çevir
+- `ml/qwen/scripts/prepare_dataset.py` → synthetic + feedback birleştir
 
 ### Güvenlik
 - Veriler sadece local SQLite'ta

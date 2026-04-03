@@ -60,6 +60,14 @@ backend/scripts/training/valid.jsonl
 backend/scripts/training/test.jsonl
 # Large raw data (gecturk: 138K pairs, 31MB — download from HuggingFace mcemilg/GECTurk-generation)
 backend/scripts/data_gen/gecturk_pairs.jsonl
+# ml/ — new structure
+ml/qwen/adapters_mlx/
+ml/qwen/adapters_runpod/
+ml/qwen/datasets/
+ml/data_gen/datasets/gecturk_pairs.jsonl
+ml/data_gen/datasets/issai/issai_pairs_all.jsonl
+ml/data_gen/datasets/issai/issai_pairs_fixed.jsonl
+ml/whisper/whisper_poc_adapter/
 
 # Logs
 *.log

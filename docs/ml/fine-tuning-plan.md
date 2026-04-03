@@ -68,7 +68,7 @@ Domain dağılımı:
 ### 3.2 Corruption Pipeline (Python)
 
 ```python
-# backend/scripts/generate_training_data.py
+# ml/data_gen/generators/
 
 import random
 
@@ -340,7 +340,7 @@ result = generate(model, tokenizer, prompt=formatted, max_tokens=256)
 ### 4.4 Evaluation Metrics
 
 ```python
-# backend/scripts/evaluate_correction.py
+# ml/qwen/scripts/evaluate.py
 
 from jiwer import wer, cer  # Word/Character Error Rate
 

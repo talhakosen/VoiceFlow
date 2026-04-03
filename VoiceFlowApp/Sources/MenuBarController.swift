@@ -10,6 +10,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
     private var settingsWindow: NSWindow?
+    private var itDatasetWindowController = ITDatasetWindowController()
     private var lastKnownRole: String = ""
 
     init(viewModel: AppViewModel) {
@@ -73,6 +74,7 @@ class MenuBarController: NSObject {
         menu.addItem(action("Kaydı Durdur",         sel: #selector(forceStop),        key: "s"))
         menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),  key: ""))
         menu.addItem(.separator())
+        menu.addItem(action("Ses Egitimi...",         sel: #selector(openITDataset),    key: ""))
         menu.addItem(action("Settings...",           sel: #selector(openSettings),     key: ","))
         let role = viewModel.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
@@ -110,6 +112,10 @@ class MenuBarController: NSObject {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow = window
+    }
+
+    @objc private func openITDataset() {
+        itDatasetWindowController.open(viewModel: viewModel)
     }
 
     @objc private func openAdminPanel() {

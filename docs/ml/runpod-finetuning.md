@@ -67,9 +67,9 @@ pip install unsloth trl datasets -q
 
 `prepare_dataset.py` ile üret:
 ```bash
-cd backend/scripts
-python training/prepare_dataset.py \
-  --sources data_gen/corruption_pairs.jsonl \
+cd ml/qwen/scripts
+python prepare_dataset.py \
+  --sources ../../data_gen/datasets/corruption_pairs.jsonl \
             data_gen/asr_training_data.jsonl \
             data_gen/word_order_pairs.jsonl \
             data_gen/gecturk_pairs.jsonl \
@@ -81,8 +81,8 @@ python training/prepare_dataset.py \
 ```bash
 # Mac'ten pod'a SCP ile yükle
 scp -P <TCP_PORT> -i ~/.ssh/id_ed25519 \
-  backend/scripts/training/train.jsonl \
-  backend/scripts/training/valid.jsonl \
+  ml/qwen/datasets/train.jsonl \
+  ml/qwen/datasets/valid.jsonl \
   root@<PUBLIC_IP>:/workspace/
 ```
 
@@ -90,12 +90,12 @@ scp -P <TCP_PORT> -i ~/.ssh/id_ed25519 \
 
 ## Training Script
 
-`backend/scripts/training/train_runpod.py` — unsloth SFTTrainer.
+`ml/qwen/scripts/train_runpod.py` — unsloth SFTTrainer.
 
 ```bash
 # Pod'a yükle
 scp -P <TCP_PORT> -i ~/.ssh/id_ed25519 \
-  backend/scripts/training/train_runpod.py \
+  ml/qwen/scripts/train_runpod.py \
   root@<PUBLIC_IP>:/workspace/
 
 # Arka planda başlat (bağlantı kesilse de devam eder)
@@ -147,7 +147,7 @@ Optimize run (batch=8 + packing + adamw_8bit): **GPU %55-91** — normal trainin
 # Pod'dan Mac'e indir
 scp -P <TCP_PORT> -r -i ~/.ssh/id_ed25519 \
   root@<PUBLIC_IP>:/workspace/adapters/ \
-  backend/scripts/training/adapters_runpod/
+  ml/qwen/adapters_runpod/
 ```
 
 ---
@@ -164,14 +164,14 @@ python -c "
 from mlx_lm import load
 from mlx_lm.tuner.utils import convert
 convert(
-    hf_path='scripts/training/adapters_runpod',
-    mlx_path='scripts/training/adapters_mlx',
+    hf_path='../adapters_runpod',
+    mlx_path='../adapters_mlx',
     quantize=False
 )
 "
 ```
 
-Sonra `.env`'deki `LLM_ADAPTER_PATH` → `scripts/training/adapters_mlx` yap.
+Sonra `.env`'deki `LLM_ADAPTER_PATH` → `../ml/qwen/adapters_mlx` yap.
 
 ---
 

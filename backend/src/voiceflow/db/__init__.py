@@ -7,6 +7,9 @@ from .storage import (
     get_tenant_stats,
     append_audit_log, get_audit_log, delete_user_data,
     save_feedback,
+    import_training_sentences, get_random_unrecorded_sentence, get_training_sentence_by_id,
+    save_training_recording, delete_training_recording, get_recordings_for_sentence,
+    get_recorded_sentences,
 )
 
 __all__ = [
@@ -18,4 +21,7 @@ __all__ = [
     "get_tenant_stats",
     "append_audit_log", "get_audit_log", "delete_user_data",
     "save_feedback",
+    "import_training_sentences", "get_random_unrecorded_sentence", "get_training_sentence_by_id",
+    "save_training_recording", "delete_training_recording", "get_recordings_for_sentence",
+    "get_recorded_sentences",
 ]
