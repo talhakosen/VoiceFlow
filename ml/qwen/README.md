@@ -24,8 +24,11 @@ ml/qwen/
 ```bash
 cd ml/qwen/scripts
 python prepare_dataset.py \
-    --sources ../../data_gen/datasets/corruption_pairs.jsonl \
-              ../../data_gen/datasets/asr_training_data.jsonl \
+    --sources ../../data_gen/datasets/qwen/corruption_pairs.jsonl \
+              ../../data_gen/datasets/qwen/asr_training_data.jsonl \
+              ../../data_gen/datasets/qwen/gecturk_pairs.jsonl \
+              ../../data_gen/datasets/qwen/oneri_pairs.jsonl \
+              ../../data_gen/datasets/qwen/word_order_pairs.jsonl \
     --output-dir ../datasets/
 ```
 
