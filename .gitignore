@@ -65,8 +65,8 @@ ml/qwen/adapters_mlx/
 ml/qwen/adapters_runpod/
 ml/qwen/datasets/
 ml/qwen/data/gecturk_pairs.jsonl
-ml/whisper/datasets/issai_pairs_all.jsonl
-ml/whisper/datasets/issai_pairs_fixed.jsonl
+ml/whisper/datasets/issai/issai_pairs_all.jsonl
+ml/whisper/datasets/issai/issai_pairs_fixed.jsonl
 ml/whisper/whisper_poc_adapter/
 ml/whisper/whisper_poc_adapter/
 
