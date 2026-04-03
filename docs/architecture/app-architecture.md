@@ -143,7 +143,7 @@ Closure injection pattern: AppViewModel → AppDelegate bağımlılığını kı
 - `llmMode == "cloud"` → `LLM_BACKEND=ollama`, `LLM_ENDPOINT` + `LLM_MODEL` `.env`'den okunur (RunPod Ollama)
 - `llmMode == "alibaba"` → `LLM_BACKEND=ollama`, `LLM_ENDPOINT=https://dashscope-intl.aliyuncs.com/compatible-mode`, `LLM_MODEL=qwen-max`, `LLM_API_KEY` `.env`'den (`ALIBABA_API_KEY`) okunur
 
-**`.env` okuma:** AppDelegate project root'taki `.env` dosyasını okur (örn. `~/Developer/utils/voiceflow/.env`). `backend/.env` yok — tüm config root `.env`'de. `LLM_ADAPTER_PATH` da buradan okunur → local mode'da fine-tuned MLX adapter otomatik yüklenir.
+**Config okuma:** AppDelegate project root'taki `.env` (secrets) ve `config.yaml` (app config) dosyalarını okur. `backend/.env` yok. `LLM_ADAPTER_PATH` → `config.yaml` `llm.adapter_path`'ten → local mode'da fine-tuned MLX adapter otomatik yüklenir. Secrets (API key'ler) `.env`'den.
 
 `restartBackend()` success callback'inde mevcut config (language, mode, correctionEnabled) otomatik olarak backend'e gönderilir — restart sonrası toggle state kaybolmaz.
 

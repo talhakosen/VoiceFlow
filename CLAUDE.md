@@ -89,7 +89,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - Embeddings (RAG): `all-MiniLM-L6-v2` (CPU, ~22MB, lazy loaded)
 - Python venv: `backend/.venv` (python3.14)
 - MLX executor: `ThreadPoolExecutor(max_workers=1)` in RecordingService — Metal GPU not thread-safe
-- SQLite: `~/.voiceflow/voiceflow.db`
+- SQLite: `voiceflow.db` (repo root) — `DB_PATH` ile configure edilir (`config.yaml`)
 - ChromaDB: `~/.voiceflow/chroma/` (tenant=company_id)
 
 ## Critical Dev Notes
@@ -114,9 +114,10 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **RunPod disk**: `/workspace` (volume, 20GB kota) ≠ container disk (120GB). `df -h` yanıltıcı (257TB gösterir). Büyük dosyaları `/root/`'a indir.
 - **ISSAI/Whisper paralel shard**: Kısa ses dosyalarında `BatchedInferencePipeline` yavaş (7K/saat). 3 paralel process = %99 GPU, ~9 saat (tek process 26 saat). `large-v3 float16` = 3.5GB → 3 instance = 10.5GB, RTX 4090'a rahat sığar. `SHARD_INDEX=N SHARD_TOTAL=3 python process_issai.py`. Detay: `docs/ml/runpod-finetuning.md`.
 - **RunPod Pod ID**: `.env`'deki `RUNPOD_VOICEFLOW_POD_ID` ve `RUNPOD_OLLAMA_URL` pod değişince güncelle.
-- **backend/.env yok**: Tüm env config root `.env`'de. AppDelegate root `.env` okur; backend kendisi dotenv okumaz. `backend/.env` oluşturma.
-- **LoRA adapter (fine-tuned)**: `ml/qwen/adapters_mlx/` (39MB). `LLM_ADAPTER_PATH=../ml/qwen/adapters_mlx` root `.env`'de set. HF PEFT → MLX dönüşüm scripti: `ml/qwen/scripts/convert_adapter.py`.
-- **ML scripts**: `backend/scripts/` kaldırıldı → her şey `ml/` altında: `ml/data_gen/`, `ml/qwen/scripts/`, `ml/whisper/`.
+- **Config ayrımı**: `config.yaml` (non-secret: DB_PATH, LLM_ADAPTER_PATH, BACKEND_MODE, WHISPER_MODEL vb.) + `.env` (sadece secrets: API key'ler, token'lar). `backend/.env` oluşturma — tüm config root'ta.
+- **LoRA adapter (fine-tuned)**: `ml/qwen/adapters_mlx/` (39MB). `config.yaml`'da `llm.adapter_path: ml/qwen/adapters_mlx`. HF PEFT → MLX dönüşüm scripti: `ml/qwen/scripts/convert_adapter.py`.
+- **ML scripts**: `ml/qwen/` (scripts/, generators/, data/, datasets/, adapters_mlx/) + `ml/whisper/` (finetune scripts, generators/, datasets/issai/, datasets/it_dataset/).
 - **RunPod pod configs**: `runpod/pods/*.json` + `runpod/setup/*.sh`. Yeni pod: `cd runpod && python create_pod.py issai|qwen|ollama`.
 - **Whisper fine-tune (ISSAI)**: `ml/whisper/whisper_issai_finetune.py` — whisper-large-v3-turbo, ISSAI 164K pair, H100, çıktı `/workspace/voiceflow-whisper-tr`. Bu CLAUDE.md'deki "Whisper eğitilmez" notunun istisnası — sadece correction LoRA değil, ASR modeli de fine-tune ediyoruz.
-- **2. round Qwen training**: ISSAI pairs (`ml/data_gen/datasets/issai/issai_pairs_all.jsonl`) + mevcut dataset → `prepare_dataset.py` → RunPod Qwen training.
+- **2. round Qwen training**: ISSAI pairs (`ml/whisper/datasets/issai/issai_pairs_all.jsonl`) + mevcut dataset (`ml/qwen/data/`) → `prepare_dataset.py` → RunPod Qwen training.
+- **RunPod pod configs**: `runpod/pods/*.json` + `runpod/setup/*.sh`. Yeni pod: `cd runpod && python create_pod.py issai|qwen|ollama`.

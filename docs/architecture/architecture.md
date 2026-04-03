@@ -18,7 +18,7 @@
     ├── audio/capture.py     (sounddevice, 16kHz mono float32)
     ├── transcription/       (mlx-whisper — Apple Silicon MLX)
     ├── correction/          (mlx-lm Qwen 7B — isteğe bağlı)
-    └── db/storage.py        (aiosqlite — ~/.voiceflow/voiceflow.db)
+    └── db/storage.py        (aiosqlite — voiceflow.db, DB_PATH via config.yaml)
 ```
 
 **Çalışan özellikler (v0.5):**
@@ -28,7 +28,7 @@
 - Auto-paste (Accessibility izni gerekli)
 - Türkçe + İngilizce + otomatik dil algılama
 - LLM düzeltme isteğe bağlı (~4GB, açıkken)
-- SQLite persistent history (`~/.voiceflow/voiceflow.db`)
+- SQLite persistent history (`voiceflow.db` repo root, `DB_PATH` ile configure edilir)
 - Mod sistemi: General / Engineering / Office
 - Kullanıcı profili: UUID, ad, departman
 - Onboarding sihirbazı (ilk açılış)
@@ -40,7 +40,7 @@
 - Knowledge Base (ChromaDB RAG, MiniLM embeddings)
 - Style/ton per-context (bundle ID → formal/casual/technical)
 - LLM backend seçimi: Local MLX / Cloud RunPod Ollama / Alibaba DashScope qwen-max
-- Fine-tuned LoRA adapter (Qwen2.5-7B, 39MB, `ml/qwen/adapters_mlx/`) — 1. round tamamlandı, `LLM_ADAPTER_PATH` ile aktif
+- Fine-tuned LoRA adapter (Qwen2.5-7B, 39MB, `ml/qwen/adapters_mlx/`) — 1. round tamamlandı, `config.yaml` `llm.adapter_path` ile aktif
 - Yanıt süresi: ~0.5s (LLM kapalı), ~3.5s (local 7B), ~1.5s (Alibaba cloud)
 
 ---
@@ -91,7 +91,7 @@ Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
     ├── mlx-whisper (Apple Silicon GPU — local)
     └── OllamaCorrector → RunPod Ollama veya Alibaba DashScope
 ```
-- `LLM_BACKEND=ollama` + `LLM_ENDPOINT` env var ile seçilir
+- `config.yaml` `llm.backend: ollama` + `llm.endpoint` ile seçilir (AppDelegate runtime'da override eder)
 - `BACKEND_MODE=local` kalır — faster-whisper/JWT gerekmez
 - Settings'ten 3 seçenek: Local MLX / Cloud RunPod / Alibaba qwen-max
 
@@ -106,7 +106,7 @@ Model       (Models.swift — LanguageMode, AppMode, TranscriptionResult)
 ```
 - Mac sadece ses kaydeder, işleme sunucuda
 - Veri şirket ağından dışarı çıkmaz
-- `BACKEND_MODE=server` env var ile seçilir
+- `config.yaml` `backend.mode: server` ile seçilir
 
 ---
 

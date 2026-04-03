@@ -27,7 +27,7 @@ backend/src/voiceflow/
 │   ├── smart_dictionary.py    # build_smart_dictionary() — kod tabanından identifier çıkar, Türkçe fonetik varyantları user_dictionary'e ekler (scope='smart')
 │   └── symbol_indexer.py      # build_symbol_index() — class/func/struct sembollerini file_path+line_number ile SQLite'a yazar; lookup_symbol() fuzzy arama
 ├── db/
-│   └── storage.py             # aiosqlite CRUD (~/.voiceflow/voiceflow.db)
+│   └── storage.py             # aiosqlite CRUD (voiceflow.db — DB_PATH via config.yaml)
 ├── audio/
 │   └── capture.py             # sounddevice ses kaydı, force_reset()
 ├── transcription/
@@ -121,7 +121,7 @@ async def lifespan(app):
 - `BACKEND_MODE=server` → OllamaCorrector
 - Hiçbiri yoksa → MLX LLMCorrector
 
-**LLMCorrector LoRA adapter**: `LLM_ADAPTER_PATH` env var set ise fine-tuned adapter yüklenir (örn. `../ml/qwen/adapters_mlx`). Yoksa vanilla Qwen2.5-7B çalışır.
+**LLMCorrector LoRA adapter**: `config.yaml` `llm.adapter_path` set ise fine-tuned adapter yüklenir (`ml/qwen/adapters_mlx`). Yoksa vanilla Qwen2.5-7B çalışır.
 
 ---
 
@@ -218,7 +218,7 @@ transcriber = WhisperTranscriber (mlx-whisper, Mac)
 corrector   = OllamaCorrector → RunPod RTX 4090 Ollama
 auth        = no-op
 ```
-Swift app, Settings → Recording → LLM Backend seçimine göre `LLM_BACKEND` ve `LLM_ENDPOINT` env var'larını backend'e geçirir. `.env` dosyasındaki `LLM_ENDPOINT` okunur.
+Swift app, Settings → Recording → LLM Backend seçimine göre `LLM_BACKEND` ve `LLM_ENDPOINT` env var'larını runtime'da backend'e geçirir. Default değerler `config.yaml`'dan (`llm.backend`, `llm.endpoint`).
 
 ### Local (Tam Mac, `BACKEND_MODE=local`)
 ```
@@ -235,15 +235,22 @@ transcriber = FasterWhisperTranscriber (NVIDIA CUDA)
 corrector   = OllamaCorrector (httpx → Ollama OpenAI-compat API)
 auth        = JWT Bearer zorunlu + X-Api-Key fallback
 ```
-Env değişkenleri:
+`config.yaml` (non-secret):
+```yaml
+backend:
+  mode: server
+whisper:
+  server_model: large-v3
+llm:
+  model: qwen2.5:7b
+  endpoint: http://ollama:11434
+auth:
+  jwt_access_ttl_minutes: 60
+```
+`.env` (secrets):
 ```bash
-BACKEND_MODE=server
-WHISPER_MODEL=large-v3
-LLM_MODEL=qwen2.5:7b
-LLM_ENDPOINT=http://ollama:11434
 API_KEYS=key1,key2,key3
 JWT_SECRET=<strong-random-secret>
-JWT_ACCESS_TTL_MINUTES=60
 ```
 
 ---
@@ -265,7 +272,7 @@ JWT_ACCESS_TTL_MINUTES=60
 
 ---
 
-## SQLite Schema (`~/.voiceflow/voiceflow.db`)
+## SQLite Schema (`voiceflow.db` — repo root, `config.yaml` `backend.db_path`)
 
 ```sql
 CREATE TABLE users (
@@ -412,8 +419,8 @@ ChromaDB kaldırıldı. Embedding/RAG yok. İki hafif SQLite tabanlı sistem:
 | llmMode | Env Vars | Corrector |
 |---------|----------|-----------|
 | `local` | `LLM_BACKEND=mlx` | LLMCorrector (mlx-lm Qwen 7B) |
-| `cloud` | `LLM_BACKEND=ollama`, `LLM_ENDPOINT` (RunPod), `LLM_MODEL=qwen2.5:7b` | OllamaCorrector |
-| `alibaba` | `LLM_BACKEND=ollama`, `LLM_ENDPOINT=https://dashscope-intl.aliyuncs.com/compatible-mode`, `LLM_MODEL=qwen-max`, `LLM_API_KEY` | OllamaCorrector |
+| `cloud` | `config.yaml llm.backend=ollama` + `llm.endpoint` (RunPod), `LLM_MODEL=qwen2.5:7b` | OllamaCorrector |
+| `alibaba` | `llm.backend=ollama`, `llm.endpoint=dashscope-intl...`, `llm.model=qwen-max`, `LLM_API_KEY` (.env secret) | OllamaCorrector |
 
 **OllamaCorrector** OpenAI-compatible endpoint kullanan her servisle çalışır (Ollama, vLLM, mlx-lm server, DashScope).
 
@@ -469,22 +476,28 @@ ml/
 │   │   ├── train.jsonl          ← 244K pair (Qwen chat format)
 │   │   ├── valid.jsonl          ← 30K pair
 │   │   └── test.jsonl           ← 30K pair
-│   └── adapters_mlx/            ← aktif MLX adapter (39MB) — LLM_ADAPTER_PATH işaret eder
-├── whisper/                     ← Whisper fine-tuning scripts
+│   ├── adapters_mlx/            ← aktif MLX adapter (39MB) — config.yaml llm.adapter_path
+│   ├── data/                   ← ham training pair'leri (corruption, gecturk, oneri vb.)
+│   └── generators/             ← pair üretecileri (claude, corruption, word_order vb.)
+├── whisper/                     ← Whisper fine-tuning
 │   ├── whisper_issai_finetune.py ← Katman 1: ISSAI 164K → voiceflow-whisper-tr
-│   └── whisper_poc_finetune.py  ← Katman 2: IT kayıtları → voiceflow-whisper-it
-└── data_gen/                    ← veri üretim pipeline'ları
-    ├── sentence_generator.py    ← Qwen-max ile IT cümlesi üretimi
-    ├── tts_generator.py         ← Azure TTS → WAV
-    ├── generators/              ← corruption, process_issai, word_order vb.
-    └── datasets/                ← JSONL dataset'leri (corruption, gecturk, issai vb.)
+│   ├── whisper_poc_finetune.py  ← PoC script
+│   ├── process_issai.py         ← ISSAI WAV → Whisper error pairs
+│   ├── generators/              ← sentence_generator, persona_terms, tts_generator
+│   └── datasets/
+│       ├── issai/               ← issai_pairs_clean.jsonl (164K)
+│       └── it_dataset/          ← whisper_sentences.jsonl (4495) + recordings/ (WAV)
+└── runpod/                      ← Pod config + setup scripts
+    ├── pods/                    ← issai_h100.json, qwen_4090.json, ollama_inference.json
+    ├── setup/                   ← issai.sh, qwen.sh, ollama.sh
+    └── create_pod.py            ← python create_pod.py issai|qwen|ollama
 ```
 
 **Qwen dataset kaynakları** (`prepare_dataset.py --sources`):
-- `ml/data_gen/datasets/corruption_pairs.jsonl` — 3K sentetik Whisper hata simülasyonu
-- `ml/data_gen/datasets/word_order_pairs.jsonl` — 531 Türkçe kelime sırası (SOV) düzeltme pair
-- `ml/data_gen/datasets/gecturk_pairs.jsonl` — 138K GECTurk Türkçe gramer hata düzeltme
-- `ml/data_gen/datasets/issai/issai_pairs_all.jsonl` — 186K gerçek Whisper hata pair **(2. round'a eklenecek)**
+- `ml/qwen/data/corruption_pairs.jsonl` — 3K sentetik Whisper hata simülasyonu
+- `ml/qwen/data/word_order_pairs.jsonl` — 531 Türkçe kelime sırası (SOV) düzeltme pair
+- `ml/qwen/data/gecturk_pairs.jsonl` — 138K GECTurk Türkçe gramer hata düzeltme
+- `ml/whisper/datasets/issai/issai_pairs_all.jsonl` — 186K gerçek Whisper hata pair **(2. round'a eklenecek)**
 - 1. round toplam: ~141K pair (gecturk 138K + corruption 3K + word_order 531)
 - 2. round hedef: ~327K pair (ISSAI 186K eklendikten sonra)
 

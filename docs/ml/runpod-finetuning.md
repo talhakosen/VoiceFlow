@@ -54,11 +54,11 @@ pip install unsloth trl datasets -q
 
 | Kaynak | Dosya | Pair |
 |---|---|---|
-| Sentetik corruption | `data_gen/corruption_pairs.jsonl` | ~3K |
-| ASR training data | `data_gen/asr_training_data.jsonl` | ~5K |
-| Word order | `data_gen/word_order_pairs.jsonl` | ~2K |
-| GecTurk (gerçek metin hataları) | `data_gen/gecturk_pairs.jsonl` | ~138K |
-| ISSAI TSC (gerçek Whisper hataları) | `data_gen/issai_pairs_clean.jsonl` | ~164K |
+| Sentetik corruption | `qwen/data/corruption_pairs.jsonl` | ~3K |
+| ASR training data | `qwen/data/asr_training_data.jsonl` | ~5K |
+| Word order | `qwen/data/word_order_pairs.jsonl` | ~2K |
+| GecTurk (gerçek metin hataları) | `qwen/data/gecturk_pairs.jsonl` | ~138K |
+| ISSAI TSC (gerçek Whisper hataları) | `whisper/datasets/issai/issai_pairs_clean.jsonl` | ~164K |
 | **Toplam** | `training/train.jsonl` | **~305K** |
 
 **train: 244K / valid: 30K / test: 30K**
@@ -70,10 +70,10 @@ pip install unsloth trl datasets -q
 cd ml/qwen/scripts
 python prepare_dataset.py \
   --sources ../../data_gen/datasets/corruption_pairs.jsonl \
-            data_gen/asr_training_data.jsonl \
-            data_gen/word_order_pairs.jsonl \
-            data_gen/gecturk_pairs.jsonl \
-            data_gen/issai_pairs_clean.jsonl
+            qwen/data/asr_training_data.jsonl \
+            qwen/data/word_order_pairs.jsonl \
+            qwen/data/gecturk_pairs.jsonl \
+            whisper/datasets/issai/issai_pairs_clean.jsonl
 ```
 
 ### Pod'a Yükleme
@@ -171,7 +171,7 @@ convert(
 "
 ```
 
-Sonra `.env`'deki `LLM_ADAPTER_PATH` → `../ml/qwen/adapters_mlx` yap.
+Sonra `config.yaml`'da `llm.adapter_path: ml/qwen/adapters_mlx` yap.
 
 ---
 

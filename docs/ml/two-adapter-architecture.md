@@ -91,24 +91,28 @@ WHISPER_MODEL=voiceflow-whisper-it   # merge edilmiş IT model (~1.5GB)
 
 ### Kurumsal Müşteri (Akbank Örneği)
 
-```bash
-WHISPER_MODEL=voiceflow-whisper-it   # bizim IT-adapted model (müşteriye gönderilir)
-WHISPER_ADAPTER_PATH=akbank_v1       # müşterinin delta adapter'ı (~30MB, on-premise kalır)
+```yaml
+# config.yaml (müşteri instance)
+whisper:
+  model: voiceflow-whisper-it        # bizim IT-adapted model (müşteriye gönderilir)
+  adapter_path: ml/whisper/adapters/akbank_v1  # müşterinin delta adapter'ı (~30MB, on-premise kalır)
 ```
 
 ### Dosya Yapısı
 
 ```
-~/.voiceflow/ veya ml/qwen/
-├── adapters_mlx/              ← Qwen adapter (mevcut, canlıda)
-│   ├── adapters/
-│   └── config.json
-└── whisper_adapters/
-    ├── voiceflow-whisper-it/  ← merge edilmiş IT base model
-    └── akbank_v1/             ← müşteri delta adapter (sadece 3 dosya)
-        ├── adapter_model.safetensors
-        ├── adapter_config.json
-        └── README.md
+ml/
+├── qwen/
+│   └── adapters_mlx/              ← Qwen adapter (mevcut, canlıda)
+│       ├── adapters/
+│       └── config.json
+└── whisper/
+    └── adapters/
+        ├── voiceflow-whisper-it/  ← merge edilmiş IT base model
+        └── akbank_v1/             ← müşteri delta adapter (sadece 3 dosya)
+            ├── adapter_model.safetensors
+            ├── adapter_config.json
+            └── README.md
 ```
 
 ### Teknik Doğrulama (Test Edildi)
@@ -128,10 +132,12 @@ Base Whisper (37,760,640 param)
 Sonuç: voiceflow-whisper-it + akbank_v1 deployment MİMARİSİ DOĞRU.
 ```
 
-`.env` config:
-```bash
-LLM_ADAPTER_PATH=../ml/qwen/adapters_mlx          # Qwen adapter — şu an aktif
-WHISPER_ADAPTER_PATH=~/.voiceflow/whisper_adapters/akbank_v1  # müşteri adapter'ı
+`config.yaml` config:
+```yaml
+llm:
+  adapter_path: ml/qwen/adapters_mlx          # Qwen adapter — şu an aktif
+whisper:
+  adapter_path: ml/whisper/adapters/akbank_v1  # müşteri adapter'ı (gelecek)
 ```
 
 ---
