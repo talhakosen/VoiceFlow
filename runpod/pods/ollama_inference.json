@@ -1,0 +1,24 @@
+{
+  "name": "voiceflow-ollama",
+  "imageName": "runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04",
+  "gpuTypeId": "NVIDIA GeForce RTX 4090",
+  "gpuCount": 1,
+  "cloudType": "SECURE",
+  "containerDiskInGb": 30,
+  "volumeInGb": 0,
+  "ports": "22/tcp,11434/http",
+  "env": {
+    "PUBLIC_KEY": "__YOUR_SSH_PUBLIC_KEY__",
+    "OLLAMA_HOST": "0.0.0.0"
+  },
+  "_notes": [
+    "Container disk 30GB: Ollama + qwen2.5:7b (~4.5GB)",
+    "Volume yok — stateless inference pod",
+    "Port 11434 expose: RunPod proxy URL → LLM_ENDPOINT .env'e yaz",
+    "OLLAMA_HOST=0.0.0.0 pod oluşturulurken set edilmeli (sonradan işe yaramaz)",
+    "Pod restart sonrası: setup/ollama.sh tekrar çalıştır (model reload gerekir)",
+    "Proxy URL: https://<POD_ID>-11434.proxy.runpod.net"
+  ],
+  "_setup": "runpod/setup/ollama.sh",
+  "_env_update": "RUNPOD_OLLAMA_URL=https://<POD_ID>-11434.proxy.runpod.net"
+}

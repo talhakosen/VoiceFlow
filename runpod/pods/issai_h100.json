@@ -1,0 +1,25 @@
+{
+  "name": "voiceflow-whisper-issai",
+  "imageName": "runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04",
+  "gpuTypeId": "NVIDIA H100 80GB HBM3",
+  "gpuCount": 1,
+  "cloudType": "SECURE",
+  "containerDiskInGb": 150,
+  "volumeInGb": 20,
+  "volumeMountPath": "/workspace",
+  "ports": "22/tcp,8888/http",
+  "env": {
+    "PUBLIC_KEY": "__YOUR_SSH_PUBLIC_KEY__",
+    "HF_TOKEN": "__FROM_ENV__"
+  },
+  "_notes": [
+    "Container disk 150GB: model (1.5GB) + ISSAI (21GB) + checkpoints (~6GB) + workspace",
+    "Volume 20GB /workspace: voiceflow-whisper-tr merged model (~1.5GB) + training.log",
+    "SECURE cloud zorunlu — COMMUNITY'de HuggingFace download yavaş/kesilir",
+    "H100 80GB: batch=16 rahat, ~4-5 saat 3 epoch ISSAI 164K pair",
+    "Pod silinince volume KALIR, /workspace içeriği korunur"
+  ],
+  "_setup": "runpod/setup/issai.sh",
+  "_train_script": "ml/whisper/whisper_issai_finetune.py",
+  "_output": "/workspace/voiceflow-whisper-tr"
+}
