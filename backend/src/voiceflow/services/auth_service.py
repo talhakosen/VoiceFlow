@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.getenv("JWT_SECRET", "voiceflow-dev-secret-change-in-prod")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TTL_MINUTES", "60"))
+from ..core.config import JWT_ACCESS_TTL_MINUTES as ACCESS_TOKEN_EXPIRE_MINUTES
 
 from ..core.config import BACKEND_MODE as _BACKEND_MODE
 if _BACKEND_MODE == "server" and SECRET_KEY == "voiceflow-dev-secret-change-in-prod":

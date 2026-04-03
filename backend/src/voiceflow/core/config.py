@@ -47,3 +47,8 @@ LLM_BACKEND:     str       = _get("llm", "backend",          "mlx")
 LLM_ENDPOINT:    str       = _get("llm", "endpoint",         "")
 LLM_MODEL:       str       = _get("llm", "model",            "qwen2.5:7b")
 LLM_ADAPTER_PATH: Path | None = _resolve_path(_get("llm", "adapter_path", ""))
+
+WHISPER_MODEL:        str  = _get("whisper", "model",        "mlx-community/whisper-large-v3-turbo")
+WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
+
+JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))

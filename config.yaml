@@ -10,3 +10,10 @@ llm:
   endpoint: ""         # Ollama endpoint; empty = local MLX
   model: qwen2.5:7b    # Ollama model name
   adapter_path: ml/qwen/adapters_mlx  # LoRA adapter; empty = no adapter
+
+whisper:
+  model: mlx-community/whisper-large-v3-turbo  # MLX model
+  server_model: large-v3                        # faster-whisper (server mode)
+
+auth:
+  jwt_access_ttl_minutes: 60

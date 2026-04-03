@@ -1,8 +1,8 @@
 """Whisper transcription module using mlx-whisper."""
 
 import logging
-import os
 from dataclasses import dataclass, field
+from ..core.config import WHISPER_MODEL as _WHISPER_MODEL
 from typing import Any
 
 import mlx.core as mx
@@ -78,7 +78,7 @@ class TranscriptionResult:
 class WhisperConfig:
     """Whisper model configuration."""
 
-    model_name: str = os.getenv("WHISPER_MODEL", "mlx-community/whisper-large-v3-turbo")
+    model_name: str = field(default_factory=lambda: _WHISPER_MODEL)
     language: str | None = "tr"  # Default Turkish, None for auto-detect
     task: str = "transcribe"  # "transcribe" = same language, "translate" = to English
 

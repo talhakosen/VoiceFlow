@@ -2,18 +2,15 @@
 
 import io
 import logging
-import os
 from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
 
 from .whisper import TranscriptionResult, WhisperConfig
+from ..core.config import WHISPER_SERVER_MODEL as _FASTER_WHISPER_MODEL
 
 logger = logging.getLogger(__name__)
-
-# Allow override via env; default large-v3 for best quality on server
-_FASTER_WHISPER_MODEL = os.getenv("WHISPER_MODEL", "large-v3")
 
 
 @dataclass
