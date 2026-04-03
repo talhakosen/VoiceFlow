@@ -168,10 +168,29 @@ private struct NewSentenceTab: View {
 
     @ViewBuilder
     private var recordingsList: some View {
-        if !recordings.isEmpty {
-            VStack(spacing: 4) {
+        if !recordings.isEmpty || viewModel.itDatasetProcessing {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Kayitlar")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 2)
+
                 ForEach(Array(recordings.enumerated()), id: \.offset) { i, rec in
                     recordingRow(index: i, rec: rec)
+                }
+
+                if viewModel.itDatasetProcessing {
+                    HStack(spacing: 8) {
+                        ProgressView().controlSize(.small)
+                        Text("Varyasyon \(recordings.count + 1) isleniyor...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.orange.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -219,26 +238,39 @@ private struct NewSentenceTab: View {
     }
 
     private var micButton: some View {
-        Button {
-            if viewModel.isRecording {
-                viewModel.stopRecordingForDataset()
-            } else {
-                viewModel.startRecordingForDataset()
+        VStack(spacing: 8) {
+            Button {
+                if viewModel.isRecording {
+                    viewModel.stopRecordingForDataset()
+                } else {
+                    viewModel.startRecordingForDataset()
+                }
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(viewModel.isRecording ? Color.red : viewModel.itDatasetProcessing ? Color.gray : Color.accentColor)
+                        .frame(width: 64, height: 64)
+                        .shadow(color: (viewModel.isRecording ? Color.red : Color.accentColor).opacity(0.4), radius: 12)
+                    if viewModel.itDatasetProcessing {
+                        ProgressView().controlSize(.small).tint(.white)
+                    } else {
+                        Image(systemName: viewModel.isRecording ? "stop.fill" : "mic.fill")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                }
             }
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(viewModel.isRecording ? Color.red : Color.accentColor)
-                    .frame(width: 64, height: 64)
-                    .shadow(color: (viewModel.isRecording ? Color.red : Color.accentColor).opacity(0.4), radius: 12)
-                Image(systemName: viewModel.isRecording ? "stop.fill" : "mic.fill")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(.white)
+            .buttonStyle(.plain)
+            .disabled(viewModel.itDatasetProcessing)
+            .scaleEffect(viewModel.isRecording ? 1.1 : 1.0)
+            .animation(.spring(response: 0.3), value: viewModel.isRecording)
+
+            if viewModel.itDatasetProcessing {
+                Text("Isleniyor...")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
-        .buttonStyle(.plain)
-        .scaleEffect(viewModel.isRecording ? 1.1 : 1.0)
-        .animation(.spring(response: 0.3), value: viewModel.isRecording)
     }
 
     private func loadRandom() async {
@@ -344,8 +376,13 @@ private struct PracticeDetailCard: View {
     var viewModel: AppViewModel
     var onBack: () -> Void
 
+    @State private var liveRecordings: [ITRecordingItem] = []
     @State private var playingIndex: Int? = nil
     @State private var currentSound: NSSound? = nil
+
+    private var recordings: [ITRecordingItem] {
+        liveRecordings.isEmpty ? (item.recordings ?? []) : liveRecordings
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -362,11 +399,17 @@ private struct PracticeDetailCard: View {
                 .background(Color.accentColor.opacity(0.07))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            Text("Kayitlar")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+            HStack {
+                Text("Kayitlar")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(recordings.count) varyasyon")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
 
-            ForEach(Array((item.recordings ?? []).enumerated()), id: \.offset) { i, rec in
+            ForEach(Array(recordings.enumerated()), id: \.offset) { i, rec in
                 HStack(spacing: 10) {
                     Button {
                         if playingIndex == i {
@@ -392,6 +435,7 @@ private struct PracticeDetailCard: View {
                     Button {
                         currentSound?.stop(); currentSound = nil; playingIndex = nil
                         viewModel.deleteITDatasetPair(wavPath: rec.wavPath)
+                        liveRecordings.remove(at: i)
                     } label: {
                         Image(systemName: "trash").font(.caption).foregroundStyle(.red)
                     }
@@ -404,7 +448,14 @@ private struct PracticeDetailCard: View {
 
             Spacer()
         }
+        .onAppear { Task { await refreshRecordings() } }
         .onDisappear { currentSound?.stop() }
+    }
+
+    private func refreshRecordings() async {
+        guard let all = try? await viewModel.getITDatasetRecorded(),
+              let match = all.first(where: { $0.index == item.index }) else { return }
+        liveRecordings = match.recordings ?? []
     }
 }
 

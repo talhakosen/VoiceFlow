@@ -26,6 +26,7 @@ final class AppViewModel {
     var itDatasetCurrentIndex = -1
     var itDatasetLastWhisper = ""
     var itDatasetLastWavPath = ""
+    var itDatasetProcessing = false   // true while Whisper result pending (blocks new start)
     private var autoDismissTask: Task<Void, Never>? = nil
 
     // MARK: - Dependencies
@@ -417,7 +418,7 @@ final class AppViewModel {
     }
 
     func startRecordingForDataset() {
-        guard !isRecording else { return }
+        guard !isRecording && !itDatasetProcessing else { return }
         isRecording = true
         statusText = "Dataset Recording..."
         Task {
@@ -433,6 +434,7 @@ final class AppViewModel {
     func stopRecordingForDataset() {
         guard isRecording else { return }
         isRecording = false
+        itDatasetProcessing = true
         statusText = "Processing..."
         Task {
             do {
@@ -443,7 +445,6 @@ final class AppViewModel {
                     cmdIntervals: nil,
                     itDatasetIndex: itDatasetCurrentIndex >= 0 ? itDatasetCurrentIndex : nil
                 )
-                // Update UI with Whisper result
                 if itDatasetActive && itDatasetCurrentIndex >= 0 {
                     itDatasetLastWhisper = result.rawText ?? result.text
                     itDatasetLastWavPath = result.itWavPath ?? ""
@@ -452,6 +453,7 @@ final class AppViewModel {
             } catch {
                 statusText = "Ready"
             }
+            itDatasetProcessing = false
         }
     }
 
