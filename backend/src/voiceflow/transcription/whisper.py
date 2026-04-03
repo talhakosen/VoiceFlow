@@ -28,11 +28,13 @@ _HALLUCINATION_PHRASES = [
 
 
 def _strip_hallucination_phrases(text: str) -> str:
-    """Bilinen sabit hallüsinasyon cümlelerini metnin sonundan sil."""
-    lower = text.lower().rstrip(" .")
+    """Bilinen sabit hallüsinasyon cümlelerini metnin sonundan sil.
+    casefold() kullanılır — lower() Türkçe İ→i dönüşümünü yapmaz.
+    """
+    folded = text.casefold().rstrip(" .")
     for phrase in _HALLUCINATION_PHRASES:
-        if lower.endswith(phrase):
-            stripped = text[:len(lower) - len(phrase)].rstrip(" .,")
+        if folded.endswith(phrase.casefold()):
+            stripped = text[:len(folded) - len(phrase)].rstrip(" .,")
             logger.warning("Hallucination phrase stripped: %r", phrase)
             return stripped
     return text

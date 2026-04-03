@@ -181,15 +181,21 @@ class RecordingService:
                 _it_wav_path = str(wav_path)
                 logger.info("IT dataset WAV saved: %s", wav_path)
 
-                sentence = await get_training_sentence_by_id(it_dataset_index)
-                training_set = sentence["training_set"] if sentence else "it_dataset"
-                await save_training_recording(
-                    sentence_id=it_dataset_index,
-                    training_set=training_set,
-                    wav_path=str(wav_path),
-                    whisper_out=raw_text,
-                )
-                logger.info("IT recording saved: id=%d whisper='%s'", it_dataset_index, raw_text[:60])
+                if not raw_text.strip():
+                    # Boş veya hallüsinasyon sonrası temizlenmiş — kaydetme
+                    wav_path.unlink(missing_ok=True)
+                    _it_wav_path = None
+                    logger.warning("IT recording skipped: empty/hallucination text for sentence_id=%d", it_dataset_index)
+                else:
+                    sentence = await get_training_sentence_by_id(it_dataset_index)
+                    training_set = sentence["training_set"] if sentence else "it_dataset"
+                    await save_training_recording(
+                        sentence_id=it_dataset_index,
+                        training_set=training_set,
+                        wav_path=str(wav_path),
+                        whisper_out=raw_text,
+                    )
+                    logger.info("IT recording saved: id=%d whisper='%s'", it_dataset_index, raw_text[:60])
             except Exception as e:
                 logger.warning("IT dataset save failed: %s", e)
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
