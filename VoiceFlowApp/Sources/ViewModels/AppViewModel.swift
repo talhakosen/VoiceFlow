@@ -112,16 +112,10 @@ final class AppViewModel {
 
     private func setupHotkey() {
         hotkey.onStartRecording = { [weak self] in
-            Task { @MainActor [weak self] in
-                guard let self, !self.itDatasetActive else { return }
-                self.startRecording()
-            }
+            Task { @MainActor [weak self] in self?.startRecording() }
         }
         hotkey.onStopRecording = { [weak self] in
-            Task { @MainActor [weak self] in
-                guard let self, !self.itDatasetActive else { return }
-                await self.stopAndTranscribe()
-            }
+            Task { @MainActor [weak self] in await self?.stopAndTranscribe() }
         }
         hotkey.start()
     }
