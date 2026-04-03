@@ -140,6 +140,8 @@ class WhisperTranscriber:
         options = {
             "path_or_hf_repo": self.config.model_name,
             "task": self.config.task,
+            "temperature": 0.0,               # greedy decoding — beam_size=1 equivalent, ~2x hız
+            "condition_on_previous_text": False,  # her segment bağımsız, daha hızlı
         }
 
         if self.config.language:
@@ -174,6 +176,8 @@ class WhisperTranscriber:
         options = {
             "path_or_hf_repo": self.config.model_name,
             "task": self.config.task,
+            "temperature": 0.0,
+            "condition_on_previous_text": False,
         }
 
         if self.config.language:

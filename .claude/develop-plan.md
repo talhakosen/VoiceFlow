@@ -173,6 +173,23 @@
 - [ ] Mail.app + Outlook entegrasyonu (AppleScript / URL scheme)
 - [ ] Toplantı notu formatı (otomatik madde işaretleri, action item çıkarma)
 
+- [ ] **Office Snippet Paketi** — hazır kurumsal şablon seti (Settings'ten tek tıkla aktif):
+      "durum güncelleme", "haftalık rapor", "toplantı notu", "OKR güncelleme",
+      "izin talebi", "iş teklifi özeti", "karar kaydı", "teşekkür maili",
+      "sözleşme özeti", "masraf raporu", "geri bildirim", "incident raporu"
+      Admin paketi ekip geneline açabilir / kapatabilir
+
+### 3.2.1 Engineering Snippet Paketi
+
+- [ ] **Engineering Snippet Paketi** — developer için akıllı lokal tetikleyiciler:
+      "yorum ekle" → aktif fonksiyon için docstring şablonu (Symbol Index'ten sınıf adı inject)
+      "TODO ekle" → `// TODO(kullanıcı adı): ` + söylenen metin
+      "commit mesajı" → Symbol Index'teki değişen dosya isimlerini LLM'e inject et, mesaj üret
+      "PR açıklaması" → değişen dosya listesi inject + açıklama şablonu
+      "bu sınıfı açıkla" → Symbol Index'ten sınıf/fonksiyon içeriğini çekip LLM'e ver
+      Tüm bunlar tamamen lokal — dış bağlantı yok, clipboard + Symbol Index kullanır
+      Satış argümanı: "Wispr Flow söyler yapıştırır, VoiceFlow söyler koduna bakar üretir"
+
 ### 3.3.1 Web — Marketing Landing Page
 
 > `web/` klasörü: Next.js 14 + Tailwind + Framer Motion. İçerik `constants.ts`'te.
