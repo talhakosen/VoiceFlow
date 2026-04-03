@@ -56,6 +56,7 @@ var isLLMReady: Bool           // /health llm_loaded alanından — recording ba
 **Business logic:**
 - `startRecording()` / `stopAndTranscribe()` / `forceStop()`
   - `stopAndTranscribe`: overlay + Pop sesi backend response beklemeden **hemen** çalar — uzun Whisper/LLM işlemleri UI'ı bloke etmez
+  - `forceStop()`: `isRecording`, `isDatasetRecordingActive`, `itDatasetProcessing` hepsini sıfırlar — sıkışmış kayıt her zaman temizlenir
   - Backend erişilemezse: `statusText = "⚠ Servis başlatılıyor..."` (start hatası) veya `"⚠ Bağlantı hatası — servisi yeniden başlatın"` (stop hatası)
 - `selectLanguageMode(_:)` / `selectAppMode(_:)` / `toggleCorrection()`
   - `selectAppMode(.engineering)` → `isCorrectionEnabled = false` (LLM correction otomatik kapatılır; backend de enforce eder)
@@ -77,12 +78,24 @@ Test için `MockBackendService` inject edilebilir.
 ---
 
 ### MenuBarController
-Sadece UI — sıfır iş mantığı.
+Sadece UI — sıfır iş mantığı. `NSMenuDelegate` ile menü açılmadan state güncellenir.
 
-- `AppViewModel`'i 0.3s timer ile observe eder → `syncUI()`
-- NSMenu'yu `rebuildMenu()` ile kurar
-- Her action → `viewModel.methodName()` çağrısı
-- `updateSubmenuCheckmarks()` generic helper ile checkmark yönetimi
+**Menü yapısı:**
+```
+🎤 Kaydı Başlat / Kaydı Durdur   ← toggle, kısayolsuz
+↺  Servisi Yeniden Başlat
+〰  Ses Eğitimi...
+⚙  Settings...
+⏻  Quit                          ⌘Q
+──────────────────────────────────
+v1.0.x (N)              Ready     ← status sağa yapışık (tab stop)
+```
+
+- `AppViewModel`'i 0.3s timer (`.common` RunLoop mode) ile observe eder → `syncUI()`
+- `NSMenuDelegate.menuWillOpen` → menü açılmadan önce `syncUI()` tetiklenir (event tracking run loop'ta timer çalışmaz sorunu)
+- İkon tutarlılığı: tüm maddelerde `isTemplate = true` SF Symbol (multicolor bozulması önlenir)
+- `toggleRecording()`: `isRecording` true → `forceStop()`, false → `startRecording()`
+- Version+status satırı: `NSAttributedString` + sağ hizalı tab stop (260pt)
 
 ---
 

@@ -319,6 +319,8 @@ final class AppViewModel {
 
     func forceStop() {
         isRecording = false
+        isDatasetRecordingActive = false
+        itDatasetProcessing = false
         hotkey.resetState()
         statusText = "Force stopping..."
         onHideRecordingOverlay?()

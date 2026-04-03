@@ -6,7 +6,7 @@ import SwiftUI
 // All business logic is in AppViewModel.
 
 @MainActor
-class MenuBarController: NSObject {
+class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
     private var settingsWindow: NSWindow?
@@ -38,7 +38,7 @@ class MenuBarController: NSObject {
         // Poll via a timer — lightweight for a menu bar app.
         // Replace with withObservationTracking if needed for complex UIs.
         Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
-            self?.syncUI()
+            Task { @MainActor [weak self] in self?.syncUI() }
         }
     }
 
@@ -53,12 +53,26 @@ class MenuBarController: NSObject {
             return
         }
 
-        // Status text
-        menu.item(withTag: 100)?.title = viewModel.statusText
+        // Status text (bottom) — version sol, status sağa yapışık
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        if let item = menu.item(withTag: 100) {
+            item.attributedTitle = makeVersionStatusAttr(version: v, build: b, status: viewModel.statusText)
+        }
 
-        // Recording icon
-        let button = statusItem?.button
+        // Recording toggle title + icon
         let recording = viewModel.isRecording
+        if let recItem = menu.item(withTag: 101) {
+            recItem.title = recording ? "Kaydı Durdur" : "Kaydı Başlat"
+            if let img = NSImage(systemSymbolName: recording ? "stop.circle" : "mic",
+                                  accessibilityDescription: nil) {
+                img.isTemplate = true
+                recItem.image = img
+            }
+        }
+
+        // Status bar icon
+        let button = statusItem?.button
         button?.image = NSImage(systemSymbolName: recording ? "waveform.circle.fill" : "waveform",
                                 accessibilityDescription: "VoiceFlow")
         button?.contentTintColor = recording ? .systemRed : nil
@@ -69,29 +83,50 @@ class MenuBarController: NSObject {
     private func rebuildMenu() {
         let menu = NSMenu()
 
-        menu.addItem(disabled("Ready", tag: 100))
-        menu.addItem(.separator())
-        menu.addItem(action("Kaydı Durdur",         sel: #selector(forceStop),        key: "s"))
-        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),  key: ""))
-        menu.addItem(.separator())
-        menu.addItem(action("Ses Egitimi...",         sel: #selector(openITDataset),    key: ""))
-        menu.addItem(action("Settings...",           sel: #selector(openSettings),     key: ","))
+        let isRec = viewModel.isRecording
+        menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
+                            sel: #selector(toggleRecording),
+                            key: "", icon: isRec ? "stop.circle" : "mic", tag: 101))
+        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
+                            key: "", icon: "arrow.clockwise"))
+        menu.addItem(action("Ses Eğitimi...",         sel: #selector(openITDataset),
+                            key: "", icon: "waveform.badge.microphone"))
+        menu.addItem(action("Settings...",            sel: #selector(openSettings),
+                            key: "", icon: "gearshape"))
+
         let role = viewModel.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
-            menu.addItem(action("Admin Panel...", sel: #selector(openAdminPanel), key: ""))
+            menu.addItem(action("Admin Panel...", sel: #selector(openAdminPanel),
+                                key: "", icon: "shield.lefthalf.filled"))
         }
-        menu.addItem(action("Quit",                  sel: #selector(quit),             key: "q"))
+
+        menu.addItem(action("Quit", sel: #selector(quit), key: "q", icon: "power"))
         menu.addItem(.separator())
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        menu.addItem(disabled("v\(version) (\(build))"))
+        menu.addItem(versionStatusItem(version: version, build: build, status: viewModel.statusText))
 
+        menu.delegate = self
         statusItem?.menu = menu
+    }
+
+    // MARK: - NSMenuDelegate
+
+    nonisolated func menuWillOpen(_ menu: NSMenu) {
+        Task { @MainActor [weak self] in self?.syncUI() }
     }
 
     // MARK: - Actions
 
     @objc private func statusBarButtonClicked() {}
+
+    @objc private func toggleRecording() {
+        if viewModel.isRecording {
+            viewModel.forceStop()
+        } else {
+            viewModel.startRecording()
+        }
+    }
 
     @objc private func forceStop() { viewModel.forceStop() }
 
@@ -137,6 +172,25 @@ class MenuBarController: NSObject {
 
     // MARK: - Helpers
 
+    private func versionStatusItem(version: String, build: String, status: String) -> NSMenuItem {
+        let item = NSMenuItem()
+        item.isEnabled = false
+        item.tag = 100
+        item.attributedTitle = makeVersionStatusAttr(version: version, build: build, status: status)
+        return item
+    }
+
+    private func makeVersionStatusAttr(version: String, build: String, status: String) -> NSAttributedString {
+        let para = NSMutableParagraphStyle()
+        para.tabStops = [NSTextTab(textAlignment: .right, location: 260)]
+        let attrs: [NSAttributedString.Key: Any] = [
+            .paragraphStyle: para,
+            .foregroundColor: NSColor.secondaryLabelColor,
+            .font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)
+        ]
+        return NSAttributedString(string: "v\(version) (\(build))\t\(status)", attributes: attrs)
+    }
+
     private func disabled(_ title: String, tag: Int = 0) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         item.isEnabled = false
@@ -144,10 +198,15 @@ class MenuBarController: NSObject {
         return item
     }
 
-    private func action(_ title: String, sel: Selector, key: String, tag: Int = 0) -> NSMenuItem {
+    private func action(_ title: String, sel: Selector, key: String,
+                        icon: String? = nil, tag: Int = 0) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: sel, keyEquivalent: key)
         item.target = self
         item.tag = tag
+        if let icon, let img = NSImage(systemSymbolName: icon, accessibilityDescription: nil) {
+            img.isTemplate = true   // monochrome — menü rengine uyar, multicolor bozulmaz
+            item.image = img
+        }
         return item
     }
 
