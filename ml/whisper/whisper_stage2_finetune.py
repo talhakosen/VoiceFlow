@@ -4,26 +4,25 @@ Base  : tkosen/voiceflow-whisper-tr (ISSAI 164K ile eğitilmiş, Stage 1 çıkt�
 Hedef : Aynı WAV'lar + noktalı/büyük harfli text → decoder noktalama öğrenir
 Sonuç : voiceflow-whisper-tr-v2 (~1.5GB merged)
 
-Neden düşük LR (5e-6)?
-  Stage 1 akustik Türkçe'yi öğretti. Stage 2 sadece decoder çıktısını
-  güncelliyor (noktalama/büyük harf). Yüksek LR → catastrophic forgetting.
+Pipeline:
+  1. ISSAI WAV+TXT pair'leri bul
+  2. Qwen 7B ile tüm TXT'leri noktalandır (batch=64, ~10-15 dk) → cache'e yaz
+  3. Qwen unload → GPU temizle
+  4. Whisper Stage 2 training (noktalı text ile, ~2 saat)
+  5. Merge + HF push
 
 ── H100 80GB optimize edilmiş komutlar ──────────────────────────────────────────
 
 # 0. Deps
 pip install 'transformers==4.44.2' 'peft==0.12.0' soundfile librosa accelerate bitsandbytes -q
 
-# 1. issai_punctuated.jsonl yükle (lokal'den ~35MB)
-scp ml/whisper/datasets/issai/issai_punctuated.jsonl root@<pod>:/workspace/
+# 1. Script yükle
 scp ml/whisper/whisper_stage2_finetune.py root@<pod>:/workspace/
 
 # 2. RAM disk trick — I/O darboğazını kaldır (ISSAI WAV'lar ~26GB, RAM'e sığar)
-free -h                                              # RAM kontrolü (genelde 200GB+)
-mkdir -p /dev/shm/issai
-cp -r /workspace/issai/extracted /dev/shm/issai/    # veya /root/issai/extracted varsa
-# (cp ~30-60 saniye sürer, ama training süresini ~1 saat kısaltır)
+mkdir -p /dev/shm/issai && cp -r /workspace/issai/extracted /dev/shm/issai/
 
-# 3. Çalıştır
+# 3. Çalıştır (Qwen noktalama + Whisper training tek komut)
 cd /workspace
 HF_TOKEN=xxx nohup python whisper_stage2_finetune.py > /workspace/stage2.log 2>&1 &
 tail -f /workspace/stage2.log
@@ -90,6 +89,10 @@ def _clean_gt(text: str) -> str:
     if result[-1] not in ".!?…":
         result += "."
     return result
+
+QWEN_MODEL      = "Qwen/Qwen2.5-7B-Instruct"
+PUNCT_CACHE     = Path("/workspace/punct_cache.json")   # Qwen çıktısı, pod restart'ta yeniden çalışma
+PUNCT_BATCH     = 64    # H100'de Qwen batch boyutu
 
 OUTPUT_DIR      = Path("/root/training_out/whisper_stage2")
 MERGED_DIR      = Path("/workspace/voiceflow-whisper-tr-v2")
@@ -165,6 +168,97 @@ def find_pairs(issai_dir: Path) -> list[dict]:
     return pairs
 
 
+# ── Qwen noktalama ────────────────────────────────────────────────────────────
+
+_QWEN_SYSTEM = (
+    "Sen bir Türkçe metin düzeltme asistanısın. "
+    "Verilen metne SADECE şunları ekle/düzelt: "
+    "virgül, nokta, soru işareti gibi noktalama işaretleri; "
+    "özel isim büyük harfleri (ay adları, kişi adları, şehirler, ülkeler, Türk/Türkçe/Türkiye). "
+    "YAPMA: Kelime ekleme, çıkarma, anlam değiştirme. "
+    "Sadece düzeltilmiş metni yaz, başka hiçbir şey yazma."
+)
+
+
+def punctuate_with_qwen(pairs: list[dict]) -> list[dict]:
+    """Qwen 7B ile tüm GT metinleri noktalandır. Cache varsa atla, sonra unload."""
+
+    # Cache kontrolü — pod restart sonrası tekrar çalışmayı engeller
+    if PUNCT_CACHE.exists():
+        log.info(f"Noktalama cache yükleniyor ({PUNCT_CACHE})...")
+        cache = json.loads(PUNCT_CACHE.read_text(encoding="utf-8"))
+        hit = sum(1 for p in pairs if p["text"] in cache)
+        log.info(f"Cache hit: {hit}/{len(pairs)}")
+        for p in pairs:
+            p["text"] = cache.get(p["text"], p["text"])
+        return pairs
+
+    log.info(f"Qwen 7B yükleniyor: {QWEN_MODEL} (4-bit)...")
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    bnb_cfg = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+    qwen_tok = AutoTokenizer.from_pretrained(QWEN_MODEL, padding_side="left")
+    qwen_tok.pad_token = qwen_tok.eos_token
+    qwen_model = AutoModelForCausalLM.from_pretrained(
+        QWEN_MODEL, quantization_config=bnb_cfg, device_map="auto"
+    )
+    qwen_model.eval()
+    log.info("Qwen yüklendi.")
+
+    texts = [p["text"] for p in pairs]
+    cache: dict[str, str] = {}
+
+    for i in range(0, len(texts), PUNCT_BATCH):
+        batch = texts[i : i + PUNCT_BATCH]
+
+        # Her metin için chat prompt oluştur
+        prompts = [
+            qwen_tok.apply_chat_template(
+                [{"role": "system", "content": _QWEN_SYSTEM},
+                 {"role": "user",   "content": t}],
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for t in batch
+        ]
+
+        enc = qwen_tok(prompts, return_tensors="pt", padding=True, truncation=True,
+                       max_length=256).to(qwen_model.device)
+
+        with torch.no_grad():
+            out_ids = qwen_model.generate(
+                **enc,
+                max_new_tokens=60,      # noktalama için orijinal uzunluk yeterli
+                do_sample=False,
+                pad_token_id=qwen_tok.eos_token_id,
+            )
+
+        input_len = enc["input_ids"].shape[1]
+        for orig, ids in zip(batch, out_ids):
+            new_tokens = ids[input_len:]
+            punct = qwen_tok.decode(new_tokens, skip_special_tokens=True).strip()
+            cache[orig] = punct if punct else orig
+
+        if i % 5000 == 0:
+            pct = i * 100 // len(texts)
+            log.info(f"Noktalama: {i}/{len(texts)} ({pct}%)")
+
+    # Cache kaydet
+    PUNCT_CACHE.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+    log.info(f"Cache kaydedildi: {PUNCT_CACHE} ({len(cache)} entry)")
+
+    # Pairs güncelle
+    for p in pairs:
+        p["text"] = cache.get(p["text"], p["text"])
+
+    # GPU temizle — Whisper training için yer aç
+    del qwen_model, qwen_tok
+    torch.cuda.empty_cache()
+    log.info("Qwen unload edildi, GPU hazır.")
+
+    return pairs
+
+
 # ── Dataset ───────────────────────────────────────────────────────────────────
 
 class ISSAIDataset(TorchDataset):
@@ -229,25 +323,31 @@ def train():
     # 1. ISSAI'yi bul (RAM disk > /root > /workspace > indir)
     issai_dir = find_issai_dir()
 
-    # 2. WAV+GT pair'leri bul (_clean_gt ile temel noktalama)
+    # 2. WAV+GT pair'leri bul (_clean_gt ile temel temizlik)
     pairs = find_pairs(issai_dir)
     if not pairs:
         log.error("Hiç pair bulunamadı!")
         sys.exit(1)
+
+    # 3. Qwen 7B ile noktalama — training başlamadan önce tek seferlik
+    #    (cache varsa atlar; ~10-15 dk, sonra Qwen unload olur)
+    log.info("\n── Qwen noktalama adımı ──")
+    pairs = punctuate_with_qwen(pairs)
+    log.info("Noktalama tamamlandı, Whisper training başlıyor...\n")
 
     split_idx   = int(len(pairs) * 0.95)
     train_pairs = pairs[:split_idx]
     eval_pairs  = pairs[split_idx:]
     log.info(f"Train: {len(train_pairs)}, Eval: {len(eval_pairs)}")
 
-    # 4. Model + processor
+    # 5. Model + processor
     processor = WhisperProcessor.from_pretrained(MODEL_NAME, language=LANGUAGE, task=TASK, token=hf_token)
     model = WhisperForConditionalGeneration.from_pretrained(MODEL_NAME, token=hf_token)
     model.generation_config.language = LANGUAGE
     model.generation_config.task = TASK
     model.generation_config.forced_decoder_ids = None
 
-    # 5. LoRA — Stage 2: r=8 (Stage 1=16, daha az parametre = daha az forgetting riski)
+    # 6. LoRA — Stage 2: r=8 (Stage 1=16, daha az parametre = daha az forgetting riski)
     lora_config = LoraConfig(
         r=8,
         lora_alpha=16,
@@ -261,7 +361,7 @@ def train():
     train_ds = ISSAIDataset(train_pairs, processor)
     eval_ds  = ISSAIDataset(eval_pairs, processor)
 
-    # 6. Training args — H100 maximize
+    # 7. Training args — H100 maximize
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     training_args = Seq2SeqTrainingArguments(
         output_dir=str(OUTPUT_DIR),
@@ -306,7 +406,7 @@ def train():
     log.info("\nStage 2 training başlıyor...")
     trainer.train()
 
-    # 7. Adapter + merge
+    # 8. Adapter + merge
     model.save_pretrained(str(OUTPUT_DIR / "final"))
     processor.save_pretrained(str(OUTPUT_DIR / "final"))
     log.info(f"LoRA adapter: {OUTPUT_DIR}/final")
@@ -321,7 +421,7 @@ def train():
     log.info(f"Model boyutu: {size_mb:.0f} MB")
     log.info("Katman 2 TAMAMLANDI — voiceflow-whisper-tr-v2 hazır.")
 
-    # 8. HF push
+    # 9. HF push
     if hf_token:
         log.info("\nHuggingFace'e yükleniyor: tkosen/voiceflow-whisper-tr-v2...")
         merged.push_to_hub("tkosen/voiceflow-whisper-tr-v2", token=hf_token)

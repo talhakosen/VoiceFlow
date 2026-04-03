@@ -23,6 +23,48 @@ python create_pod.py --list
 **Hedef:** Aynı ISSAI WAV'lar + noktalı text → decoder büyük harf + noktalama öğrenir
 **Sonuç:** `voiceflow-whisper-tr-v2`
 
+### Ground Truth Noktalama: Qwen 7B Pipeline
+
+Mac'te offline noktalama (Claude/Haiku API) yerine **pod üzerinde Qwen 7B ile** yapılır:
+
+```
+ISSAI TXT (164K, noktalama yok)
+    ↓  Qwen 7B (H100, batch=64)
+issai_gt_punctuated.jsonl (~20 dk)
+    ↓
+Whisper Stage 2 training
+```
+
+**Neden Qwen 7B (pod üzerinde):**
+- Gerçek Türkçe anlayışı → `kasım` → `Kasım`, `abdülhamit gül` → `Abdülhamit Gül`
+- H100 üzerinde batch=64 → 164K satır ~15-20 dakika
+- Zaten ISSAI training için pod ayakta — ek maliyet sıfır
+- Rule-based scriptlerin kaçırdığı özel isimleri, ay/gün adlarını yakalar
+
+**Adımlar:**
+```bash
+# 1. Pod'da Qwen yükle + noktalama üret
+scp -P <PORT> ml/whisper/scripts/punctuate_with_qwen.py root@<IP>:/workspace/
+ssh -p <PORT> root@<IP> \
+  'HF_TOKEN=hf_xxx python /workspace/punctuate_with_qwen.py \
+   --input /workspace/issai/issai_pairs_clean.jsonl \
+   --output /workspace/issai_gt_punctuated.jsonl \
+   --batch-size 64'
+
+# 2. Mac'e indir
+scp -P <PORT> root@<IP>:/workspace/issai_gt_punctuated.jsonl \
+  ml/whisper/datasets/issai/
+
+# 3. Stage 2 training başlat (issai_gt_punctuated.jsonl otomatik kullanılır)
+ssh -p <PORT> root@<IP> 'bash /workspace/stage2.sh'
+```
+
+**`punctuate_with_qwen.py` ne yapar:**
+- `issai_pairs_clean.jsonl`'dan `output` alanını okur (164K ground truth)
+- Batch=64 ile Qwen 7B'ye gönderir: "Sadece noktalama/büyük harf ekle, kelime değiştirme"
+- `{"original": "...", "punctuated": "..."}` formatında `issai_gt_punctuated.jsonl`'a yazar
+- Stage 2 script bu dosyayı lookup table olarak kullanır (yoksa `_clean_gt()` fallback)
+
 ### Neden Stage 1'den ~2× daha hızlı
 
 | Faktör | Stage 1 | Stage 2 |
@@ -62,10 +104,16 @@ python create_pod.py stage2
 
 # 2. Dosyaları yükle (pod IP/PORT RunPod UI'dan)
 scp -P <PORT> ../ml/whisper/whisper_stage2_finetune.py root@<IP>:/workspace/
-scp -P <PORT> ../ml/whisper/datasets/issai/issai_punctuated.jsonl root@<IP>:/workspace/
+scp -P <PORT> ../ml/whisper/scripts/punctuate_with_qwen.py root@<IP>:/workspace/
 scp -P <PORT> setup/stage2.sh root@<IP>:/workspace/
 
-# 3. SSH + setup + train (her şeyi otomatik yapar)
+# 3. Noktalama üret (önce — ~20 dk)
+ssh -p <PORT> root@<IP> \
+  'HF_TOKEN=hf_xxx python /workspace/punctuate_with_qwen.py \
+   --input /workspace/issai/issai_pairs_clean.jsonl \
+   --output /workspace/issai_gt_punctuated.jsonl'
+
+# 4. Stage 2 training başlat
 ssh -p <PORT> root@<IP> 'export HF_TOKEN=hf_xxx && bash /workspace/stage2.sh'
 
 # 4. Log takip
@@ -180,7 +228,8 @@ import os; os.remove("/workspace/issai/ISSAI_TSC_218.tar.gz")
 - Format: `Train/XXXXXX.wav` + `Train/XXXXXX.txt` (flat, speaker subdirectory yok)
 - WAV: 16kHz mono, ortalama ~5 saniye
 - TXT: tek satır, lowercase, noktalama yok, sonu `---` ile bitebilir
-- Stage 2'de `issai_punctuated.jsonl` lookup ile TXT → noktalı metin eşleştirmesi
+- Stage 2'de `issai_gt_punctuated.jsonl` lookup ile TXT → noktalı metin eşleştirmesi
+- **Bu dosyayı Mac'te üretme** — pod üzerinde Qwen 7B ile üret (daha kaliteli, özel isimler dahil)
 
 ## Notlar
 
