@@ -89,6 +89,8 @@ class MenuBarController: NSObject, NSMenuDelegate {
                             key: "", icon: isRec ? "stop.circle" : "mic", tag: 101))
         menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
                             key: "", icon: "arrow.clockwise"))
+        menu.addItem(action("Zorla Yeniden Başlat",  sel: #selector(hardRestart),
+                            key: "", icon: "exclamationmark.arrow.circlepath"))
         menu.addItem(action("Ses Eğitimi...",         sel: #selector(openITDataset),
                             key: "", icon: "waveform.badge.microphone"))
         menu.addItem(action("Settings...",            sel: #selector(openSettings),
@@ -131,6 +133,8 @@ class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func forceStop() { viewModel.forceStop() }
 
     @objc private func restartService() { viewModel.restartBackend() }
+
+    @objc private func hardRestart() { viewModel.hardReset() }
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }

@@ -344,13 +344,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Public restart method — kills existing backend (including port squatters) and starts fresh.
-    /// Runs blocking kill logic on a background thread to avoid freezing the UI.
+    /// Public restart method — soft kill first, escalates to SIGKILL if port still occupied.
     func restartBackend(completion: ((Bool) -> Void)? = nil) {
         NSLog("VoiceFlow: Restarting backend...")
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            self.stopBackend()   // kills own process + any port squatter (blocks up to 3s)
+            self.stopBackend()   // SIGTERM + 1s + SIGKILL via shell, waits up to 4s
+
+            // If port still in use → escalate: SIGKILL immediately (covers edge cases)
+            if !self.pidsOnPort(self.backendPort).isEmpty {
+                NSLog("VoiceFlow: Port still busy — escalating to hard kill")
+                self.shellKillPort(self.backendPort, signal: "KILL")
+                Thread.sleep(forTimeInterval: 1.0)
+            }
+
             DispatchQueue.main.async {
                 self.startBackend()
                 self.waitForBackendReady { success in
