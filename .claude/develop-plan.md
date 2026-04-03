@@ -172,6 +172,17 @@
 - [ ] Mail.app + Outlook entegrasyonu (AppleScript / URL scheme)
 - [ ] Toplantı notu formatı (otomatik madde işaretleri, action item çıkarma)
 
+### 3.3.1 Web — Marketing Landing Page
+
+> `web/` klasörü: Next.js 14 + Tailwind + Framer Motion. İçerik `constants.ts`'te.
+
+- [ ] **Pricing section** — `PricingTier` tipi hazır; Starter/Pro/Enterprise tiers, yıllık/aylık toggle, CTA butonları
+- [ ] **Gerçek social linkler** — Twitter/LinkedIn/GitHub şirket hesapları `constants.ts`'e girilecek
+- [ ] **Trusted logos SVG** — Garanti BBVA, Turkcell vb. text yerine gerçek logo
+- [ ] **Footer link'leri** — `#` placeholder'lar gerçek sayfalara bağlanacak
+- [ ] **Deploy** — Vercel veya static export; domain + SSL
+- [ ] **SEO meta** — `layout.tsx` OG image, Twitter card, canonical URL
+
 ### 3.4 Enterprise Distribution
 
 - [DONE 2026-03-30] Docker: `Dockerfile` + `docker-compose.yml` (FastAPI + Ollama + faster-whisper) — non-root, GPU, env secrets, healthcheck
@@ -249,6 +260,7 @@
 - [DONE 2026-04-02] **IT Dataset Kayıt UI** — Settings > IT Dataset sekmesi; özel Kayıt butonu (Fn2'den bağımsız); WAV + Whisper pair otomatik kaydedilir; play/stop/sil per varyasyon; Finder'da Aç; aynı cümle için birden fazla varyasyon
 - [DONE 2026-04-03] **IT Dataset SQLite migration** — training_sentences + training_recordings tabloları; JSONL → SQLite one-time migration; WAV → ~/.voiceflow/training/it_dataset/; multi-training-set (training_set param); ORDER BY RANDOM() shuffle; "Yeni" (unrecorded) + "Pratik" (recorded) tab ayrımı
 - [DONE 2026-04-03] **ml/ reorganization** — backend/scripts/ → ml/ (data_gen/, qwen/, whisper/); ml/qwen/{scripts,datasets,adapters_mlx}/; .gitignore güncellendi; tüm docs güncellendi
+- [DONE 2026-04-03] **ML Architecture doc** — `docs/architecture/ml-architecture.md`: iki adapter tablosu, ml/ + docs/ dizin rehberi, Qwen ve Whisper eğitim pipeline'ları, config.yaml referansı
 #### Katman 1 — voiceflow-whisper-tr (ISSAI base)
 - [ ] **RunPod pod oluştur** — H100 veya RTX 4090 (SECURE cloud), ISSAI için ~4 saat
 - [ ] **ISSAI WAV indir** — RunPod'da `~21GB`, `/root/issai_wav/` altına
