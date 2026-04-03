@@ -547,11 +547,8 @@ class ITDeleteRequest(BaseModel):
     wav_path: str
 
 
-_IT_PAIRS_LEGACY_PATH = Path(__file__).parents[4] / "ml" / "data_gen" / "datasets" / "it_dataset_pairs_legacy.jsonl"
-
-
 async def _ensure_sentences_imported(training_set: str = "it_dataset") -> None:
-    """Import sentences + legacy recordings from JSONL on first run (one-time migration)."""
+    """Import sentences from JSONL on first run (idempotent — skips if already imported)."""
     if not _IT_DATASET_PATH.exists():
         return
     with open(_IT_DATASET_PATH) as f:
@@ -561,29 +558,6 @@ async def _ensure_sentences_imported(training_set: str = "it_dataset") -> None:
     n = await import_training_sentences(training_set, sentences)
     if n > 0:
         logger.info("Imported %d training sentences for '%s'", n, training_set)
-        # Migrate existing JSONL recordings (one-time, only when sentences were just imported)
-        if _IT_PAIRS_LEGACY_PATH.exists():
-            migrated = 0
-            for line in _IT_PAIRS_LEGACY_PATH.read_text().splitlines():
-                if not line.strip():
-                    continue
-                try:
-                    pair = json.loads(line)
-                    idx = pair.get("index")
-                    wav = pair.get("wav_path", "")
-                    whisper = pair.get("input", "")
-                    if idx is not None:
-                        # sentence_id = idx + 1 (SQLite AUTOINCREMENT starts at 1)
-                        await save_training_recording(
-                            sentence_id=idx + 1,
-                            training_set=training_set,
-                            wav_path=wav,
-                            whisper_out=whisper,
-                        )
-                        migrated += 1
-                except Exception:
-                    pass
-            logger.info("Migrated %d legacy recordings to SQLite", migrated)
 
 
 @router.get("/it-dataset/next")
