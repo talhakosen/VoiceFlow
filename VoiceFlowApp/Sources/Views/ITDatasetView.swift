@@ -76,7 +76,7 @@ private struct NewSentenceTab: View {
     @State private var isLoading = false
     @State private var playingIndex: Int? = nil
     @State private var currentSound: NSSound? = nil
-    @FocusState private var isFocused: Bool
+    @State private var keyMonitor: Any? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -101,27 +101,32 @@ private struct NewSentenceTab: View {
                     .padding(.bottom, 24)
             }
         }
-        .focusable()
-        .focusEffectDisabled()
-        .focused($isFocused)
         .onAppear {
             viewModel.itDatasetActive = true
-            isFocused = true
             Task { await loadRandom() }
+            // Fn+Space: keyCode 49 + .function modifier
+            keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                guard event.keyCode == 49,
+                      event.modifierFlags.contains(.function),
+                      !self.currentSentence.isEmpty else { return event }
+                Task { @MainActor in
+                    if self.viewModel.isRecording {
+                        self.viewModel.stopRecordingForDataset()
+                    } else if !self.viewModel.itDatasetProcessing {
+                        self.viewModel.startRecordingForDataset()
+                    }
+                }
+                return nil  // event'i yut — başka yere gitmesin
+            }
         }
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
             currentSound?.stop()
-        }
-        .onKeyPress(.space) {
-            guard !currentSentence.isEmpty else { return .ignored }
-            if viewModel.isRecording {
-                viewModel.stopRecordingForDataset()
-            } else if !viewModel.itDatasetProcessing {
-                viewModel.startRecordingForDataset()
+            if let monitor = keyMonitor {
+                NSEvent.removeMonitor(monitor)
+                keyMonitor = nil
             }
-            return .handled
         }
         .onChange(of: viewModel.itDatasetLastWhisper) {
             if !viewModel.itDatasetLastWhisper.isEmpty {
