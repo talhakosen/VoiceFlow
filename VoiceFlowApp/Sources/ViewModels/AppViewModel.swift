@@ -565,6 +565,12 @@ final class AppViewModel {
     var onHideRecordingOverlay: (() -> Void)?
 
     func restartBackend() {
+        isRecording = false
+        isDatasetRecordingActive = false
+        itDatasetProcessing = false
+        backendWasAvailable = false   // health check'i sıfırla — yeniden bağlantıda config push tekrar çalışsın
+        hotkey.resetState()
+        onHideRecordingOverlay?()
         statusText = "Restarting backend..."
         onRestartBackend? { [weak self] success in
             Task { @MainActor [weak self] in

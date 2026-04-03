@@ -136,32 +136,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Backend Lifecycle
 
-    /// Kill all processes on backendPort. SIGTERM first, SIGKILL if still alive after 1s.
-    /// Blocks until port is confirmed free (max 3s).
+    /// Kill all processes on backendPort. SIGTERM first, SIGKILL after 1s. Blocks until port free (max 4s).
     private func killExistingBackend() {
-        let pids = pidsOnPort(backendPort)
-        guard !pids.isEmpty else { return }
-
-        for pid in pids {
-            kill(pid, SIGTERM)
-            NSLog("VoiceFlow: SIGTERM → pid %d", pid)
-        }
-
-        // Wait up to 1s for graceful exit, then SIGKILL
+        // Step 1: SIGTERM graceful
+        shellKillPort(backendPort, signal: "TERM")
         Thread.sleep(forTimeInterval: 1.0)
-        for pid in pids {
-            if kill(pid, 0) == 0 {  // process still alive
-                kill(pid, SIGKILL)
-                NSLog("VoiceFlow: SIGKILL → pid %d (didn't exit after SIGTERM)", pid)
-            }
+
+        // Step 2: SIGKILL if still alive
+        if !pidsOnPort(backendPort).isEmpty {
+            shellKillPort(backendPort, signal: "KILL")
+            NSLog("VoiceFlow: SIGKILL sent to port %d", backendPort)
         }
 
-        // Wait until port is actually free (max 2s more)
-        for _ in 0..<20 {
+        // Step 3: Wait up to 3s for port to free
+        for _ in 0..<30 {
             if pidsOnPort(backendPort).isEmpty { break }
             Thread.sleep(forTimeInterval: 0.1)
         }
         NSLog("VoiceFlow: Port %d is %@", backendPort, pidsOnPort(backendPort).isEmpty ? "free" : "still in use!")
+    }
+
+    /// Shell-based kill — more reliable than Swift Process for SIGKILL on stubborn pids.
+    private func shellKillPort(_ port: Int, signal: String) {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/bin/bash")
+        task.arguments = ["-c", "lsof -ti:\(port) 2>/dev/null | xargs kill -\(signal) 2>/dev/null"]
+        task.standardOutput = Pipe()
+        task.standardError = Pipe()
+        try? task.run()
+        task.waitUntilExit()
     }
 
     /// Returns PIDs of processes in TCP LISTEN state on the given port.

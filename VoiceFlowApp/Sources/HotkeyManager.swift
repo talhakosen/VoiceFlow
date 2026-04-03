@@ -171,7 +171,7 @@ class HotkeyManager {
         isRecordingActive = false
         isFnPressed = false
         lastFnDownTime = nil
-        lastActionTime = nil
+        lastActionTime = Date()   // cooldown korur — reset sonrası Fn anında tetiklenmez
         recordingStartTime = nil
         cmdPressTime = nil
         cmdIntervals = []
