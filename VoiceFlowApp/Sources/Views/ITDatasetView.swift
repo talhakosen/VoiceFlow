@@ -102,6 +102,7 @@ private struct NewSentenceTab: View {
             }
         }
         .focusable()
+        .focusEffectDisabled()
         .focused($isFocused)
         .onAppear {
             viewModel.itDatasetActive = true
