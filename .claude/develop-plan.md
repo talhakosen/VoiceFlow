@@ -193,7 +193,9 @@
 ### 3.3.1 Web — Marketing Landing Page
 
 > `web/` klasörü: Next.js 14 + Tailwind + Framer Motion. İçerik `constants.ts`'te.
+> Design system: `docs/architecture/design-system.md` — Sora + Inter + JetBrains Mono, #070810 base, #4F7AFF brand blue.
 
+- [DONE 2026-04-03] **Design system yeniden yapılandırma** — Sora display font (h1/h2/h3 global), JetBrains Mono (stats/labels), electric blue #4F7AFF, dark-first tüm section'lar (zebra pattern kaldırıldı), .section-label utility, .grid-lines pattern, Navbar her zaman dark
 - [ ] **Pricing section** — `PricingTier` tipi hazır; Starter/Pro/Enterprise tiers, yıllık/aylık toggle, CTA butonları
 - [ ] **Gerçek social linkler** — Twitter/LinkedIn/GitHub şirket hesapları `constants.ts`'e girilecek
 - [ ] **Trusted logos SVG** — Garanti BBVA, Turkcell vb. text yerine gerçek logo
@@ -287,10 +289,10 @@
 
 #### Katman 1b — voiceflow-whisper-tr-v2 (Noktalama Stage 2)
 > Motivasyon: Stage 1 akustik doğru ama büyük harf/noktalama yok (ISSAI .txt lowercase). Stage 2 bunu düzeltir.
-- [DONE 2026-04-03] **`issai_punctuated.jsonl` hazırla** — 83 paralel Claude Code agent × 2000 satır; 164,421 satır merge; 60.9% değişiklik; Türkçe i→İ/ı→I kuralları uygulandı
-- [DONE 2026-04-03] **`whisper_stage2_finetune.py`** — Base=voiceflow-whisper-tr, LoRA r=8, LR=5e-6, batch=32, 2 epoch; torch.compile + adamw_bnb_8bit + RAM disk → ~2 saat H100 tahmini
-- [DONE 2026-04-03] **RunPod Stage 2 config** — `runpod/pods/whisper_stage2_h100.json` + `runpod/setup/stage2.sh`; `python runpod/create_pod.py stage2`
-- [ ] **RunPod Stage 2 eğitimi başlat** — pod aç, dosyaları yükle, `bash /workspace/stage2.sh`
+- [DONE 2026-04-03] **`whisper_stage2_finetune.py`** — Base=voiceflow-whisper-tr, LoRA r=8, LR=5e-6, batch=32, 2 epoch; Qwen 7B fp16 inline noktalama (bitsandbytes değil — CUDA 12.1 uyumsuz); punct_cache.json restart koruması; extraction /root/ SSD'ye (NFS değil)
+- [DONE 2026-04-03] **RunPod Stage 2 config** — `runpod/pods/whisper_stage2_h100.json`; pod ID: b65ji5pcpk96nv, IP: 64.247.201.34:11428
+- [DONE 2026-04-03] **RunPod Stage 2 pod aç + ISSAI extraction** — H100 80GB SECURE, ISSAI /root/issai/extracted (container SSD, tar --no-same-owner), extraction devam ediyor
+- [ ] **RunPod Stage 2 eğitimi tamamla** — extraction bitince training başlat, HF push → tkosen/voiceflow-whisper-tr-v2
 - [ ] **MLX dönüşüm** — `convert_whisper_mlx.py --dtype float16` → `voiceflow-whisper-tr-v2-mlx`
 - [ ] **config.yaml güncelle** → `whisper.model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx`
 
@@ -378,7 +380,7 @@ ISSAI (164K) → merge → voiceflow-whisper-tr
 |---|---|---|
 | **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
 | **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | ✅ Canlıda (production, MLX float16) |
-| **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | 🔄 RunPod eğitimi başlatılacak |
+| **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | 🔄 RunPod pod aktif, ISSAI extraction devam ediyor |
 | **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr-v2 sonrası |
 | **Müşteri Adapter** (~30MB) | Domain-specific (on-premise, KVKK uyumlu) | 🔲 İlk kurumsal satış sonrası |
 
