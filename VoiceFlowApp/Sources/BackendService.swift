@@ -158,12 +158,14 @@ struct HealthResponse: Decodable {
     let modelLoaded: Bool
     let llmLoaded: Bool
     let whisperModel: String?
+    let adapterVersion: String?
 
     enum CodingKeys: String, CodingKey {
         case status
-        case modelLoaded  = "model_loaded"
-        case llmLoaded    = "llm_loaded"
-        case whisperModel = "whisper_model"
+        case modelLoaded     = "model_loaded"
+        case llmLoaded       = "llm_loaded"
+        case whisperModel    = "whisper_model"
+        case adapterVersion  = "adapter_version"
     }
 }
 

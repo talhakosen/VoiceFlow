@@ -88,11 +88,14 @@ async def health(request: Request):
     corrector = svc.corrector
     import os
     model_display = os.path.basename(_WHISPER_MODEL.rstrip("/"))
+    from .core.config import LLM_ADAPTER_VERSION
+    adapter_version = f"v{LLM_ADAPTER_VERSION}" if LLM_ADAPTER_VERSION else None
     return {
         "status": "healthy",
         "model_loaded": getattr(svc.transcriber, "_model_loaded", False) or getattr(svc.transcriber, "_model", None) is not None,
         "llm_loaded": getattr(corrector, "_model", None) is not None,
         "whisper_model": model_display,
+        "adapter_version": adapter_version,
     }
 
 

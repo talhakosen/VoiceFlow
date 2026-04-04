@@ -45,37 +45,70 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - SettingsView (2-panel)
+// MARK: - SettingsView (custom 2-panel — icon strip on collapse)
 
 struct SettingsView: View {
     var viewModel: AppViewModel
 
     @State private var selectedSection: SettingsSection = .general
-    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var sidebarCollapsed = false
 
     var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            List(SettingsSection.allCases, selection: $selectedSection) { section in
-                Label(section.rawValue, systemImage: section.icon)
-                    .tag(section)
-                    .padding(.vertical, 3)
-            }
-            .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: VFLayout.sidebarMinWidth, ideal: VFLayout.sidebarWidth)
-            .toolbar(removing: .sidebarToggle)
-            .safeAreaInset(edge: .top, spacing: 0) {
+        HStack(spacing: 0) {
+
+            // MARK: Sidebar
+            VStack(alignment: .leading, spacing: 0) {
+
+                // Logo header
                 HStack(spacing: VFSpacing.sm) {
                     Image(systemName: VFIcon.appLogo)
                         .fontWeight(.semibold)
-                    Text("VoiceFlow")
-                        .fontWeight(.semibold)
+                    if !sidebarCollapsed {
+                        Text("VoiceFlow")
+                            .fontWeight(.semibold)
+                            .transition(.opacity.combined(with: .move(edge: .leading)))
+                    }
                 }
                 .font(VFFont.sidebarLogo)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, VFSpacing.xxl)
+                .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
+                .padding(.horizontal, sidebarCollapsed ? 0 : VFSpacing.xxl)
+                .padding(.vertical, VFSpacing.xl)
+
+                // Nav items
+                VStack(spacing: VFSpacing.xxs) {
+                    ForEach(SettingsSection.allCases) { section in
+                        SidebarNavItem(
+                            section: section,
+                            isSelected: selectedSection == section,
+                            collapsed: sidebarCollapsed
+                        ) { selectedSection = section }
+                    }
+                }
+                .padding(.horizontal, VFSpacing.md)
+
+                Spacer()
+
+                // Toggle button bottom-left
+                Button {
+                    withAnimation(VFAnimation.standard) {
+                        sidebarCollapsed.toggle()
+                    }
+                } label: {
+                    Image(systemName: sidebarCollapsed ? "sidebar.right" : "sidebar.left")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
+                .padding(.horizontal, sidebarCollapsed ? 0 : VFSpacing.xxl)
                 .padding(.vertical, VFSpacing.xl)
             }
-        } detail: {
+            .frame(width: sidebarCollapsed ? VFLayout.sidebarCollapsedWidth : VFLayout.sidebarWidth)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .animation(VFAnimation.standard, value: sidebarCollapsed)
+
+            Divider()
+
+            // MARK: Content
             ScrollView {
                 Group {
                     switch selectedSection {
@@ -90,24 +123,114 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-        }
-        .navigationSplitViewStyle(.balanced)
-        .toolbar {
-            ToolbarItem(placement: .navigation) {
-                Button {
-                    withAnimation {
-                        columnVisibility = columnVisibility == .detailOnly ? .all : .detailOnly
-                    }
-                } label: {
-                    Image(systemName: "sidebar.left")
-                }
-            }
+            .background(Color(nsColor: .windowBackgroundColor))
         }
         .frame(width: VFLayout.WindowSize.settings.width, height: VFLayout.WindowSize.settings.height)
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
         }
+    }
+}
+
+// MARK: - SidebarNavItem
+
+private struct SidebarNavItem: View {
+    let section: SettingsSection
+    let isSelected: Bool
+    let collapsed: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: VFSpacing.md) {
+                Image(systemName: section.icon)
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(isSelected ? VFColor.primary : .secondary)
+
+                if !collapsed {
+                    Text(section.rawValue)
+                        .foregroundStyle(isSelected ? .primary : .secondary)
+                        .transition(.opacity.combined(with: .move(edge: .leading)))
+                }
+            }
+            .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+            .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
+            .padding(.horizontal, collapsed ? VFSpacing.sm : VFSpacing.md)
+            .padding(.vertical, VFSpacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: VFRadius.md)
+                    .fill(isSelected ? Color.primary.opacity(0.08) : Color.clear)
+            )
+        }
+        .buttonStyle(.plain)
+        .help(collapsed ? section.rawValue : "")  // tooltip when collapsed
+    }
+}
+
+// MARK: - Shared Settings UI Components
+
+/// Yuvarlak köşeli kart — section içeriğini sarar.
+private struct VFCard<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+    var body: some View {
+        VStack(spacing: 0) { content() }
+            .background(Color(nsColor: .controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: VFRadius.lg))
+    }
+}
+
+/// Section başlığı — bold, birincil renk.
+private struct VFSectionHeader: View {
+    let title: String
+    init(_ title: String) { self.title = title }
+    var body: some View {
+        Text(title)
+            .font(.system(size: 13, weight: .semibold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, VFSpacing.xs)
+    }
+}
+
+/// Label + trailing content satırı. Sonuncu satırda `divider: false` ver.
+private struct VFRow<Trailing: View>: View {
+    let label: String
+    let divider: Bool
+    @ViewBuilder var trailing: () -> Trailing
+
+    init(_ label: String, divider: Bool = true, @ViewBuilder trailing: @escaping () -> Trailing) {
+        self.label = label
+        self.divider = divider
+        self.trailing = trailing
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: VFSpacing.xxl) {
+                Text(label).font(VFFont.body)
+                Spacer(minLength: VFSpacing.xl)
+                trailing()
+            }
+            .padding(.horizontal, VFSpacing.xxl)
+            .padding(.vertical, VFSpacing.xl)
+            if divider {
+                Divider().padding(.leading, VFSpacing.xxl)
+            }
+        }
+    }
+}
+
+/// Info satırı — icon + caption metin.
+private struct VFInfoRow: View {
+    let icon: String
+    let text: String
+    let color: Color
+    var body: some View {
+        HStack(spacing: VFSpacing.sm) {
+            Image(systemName: icon).foregroundStyle(color)
+            Text(text).font(VFFont.caption).foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, VFSpacing.xs)
     }
 }
 
@@ -121,75 +244,78 @@ private struct GeneralSection: View {
     @State private var showRestartNotice = false
 
     var body: some View {
-        Form {
-            Section("Görünüm") {
-                Picker("Tema", selection: Binding(
-                    get: { viewModel.appearanceMode },
-                    set: { viewModel.appearanceMode = $0 }
-                )) {
-                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                        Text(mode.displayName).tag(mode)
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // Görünüm
+            VFSectionHeader("Görünüm")
+            VFCard {
+                VFRow("Tema", divider: false) {
+                    Picker("", selection: Binding(
+                        get: { viewModel.appearanceMode },
+                        set: { viewModel.appearanceMode = $0 }
+                    )) {
+                        ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
                     }
-                }
-                .pickerStyle(.segmented)
-            }
-
-            Section("Kısayol") {
-                LabeledContent("Tuş") {
-                    Text("Fn × 2  (kayıt başlat/durdur)")
-                        .foregroundStyle(.secondary)
-                }
-                LabeledContent("Zorla Durdur") {
-                    Text("⌘S  menü çubuğundan")
-                        .foregroundStyle(.secondary)
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
                 }
             }
 
-            Section("Bağlantı") {
-                Picker("Dağıtım Modu", selection: $deploymentMode) {
-                    Text("Yerel (Mac — MLX)").tag("local")
-                    Text("Sunucu (Şirket İçi)").tag("server")
+            // Kısayol
+            VFSectionHeader("Kısayol")
+            VFCard {
+                VFRow("Tuş") {
+                    Text("Fn × 2  (kayıt başlat/durdur)").foregroundStyle(.secondary)
                 }
-                .onChange(of: deploymentMode) { showRestartNotice = true }
+                VFRow("Zorla Durdur", divider: false) {
+                    Text("⌘S  menü çubuğundan").foregroundStyle(.secondary)
+                }
+            }
 
+            // Bağlantı
+            VFSectionHeader("Bağlantı")
+            VFCard {
+                VFRow("Dağıtım Modu",
+                      divider: deploymentMode == "local" || deploymentMode == "server") {
+                    Picker("", selection: $deploymentMode) {
+                        Text("Yerel (Mac — MLX)").tag("local")
+                        Text("Sunucu (Şirket İçi)").tag("server")
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: deploymentMode) { showRestartNotice = true }
+                }
                 if deploymentMode == "local" {
-                    LabeledContent("Konuşma Modeli") {
+                    VFRow("Konuşma Modeli") {
                         Text(viewModel.whisperModelName.isEmpty ? "—" : viewModel.whisperModelName)
                             .foregroundStyle(.secondary)
                     }
+                    VFRow("Qwen Düzeltme", divider: false) {
+                        Text(viewModel.llmAdapterVersion.isEmpty ? "—" : viewModel.llmAdapterVersion)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-
                 if deploymentMode == "server" {
-                    LabeledContent("Sunucu Adresi") {
+                    VFRow("Sunucu Adresi") {
                         TextField("https://voiceflow.company.internal:8765", text: $serverURL)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: VFLayout.fieldLarge)
+                            .textFieldStyle(.roundedBorder).frame(minWidth: 240)
                     }
-                    LabeledContent("API Anahtarı") {
+                    VFRow("API Anahtarı", divider: false) {
                         SecureField("API anahtarını yapıştırın", text: $apiKey)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: VFLayout.fieldLarge)
-                    }
-                    HStack(spacing: VFSpacing.sm) {
-                        Image(systemName: VFIcon.secure).foregroundStyle(VFColor.success)
-                        Text("All audio processing happens on your server. No data leaves your network.")
-                            .font(VFFont.caption).foregroundStyle(.secondary)
+                            .textFieldStyle(.roundedBorder).frame(minWidth: 240)
                     }
                 }
             }
 
+            if deploymentMode == "server" {
+                VFInfoRow(icon: VFIcon.secure, text: "Ses işleme tamamen sunucunuzda gerçekleşir. Hiçbir veri dışarı çıkmaz.", color: VFColor.success)
+            }
             if showRestartNotice {
-                Section {
-                    HStack(spacing: VFSpacing.sm) {
-                        Image(systemName: VFIcon.restartCircle).foregroundStyle(VFColor.warning)
-                        Text("Modu değiştirmek için VoiceFlow'u yeniden başlatın.")
-                            .font(VFFont.caption).foregroundStyle(.secondary)
-                    }
-                }
+                VFInfoRow(icon: VFIcon.restartCircle, text: "Modu değiştirmek için VoiceFlow'u yeniden başlatın.", color: VFColor.warning)
             }
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
     }
 }
 
@@ -216,61 +342,53 @@ private struct DictionarySection: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Tab picker
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // Tab
             Picker("", selection: $selectedTab) {
                 Text("Kişisel (\(personalEntries.count))").tag(0)
                 Text("Takım (\(teamEntries.count))").tag(1)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
+            .frame(width: 260, alignment: .leading)
 
-            Form {
-                Section {
-                    if selectedTab == 0 {
-                        if personalEntries.isEmpty {
-                            Text("Henüz kişisel kural yok. Ses düzeltmelerin otomatik buraya eklenir.")
-                                .foregroundStyle(.secondary)
-                                .font(.callout)
-                        } else {
-                            ForEach(personalEntries) { entry in
-                                DictionaryRow(
-                                    entry: entry,
-                                    alreadyShared: isSharedWithTeam(entry),
-                                    onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
-                                    onShareToTeam: {
-                                        viewModel.addDictionaryEntry(
-                                            trigger: entry.trigger,
-                                            replacement: entry.replacement,
-                                            scope: "team"
-                                        )
-                                    }
+            // Liste
+            VFSectionHeader(selectedTab == 0 ? "Kişisel Kurallar" : "Takım Kuralları")
+            VFCard {
+                let entries = selectedTab == 0 ? personalEntries : teamEntries
+                if entries.isEmpty {
+                    Text(selectedTab == 0
+                         ? "Henüz kişisel kural yok."
+                         : "Takım kuralı yok. Kişisel kurallarını takıma ekleyebilirsin.")
+                        .foregroundStyle(.secondary)
+                        .font(VFFont.body)
+                        .padding(.horizontal, VFSpacing.xxl)
+                        .padding(.vertical, VFSpacing.xl)
+                } else {
+                    ForEach(Array(entries.enumerated()), id: \.element.id) { idx, entry in
+                        DictionaryRow(
+                            entry: entry,
+                            alreadyShared: selectedTab == 0 ? isSharedWithTeam(entry) : false,
+                            onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
+                            onShareToTeam: selectedTab == 0 ? {
+                                viewModel.addDictionaryEntry(
+                                    trigger: entry.trigger,
+                                    replacement: entry.replacement,
+                                    scope: "team"
                                 )
-                            }
-                        }
-                    } else {
-                        if teamEntries.isEmpty {
-                            Text("Takım kuralı yok. Kişisel kurallarını takıma ekleyebilirsin.")
-                                .foregroundStyle(.secondary)
-                                .font(.callout)
-                        } else {
-                            ForEach(teamEntries) { entry in
-                                DictionaryRow(
-                                    entry: entry,
-                                    alreadyShared: false,
-                                    onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
-                                    onShareToTeam: nil
-                                )
-                            }
+                            } : nil
+                        )
+                        if idx < entries.count - 1 {
+                            Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
-                } header: {
-                    Text(selectedTab == 0 ? "Kişisel Kurallar" : "Takım Kuralları")
                 }
+            }
 
-                Section {
+            // Kural Ekle
+            VFSectionHeader(selectedTab == 0 ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle")
+            VFCard {
+                VStack(spacing: 0) {
                     HStack(spacing: VFSpacing.md) {
                         TextField("kelime (örn: voisflow)", text: $newTrigger)
                             .textFieldStyle(.roundedBorder)
@@ -287,14 +405,13 @@ private struct DictionarySection: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
                     }
-                    Text("Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.")
-                        .font(VFFont.caption).foregroundStyle(.secondary)
-                } header: {
-                    Text(selectedTab == 0 ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle")
+                    .padding(.horizontal, VFSpacing.xxl)
+                    .padding(.vertical, VFSpacing.xl)
                 }
             }
-            .formStyle(.grouped)
+            VFInfoRow(icon: "info.circle", text: "Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.", color: .secondary)
         }
+        .padding(VFSpacing.xxxl)
         .onAppear { viewModel.loadDictionary() }
     }
 }
@@ -306,16 +423,18 @@ private struct DictionaryRow: View {
     let onShareToTeam: (() -> Void)?
 
     var body: some View {
-        HStack {
+        HStack(spacing: VFSpacing.md) {
             Text(entry.trigger)
                 .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
                 .foregroundStyle(.primary)
+                .font(VFFont.body)
             Image(systemName: VFIcon.arrow)
                 .foregroundStyle(.secondary)
                 .font(VFFont.caption)
             Text(entry.replacement)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundStyle(.primary)
+                .font(VFFont.body)
 
             if let share = onShareToTeam {
                 Button {
@@ -332,14 +451,13 @@ private struct DictionaryRow: View {
                 .disabled(alreadyShared)
             }
 
-            Button {
-                onDelete()
-            } label: {
-                Image(systemName: VFIcon.delete)
-                    .foregroundStyle(VFColor.destructive)
+            Button { onDelete() } label: {
+                Image(systemName: VFIcon.delete).foregroundStyle(VFColor.destructive)
             }
             .buttonStyle(.plain)
         }
+        .padding(.horizontal, VFSpacing.xxl)
+        .padding(.vertical, VFSpacing.xl)
     }
 }
 
@@ -353,21 +471,28 @@ private struct SnippetsSection: View {
     @State private var newScope = "personal"
 
     var body: some View {
-        Form {
-            Section {
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // Liste
+            VFSectionHeader("Şablon Listesi")
+            VFCard {
                 if viewModel.snippetEntries.isEmpty {
                     Text("Henüz şablon yok. Ses kaydında tetikleyici söyleyince şablon yapıştırılır.")
                         .foregroundStyle(.secondary)
+                        .font(VFFont.body)
+                        .padding(.horizontal, VFSpacing.xxl)
+                        .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(viewModel.snippetEntries) { entry in
-                        HStack {
+                    ForEach(Array(viewModel.snippetEntries.enumerated()), id: \.element.id) { idx, entry in
+                        HStack(spacing: VFSpacing.md) {
                             Text(entry.triggerPhrase)
                                 .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
-                            Image(systemName: VFIcon.arrow)
-                                .foregroundStyle(.secondary)
+                                .font(VFFont.body)
+                            Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
                             Text(entry.expansion)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .lineLimit(2)
+                                .font(VFFont.body)
                             Text(entry.scope == "personal" ? "Kişisel" : "Takım")
                                 .font(VFFont.caption)
                                 .foregroundStyle(.secondary)
@@ -376,46 +501,51 @@ private struct SnippetsSection: View {
                                 Button {
                                     viewModel.deleteSnippet(id: entry.id)
                                 } label: {
-                                    Image(systemName: VFIcon.delete)
-                                        .foregroundStyle(VFColor.destructive)
+                                    Image(systemName: VFIcon.delete).foregroundStyle(VFColor.destructive)
                                 }
                                 .buttonStyle(.plain)
                             }
                         }
+                        .padding(.horizontal, VFSpacing.xxl)
+                        .padding(.vertical, VFSpacing.xl)
+                        if idx < viewModel.snippetEntries.count - 1 {
+                            Divider().padding(.leading, VFSpacing.xxl)
+                        }
                     }
                 }
-            } header: {
-                Text("Şablon Listesi")
             }
 
-            Section("Şablon Ekle") {
-                HStack(spacing: VFSpacing.md) {
-                    TextField("tetikleyici (örn: standart imza)", text: $newTrigger)
-                        .textFieldStyle(.roundedBorder)
-                    Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
-                    TextField("içerik (açılacak metin)", text: $newExpansion)
-                        .textFieldStyle(.roundedBorder)
-                    Picker("", selection: $newScope) {
-                        Text("Kişisel").tag("personal")
-                        Text("Takım").tag("team")
+            // Şablon Ekle
+            VFSectionHeader("Şablon Ekle")
+            VFCard {
+                VStack(spacing: 0) {
+                    HStack(spacing: VFSpacing.md) {
+                        TextField("tetikleyici (örn: standart imza)", text: $newTrigger)
+                            .textFieldStyle(.roundedBorder)
+                        Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
+                        TextField("içerik (açılacak metin)", text: $newExpansion)
+                            .textFieldStyle(.roundedBorder)
+                        Picker("", selection: $newScope) {
+                            Text("Kişisel").tag("personal")
+                            Text("Takım").tag("team")
+                        }
+                        .frame(width: 90)
+                        Button("Ekle") {
+                            guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
+                            viewModel.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
+                            newTrigger = ""
+                            newExpansion = ""
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(newTrigger.isEmpty || newExpansion.isEmpty)
                     }
-                    .frame(width: 90)
-                    Button("Ekle") {
-                        guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
-                        viewModel.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
-                        newTrigger = ""
-                        newExpansion = ""
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(newTrigger.isEmpty || newExpansion.isEmpty)
+                    .padding(.horizontal, VFSpacing.xxl)
+                    .padding(.vertical, VFSpacing.xl)
                 }
-
-                Text("Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.")
-                    .font(.caption).foregroundStyle(.secondary)
             }
+            VFInfoRow(icon: "info.circle", text: "Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.", color: .secondary)
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
         .onAppear { viewModel.loadSnippets() }
     }
 }
@@ -430,91 +560,103 @@ private struct RecordingSection: View {
     @State private var showRestartNotice = false
 
     var body: some View {
-        Form {
-            Section("Dil") {
-                Picker("Dil", selection: Binding(
-                    get: { viewModel.currentLanguageMode },
-                    set: { viewModel.selectLanguageMode($0) }
-                )) {
-                    ForEach(LanguageMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // Dil
+            VFSectionHeader("Dil")
+            VFCard {
+                VFRow("Dil", divider: false) {
+                    Picker("", selection: Binding(
+                        get: { viewModel.currentLanguageMode },
+                        set: { viewModel.selectLanguageMode($0) }
+                    )) {
+                        ForEach(LanguageMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .frame(width: 160)
                 }
             }
 
-            Section("Bağlam") {
-                Picker("Kullanım Alanı", selection: Binding(
-                    get: { viewModel.currentAppMode },
-                    set: { viewModel.selectAppMode($0) }
-                )) {
-                    ForEach(AppMode.allCases, id: \.self) { mode in
-                        Text(mode.displayName).tag(mode)
-                    }
-                }
-                .pickerStyle(.radioGroup)
-
-                Text("Seçilen alan, düzeltme kalitesini artırmak için bağlamı ayarlar.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-
-            Section("Akıllı Düzeltme") {
-                Toggle("Akıllı Düzeltme", isOn: Binding(
-                    get: { viewModel.isCorrectionEnabled },
-                    set: { _ in viewModel.toggleCorrection() }
-                ))
-                .disabled(viewModel.currentAppMode == .engineering)
-
-                if viewModel.currentAppMode == .engineering {
-                    Text("Engineering modda düzeltme kapalıdır — teknik terimler korunur.")
-                        .font(VFFont.caption).foregroundStyle(.secondary)
-                }
-
-                Picker("Yapay Zeka Motoru", selection: $llmMode) {
-                    Text("Yerel (Mac — MLX Qwen 7B)").tag("local")
-                    Text("Bulut (RunPod — Ollama Qwen 7B)").tag("cloud")
-                    Text("Alibaba (Qwen Max — API)").tag("alibaba")
-                }
-                .onChange(of: llmMode) { showRestartNotice = true }
-
-                if llmMode == "cloud" {
-                    LabeledContent("Ollama URL") {
-                        TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: VFLayout.fieldLarge)
-                            .onChange(of: llmEndpoint) { showRestartNotice = true }
-                    }
-                }
-
-                if llmMode == "alibaba" {
-                    HStack(spacing: VFSpacing.sm) {
-                        Image(systemName: VFIcon.bolt).foregroundStyle(VFColor.warning)
-                        Text("Alibaba DashScope — qwen-max. Hızlı, yüksek kalite. İnternet gerektirir.")
-                            .font(VFFont.caption).foregroundStyle(.secondary)
-                    }
-                }
-
-                if showRestartNotice {
-                    HStack(spacing: VFSpacing.sm) {
-                        Image(systemName: VFIcon.restartCircle).foregroundStyle(VFColor.warning)
-                        Text("Değişikliği uygulamak için servisi yeniden başlatın.")
-                            .font(VFFont.caption).foregroundStyle(.secondary)
+            // Bağlam
+            VFSectionHeader("Bağlam")
+            VFCard {
+                VStack(spacing: 0) {
+                    ForEach(Array(AppMode.allCases.enumerated()), id: \.element) { idx, mode in
+                        VFRow(mode.displayName,
+                              divider: idx < AppMode.allCases.count - 1) {
+                            if viewModel.currentAppMode == mode {
+                                Image(systemName: VFIcon.checkmark)
+                                    .foregroundStyle(VFColor.primary)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { viewModel.selectAppMode(mode) }
                     }
                 }
             }
+            VFInfoRow(icon: "info.circle", text: "Seçilen alan, düzeltme kalitesini artırmak için bağlamı ayarlar.", color: .secondary)
 
-            Section("Kişisel Ses Tanıma") {
-                Toggle("Kişisel Ses Tanıma", isOn: $trainingMode)
-                    .onChange(of: trainingMode) { _, val in
-                        UserDefaults.standard.set(val, forKey: AppSettings.trainingMode)
-                        viewModel.trainingModeEnabled = val
+            // Akıllı Düzeltme
+            VFSectionHeader("Akıllı Düzeltme")
+            VFCard {
+                VFRow("Akıllı Düzeltme",
+                      divider: viewModel.currentAppMode != .engineering) {
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.isCorrectionEnabled },
+                        set: { _ in viewModel.toggleCorrection() }
+                    ))
+                    .labelsHidden()
+                    .disabled(viewModel.currentAppMode == .engineering)
+                }
+                if viewModel.currentAppMode != .engineering {
+                    VFRow("Yapay Zeka Motoru", divider: llmMode != "cloud") {
+                        Picker("", selection: $llmMode) {
+                            Text("Yerel (Mac)").tag("local")
+                            Text("Bulut (RunPod)").tag("cloud")
+                            Text("Alibaba API").tag("alibaba")
+                        }
+                        .pickerStyle(.menu)
+                        .frame(width: 160)
+                        .onChange(of: llmMode) { showRestartNotice = true }
                     }
-
-                Text("Her transkripsiyondan sonra geri bildirim ekranı görünür. Düzeltmeleriniz doğruluğu artırır.")
-                    .font(VFFont.caption).foregroundStyle(.secondary)
+                    if llmMode == "cloud" {
+                        VFRow("Ollama URL", divider: false) {
+                            TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(minWidth: VFLayout.fieldLarge)
+                                .onChange(of: llmEndpoint) { showRestartNotice = true }
+                        }
+                    }
+                }
             }
+            if viewModel.currentAppMode == .engineering {
+                VFInfoRow(icon: VFIcon.warning, text: "Engineering modda düzeltme kapalıdır — teknik terimler korunur.", color: VFColor.warning)
+            }
+            if llmMode == "alibaba" {
+                VFInfoRow(icon: VFIcon.bolt, text: "Alibaba DashScope — qwen-max. Hızlı, yüksek kalite. İnternet gerektirir.", color: VFColor.warning)
+            }
+            if showRestartNotice {
+                VFInfoRow(icon: VFIcon.restartCircle, text: "Değişikliği uygulamak için servisi yeniden başlatın.", color: VFColor.warning)
+            }
+
+            // Kişisel Ses Tanıma
+            VFSectionHeader("Kişisel Ses Tanıma")
+            VFCard {
+                VFRow("Ses Tanıma Eğitimi", divider: false) {
+                    Toggle("", isOn: $trainingMode)
+                        .labelsHidden()
+                        .onChange(of: trainingMode) { _, val in
+                            UserDefaults.standard.set(val, forKey: AppSettings.trainingMode)
+                            viewModel.trainingModeEnabled = val
+                        }
+                }
+            }
+            VFInfoRow(icon: "info.circle", text: "Her transkripsiyondan sonra geri bildirim ekranı görünür. Düzeltmeleriniz doğruluğu artırır.", color: .secondary)
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
     }
 }
 
@@ -525,15 +667,21 @@ private struct KnowledgeBaseSection: View {
     @State private var selectedFolderPath = ""
 
     var body: some View {
-        Form {
-            Section("İndekslenen Projeler") {
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // İndekslenen Projeler
+            VFSectionHeader("İndekslenen Projeler")
+            VFCard {
                 if viewModel.indexedProjects.isEmpty {
-                    HStack {
+                    HStack(spacing: VFSpacing.md) {
                         Image(systemName: VFIcon.circle).foregroundStyle(.secondary)
-                        Text("Henüz eklenmedi").foregroundStyle(.secondary)
+                        Text("Henüz eklenmedi").foregroundStyle(.secondary).font(VFFont.body)
+                        Spacer()
                     }
+                    .padding(.horizontal, VFSpacing.xxl)
+                    .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(viewModel.indexedProjects) { project in
+                    ForEach(Array(viewModel.indexedProjects.enumerated()), id: \.element.id) { idx, project in
                         HStack(spacing: VFSpacing.md) {
                             Image(systemName: VFIcon.checkFill).foregroundStyle(VFColor.success)
                             VStack(alignment: .leading, spacing: VFSpacing.xxs) {
@@ -543,51 +691,66 @@ private struct KnowledgeBaseSection: View {
                             }
                             Spacer()
                         }
+                        .padding(.horizontal, VFSpacing.xxl)
+                        .padding(.vertical, VFSpacing.xl)
+                        if idx < viewModel.indexedProjects.count - 1 {
+                            Divider().padding(.leading, VFSpacing.xxl)
+                        }
                     }
+                    Divider().padding(.leading, VFSpacing.xxl)
                     HStack {
                         Text("\(viewModel.contextChunkCount) sözcük · \(viewModel.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
                             .font(VFFont.caption).foregroundStyle(.secondary)
                         Spacer()
                         Button("Temizle") { viewModel.clearContext() }
                             .buttonStyle(.plain).foregroundStyle(VFColor.destructive)
+                            .font(VFFont.caption)
                     }
+                    .padding(.horizontal, VFSpacing.xxl)
+                    .padding(.vertical, VFSpacing.md)
                 }
             }
 
-            Section("Klasör Ekle") {
-                HStack {
-                    TextField("Klasör yolu", text: $selectedFolderPath)
-                        .textFieldStyle(.roundedBorder)
-                        .font(VFFont.monospaced)
-                    Button("Seç…") { pickFolder() }
+            // Klasör Ekle
+            VFSectionHeader("Klasör Ekle")
+            VFCard {
+                VFRow("Klasör", divider: true) {
+                    HStack(spacing: VFSpacing.md) {
+                        TextField("Klasör yolu", text: $selectedFolderPath)
+                            .textFieldStyle(.roundedBorder)
+                            .font(VFFont.monospaced)
+                        Button("Seç…") { pickFolder() }
+                            .buttonStyle(.bordered)
+                    }
                 }
-
-                Text("Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.")
-                    .font(VFFont.caption).foregroundStyle(.secondary)
-
-                Button {
-                    guard !selectedFolderPath.isEmpty else { return }
-                    viewModel.ingestContext(folderPath: selectedFolderPath)
-                } label: {
-                    if viewModel.isIndexing {
-                        HStack(spacing: VFSpacing.sm) {
-                            ProgressView().scaleEffect(0.7)
-                            Text("Indexing…")
+                HStack(spacing: VFSpacing.md) {
+                    Button {
+                        guard !selectedFolderPath.isEmpty else { return }
+                        viewModel.ingestContext(folderPath: selectedFolderPath)
+                    } label: {
+                        if viewModel.isIndexing {
+                            HStack(spacing: VFSpacing.sm) {
+                                ProgressView().scaleEffect(0.7)
+                                Text("İndeksleniyor…")
+                            }
+                        } else {
+                            Text("Ekle")
                         }
-                    } else {
-                        Text("Ekle")
                     }
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(selectedFolderPath.isEmpty || viewModel.isIndexing)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(selectedFolderPath.isEmpty || viewModel.isIndexing)
 
-                if let error = viewModel.contextIndexingError {
-                    Text(error).font(VFFont.caption).foregroundStyle(VFColor.destructive)
+                    if let error = viewModel.contextIndexingError {
+                        Text(error).font(VFFont.caption).foregroundStyle(VFColor.destructive)
+                    }
+                    Spacer()
                 }
+                .padding(.horizontal, VFSpacing.xxl)
+                .padding(.vertical, VFSpacing.xl)
             }
+            VFInfoRow(icon: "info.circle", text: "Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.", color: .secondary)
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
         .onAppear { viewModel.loadContextStatus() }
     }
 
@@ -619,35 +782,38 @@ private struct AccountSection: View {
     }
 
     var body: some View {
-        Form {
-            Section("Profile") {
-                LabeledContent("Ad Soyad") {
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            VFSectionHeader("Profil")
+            VFCard {
+                VFRow("Ad Soyad") {
                     TextField("Opsiyonel", text: $userName)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userName) { viewModel.userName = userName }
                 }
-                LabeledContent("Departman") {
+                VFRow("Departman") {
                     TextField("Opsiyonel", text: $userDepartment)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userDepartment) { viewModel.userDepartment = userDepartment }
                 }
-                LabeledContent("Kullanıcı ID") {
+                VFRow("Kullanıcı ID",
+                      divider: viewModel.currentUser == nil) {
                     Text(viewModel.userID.isEmpty ? "—" : viewModel.userID)
-                        .font(VFFont.caption.monospaced())
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
                 if let user = viewModel.currentUser {
-                    LabeledContent("Rol") {
+                    VFRow("Rol", divider: false) {
                         Text(user.role.capitalized)
-                            .foregroundStyle(user.role == "admin" || user.role == "superadmin" ? VFColor.primary : .secondary)
+                            .foregroundStyle(user.role == "admin" || user.role == "superadmin"
+                                             ? VFColor.primary : .secondary)
                     }
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
     }
 }
 
@@ -663,30 +829,36 @@ private struct AboutSection: View {
     }
 
     var body: some View {
-        Form {
-            Section("VoiceFlow") {
-                LabeledContent("Sürüm") {
+        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+
+            // Uygulama bilgisi
+            VFSectionHeader("VoiceFlow")
+            VFCard {
+                VFRow("Sürüm") {
                     Text("v\(appVersion)").foregroundStyle(.secondary)
                 }
-                LabeledContent("Durum") {
+                VFRow("Durum", divider: false) {
                     Text(viewModel.statusText).foregroundStyle(.secondary)
                 }
             }
 
-            Section("Servis Yönetimi") {
-                Button("Servisi Yeniden Başlat") { viewModel.restartBackend() }
-                    .buttonStyle(.bordered)
-
-                Button("Zorla Yeniden Başlat") { viewModel.hardReset() }
-                    .buttonStyle(.bordered)
-                    .foregroundStyle(VFColor.destructive)
-
-                Text("Zorla yeniden başlatma, arka plan servisini tamamen durdurur ve sıfırdan başlatır.")
-                    .font(VFFont.caption).foregroundStyle(.secondary)
+            // Servis Yönetimi
+            VFSectionHeader("Servis Yönetimi")
+            VFCard {
+                HStack(spacing: VFSpacing.md) {
+                    Button("Servisi Yeniden Başlat") { viewModel.restartBackend() }
+                        .buttonStyle(.bordered)
+                    Button("Zorla Yeniden Başlat") { viewModel.hardReset() }
+                        .buttonStyle(.bordered)
+                        .foregroundStyle(VFColor.destructive)
+                    Spacer()
+                }
+                .padding(.horizontal, VFSpacing.xxl)
+                .padding(.vertical, VFSpacing.xl)
             }
+            VFInfoRow(icon: VFIcon.warning, text: "Zorla yeniden başlatma, arka plan servisini tamamen durdurur ve sıfırdan başlatır.", color: VFColor.warning)
         }
-        .formStyle(.grouped)
-        .padding()
+        .padding(VFSpacing.xxxl)
     }
 }
 

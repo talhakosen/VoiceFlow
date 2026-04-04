@@ -56,6 +56,7 @@ final class AppViewModel {
     private var healthCheckTask: Task<Void, Never>? = nil
     var isLLMReady = false
     var whisperModelName: String = ""
+    var llmAdapterVersion: String = ""
 
     // MARK: - Init
 
@@ -85,6 +86,9 @@ final class AppViewModel {
                     self.isLLMReady = health.llmLoaded
                     if let modelName = health.whisperModel, !modelName.isEmpty {
                         self.whisperModelName = modelName
+                    }
+                    if let av = health.adapterVersion, !av.isEmpty {
+                        self.llmAdapterVersion = av
                     }
                     if available && !self.backendWasAvailable {
                         // Backend just came (back) online — push current config
@@ -376,6 +380,11 @@ final class AppViewModel {
                 try? await backend.deletePendingWav(wavPath: wav)
             }
         }
+    }
+
+    func pasteLastResult() {
+        guard let text = lastResult?.text, !text.isEmpty else { return }
+        paste.pasteText(text)
     }
 
     func forceStop() {

@@ -47,6 +47,7 @@ LLM_BACKEND:     str       = _get("llm", "backend",          "mlx")
 LLM_ENDPOINT:    str       = _get("llm", "endpoint",         "")
 LLM_MODEL:       str       = _get("llm", "model",            "qwen2.5:7b")
 LLM_ADAPTER_PATH: Path | None = _resolve_path(_get("llm", "adapter_path", ""))
+LLM_ADAPTER_VERSION: str      = _get("llm", "adapter_version", "")
 
 _whisper_model_raw = _get("whisper", "model", "mlx-community/whisper-large-v3-turbo")
 _whisper_model_path = _resolve_path(_whisper_model_raw)
