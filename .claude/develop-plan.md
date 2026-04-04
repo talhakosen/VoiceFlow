@@ -302,7 +302,8 @@
 - [DONE 2026-04-04] **Qwen v2 filler dataset** — 496 filler/disfluency pair üretildi (şey/yani/hani/işte/ee/aa + backtrack + stutter + sayı norm); `generate_filler_data.py` (API key gereksiz); 1096 mixed pair (v1+v2); train/valid/test split
 - [DONE 2026-04-04] **Qwen v2 RunPod training** — H100 80GB, unsloth-free stack (transformers 4.47+peft 0.13+trl 0.13), 400 step, 3 dk, eval_loss=0.71; adapters_v2_runpod → MLX dönüşümü → adapters_mlx/ canlıda
 - [DONE 2026-04-04] **Qwen v3 dataset hazır** — 1059 yeni örnek (filler_initial 387 + filler_complex 167 + filler_semantic 400 + filler_backtrack 105); v2+yeni = 2155 pairs datasets/v3/; _BASE_PROMPT güncellendi (cümle başı filler + anlamsal KEEP kuralları)
-- [ ] **Qwen v3 RunPod training** — H100, 800 step, v2 adapter'dan devam; train_hf.py güncellendi; datasets/v3 hazır
+- [DONE 2026-04-04] **Qwen v3 RunPod training** — H100, 800 step, eval_loss=0.513; adapters/v3.0 MLX
+- [DONE 2026-04-04] **Qwen v4 persona dataset + Mac local training** — 6 Türk dev persona × 8 senaryo, phonetic_corruptions engine (160+ terim), 3096 pair; Mac M4 mlx_lm.lora 1000 iter 48dk; val_loss=0.428 (%17↑); adapters/v4.0 aktif
 - [DONE 2026-04-04] **Qwen RunPod setup dökümante edildi** — unsloth KULLANMA kuralı, H100 pod config, tüm bilinen sorunlar runpod/README.md'e eklendi
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri

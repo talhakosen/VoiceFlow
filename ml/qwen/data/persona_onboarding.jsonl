@@ -1,0 +1,272 @@
+{"input": "yani once repazitori'yiklonla, git kilon komutuyla.", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "once repository'yi klonla git kilon komutuyla", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "once repository'yi klonla git clone komutuyla.", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "once repository'yi klonla, git clone komutuyla", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "Once repazitori'yi klonla, git kloon komutuyla.", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "hani once repository'yi klonla, gitclone komutuyla", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "oncerepazitori'yi klonla, git clone komutuyla", "output": "Once repository'yi klonla, git clone komutuyla."}
+{"input": "hani Env dosyasini kopyala, env.example'dan env dosyasi yap", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "Env dosyasini kopyala, env.exampledan env dosyasiyap.", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "env dosyasini kopyala envexample'dan env dosyasi yap", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "env dosyasini kopyala, env.exampledan env dosyasi yap", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "Env dosyasini kopyala, envexample'dan env dosyasi hani yap.", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "Env dosyasini kopyala env.exampledan env dosyasiyap.", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "iste env dosyasini kopyala, env.example'dan env dosyasi yap", "output": "Env dosyasini kopyala, env.example'dan env dosyasi yap."}
+{"input": "doker compoz up yap, tum servisler ayaga hani kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "hani dokir kompoz up yap, tum servisler ayaga kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "doker compose up yap tum servisler ayaga kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "iste docker compose up yap, tum servisler ayaga kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "Docker compose upyap tumservisler ayaga kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "hani dokir kompoz up yap, tum servisler ayaga kalksin", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "hani dokir kompozup yap, tum servisler ayaga kalksin.", "output": "Docker compose up yap, tum servisler ayaga kalksin."}
+{"input": "databeys migration'lari calistir tablolari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "deytebes migration'lari calistir, tabl olari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "database maygresyon'lari calistir, tablolari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "Database migration'lari calistir, tablolari iste olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "deytabeys maygresyon'lari calistir tablolari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "Database migration'lari calistir, yani tablolari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "database migration'lari calistir tablolari olustursun.", "output": "Database migration'lari calistir, tablolari olustursun."}
+{"input": "Postman collection'i import et, eypiay endpoynt'lerini test edebilirsin", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "Postman collectioni import et APi endpoin t'lerini test edebilirsin", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "postman collectioni import et, API endpoyint'lerini test edebilirsin.", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "postman collectioni import et aPi end poynt'lerini test edebilirsin", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "Postman collection'i import et eypi hani ay endpoint'lerini test edebilirsin.", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "yani Postman collectioni impört et, aPi endpoyint'lerini test edebilirsin.", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "postman collection'i import et, apiay endpoint'lerini test edebilirsin.", "output": "Postman collection'i import et, API endpoint'lerini test edebilirsin."}
+{"input": "vPN baglan, internal servislere hani erisim icin gerekli.", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "vPN baglan, internal servislere erisim icin gerekli.", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "hani vPN baglan, internal servislere erisim icin gerekli.", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "iste vPn baglan, internal servislere erisim icin gerekli.", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "VPn baglan internal servislere erisim icin gerekli", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "VPN hani baglan, internal servislere erisim icin gerekli.", "output": "VPN baglan, internal servislere erisim icin gerekli."}
+{"input": "logging freymvorku yani olarak winston kullaniyoruz.", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "logging frameworku olarak Winston kullaniyoruz.", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "Logging freymvork'u olarak Winston hani kullaniyoruz.", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "logging frameworku iste olarak Winston kullaniyoruz.", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "logging freymvirk'u olarak Winston kullaniyoruz.", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "Logging framework'u olarakWinston iste kullaniyoruz", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "logging framework'u olarak hani winston kullaniyoruz", "output": "Logging framework'u olarak Winston kullaniyoruz."}
+{"input": "flutter esdikey'yi aa kur,versiyon uc nokta on olsun", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "iste Flutter sdk'yi kur versiyon uc iste sey nokta on olsun.", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "flatir SDK'yi ee kurversiyon uc nokta on sey aa olsun", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "flater aa sdk'yi kur, versiyon uc nokta on olsun.", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "hani flatir SDK'yi kur versiyon uc nokta on olsun", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "aa flater sDK'yi kur aa versiyon uc nokta onolsun.", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "yani flatıresdikey'yi kur, versiyon uc nokta on olsun.", "output": "Flutter SDK'yi kur, versiyon uc nokta on olsun."}
+{"input": "pubspec'teki paketleri indir flatir pub ee getyap", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "pubspec'teki paketleri indir, flater pub sey get sey yap.", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "pubspek'teki yani paketleri tamam indir, flatır pub get yap", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "pubspek'teki paketleri indir,flutter ee pubget yap", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "pubspec'teki paketleri indir, flatir pub yani get yap.", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "iste pabispek'tekipaketleri indir flutter pubget iste iste yap.", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "pabispek'tekipaketleri indir, flater sey pub get iste yap.", "output": "Pubspec'teki paketleri indir, flutter pub get yap."}
+{"input": "figma'daki design'lari aa incele, componenti listesi orada.", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "figma'daki design'lariincele aa kompanent listesi orada", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "yani yani Figma'daki design'lari hani incele component listesiorada", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "hani yani figma'daki design'lariincele sey componenti listesi orada.", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "tamam Figma'daki design'lari incele componenti hani listesi ee orada", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "ee Figma'daki design'lari yani incele komponent ee listesi orada", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "Figma'daki design'lari iste incele komponent listesi orada", "output": "Figma'daki design'lari incele, component listesi orada."}
+{"input": "iste Storybooku calistir,componenti'leri sey orada gorebilirsin", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "Storybook'u aa calistir tamam komponent'leri orada gorebilirsin", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "storybook'u calistircomponent'leri hani orada ee gorebilirsin", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "hani storybooku calistir component'leri oradagorebilirsin.", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "Storybooku aa calistir kompanent'leri hani orada gorebilirsin", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "Storybooku cali stir componenti'leri orada ee gorebilirsin", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "storybook'u calistir komponent'leriorada hani gorebilirsin.", "output": "Storybook'u calistir, component'leri orada gorebilirsin."}
+{"input": "ee iOS icin Xcode kurulumu gereklison versiyonu yukle.", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "iosicin aa Xcode kurulumu gereklison versiyonu iste aa yukle", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "ioS icin Xcode kurulumu iste gerekli, son tamam vers ee iyonu yukle", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "iOS sey ee icin hani xcode kurulumu gerekli son versiyonu yukle", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "iOS icin ee Xcode kurulumu sey gerekli son tamam versiyonu yukle.", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "yani iOS icin Xcode kurulumu gerekli, tamam tamam son versiyonu yukle.", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "hani iOS icinxcode kurulumu gerekli,son versiyonu yukle.", "output": "iOS icin Xcode kurulumu gerekli, son versiyonu yukle."}
+{"input": "android Studioda AVd olus tur, tamam emulatorde test edebilirsin.", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "android Studio'da AVDolustur, emulatorde test ee edebilirsin.", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "android Studio'da hani hani yani AVD olustur emulatordetest edebilirsin", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "android Studioda aa AVDolustur, emulatorde yani test edebilirsin.", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "yani android studio'da AvDolustur, aa emulatorde test edebil irsin.", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "Android studioda AVD olustur, emulatorde test aa edebilirsin", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "iste Android aa Studio'da avD olustur emulatordetest edebilirsin", "output": "Android Studio'da AVD olustur, emulatorde test edebilirsin."}
+{"input": "aa ee Flutter doctorcalistir, eksik bagimlilik var mi bak", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "flatir doctor calistir eksik bagimlilik var tamam mi bak", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "ee flater doctor calistir, aa eksik bagimlilik var mi iste bak.", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "tamam Flutter tamam doctor calistir, eksik bagimlilikvar mi bak.", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "yani flatır doctor calistir, eksik bagimlilik var mi bak.", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "flaterdoctor calistir hani eksik bagimlilik var mibak", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "ee flutter doctor calistir eksik bagimlilikvar mi bak", "output": "Flutter doctor calistir, eksik bagimlilik var mi bak."}
+{"input": "hani Kuber netes kilastir'a erisim icin kubeconfigi al.", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "yani kubernetes cluster'a erisim icin kubeconfig'i al.", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "kubernetis klaster'a erisimicin kubeco nfig'i al.", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "hani kubernitis cluster'a erisim icin kubeconfig'i al.", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "iste kubernetis cluster'a erisim icin kubeconfig'i al", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "kubernetes clustera erisim icin kubec onfigi iste al", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "cubernetes clustera erisim icin kubeconfig'i al.", "output": "Kubernetes cluster'a erisim icin kubeconfig'i al."}
+{"input": "helim repo'yu ekle, chart'lari hani indir", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "heylm repo'yu yani ekle,chart'lari indir", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "heylm repo'yu ekle, chart'lari indir", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "iste helm repo'yu ekle chart'lari indir.", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "helm repo'yu ekle, chart'lari indir.", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "helm repo'yu ekle chart'lari indir.", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "helim repo'yu ekle, chart'lari indir.", "output": "Helm repo'yu ekle, chart'lari indir."}
+{"input": "Docker Desktop'i kur, local development icingerekli.", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "docker Desktop'i kur local development icin gerekli.", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "yani docker Desktop'ikur, local development icin gerekli.", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "iste Docker Desktop'i kur local development icin gerekli.", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "docker Desktop'i kur, hani local development icin gerekli", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "docker desktop'i kur local development icin gerekli", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "yani doker desktopi kur, localdevelopment icin gerekli", "output": "Docker Desktop'i kur, local development icin gerekli."}
+{"input": "terrafoerem CLi'yi kur, workspace'i initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "terrafom CLi'yi kur, workspace'i initialize et", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "terefoarem ClI'yi kur, workspace'i initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "terrafom sielay'yi iste kur, workspacei initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "teraform CLI'yi kur, workspace'i initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "Terraform sielay'yi kur, workspace'i initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "Terraform sielay'yi kur workspace'i initialize et.", "output": "Terraform CLI'yi kur, workspace'i initialize et."}
+{"input": "AWS clI konf igure et, credential'lari ayarla.", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "yani AWs seelay konfigure et, credential'lari ayarla", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "iste AwS seelay konfigure et credential'lari ayarla", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "hani aWS CLI konfigure et, credential'lari ayarla", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "AWS seelay konfigureet hani credential'lari ayarla.", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "hani aWS CLI konfigureet, credential'lari ayarla.", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "AWS CLI konfigure et credential'lari ayarla", "output": "AWS CLI konfigure et, credential'lari ayarla."}
+{"input": "Kubectl kontekst'ini staging'e ayarla produc tion'a dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "iste Kubectl context'ini steycinge ayarla, prodaksina dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "Kubectl context'ini staginge ayarlaproduction'a dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "hani Kubectl kontekst'ini steğinge ayarla,productiona dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "iste Kubectl context'ini steging'e ayarla, productiona dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "kubectl kantekst'ini staging'e ayarla prodaksiyona dokunma.", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "hani kubectl context'ini staginge ayarla, production'a dokunma", "output": "Kubectl context'ini staging'e ayarla, production'a dokunma."}
+{"input": "hani monitorink dashboard'larin linklerini paylasiyorum.", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "monitorink dashboard'larin hani linklerini paylasiyorum", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "monitoring dashboard'larin linklerini iste paylasiyorum.", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "hani monitoring dashboard'larin linklerini paylasiyorum", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "monitoring dashboard'larin linklerini yani paylasiyorum", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "Monitoring dashboard'larin hani linklerini paylasiyorum", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "monitorink dashboard'larin iste linklerini paylasiyorum.", "output": "Monitoring dashboard'larin linklerini paylasiyorum."}
+{"input": "aa Node modules'u yukle npminstall yap.", "output": "Node modules'u yukle, npm install yap."}
+{"input": "tamam Node modules'u yukle, npm install yani yap.", "output": "Node modules'u yukle, npm install yap."}
+{"input": "tamam Node modules'u yukle, npminstall yap.", "output": "Node modules'u yukle, npm install yap."}
+{"input": "noud modu lesu yukle, hani hani npm ee install yap", "output": "Node modules'u yukle, npm install yap."}
+{"input": "noud yani modules'u yukle, npm install yap", "output": "Node modules'u yukle, npm install yap."}
+{"input": "yani noud modulesu yukle, npm sey tamam install yap", "output": "Node modules'u yukle, npm install yap."}
+{"input": "noud modules'u yuklenpm sey install yap", "output": "Node modules'u yukle, npm install yap."}
+{"input": "Typescriptkompayliri hani iste kontrolet iste tsconfigdogru mu bak.", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "typeScript kompaylir'ikontrol et hani iste aa tsconfig dogru mu bak", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "tayp skript kompayliri kontrol et, tsconfig dogru mu sey bak.", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "sey TypeScript kompa yliri kontrolet, hani tsconfigdogru ee mu bak", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "tayıp skript yani compiler'i kontrol et tsconfig dogru mu bak.", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "iste tayp ee skript kompayliri kontrol ettsconfig dogru ee mu bak.", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "Typescript kompiler'i kontrol iste et tsconfig dogru ee mu tamam bak.", "output": "TypeScript compiler'i kontrol et, tsconfig dogru mu bak."}
+{"input": "code style icin EsLint iste veprettier konfigureedilmis otomatik format", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "hani code style icin ESLint ve Prettier konf igure edilmis, otomatik format.", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "sey Code style icin ESlint ve Prettier iste konfigure edilmis, ee otomatik format", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "ee code ee style icin ESLint ve Prettier konfigure edilmis, otomatik foaremat.", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "code styleicin ESlint ve yani Prettier konfigure edilmis, otomatikformat.", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "Code style icin aa ESlint ve Prettier konfigure edilmis otomatik sey format.", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "sey codestyle icin EsLintve Prettier konfigure edilmis otomatik foeremat", "output": "Code style icin ESLint ve Prettier konfigure edilmis, otomatik format."}
+{"input": "VS sey Code extension'larini yukle tamam listesi REaDMEde.", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "VS Code extension'larini yukle iste sey listesi ee ReAdmEde.", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "yani VS Codeextension'larini tamam yukle yani listesi REadMEde", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "VS codeextension'larini aa aa yuklelistesi aa REaDMEde.", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "vs Code extension'larini hani yukle, listesiReADMEde", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "tamam VS Code extension'larini yukle, listesi ReAdME'de", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "ee vS Codeextension'larini yukle listesi READMEde", "output": "VS Code extension'larini yukle, listesi README'de."}
+{"input": "tamam Husky pre-kommit hook aa sey kurulu commit oncesi lint calisir.", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "ee ee husky pre-commit huk ee kurulu kommit oncesi lint calisir", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "yani husky pre-komit ee hok kurulu, komıt oncesi lintcalisir.", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "ee Husky pre-komit hok kurulu komıt oncesi lint calisir.", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "husky aa pre-commit hok kurulu komit oncesi lint calisir", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "husky pre-commithok ee iste kurulu komıt oncesi sey lint calisir", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "tamam Husky pre-komit hok kurulu aa commit oncesilint calisir.", "output": "Husky pre-commit hook kurulu, commit oncesi lint calisir."}
+{"input": "iste dev serveri yani calistirnpm rundev ile", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "tamam Devservir'i yani calistir npm run dev ile", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "Dev sorvir'i calistir, sey npm run ee dev ile", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "yani dev yani servir'i calistir npm run devile.", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "dev serveri calistir, sey iste npm run dev ile", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "Dev sorviri calistir npm ee ee run dev ile.", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "yani dev tamam serviri calistir, npm run dev ile", "output": "Dev server'i calistir, npm run dev ile."}
+{"input": "hani browser'dariekt devTools extension'ini iste kur", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "browserda React yani hani devTools extension'ini sey kur.", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "iste browserda riyekt DevTools extension'ini kur", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "sey browser'da riekt aa yani devTools extension'ini kur.", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "sey browser'da iste React aa Devtools extension'ini kur.", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "yani browserda riyakt DevTools tamam extension'ini kur.", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "browserda aa riekt DevTools extension'ini sey kur.", "output": "Browser'da React DevTools extension'ini kur."}
+{"input": "git hani tamam biranc simdi olustur, fiicirbiranç'ten calis, maine direkt pus tamam etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "aa git birancolustur fiicır yani ee ee simdi bransten calis, maine direktpus etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "simdi git neyse aa brans olustur, feature birancten aslinda calis main'e direkt push etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "git tamam neyse brans olustur, fiiçir aa bıranç'ten calis maine direkt push etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "iste gitbiranc hani olustur neyse fiiçır bırancten calis maine direkt hani push ya etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "git brans bir nevi olustur, bi dakika fiiçır ya iste birancten him tamam calismaine direkt puus etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "git tamam biranc olustur ficer him birancten calis, maine dur bi saniye direkt puuş aslinda etme", "output": "Git branch olustur, feature branch'ten calis, main'e direkt push etme."}
+{"input": "Pull him nasil diyeyim iste rekuest ya yani actiginda reviewerolarak beni ekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "bi dakika bi dakika bi dakika bir nevi pul rikuest actiginda reviewer olarak beni ekle.", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "ya simdi pul tamam rekuest him actiginda reviewer olarak beni bir nevi ekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "bir nevi pul falan rekuest actiginda reviewerolarak aslinda beniekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "Pull bi dakika rikuest bi dakika actigindareviewer sey olarak beni simdi ekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "pull rikuestactiginda bir nevi revi yani ewer dur bi saniye aslinda olarakbeni ekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "pulrikuist actiginda neyse hani reviewer olarakbeni sey aslinda ekle", "output": "Pull request actiginda reviewer olarak beni ekle."}
+{"input": "hani tamam sorun neyse olursa falan Slack'ten yaz hizli cevap alirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "falan iste aa aslinda Sorun olursa slackten yaz nasil diyeyim hizli cevap alirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "sorun olursa Slacktenyaz hizli aslinda neyse nasil diyeyim cevapalirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "sorun olursa slack'tenyaz nasil diyeyim hizli sey ya sey iste cevap alirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "him Sorunolursa slac simdi kten yaz hizli cevap nasil diyeyim alirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "him aa Sorun olursa sey Slackten yazhizli cevap iste alirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "ee sorun olursa slack'ten bi dakika him yaz, hizli cevapalirsin", "output": "Sorun olursa Slack'ten yaz, hizli cevap alirsin."}
+{"input": "him jira board'ukullaniyoruz falan sipirint beklogdan aa taskal", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "simdi jira sey board'u kullaniyoruz ya sprint baklog'dan task iste ya ee al.", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "yani jira aslinda aslinda board'u dur bi saniye kullaniyoruz sipirint simdi beklög'dan task nasil diyeyim al", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "jiraboard'u ee kullaniyoruz falan sprint sey beklogdantask bi dakika al.", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "dur bi saniye ee yani jiraboardu ya kullaniyoruz, sprint beklogdan nasil diyeyim task al", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "jira tamam neyse boardu yani kullaniyoruzispirint backlogdantask al.", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "jira boardukullaniyoruz sipirint backlog'dan task bi dakika bir nevi simdi al", "output": "Jira board'u kullaniyoruz, sprint backlog'dan task al."}
+{"input": "bi dakika daily stendap aa her sabah dokuzda bi dakika iste zamaninda bi dakika katil.", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "simdi ya Daily stendap hersabah dokuzda, tamam zamaninda katil.", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "daily bi dakika ya istendap falan her sabah neyse dokuzda zamaninda hani nasil diyeyim katil.", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "daily stendap bi dakika hersabah dokuzda bir nevi iste zamaninda iste katil.", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "Dailystendop her sabah yani dokuzda zamaninda sey him katil", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "Daily ya stendapher aa sabahdokuzda, nasil diyeyim hani zamaninda katil", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "sey Daily bir nevi stendopher bir nevi sabah dokuzda zamaninda katil.", "output": "Daily standup her sabah dokuzda, zamaninda katil."}
+{"input": "tamam Kod yazarken ee aslinda linter'a dikkat ya et CI'da fail iste olmasin.", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "kod ya simdi hani simdi yazarken linter'a dikkat et, CIda dur bi saniye sey fail olmasin.", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "falan tamam kod simdi neyse yazarken lintera dikkat et, aa CIda bir nevi fail olmasin.", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "kod yazarken ee ee bi dakika nasil diyeyim linter'a dikkat etCIda fail simdi olmasin.", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "Kod sey yazarkenlinter'a bir nevi dikkat simdi et, CIda fail olmasin", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "ya kod bir nevi yazarken lintera dur bi saniye dikkatet, CIda fail olmasin", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "kod yazarken tamam bi dakika ee linter'a dikkat et, aslinda Cida fail olmasin.", "output": "Kod yazarken linter'a dikkat et, CI'da fail olmasin."}
+{"input": "bi dakika hani iste test yazmadan PR ee aslinda acma kavrıc dusmesin", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "falan yani Test yazmadan PR acma kavric tamam iste dusmesin", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "test simdi yazmadan Pr acma, yani simdi kavric dusmesin", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "tamam him yani test yazmadan PR acma, tamam neyse kavric dusmesin.", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "simdi iste bi dakika test yazmadan pR acma, kavric neyse dusmesin", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "test yazmadan PR dur bi saniye acmakaveric ya simdi aa dusmesin.", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "Test yazmadan nasil diyeyim PRacma, tamam aa kavricdusmesin.", "output": "Test yazmadan PR acma, coverage dusmesin."}
+{"input": "Confluence'da dokumantasyon yani var once iste oraya bak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "Confluenceda dokumantasyon var, yani once oraya bak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "aa Confluenceda dokumantasyon var, once oraya yani bak", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "tamam Confluence'dadokumantasyon var, iste once tamam oraya bak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "tamam Confluence'da dokumantasyon aa var, ee once oraya bak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "aa confluence'da dokumantasyon aa var onceoraya bak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "ee Confluenceda tamam dokumantasyon var once orayabak.", "output": "Confluence'da dokumantasyon var, once oraya bak."}
+{"input": "yani sprint planning her pazartesi backlog'u onceden incele", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "sprint planning ee sey her pazartesi, backlogu onceden ee incele", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "sprintplanning her pazartesi, baklogu tamam hani onceden incele.", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "iste Sprint planning her pazartesi beklögu onceden incele", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "sey ispirint planning her pazartesi beklog'u onceden aa incele.", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "yani sprint planning her sey pazartesi, beklog'u onceden incele", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "sprint planning her tamam pazartesi, backlog'u onceden incele", "output": "Sprint planning her pazartesi, backlog'u onceden incele."}
+{"input": "tamam retros pektif notlarini hani tamam oku takimin aliskanliklarini ogren", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "retrospective notlarini ee oku takimin aliskanliklarini ogren.", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "retrospective yani notlarini ee oku, takiminaliskanliklarini ogren.", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "retrospektif ee ee notlarini oku takimin aliskanliklarini tamam ogren.", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "tamam ee Retrospective notlarini oku takimin aliskanliklarini yani ogren", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "tamam Retrospective notlarini oku takimin yani aliskanliklarini ogren.", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "aa iste Retrospective notlarini oku, takimin ee aliskanliklarini ogren.", "output": "Retrospective notlarini oku, takimin aliskanliklarini ogren."}
+{"input": "steykholdır listesini paylasiyorum, kiminle ne sey konusacagini bil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "steykholdırlistesini paylasiyorum kiminle ne konusacagini yani sey bil", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "steykholdir listesini paylasiyorum, kiminle ne yani konusacagini yani yani bil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "tamam Stakeholder listesini paylasiyorum, kiminle ne konusacaginibil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "Stakeholder listesini aa paylasiyorum, kiminle ne konusacagini bil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "steykholdir aa listesinipaylasiyorum, aa kiminle ne aa konusacagini bil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}
+{"input": "steykholdır hani listesini paylasiyorum kiminle ne konusacagini bil.", "output": "Stakeholder listesini paylasiyorum, kiminle ne konusacagini bil."}

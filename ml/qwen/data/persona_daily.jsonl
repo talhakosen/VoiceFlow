@@ -1,0 +1,277 @@
+{"input": "toplanti odasi dolu, baska yer bulalim.", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "iste toplanti odasi dolu, baska yer bulalim.", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "hani Toplanti odasi dolu baska yer bulalim", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "Toplanti odasi dolu, baska yer bulalim", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "toplanti hani odasi dolu, baska yer bulalim", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "toplanti odasi dolu baska yer bulalim.", "output": "Toplanti odasi dolu, baska yer bulalim."}
+{"input": "Ofiste internet yavasladi, ITye haber verelim.", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "yani ofiste internet yavasladi, ITye haber verelim.", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "yani ofiste internet yavasladi, iT'ye haber verelim.", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "Ofiste internetyavasladi, It'yehaber verelim.", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "Ofiste internet yavasladi, IT'ye haber iste verelim", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "ofiste iste internet yavasladi IT'ye haber verelim.", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "Ofiste internet yavasladi It'ye haber verelim", "output": "Ofiste internet yavasladi, IT'ye haber verelim."}
+{"input": "iste Projeksiyonu acar misin, sunumu gosterecegim", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "projeksiyonu acar misin sunumu gosterecegim", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "Projeksiyonu acar misin, sunumu gosterecegim", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "yani projeksiyonu acar misin, sunumu gosterecegim.", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "yani projeksiyonu acar misin,sunumu gosterecegim.", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "projeksiyonu acar misin, sunumu gosterecegim.", "output": "Projeksiyonu acar misin, sunumu gosterecegim."}
+{"input": "aksam yemegini siparis edelim mi, gec kalacagiz", "output": "Aksam yemegini siparis edelim mi, gec kalacagiz."}
+{"input": "iste aksam yeme gini siparis edelim migec kalacagiz.", "output": "Aksam yemegini siparis edelim mi, gec kalacagiz."}
+{"input": "Aksam yemegini siparis edelim iste mi, gec kalacagiz", "output": "Aksam yemegini siparis edelim mi, gec kalacagiz."}
+{"input": "aksam yemegini siparis edelim mi gec kalacagiz.", "output": "Aksam yemegini siparis edelim mi, gec kalacagiz."}
+{"input": "Aksam yemegini siparis edelim hani mi, geckalacagiz.", "output": "Aksam yemegini siparis edelim mi, gec kalacagiz."}
+{"input": "yeni macBook geldi, kurulumu yapiayyorum.", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "Yeni Macbook geldi kurulumu yapiyorum", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "Yeni MacBook geldi kurulumu yapiyorum.", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "iste Yeni MacBook geldi kurulumu yapiayyorum", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "yeni MacBook geldi, kurulumu yani yeypi ayyorum", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "Yeni MacBookgeldi, kurulumu yeypi ayyorum.", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "yeni iste MacBook geldi, kurulumu yeypiaiyorum", "output": "Yeni MacBook geldi, kurulumu yapiyorum."}
+{"input": "Ogle hani yemegine cikalim mi, iste asag idaki ristoran iste guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "ogleyemegine yani cikalim mi asagidaki ristoran guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "ogle yemegine aa hani cikalim miasagidaki yani restoran guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "ogle yemegine cikalim mi asagidaki tamam restoran guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "ogle yemegine cikalim aa mi, asagidakirestoran ee hani guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "iste ogle yemegine cikalim mi asagidaki restoran guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "ee Ogle yemegine cikalim tamam mi, asagidaki ristoran guzel", "output": "Ogle yemegine cikalim mi, asagidaki restoran guzel."}
+{"input": "Bugun aa havacok guzel iste yani disarida oturalim", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "iste Bugun hava cok guzel disarida oturalim.", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "yani bugun iste hava cok guzel disa rida ee oturalim.", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "Bugun hava cok guzel, sey iste disarida aa oturalim", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "yani bugun hava cok guzel sey disarida oturalim", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "Bugun havacok guzel disarida ee oturalim", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "ee bugunhava cokguzel disarida oturalim.", "output": "Bugun hava cok guzel, disarida oturalim."}
+{"input": "Kahve aa molasi verelim bes dakika hani ara", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "sey Kahvemolasi ee verelim, bes dakika ara.", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "tamam iste kahve iste molasi verelim bes dakika ara.", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "ee kahve ee molasiverelim, bes dakika ara", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "iste kahve molasi verelimbes dakika ara", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "kahvemolasi verelim, bes aa sey dakika ara.", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "kahvemolasi verelim, ee bes dakikaara.", "output": "Kahve molasi verelim, bes dakika ara."}
+{"input": "Yarin hani izin alacagim yani yani doktora gitmem lazim", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "yarin izin aa ee alacagim, doktora gitmem lazim.", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "yani yarin izin alacagim, doktora gitmem lazim.", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "Yarin izin alacagim doktora gitmem sey hani lazim.", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "aa Yarin izin alacagim, doktora gitmem lazim", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "Yarin izin alacagim doktora gitmem sey iste lazim.", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "hani Yarin iste izin alacagim tamam doktora gitmem lazim", "output": "Yarin izin alacagim, doktora gitmem lazim."}
+{"input": "Yeni yani sey kahve makinesi cok iyi espresso dene", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "ee yeni iste kahve makinesi cok iyiespresso dene.", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "yeni aa kahve makinesi ee cok iyi, espresso tamam dene", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "Yenikahve makinesi cok sey iyi sey espresso dene", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "Yeni kahve ee makinesicok iyi, espressodene.", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "tamam Yeni sey kahve makinesicok iyi espresso sey dene", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "tamam Yeni kahve makinesi cok iyi, espresso dene", "output": "Yeni kahve makinesi cok iyi, espresso dene."}
+{"input": "klima cok soguk, biraz kisabilir miyiz", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "klima cok soguk, biraz kisabilir iste miyiz?", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "yani klima cok soguk, biraz kisabilir miyiz", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "hani Klima cok soguk, biraz kisabilir miyiz?", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "iste klima cok soguk, biraz kisabilir miyiz?", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "Klima cok soguk, birazkisabilir miyiz?", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "yani Klima cok soguk, biraz kisabilir miyiz?", "output": "Klima cok soguk, biraz kisabilir miyiz?"}
+{"input": "Asansor yine hani bozulmus merdivenden cikalim", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "iste asansor yine bozulmus merdivenden cikalim", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "asansor yine bozulmus, merdivenden cikalim.", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "asansor yine bozulmus merdivenden cikalim", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "hani asansor yine bozulmus, merdivenden cikalim", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "yani Asansor yine bozulmus, merdivenden cikalim.", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "hani Asansor yine bozulmus,merdivenden cikalim.", "output": "Asansor yine bozulmus, merdivenden cikalim."}
+{"input": "Server hani odasinin kilidi degismis, yeni anahtari al", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "yani Server odasinin kilidi degismis yeni anahtari al", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "Server odasinin kilidi degismis yeni anahtari al", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "server odasinin kilidi degismis yeni anahtari al.", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "sorvir yani odasinin kilidi degismis, yeni anahtari al.", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "servir odasinin hani kilidi degismis, yeni anahtari al", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "sorvir odasinin kilididegismis, yeni anahtari al", "output": "Server odasinin kilidi degismis, yeni anahtari al."}
+{"input": "UPs bipledi elektrik kesintisi olabilir.", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "uPS bipledi, elektrik kesintisi olabilir.", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "UPS bipledi elektrik kesintisi olabilir.", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "yani uPS bipledi, elektrik kesintisi olabilir", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "UPs bipledi elektrik yani kesintisi olabilir.", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "upS bipledi, elektrik kesintisi olabilir", "output": "UPS bipledi, elektrik kesintisi olabilir."}
+{"input": "ofis yani tasiniyor yeni adresi paylasiyorum.", "output": "Ofis tasiniyor, yeni adresi paylasiyorum."}
+{"input": "Ofis tasiniyor, yeni yani adresi paylasiyorum.", "output": "Ofis tasiniyor, yeni adresi paylasiyorum."}
+{"input": "hani ofis tasiniyor, yeni adresi paylasiyorum.", "output": "Ofis tasiniyor, yeni adresi paylasiyorum."}
+{"input": "ofis tasiniyor, yeni adresi paylasiyorum", "output": "Ofis tasiniyor, yeni adresi paylasiyorum."}
+{"input": "Ofis tasiniyor,yeni adresi paylasiyorum.", "output": "Ofis tasiniyor, yeni adresi paylasiyorum."}
+{"input": "bugun tamam erken cikacagim, cocuguokuldan almam yani lazim", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "ee bugun erken yani cikacagim, cocugu okuldanalmam aa lazim", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "hani bugun erken cikacagim yani cocugu yani okuldan almam lazim", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "bugun erken cikacagim iste cocugu okuldanalmam lazim.", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "yani Bugun erken cikacagim cocuguokuldan almam lazim", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "bugun tamam erken cikacagimcocugu sey yani okuldan almam lazim", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "Bugun erken hani cikacagim, cocugu okuldan almam sey lazim.", "output": "Bugun erken cikacagim, cocugu okuldan almam lazim."}
+{"input": "bayram tatili ne sey zaman basliyor aa planyapmam lazim.", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "yani bayram tamam hani tatiline zaman basliyorplan yapmam lazim.", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "bayram tatili ne tamam zaman basliyor plan yapmam lazim", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "Bayram tamam tatili nezaman basliyor plan yapmam lazim.", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "bayram tatili iste ne zaman iste basliyor hani plan yapmam lazim.", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "Bayram tatili hani ne zaman basliyor, plan hani yapmam lazim", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "hani Bayram tatili yani ne zaman basliyor plan yapmam lazim", "output": "Bayram tatili ne zaman basliyor, plan yapmam lazim."}
+{"input": "Yeni gelen aa arkadas cok iyi ekibe uyum sagladi", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "aa sey ee Yeni gelen arkadascok iyi ekibe uyum sagladi", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "yeni gelen arkadas cok aa iyi iste ekibe uyum sey sagladi", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "Yeni hani gelen arkadascok sey aa iyi, ekibe uyum sagladi", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "aa Yeni gelen arkadas cok iste iyi ekibe uyum sagladi.", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "ee Yeni gelen arkadas cok iyi, ekibe uyum sagladi.", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "Yeni gelen tamam arkadas cok tamam iyi, hani ekibe uyum sagladi", "output": "Yeni gelen arkadas cok iyi, ekibe uyum sagladi."}
+{"input": "tamam Kantindekiyemek bugun hani fena degildi hani aslinda", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "ee tamam yani kantindeki yemek bugun fena degildi aslinda.", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "tamam kantindeki yemek bugun fenadegildi aslinda.", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "Kantindeki yemek yani bugun ee fena degildi aslinda", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "Kantindeki iste yemek bugun ee fenadegildi aslinda.", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "hani kantindekiyemek bugun fena degildi aslinda.", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "sey Kantindeki yemek bugun fena degildi yani aslinda.", "output": "Kantindeki yemek bugun fena degildi aslinda."}
+{"input": "ee dogum gunu kutlamasi saat ucte kat otop hani arkin sey yaninda.", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "aa hani dogum gunu kutlamasi hani saat ucte kat otoparkin yaninda.", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "dogum gunu sey kutlamasi saat ucte, kat otoparkin yaninda", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "yani Dogumgunu kutlamasi saat ee ucte, kat otoparkin yaninda.", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "dogum gunu kutlamasi saat ucte sey kat otoparkin yaninda", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "Dogum aa gunu kutlamasi saatucte kat otoparkin ee aa yaninda.", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "hani Dogum hani gunu kutlamasi saat ucte kat otoparkin yaninda.", "output": "Dogum gunu kutlamasi saat ucte, kat otoparkin yaninda."}
+{"input": "aksam aslinda birseyler yapalim dur bi saniye misinema falan yani falan?", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "aksam bir hani neyse him seyler him yapalim mi, sinema bi dakika falan", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "bir nevi aksam bir ee iste seyler sey iste yapalim mi, sinemafalan?", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "dur bi saniye aksam falan bir hani ee bi dakika seyler yapalim mi, sinemafalan", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "aksam bir nevi bir seyleryapalim mi, aa sinema yani falan?", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "aa Aksam yani dur bi saniye tamam bir seyler yapalim mi, sinema iste falan", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "hani Aksam hani birseyler him yapalimmi, sinema him falan?", "output": "Aksam bir seyler yapalim mi, sinema falan?"}
+{"input": "iste bi dakika hafta yani ee sonu falan ne yapiyorsun, bir nevi futbol var mi", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "hafta neyse bi dakika sonu ee ne yeypiayyorsun, futbol bi dakika var mi", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "tamam Hafta sonu ne aslinda yeypiaiyorsunfutbol bi dakika var mi", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "tamam dur bi saniye Hafta sonu dur bi saniye aa neyeypi ya ayyorsun futbol var simdi mi?", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "haftasonu neyse sey neyeypiaiyorsun sey futbol var mi", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "tamam hafta sonu sey ee ne yeypiayyorsun, him ee futbol var mi?", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "him bir nevi hafta sonu ne yeypi ayyorsun futbol iste varmi", "output": "Hafta sonu ne yapiyorsun, futbol var mi?"}
+{"input": "aa dungece bir nevi maci izledin ya aa mi cok guzel gol aa vardi", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "bi dakika dun gece ya maci izledin iste mi nasil diyeyim cok guzel ee gol vardi.", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "Dun gece bi dakika simdi maci yani izledin mi,cok guzel gol vardi.", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "Dun gece neyse iste maci izledin hani mi cok aslinda guzelgol vardi", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "sey dun bir nevi gece him maci izledin mi cok guzel gol vardi", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "iste dun nasil diyeyim ee gece maci ee izledinmi, cok guzel gol vardi", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "hani dun gece maciizledin bi dakika mi cokguzel aa gol simdi vardi", "output": "Dun gece maci izledin mi, cok guzel gol vardi."}
+{"input": "bu hafta cok falan iste yoruldum cumaerken sey dur bi saniye iste cikayim", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "Bu haftacok yoruldum cuma hani nasil diyeyim ya tamam erkencikayim", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "simdi bu hafta cok yoruldum iste aslinda cuma erkencikayim", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "bu hafta cok nasil diyeyim yoruldum him cuma erken iste iste cikayim", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "bu ee hafta cok aslinda yoruldum, cuma iste erken hani ee falan cikayim.", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "bu hafta ya bir nevi aslinda aslinda cok aslinda yoruldum,cuma erken cikayim.", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "yani buhafta cok ya yoruldum iste cuma erken cikayim", "output": "Bu hafta cok yoruldum, cuma erken cikayim."}
+{"input": "Yemek uygulamasindansiparis him tamam hani verelim mi?", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "nasil diyeyim yani yemek uygulamasindan falan siparis verelim mi?", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "yemek ya uygulamasindan siparis aslinda verelim bi dakika mi", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "Yemek tamam bi dakika simdi uygulamasindan siparis verelim dur bi saniye mi", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "yemek falan hani aslinda uygulamasindansiparis verelim mi", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "yemek nasil diyeyim nasil diyeyim uygulamasindan neyse siparis verelim mi", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "Yemek simdi uygulamasindan dur bi saniye siparis him tamam verelim mi", "output": "Yemek uygulamasindan siparis verelim mi?"}
+{"input": "ofiste simdi ya dur bi saniye koltukdegistirmek istiyorum su kosedaha rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "Ofiste sey ya koltuk degistirmek sey istiyorum su kose simdi tamam aslinda daha rahat.", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "bi dakika bi dakika ofiste aslinda koltuk degistirmek istiyorum su bi dakika kosedaha iste rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "neyse ofistekoltuk degistirmek istiyorum hani tamam su aa kosedaha rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "bir nevi iste Ofiste koltuk neyse nasil diyeyim degistirmekistiyorum, aa su kose daha aa rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "ofiste koltuk degistirmek ee him istiy orum, sukose iste falan bi dakika daha rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "bi dakika ofiste koltuk iste degistirmek istiyorum, su yani kose daha rahat", "output": "Ofiste koltuk degistirmek istiyorum, su kose daha rahat."}
+{"input": "aa Netflix'te yeni tamam him dizi baslamis, tavsiye ederim.", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "Netflixte nasil diyeyim yeni dizi him baslamis,tavsiye ya ederim", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "netflixte ee yeni dizi baslamis ee tavsiye bir nevi ee ederim", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "bi dakika netflix'te yeni him dizi basl hani amis, tamam tavsiye ya ederim.", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "Netflix'te yeni bir nevi dizi dur bi saniye baslamis yani tavsiye him bir nevi ederim", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "ee netflix'te yani yani yeni dizi baslamis, tavsiye iste ederim", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "yani netflix'te yeni dizi baslamis yani ee tavsiye neyse aslinda ederim.", "output": "Netflix'te yeni dizi baslamis, tavsiye ederim."}
+{"input": "ee team building etkinligi yani ayarliyorum, ne yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "team building yani etkinligi ayarliyorum, tamam ne yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "ee teambuilding etkinligi ayarliyorum ne yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "Team building hani tamam sey etkinligi ayarliyorum ne yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "yani team building etkinligi aa ayarliyorum tamam ne yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "Team building etkinligi ayarliyorum iste ne yapa lim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "tamam team building aa etkinligi ayarliyorum, ne ee yapalim?", "output": "Team building etkinligi ayarliyorum, ne yapalim?"}
+{"input": "tamam Musteriye hediye gonderelim, bayram icin.", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "yani musteriyehediye gonderelim bayram sey icin.", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "musteriyehediye sey gonderelim, bayram icin.", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "yani musteriye yani hediye gonderelim, tamam bayram icin", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "hani musteriye hediye gonde yani relim, bayram icin", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "hani Musteriye hediye gonderelim, bayram icin.", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "tamam Musteriye hediyegonderelim bayram ee ee icin", "output": "Musteriye hediye gonderelim, bayram icin."}
+{"input": "ee Ofis temizligi icin mesaj attim yarin gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "ofis temizligi icin ee mesaj attim yarin hani ee gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "ee ofis temizligi icinmesaj sey attim yarin gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "Ofis aa temizligi icin mesaj attim yaringelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "sey tamam Ofis temizligi icin mesaj attim yarin gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "Ofis temizligi icin mesaj iste attim yarin gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "Ofis temizligi icin mesaj attim, yarin yani tamam gelecekler.", "output": "Ofis temizligi icin mesaj attim, yarin gelecekler."}
+{"input": "Toplanti ee sonrasi kahve iste iceriz, konusalim.", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "hani toplantisonrasi sey sey kahve iceriz konusalim.", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "tamam Toplantisonrasi sey kahve hani iceriz, konusalim.", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "Toplanti sonrasi kahve iceriz iste konusalim.", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "Toplanti sonrasikahve ee sey iceriz konusalim", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "hani Toplanti sonrasi kahve iste sey iceriz, konusalim", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "Toplanti sonrasi kahve hani iceriz konusalim", "output": "Toplanti sonrasi kahve iceriz, konusalim."}
+{"input": "Bugun Cuma birsaat erken cikalim.", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "bugun Cuma, bir saat erken cikalim.", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "Bugun Cuma, bir saat erken cikalim", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "bugun cuma bir saat erken cikalim", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "yani Bugun cuma, bir saat erken cikalim.", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "Bugun Cuma bir saat erken iste cikalim.", "output": "Bugun Cuma, bir saat erken cikalim."}
+{"input": "Printer yani sey bozulmus, sey ITye ticket acalim", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "printer aa bozulmus, iT'ye aa ticket acalim.", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "Printer sey bozulmus,iT'ye tamam ticket acalim.", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "aa printer bozulmus, Itye ticket acalim", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "Printer tamam hani ee bozulmus ITye ticket acalim.", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "yani printer bozulmus ITye ticket sey acalim.", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "hani printer bozulmus It'ye ticket acalim", "output": "Printer bozulmus, IT'ye ticket acalim."}
+{"input": "yeni yani klavye tamam aa geldimekanik, cok ya guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "dur bi saniye bir nevi Yeni ya klavye geldi mekanik cok guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "nasil diyeyim hani neyse yeni klavye geldi mekanik cok guzel.", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "nasil diyeyim him Yeni klavye geldi, mekanik,cok aslinda aa guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "yeni klavye geldi, nasil diyeyim tamam falan mekanikcok bi dakika guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "yeni klavye dur bi saniye aa geldi,mekanik, bi dakika cok simdi guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "yeni klavye yani geldi tamam mekanik tamam cok ee guzel", "output": "Yeni klavye geldi, mekanik, cok guzel."}
+{"input": "yani Ofis kurallarini guncelliyoruz, mail attim", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "Ofis kural larini aa tamam guncelliyoruz mail tamam attim.", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "ee ofis kurallarini guncelliyoruz, mail attim.", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "ee tamam Ofis kurallarini guncelliyoruz mail attim", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "ee ee ofis kurallarini guncelliyoruz, mail attim.", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "Ofis kurallarini guncelliyoruz, aa mail attim.", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "tamam Ofis kurallarini yani guncelliyoruz mail attim.", "output": "Ofis kurallarini guncelliyoruz, mail attim."}
+{"input": "iste Yarin hani karyagacakmis, dikkatligelin", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "yarin kar ee hani yagacakmis dikkatli gelin", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "ee Yarin kar yagac akmis dikkatli ee gelin", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "aa yarin karyagacakmis ee hani dikkatli gelin.", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "hani Yarinkar yagacakmis dikkatli yani gelin", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "sey Yarin kar yagacakmis dikkatli gelin", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "yarin kar yagacakmis dikkatli iste hani ee gelin.", "output": "Yarin kar yagacakmis, dikkatli gelin."}
+{"input": "spotifyda guzel bir hani playlist var, neyse ee ee ya atiyorum.", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "Spotifyda falan guzel tamam bir playlist var, bir nevi atiyorum", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "spotifyda guzel bi dakika bir playlist var dur bi saniye nasil diyeyim sey yani atiyorum", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "spotifyda tamam aa guzel hani bir playlistvar, aa atiyorum", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "spotify'da dur bi saniye guzel tamam bir playlist var him simdi atiyorum", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "yani yani Spotifyda guzel bir playlist var ee atiyorum.", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "sey iste Spotifyda guzel him bir playlist var atiyorum", "output": "Spotify'da guzel bir playlist var, atiyorum."}
+{"input": "sunumdaki slaytlari hazirliyorum yarin sabaha kadar biter", "output": "Sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter."}
+{"input": "Sunumdaki slaytlari hazirliyorum yarin sabaha kadar biter.", "output": "Sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter."}
+{"input": "Sunumdaki slaytlari hazirliyorum yarin sabaha kadar biter", "output": "Sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter."}
+{"input": "sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter.", "output": "Sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter."}
+{"input": "sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter", "output": "Sunumdaki slaytlari hazirliyorum, yarin sabaha kadar biter."}
+{"input": "arkadasi karsilayalim yani lobide bekliyor.", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "Arkadasi hani karsilayalim iste lobi'debekliyor.", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "iste arkadasi karsilayalim sey lobide sey bekliyor", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "Arkadasi yani karsilayalim, lobi'debekliyor.", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "arkadasi karsil ayalim, iste lobide bekliyor", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "hani yani Arkadasi karsil ayalim, lobi'de bekliyor", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "ee arkadasi sey karsilayalimlobide bekliyor.", "output": "Arkadasi karsilayalim, lobi'de bekliyor."}
+{"input": "bugun dogum tamam aslinda gunum him pasta getirdim", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "bugun iste dogum aslinda gunum pasta neyse getirdim", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "Bugun aa dogum gunum, dur bi saniye sey pastagetirdim", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "nasil diyeyim iste bugun dogum gunum, pasta aslinda getirdim", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "bugundogum gunum, nasil diyeyim pasta aa hani getirdim.", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "tamam bugun dogum dur bi saniye gunum iste pasta dur bi saniye getirdim.", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "bugun dogum ya bi dakika gunum pasta iste getirdim.", "output": "Bugun dogum gunum, pasta getirdim."}
+{"input": "Hafta sonu hackathon var,katilmak sey hani tamam isteyen var mi?", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "hafta sonu tamam hackathon var aa katilmak sey isteyen var mi", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "iste sey hafta iste sonu hackathon varkatilmak isteyen var mi?", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "Hafta aa sonu iste iste hackathon var, katilmak isteyenvar mi", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "hafta sey sonu hackathon var, katilmak isteyen var mi?", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "iste hani hafta sonu hackathon var, katilmak isteyen iste var mi?", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}
+{"input": "Hafta sonu hackathon var, katilmak isteyen var tamam mi", "output": "Hafta sonu hackathon var, katilmak isteyen var mi?"}

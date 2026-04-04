@@ -1,0 +1,414 @@
+{"input": "Dun depilo ymenti tamamladim, bugunaPI entegrasyonuna bakac agim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "dun depiloymenti tamamladim, iste bugun APi entegrasyonuna bakacagim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "Dun depiloymenti tamamladim, bugun APi entegrasyonuna bakacagim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "iste dun deployment'i tamamladim, bugunAPI entegrasyonuna bakacagim", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "yani Dun depilo ymenti tamamladim, bugun aPI entegra syonuna bakacagim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "dun deploymenti tamamladim bugun eypiai entegrasyonuna hani bakacagim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "dun depiloyment'i hani tamamladim, bugun eypi ay entegrasyonuna bakacagim.", "output": "Dun deployment'i tamamladim, bugun API entegrasyonuna bakacagim."}
+{"input": "databeys maygreysin'i prodüksina aldim sorunsuz gecti", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "iste deytabeys migreysini prodaksiyona aldim, sorunsuz gecti.", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "yani Database migration'i productiona aldim, sorunsuz gecti", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "iste database migrationi prodüksin'a aldim sorunsuz gecti.", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "Database migration'i productiona aldim, sorunsuz gecti.", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "hani Database maygreysin'iproductiona aldim, sorunsuz gecti", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "deytebes migreysini productionaaldim, sorunsuz gecti.", "output": "Database migration'i production'a aldim, sorunsuz gecti."}
+{"input": "ridis cache stratejisini degistirdim, response time dustu.", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "redis kas stratejisini degistirdim, risponz time dustu.", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "rediskeys stratejisinidegistirdim, respons time dustu.", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "rediz kesstratejisini degistirdim, response time dustu", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "redis kes stratejisini degistirdim response time dustu.", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "redis yani cache stratejisini degistirdim response timedustu.", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "rediskeys stratejisini degistirdim, rispons hani time dustu", "output": "Redis cache stratejisini degistirdim, response time dustu."}
+{"input": "microservice'ler arasi otentikasyon flow'u bitirdim.", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "Microservice'ler arasi iste otantikeysin flowu bitirdim.", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "Microservice'ler arasi hani otentikeysin flow'u bitirdim.", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "iste mikro servis'ler arasi authentication flowu bitirdim", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "maykroservis'ler arasi iste otentikasyon flowu bitirdim.", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "maykroservis'ler arasi otentikeysin flowubitirdim", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "maykreservis'ler arasi authentication flowu bitirdim.", "output": "Microservice'ler arasi authentication flow'u bitirdim."}
+{"input": "CI/CD pipelinei duzelttim build suresi yariya indi.", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "CI/Cd pipeline'i duzelttim, build suresi yariya indi", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "cI/CD pipelinei duzelttim, build suresi iste yariya indi.", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "CI/Cd pipeline'i duzelttim, build suresi yariya indi.", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "yani cI/CD paypılayn'iduzelttim, build suresi yariya indi.", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "yani CI/CD pipeline'i duzelttim build suresi yariya indi", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "CI/CD payplayn'i duzelttim, build suresi yariya indi", "output": "CI/CD pipeline'i duzelttim, build suresi yariya indi."}
+{"input": "Cont ainer image'lari optimize ettim boyut yuzde kirk azaldi", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "hani container image'lari optimayız ettim boyut yuzde kirk azaldi", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "konteyner image'lari optimize yani ettim, boyut yuzde kirk azaldi.", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "kontaynir image'lari optimayz hani ettim, boyut yuzde kirk azaldi.", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "yani container image'lari optimız ettim, boyut yuzde kirk azaldi.", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "Container image'lari optimize ettim, boyut yuzde kirk azaldi", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "konteyner yani image'lari optimız ettim, boyut yuzde kirk azaldi.", "output": "Container image'lari optimize ettim, boyut yuzde kirk azaldi."}
+{"input": "lod belensir konfigurasyonunu guncelledim.", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "lod balansir yani konfigurasyonunu guncelledim.", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "hani Load balancer konfigurasyonunu guncelledim", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "load balancer konfigurasyonunu guncelledim.", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "hani lod belensir konfigurasyonunu guncelledim.", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "Load balancer konfigurasyonunu hani guncelledim.", "output": "Load balancer konfigurasyonunu guncelledim."}
+{"input": "iste rEST APi'nin rate limiting'ini ekledim", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "rist eypiai'nin rate limiting'ini ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "rEST eypi aynin rate limiting'ini ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "reST eypi ay'nin rate hani limiting'ini ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "rest API'nin rate limiting'ini hani ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "hani rest API'nin ratelimiting'ini ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "iste REST APi'nin rate limiting'ini ekledim.", "output": "REST API'nin rate limiting'ini ekledim."}
+{"input": "iste bugun middleware'deki memory leak'i inceleyecegim", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "yani bugun midilver'dekimemory leakiinceleyecegim", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "bugun middleware'deki memory leak'i inceleyecegim", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "Bugun yani middleware'deki memory leaki inceleyecegim", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "iste bugun midilveyr'deki memory leak'i inceleyecegim.", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "Bugun middleweyr'deki memory leak'i inceleyecegim", "output": "Bugun middleware'deki memory leak'i inceleyecegim."}
+{"input": "hani dun aksam hotfix yaptimrolbek'e gerek kalmadi.", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "Dun aksam hotfix yaptim, rollbak'e gerek kalmadi.", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "Dunaksam hotfix yaptim, rolbak'e gerek kalmadi", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "dun aksam hotfix yaptim, rollback'e gerek kalmadi.", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "dun aksam hani hotfix yaptim, rollbacke gerek kalmadi", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "dun aksam hotfix yaptim rollback'e gerek kalmadi.", "output": "Dun aksam hotfix yaptim, rollback'e gerek kalmadi."}
+{"input": "Dunprovaydir tamam yapisini Riverpoad'a hani tasidim.", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "tamam dunprovaydır yapiaysini Riverpoada hani tasidim", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "yani Dun provaydir ee yapisini riverpod'a aa tasidim", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "ee dun tamam iste Provaydiir yapisini rivirpad'a tasidim", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "Dun ee provaydir yapisini riverpod'a sey sey tasidim.", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "dun provaydir yeypi iste aa aysini riverpod'a tamam tasidim", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "Dun providir aa yeypiaisini rivırpod'a hani tasidim.", "output": "Dun Provider yapisini Riverpod'a tasidim."}
+{"input": "sey vicet yani tree'yi sadelestirdim perfoeremans iyilesti.", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "vicet tree'yi sey aa sadelestirdim performans iyilesti", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "vicet iste tree'yi sadelestirdim, aa perfoaremans iyilesti", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "viget ee ee tree'yi sadelestirdim performans iyil esti.", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "aa yani widget iste tree'yi sadelestirdim, performans iyilesti", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "sey viget tree'yi yani sadelestirdim, performans iyilesti", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "vicet hani tree'yi sadeles tirdim, aa performans iyilesti.", "output": "Widget tree'yi sadelestirdim, performans iyilesti."}
+{"input": "sey hot rilod sorunu duzeldi,pubspek'teki versiyon cakismasiydi.", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "sey hotreload sorunu duzeldi yani pubspek'teki versiyon cakismasiydi.", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "hot reload aa sorunu duzeldi ee pubspek'teki versiyon cakismasiydi.", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "ee hatrilod sorunu duzeldi, pubspec'tekiversiyon cakismasiydi", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "hot rilod sorunu duzeldi, sey iste hani pubspec'teki versiyon cakismasiydi", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "iste hat rilod sorunu duzeldi pabspek'teki versiyon cakismasiydi.", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "sey Hot reload iste sorunu duzeldi pubspek'teki aa versiyon cakismasiydi.", "output": "Hot reload sorunu duzeldi, pubspec'teki versiyon cakismasiydi."}
+{"input": "iste Navigator tamam yerine go_router tamam entegrasyonunu bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "nevigeytir yerine go_router entegrasyonunu tamam hani biti rdim.", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "aa nevigeytir yerine go_router entegrasyonunu bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "iste nevıgeytir yerine go_router entegrasyonunu tamam iste bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "Navigator aa yerine go_router entegrasyonunu bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "navigator yerinego_router yani entegrasyonunu bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "nevigeytir yerine go_router hani sey entegrasyonunu bitirdim", "output": "Navigator yerine go_router entegrasyonunu bitirdim."}
+{"input": "listvu iste builder'a hani gectim,scroll perfoaremansi hani duzeldi", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "aa listvyu buildera gectim, scroll perfoaremansi duzeldi", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "aa aa ListView buildera gectim scrollperformansi iste duzeldi.", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "tamam list vyu builder'a gectim sey scroll perfoaremansi duzeldi", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "listvu ee builder'a gectim, scroll perfoeremansi duzeldi", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "list hani vyu builder'a gectim, scroll performansi tamam yani duzeldi.", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "listvu builder'a gectim ee scroll performansi duzeldi", "output": "ListView builder'a gectim, scroll performansi duzeldi."}
+{"input": "yani hani Platfoerem channel ile aa native kamera erisimi ekledim.", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "platform channel ile aa tamam native ee kamera erisimiekledim", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "aa platform channel sey ile native kameraerisimi ee ekledim", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "Platfoerem channel ile hani native iste kamera erisimi ekledim", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "Platform channel ilenative yani kamera erisimi ekledim.", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "platfoerem channelile sey native kamera erisimiekledim.", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "hani Platform channelile native kamera erisimi ekledim.", "output": "Platform channel ile native kamera erisimi ekledim."}
+{"input": "sey bugun bilak pattern'ine iste gecis yapacagim", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "bugun yani ee blak pattern'ine aa gecis yapacagim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "iste iste ee bugun BloC patte rn'ine gecis yapacagim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "bugun bilak aa pattern'ine gecis aa yapacagim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "tamam bugun bloC hani tamam pattern'ine gecis yapac agim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "iste hani Bugun blak pattern'ine gecis aa yapacagim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "bugunblak iste pattern'ine yani gecis yapacagim.", "output": "Bugun BLoC pattern'ine gecis yapacagim."}
+{"input": "hani dartnul safety migration'i devam ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "dart iste naal safety maygreysin'i devam ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "iste Dart nul safety migreysin'idevam ediyor.", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "dart null safety migrationidevam aa ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "dart nul safety migreysin'i sey tamam devam ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "iste dart naal safety migrationi aa devam ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "dart naalsafety migreysini devam ee ediyor", "output": "Dart null safety migration'i devam ediyor."}
+{"input": "sey statefulWidget'lari tamam sey gereksiz yere kullan misiz, temizliyorum.", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "Statefulwidget'lari yani hani gereksizyere kullanmisiz temizliyorum.", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "ee isteytful vicet'lari ee gereksiz yere kullanmisiz temizl aa iyorum.", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "steytful vicet'larigereksiz yere aa yani iste kullanmisiz, temizliyorum.", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "Statefulviget'lari gereksiz yere aa kullan misiz, temizliyorum", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "hani Statefulviget'lari gereksiz yere kullanmisiz, temizliyorum", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "tamam isteytful vicet'lari gereksizyere kullanmisiz, temizliyorum.", "output": "StatefulWidget'lari gereksiz yere kullanmisiz, temizliyorum."}
+{"input": "flatir test hani coveragei yuzde sey altmisa cikardim.", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "sey flater test coverage'i yuzde altmisa cikardim", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "flutter test kavrici yuzde altmisa tamam yani ee cikardim", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "Flutter test coverage'i yuzde hani altmisa cikardim", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "flutter sey test kavric'i iste yuzde altmisa tamam cikardim.", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "Flutter test tamam hani kavric'i yuzde altmisa cikardim", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "aa flatir test kaveric'i sey yuzde altmisa cikardim", "output": "Flutter test coverage'i yuzde altmisa cikardim."}
+{"input": "cubernetes kilastir'ina yeni noud ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "iste kubernetes kilastir'ina yeni nod ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "Kubernetes cluster'ina yani yeni nod ekledim", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "iste kubernitis kilastir'ina yeni noud ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "yani kubernetis cluster'ina yeni node ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "yani cubernetes cluster'ina yeni nod ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "yani Kubernetes cluster'ina yeni node ekledim.", "output": "Kubernetes cluster'ina yeni node ekledim."}
+{"input": "iste helim chart'lari versiyonladim, rollbak kolaylasti", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "heylm chart'lari yani versiyonladim rollback kolaylasti", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "helm chart'lari versiyonladim, rolbak kolaylasti.", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "Helm chart 'lari versiyonladim rollback kolaylasti.", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "Helm chart'lari versiyonladim, yani rollbak kolaylasti.", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "helim chart'lari versiyonladim, hani rollback kolaylasti.", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "yani helm chart'lari versiyonladim, rollback kolaylasti.", "output": "Helm chart'lari versiyonladim, rollback kolaylasti."}
+{"input": "teraform statei remote backende tasidim", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "terefoerem state'i remote backend'e tasidim.", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "terefoarem state'i remote backende tasidim", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "terrafom statei remote backend'e tasidim.", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "yani terafoarem state'i remote backende tasidim.", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "tere form state'i remote backende tasidim", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "hani tereform state'i remote backend'e tasidim.", "output": "Terraform state'i remote backend'e tasidim."}
+{"input": "Jenkins paypılaynda hani dokir build kes'i aktifettim.", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "cenkins payplaynda dokir build iste keys'i aktifettim.", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "jenkins payp layn'da Docker build cache'i aktif ettim.", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "Jenkins pipelineda Docker build cache'i aktif ettim", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "jenkins payp laynda Docker iste build cache'i aktif ettim", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "cenkıns pipeline'da iste Docker build cache'i aktif ettim.", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "hani Jenkins pipelineda Docker build keysi aktif ettim", "output": "Jenkins pipeline'da Docker build cache'i aktif ettim."}
+{"input": "promiteus alert'leri duzenledim, false positive azaldi.", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "prometius alert'leri duzenledim, false positive azaldi", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "prometheus alert'leri duzenledim false positive azaldi", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "prometius alert'leri hani duzenledim false positive azaldi.", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "prometeyus alert'leri duzenledim, false positive azaldi.", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "Prometheus alert'leri duzenledim, false iste positive azaldi.", "output": "Prometheus alert'leri duzenledim, false positive azaldi."}
+{"input": "grafana dashboard'ina yeni metrik paneliekledim", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "yani girafana dashboard'ina yeni metrik paneli ekledim", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "girafana dashboard'ina yeni metrik paneli ekledim.", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "grafana dashboard'ina yeni metrik paneli ekledim", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "girafana dashboard'ina yeni metrik paneli ekledim", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "gira fana dashboard'ina yeni metrik paneli ekledim", "output": "Grafana dashboard'ina yeni metrik paneli ekledim."}
+{"input": "yani Ingress konfigurasyonunu es es el termination ile guncelledim", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "ingres konfigurasyonunu eseşel termination ile guncelledim", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "yani ingres konfigurasyonunu SSl termination ile guncelledim.", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "ingress konfigurasyonunu ssl termination ile guncelledim", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "iste ingres konfigurasyonunu ssl termination ile guncelledim.", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "yani ingress konfigurasyonunu es es el termination ile guncelledim.", "output": "Ingress konfigurasyonunu SSL termination ile guncelledim."}
+{"input": "neymspeys izolasyonunu tamam ladim, her takimin ayri naymspeys'i var.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "neymsipeys hani izolasyonunu tamamladim, her takimin ayri naymspeys'i var.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "namespace izolasyonunu tamamladim, her takimin ayri namespace'i var.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "naymspeys izolasyonunu tamamladimher takimin ayri naymspeysivar.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "yani naymspeys izolasyonunu tamamladim, her takimin ayri naymspeysi var.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "naymspeysizolasyonunu tamamladim, her takimin ayri naymspeysi var.", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "Namespace izolasyonunu tamamladim her iste takimin ayri namespace'i var", "output": "Namespace izolasyonunu tamamladim, her takimin ayri namespace'i var."}
+{"input": "yani bugun ansibil playbook'lari gunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "bugun Ansible playbook'lari gunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "bugun ansible playbook'lari gunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "yani Bugun ansibıl playbook'lari gunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "bugun hani ensibil playbook'lari gunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "bugun ensibil playbook'larigunceleyecegim.", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "bugun hani ansibil playbook'larigunceleyecegim", "output": "Bugun Ansible playbook'lari gunceleyecegim."}
+{"input": "docker registry'yi yani private recistriye tasidim.", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "docker registry'yi hani privateregistryye tasidim.", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "dakir registry'yi iste private recistriye tasidim.", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "docker registry'yi private recistriye tasidim", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "Docker registry'yi private iste recistriye tasidim", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "yani dakir recistri'yi private recistri'ye tasidim.", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "hani docker recistri'yi private recistri'ye tasidim.", "output": "Docker registry'yi private registry'ye tasidim."}
+{"input": "useEffect dependensi erey'iniduzelttim, iste sey sonsuz loop gitti", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "hani yuzifekt dependency arey'ini duzelttim, sonsuz loop gitti.", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "iste yuzi fekt dependency arey'ini duzelttim sonsuz lup gitti", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "sey useEffect dependency array'ini duzelttim,sonsuz lup gitti.", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "tamam sey yusifekt dipendınsi array'ini duzelttim sonsuz sey lüp gitti.", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "tamam yusifekt dipendinsi arey'ini duzelttim, sonsuzloop gitti", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "yuzifekt dependency array'ini iste sey duzelttim sonsuz lup gitti", "output": "useEffect dependency array'ini duzelttim, sonsuz loop gitti."}
+{"input": "tamam componenti'leri memoyiz ettim render iste sayisi azaldi", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "iste komponent'leri memoyiz iste ettim rindırsayisi azaldi.", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "iste kompanent'leri memoyız ettim, rindır sayisi azaldi", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "iste componenti'lerimemoize ettim, render sayisi yani azaldi.", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "yani Component'leri mimoyız ettim, iste rendir sayisi hani azaldi.", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "component'lerimemoize ettim, render sayisi ee sey azaldi.", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "komponent'lerimimoyız ettim yani rendersayisi azaldi", "output": "Component'leri memoize ettim, render sayisi azaldi."}
+{"input": "hani nextjste ss ardan static generation'a gectim", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "iste nekist ceys'te tamam SSrdan static generation'a gectim", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "iste hani nekstceys'te hani esesar'dan static generation'a gectim", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "hani Next.jste ss iste ardanstatic generationa gectim.", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "ee Next.js'te sSRdan static generation'a gectim", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "nekst ceys'te sSRdan static generationa aa gectim.", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "sey next.jste esesardan aa static generationa gectim", "output": "Next.js'te SSR'dan static generation'a gectim."}
+{"input": "iste teylvind aa configicustomize ettim, temarenkleri yani eklendi.", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "Tailwind sey config'i customize ettim tema renkleri eklendi.", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "tamam taylvind config'icustomize ettim tema renkleri eklendi.", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "aa yani taylvind config'i customize ettim tema renkleri eklendi.", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "teylvind configi customize ettim, tema ee renkleri ekle ndi.", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "teylvind config'i customize ee ettim, tema renkleri tamam eklendi", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "ee teylvind config'i customize ettim tema renkleri eklendi", "output": "Tailwind config'i customize ettim, tema renkleri eklendi."}
+{"input": "sey Redux iste storeu kantekst apiayye tasidim, daha basit oldu", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "ridux store'u kontekst sey apiayye tasidim iste daha basit oldu.", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "ridaks store'u kantekst ApI'ye tasidim, daha tamam basit oldu", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "hani Reduxstore'u kantekst tamam ApIyetasidim dahabasit yani oldu.", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "aa ridaks storeu aa context ApI'ye tasidim daha basit oldu.", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "ee iste Redux store'u kantekst eypiaiye tasidimdaha basit oldu.", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "ridaks store'u context aPIye tasidim, iste daha basit oldu.", "output": "Redux store'u context API'ye tasidim, daha basit oldu."}
+{"input": "tayp skriptstrict mode actim, yirmi ee aa hata cikti", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "typeScript hani strict mode actim aa yirmi aa hata cikti.", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "typeScript strict mode actim iste yirmi hata cikti", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "TypeScript strict mode actim, yirmi hani hatacikti.", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "tamam TypeScript strict mode actimyirmi hata cikti", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "aa tayip skript strict aa mode tamam actim, yirmi hata cikti.", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "tayıp iste ee ee skriptstrict mode actim yirmi hata cikti", "output": "TypeScript strict mode actim, yirmi hata cikti."}
+{"input": "iste tamam Responsive breakpoint'leri guncelledim, mobil duzeldi.", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "yani rispansivbrekpoynt'leri guncelledim mobil yani duzeldi", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "hani risponsif breakpoint'leri guncelledim mobil duzeldi.", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "responsive sey breakpoint'leri aa guncelledim, mobil duzeldi", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "risponsif breakpoint'leri guncelledim mobil yani ee duze hani ldi.", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "aa rispansiv breakpoint'leri guncelledim, yani mobil iste duzeldi", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "Responsive breakpoint'leri tamam guncelledim sey mobil duzeldi.", "output": "Responsive breakpoint'leri guncelledim, mobil duzeldi."}
+{"input": "ee react hani hök'l arini custom hooka extract ettim", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "riyakt hook'larini custom huk'a sey extract ettim", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "riekt sey huk'larini custom hooka iste extract ettim.", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "tamam react hok'larini custom sey hooka extract ettim", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "ee riyakt sey hook'larini iste custom hooka extract ettim.", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "ee React hok'larinicustom hooka yani ee extract ettim", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "React hök'larini custom hoka extract ee ettim.", "output": "React hook'larini custom hook'a extract ettim."}
+{"input": "Bugun accessibility sey audit yapacagim.", "output": "Bugun accessibility audit yapacagim."}
+{"input": "bugun accessibility ee hani audityapacagim", "output": "Bugun accessibility audit yapacagim."}
+{"input": "sey bugun accessibilityaudit yapacagim", "output": "Bugun accessibility audit yapacagim."}
+{"input": "Bugun hani sey accessibility aa audit yapacagim.", "output": "Bugun accessibility audit yapacagim."}
+{"input": "Bugun yani accessibility tamam sey audit yapacagim", "output": "Bugun accessibility audit yapacagim."}
+{"input": "yani bugun accessibility audit yapacagim", "output": "Bugun accessibility audit yapacagim."}
+{"input": "aa Bugun ee aa accessibility audit yapacagim", "output": "Bugun accessibility audit yapacagim."}
+{"input": "vorcıl ee dam reconciliation sorununu cozdum", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "virtual dom reconciliation sey tamam sorununu iste cozdum.", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "aa virtual doM reconciliation sorununu cozdum", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "vorcıldam reconciliation ee yani sorununu cozdum.", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "aa virtual doM reconciliation sorununucozdum.", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "virtual DOM hani iste reconciliationsorununu cozdum", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "yani virtual dOM reconciliation yani aa sorununu cozdum.", "output": "Virtual DOM reconciliation sorununu cozdum."}
+{"input": "dun falan git brans falan actim dur bi saniye ama ee nasil diyeyim bir nevi morcde konfilikt cikti.", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "hani Dun sey git bıranc hani nasil diyeyim actim ama merge'de konf ilikt nasil diyeyim cikti", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "sey ya him dungit bir nevi branch actim amamorcde konfilikt cikti", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "dun tamam git aa bıranç actim ama tamam ya morc'de konflikt bi dakika cikti", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "Dun gitbiranc falan actim ama morc'de falan bi dakika konflikt cikti.", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "ya hani dun git biranc actim him sey ama morcde tamam konfilikt dur bi saniye cikti.", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "hani Dun gitbiranc sey actim ama morcde hani konfilikt cikti", "output": "Dun git branch actim ama merge'de conflict cikti."}
+{"input": "aslinda sey bi dakika Try catch ekledim ama falan halaerror aliyorum.", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "try neyse dur bi saniye catch ekledim amahala neyse yani error aliyorum", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "try him bi dakika catch ekledim ama neyse bi dakika hala bir nevi error aliyorum", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "try aslinda dur bi saniye ya ee catch ekledim ama halaerror yani aliyorum.", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "try catch bi dakika ekledim ama aslinda hala simdi iste error aslinda aliyorum", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "try catch ekledim ama yani ee ya hala falan error aslinda aliyorum.", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "Try catch bir nevi ekledim ee ama hala tamam erroraliyorum", "output": "Try catch ekledim ama hala error aliyorum."}
+{"input": "fanksiyon'i aslinda yani eysink yaptim eveyt koymay him unutmusum.", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "hani fonksiyoni asinkyaptim, iveyt koymay iste sey nasil diyeyim unutmusum", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "neyse fanksiyoni hani eysingk yaptim,await nasil diyeyim koymay unutmusum", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "fanksiyoni eysingk yaptim aslinda dur bi saniye hani await koymayunutmusum", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "hani fonksiyon'ieysingk bir nevi yaptim, iveyt koymay hani him unutmusum", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "fanksiyon'iasink yaptim, await koymay iste nasil diyeyim tamam unutmusum", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "dur bi saniye fanksiyon'i asinkyaptim aveyit nasil diyeyim koymay iste iste unutmusum.", "output": "Function'i async yaptim, await koymay unutmusum."}
+{"input": "yani arey'i bir nevi him map ile donuyorum ama undefined geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "areyi map ya tamam yani ile donu yorum nasil diyeyim ama undefined aslinda falan geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "ee arey'i map yani ile donuyorum iste ama nasil diyeyim unde fined geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "arey'imap ile donuyorum bir nevi aa aa ama aa undefined geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "Arrayi hani map iste ile tamam aa donuyorumama dur bi saniye undefined geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "ireyimap ile donuyorum neyse ama undefined ya aslinda geliyor", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "him Array'i map ile simdi donuyorum neyse ama undefined dur bi saniye geliyor.", "output": "Array'i map ile donuyorum ama undefined geliyor."}
+{"input": "pull hani rekuest nasil diyeyim nasil diyeyim actim, review iste bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "pul hani aa rikuest actim, aa review bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "pulrikuistactim falan review nasil diyeyim bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "pulrikuist bir nevi actim review ee neyse bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "ee pulrikuist iste aa actim review bekliyor.", "output": "Pull request actim, review bekliyor."}
+{"input": "simdi pulrikuistactim review nasil diyeyim bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "sey Pullrequest actim review ya tamam bekliyor", "output": "Pull request actim, review bekliyor."}
+{"input": "konsoullog'larla nasil diyeyim debag nasil diyeyim ediyorum simdi breykpoynt kullanmayi ee ogrenecegim", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "yani falan konsol log' larla dibag him ediyorum, brekpoyntkullanmayi bir nevi ogrenecegim.", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "him konsol log' yani tamam aslinda hani larla dibagediyorum breykpoynt kullanmayi ogrenecegim.", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "konsoul log'larladibag sey ediyorum breyikpoynt kullanmayi nasil diyeyim ee ee ogrenecegim", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "ya console hani log'larladıbag ediyorum, breykpoynt bir nevi bi dakika kullanmayiogrenecegim.", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "aslinda console aslinda log'larla dibag aslinda ediyorum breyikpoynt kullanmayi falan ogrenecegim.", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "ee Console log'larladebug bir nevi ediyorum, tamam breyikpoynt aslinda kullanmayi ogrenecegim.", "output": "Console log'larla debug ediyorum, breakpoint kullanmayi ogrenecegim."}
+{"input": "bir nevi package'i npm nasil diyeyim install ileyukledim ama impört falan bir nevi edemiyorum.", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "bi dakika tamam peykic'i nasil diyeyim npm installile bir nevi yukledim sey ama importedemiyorum.", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "aslinda pekic'i npm yani simdi install ile dur bi saniye hani yukledim ama import edemiyorum", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "pekıci npm install bir nevi ya ile yukledim simdi ama import him bir nevi iste edemiyorum", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "neyse neyse paketi him npm install iste ile yukledim ama import yani edemiyorum", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "packagei sey npm installile yukledim ee falan ama aslinda importedemiyorum", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "peykici ya sey npm simdi install ile yukledim ee amaimport yani edemiyorum", "output": "Package'i npm install ile yukledim ama import edemiyorum."}
+{"input": "git stash falan yaptim simdi ama geri aa ee neyse alamiyorum", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "git him stas aa aa yaptim ama geri neyse nasil diyeyim alamiyorum.", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "nasil diyeyim yani gitstas yaptim neyse amageri alamiyorum.", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "git aslinda stes dur bi saniye yaptim ama aa geri alamiyorum.", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "git ee iste iste istes yaptim ama nasil diyeyim sey geri alami nasil diyeyim yorum.", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "git istes yaptim iste ee falan ee ya ama geri alamiyorum", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "nasil diyeyim falan Git stes bi dakika yaptim ya nasil diyeyim ama geri alamiyorum.", "output": "Git stash yaptim ama geri alamiyorum."}
+{"input": "bugunkommit simdi bir nevi him tamam mesajlarini duze ltmem lazim", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "bugun bi dakika simdi komitmesajlarini nasil diyeyim duzeltmem lazim.", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "Bugun commitmesajlarini duze ltmem falan tamam yani aa lazim", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "bir nevi Bugunkomit tamam mesajlarini duzeltmem iste lazim.", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "tamam buguncommit mesajlarini simdi duzeltmemlazim.", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "Bugun falan komıt mesajlarini simdi duzeltmem falan lazim", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "bugun komit mesajlariniduzeltmem aslinda simdi ya lazim", "output": "Bugun commit mesajlarini duzeltmem lazim."}
+{"input": "nasil diyeyim variyebil sey tamam isimlendirmesiniduzelttim code reviewdan dondu.", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "bir nevi variyebil isimlendirmesini duzelttim, code sey review'dan tamam aslinda dondu", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "hani variable isimlendirmesini duzelttim, code sey review'dan ya dondu.", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "veriybil neyse isimlendirmesini dur bi saniye duzelttim code falan review'dan dondu.", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "iste veriybil isimlendirmesini duzelttim, code ya yani reviewdan tamam dondu.", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "yani variyebil isimlendirmesini neyse aslinda duzelttim, bir nevi code reviewdandondu", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "aa variyebilisimlendirmesini duzelttim codereviewdan ya aa dondu.", "output": "Variable isimlendirmesini duzelttim, code review'dan dondu."}
+{"input": "iste sipırint vilositi bu hafta aa yuzde on bes dustu.", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "sprint sey velocitybu ee yani hafta yuzde on bes dustu.", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "aa Sprint vilositibu hafta yuzde on bes yani dustu", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "ispırint velocity bu hafta yani aa yuzde on bes dustu.", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "ispirint velocity bu hafta iste yuzde on bes dustu", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "sprint vilositi bu hafta yuzde on tamam bes dustu.", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "hani Sprint velocity bu hafta yuzde on bes dustu.", "output": "Sprint velocity bu hafta yuzde on bes dustu."}
+{"input": "Dun stakeholder meetingi yani aa yaptikfeedback olumlu", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "sey Dun steykholdr meetingi yaptik, hani feedback olumlu.", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "sey Dun steykholdir meeting'i yaptik, feedback olumlu.", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "tamam Dun stakeholder meetingi yaptik feedback olumlu.", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "dun steykholdr meeting'iyaptik, iste ee feedback olumlu", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "Dun steykholdr sey meetingi yaptik, feedback olumlu", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "dun stakeholder meetingi hani iste yaptikfeedback olumlu.", "output": "Dun stakeholder meeting'i yaptik, feedback olumlu."}
+{"input": "bakloggrooming'de bes hani yani yeni story ekledik", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "baklog groomingde tamam bes yeni story sey hani ekledik.", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "Backlog iste grooming'de hani bes yeni tamam story ekledik", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "Backlog yani groomingde ee bes yeni yani story ekledik.", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "aa iste Backlog groomingde bes yenistory ekledik", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "yani Backlog grooming'de bes yeni iste ee story ekledik", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "baklog groomingde bes yeni ee story ekledik.", "output": "Backlog grooming'de bes yeni story ekledik."}
+{"input": "akseptins kiraytiriya'lari sey ee netlestirdim, tamam dev'lere ilettim.", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "hani iste acceptancecriteria'lari netlestirdim, ee dev'lere ilettim", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "aa acceptance criteria'lari netlestirdim dev'lere aa iste ilettim", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "Acceptance criteria'lari hani netlestirdim, dev'lere ilettim.", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "acceptance criteria'lari sey tamam netlestirdim, tamam dev'lere ilettim.", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "akseptins ee kiraytiriya'lari netlestirdim, dev'lere ilettim.", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "akseptins tamam kraytırya'lari tamam netlestirdim dev'lere ilettim.", "output": "Acceptance criteria'lari netlestirdim, dev'lere ilettim."}
+{"input": "ee release datei bir hafta erteledik, blocker var", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "riliz datei iste hani bir hafta yani erteledik, blocker var.", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "rilis tamam date'i bir hafta erteledik, blockervar.", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "Release ee date'i bir hafta ee erteledik, blocker yani var.", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "hani rilis date'i bir hafta erteledik, blokir var.", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "iste yani Release datei bir hafta erteledik blaker var", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "aa riliz date'i bir hafta erteledik, blokir var", "output": "Release date'i bir hafta erteledik, blocker var."}
+{"input": "iste demo hazirligi aa yapiyorum cuma gunusunacagiz.", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "dimo hazirligiyapiyorum tamam tamam cuma gunu sunacagiz.", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "Demo hazirligi yapiyorum tamam cumagunu sunacagiz", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "demo hazirligi yapiyorum, cuma hani gunu aa sunacagiz.", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "demo hazirligi yapiyorum, cuma gunu iste sunacagiz", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "demo tamam hazirligi yeypiaiyorum cuma ee hani gunu sunacagiz.", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "tamam Demo aa ee hazirligi yapiyorum cuma gunu sunacagiz", "output": "Demo hazirligi yapiyorum, cuma gunu sunacagiz."}
+{"input": "hani kPi yani dashboard'ini guncelledim churn rate dusmus.", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "kpi sey dashboard'ini guncelledim, churn rate dusmus.", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "ee keypiay dashboard'ini sey guncelledim, churn rate dusmus", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "aa kPI dashboard'ini guncelledim churn rate dusmus.", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "aa kPi dashboard'ini guncelledim churn rate dusmus.", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "aa KpI dashboard'ini guncelledim, iste churn rate sey dusmus.", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "iste kPI dashboard'ini aa guncelledim churnrate aa dusmus", "output": "KPI dashboard'ini guncelledim, churn rate dusmus."}
+{"input": "mVp tamam scope'unu ee daralttik iki feature cikardik", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "em vi pi yani skoup'unu daralttik iki ficer cikardik.", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "aa mvp skoup'unu daral ttik, iki feature ee cikardik.", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "mvp iste scope'unudaralttik iki yani ficer cikardik", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "mvp sey scope'unu daralttik ee ikifeature yani cikardik.", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "sey Mvp scope'unu daralttik iki ee ficer hani cikardik", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "em vi pii scop e'unu ee daralttik, iste iki feature cika rdik.", "output": "MVP scope'unu daralttik, iki feature cikardik."}
+{"input": "tamam bugun roadmap review yapacagiz.", "output": "Bugun roadmap review yapacagiz."}
+{"input": "tamam yani Bugun iste roudmep review yapacagiz", "output": "Bugun roadmap review yapacagiz."}
+{"input": "hani bugunroadmap review yapacagiz.", "output": "Bugun roadmap review yapacagiz."}
+{"input": "bugun roadmap review iste yapacagiz.", "output": "Bugun roadmap review yapacagiz."}
+{"input": "Bugun tamam roadmap review ee aa yapacagiz", "output": "Bugun roadmap review yapacagiz."}
+{"input": "aa Bugun rodmapreview yapacagiz", "output": "Bugun roadmap review yapacagiz."}
+{"input": "sey sey bugunrodmap review yapacagiz", "output": "Bugun roadmap review yapacagiz."}
+{"input": "yuzir aa stori'lere story hani point verdik, toplam kirk iki.", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "yuzir stori'lere story point verdik, tamam toplamkirk iki", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "tamam user story'lere storypoint sey verdik, toplam kirk iki", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "sey User story'lere istori poynt verdik, toplam kirk iki", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "tamam user story'lere stori poynt verdik, toplam kirk iki.", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "tamam user story'lere stori poynt verdik, sey toplam aa kirk iki.", "output": "User story'lere story point verdik, toplam kirk iki."}
+{"input": "iste yuziristori'lere aa story pointverdik toplam kirk iki.", "output": "User story'lere story point verdik, toplam kirk iki."}

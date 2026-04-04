@@ -1,0 +1,336 @@
+{"input": "su satiri degistir, endpoyintyüarel'ini config'den yani alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "su satiri degistir, endpoynt URl'ini configden alsin", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "su satiri degistir, endpoint hani UrL'ini configden alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "su satiri degistir endpoint uRL'ini config'den alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "Su satiri degistir, endpoint UrL'ini configden alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "su satiri degistir endpoint yüarel'ini config'den alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "su satiri degistir, yani endpoint url'ini config'den alsin.", "output": "Su satiri degistir, endpoint URL'ini config'den alsin."}
+{"input": "iste hayirorasi degil, alttaki functioni duzenle.", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "iste Hayir orasi degil, alttaki fonksiyoni duzenle", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "hayir orasi degil, alttaki fonksiyon'iduzenle.", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "hayir orasi degil alttaki function'i duzenle", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "hayir orasi degil alttaki functioni duzenle.", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "iste hayir orasi degil, alttaki functioni duzenle.", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "Hayir orasi degil alttaki fanksini duzenle", "output": "Hayir orasi degil, alttaki function'i duzenle."}
+{"input": "once migrationi calistir sonra seed data'yi ekle.", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "iste once migreysini calistir, sonra seed data'yi ekle", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "once migreysin'i iste calistir, sonra seed data'yi ekle.", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "once migration'i yani calistir sonra seed data'yiekle.", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "Once maygreysini calistir, sonra seed data'yi ekle", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "iste once maygresyoni calistir, sonra seed data'yi ekle.", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "yani once migration'icalistir sonra seed data'yi ekle", "output": "Once migration'i calistir, sonra seed data'yi ekle."}
+{"input": "database connection poolu artir concurrent rikuest'ler artmis.", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "Database connection poolu artir concurrentrikuist'ler artmis.", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "databeys connection pool'u artir, concurrent rikuist'ler artmis", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "databeys connection poolu artir, concurrent request'ler artmis.", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "iste deytabeys connection pool'u artir, concurrent request'ler artmis", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "yani database connection pool'u artir, concurrent rikuist'ler artmis.", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "iste database connection pool'u artir, concurrent rikuest'ler artmis.", "output": "Database connection pool'u artir, concurrent request'ler artmis."}
+{"input": "cachee yani TTL ekle sonsuza kadar tutmasin.", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "cache'e TtL ekle hani sonsuza kadar tutmasin.", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "cache'e TTl ekle, sonsuza kadar tutmasin", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "kas'e TTL ekle, sonsuza kadar tutmasin", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "yani kese TTL ekle, sonsuza kadar tutmasin.", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "Cache'e TTL ekle sonsuza kadar tutmasin", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "cache'e TTL ekle, hani sonsuza kadar tutmasin", "output": "Cache'e TTL ekle, sonsuza kadar tutmasin."}
+{"input": "iste Bu service kleas'i singleton yap her seferinde new yapma", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "iste Bu service class'i singleton yap, her seferinde newyapma.", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "Bu service iste class'isingleton yap her seferinde new yapma", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "Bu service klasi singleton yap, her seferinde new yapma.", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "bu service class'i singleton yap, her seferinde new hani yapma.", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "bu service kilas'i singleton yap, her seferinde new yapma.", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "bu service klas'i singleton yap, her seferinde new yapma.", "output": "Bu service class'i singleton yap, her seferinde new yapma."}
+{"input": "midilveyr'i route'tan once register et, sirasi onemli", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "iste midilveyr'i route'tan once register et, sirasi onemli", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "middleweyr'i routetan once register et sirasi onemli", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "iste midilver'i routetan once register et sirasi onemli.", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "midilveyri route'tan once register yani et sirasi onemli.", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "middleware'i route'tan once register et sirasi onemli.", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "yani Middleware'i route'tan once registeret sirasi onemli.", "output": "Middleware'i route'tan once register et, sirasi onemli."}
+{"input": "hani bu widget'i ayri dosyayatasiyalim", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "hani bu ee vicet'i ayri dosyaya tasiyalim.", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "iste Buwidget'i ayri aa dosyayatasiyalim", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "Bu widgeti ee ayri dosyaya tasiyalim.", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "hani bu vicet'i iste ayri tamam dosyaya tasiyalim.", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "bu aa iste viceti ayri dosyaya tasiyalim.", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "sey Bu vicetiayri dosyaya yani tasiyalim.", "output": "Bu widget'i ayri dosyaya tasiyalim."}
+{"input": "nevigeytiri burada kull anma, sey kolbak ile geri don.", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "hani Navigator'i burada kullanma tamam call back ile geri don.", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "tamam nevigeytir'i burada kullanma, callback ilegeri ee don.", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "navigator'i burada kullanma, iste callback ile geri don.", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "ee sey nevıgeytir'iburada kullanma, callback ile geri don", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "iste navigator'i burada kullanma yani tamam callback ile geri don.", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "tamam ee nevigeytir'i buradakullanma, callback ile geri don", "output": "Navigator'i burada kullanma, callback ile geri don."}
+{"input": "Bu state'iparenta yani tasiyalim,child'lar oradan aa okusun.", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "bu State'i parenta tamam tasiyalim, child'lar sey oradan okusun", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "Bu State'i parent'a tasiyalim chil yani d'lar oradan tamam iste okusun", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "tamam bu Statei parent'a aa tasiyalim, child'lar iste oradan okusun", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "tamam Bu State'i parent'a tasiyalim child'lar ee oradan iste okusun.", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "Bu state'i parent'a sey tasiyalim, child'lar oradan aa okusun", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "aa bu statei ee parenta tasiyalim child'lar iste oradan okusun.", "output": "Bu State'i parent'a tasiyalim, child'lar oradan okusun."}
+{"input": "tamam sey skaffold'a Appbar ekle, back button otomatik gelir", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "iskefolda Appbar ekle hani back hani button otomatik gelir", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "ee scaf folda AppBar yani ekle back button otomatik gelir", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "sey scaff tamam old'a AppBar ekle tamam back button otomatik gelir.", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "skaffold'aappBar sey ekle, back iste button otomatikgelir.", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "iste iskafoldaappBar ekle,back button sey yani otomatikgelir", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "aa skaffold'a AppBar ekle, back button otomatik gelir.", "output": "Scaffold'a AppBar ekle, back button otomatik gelir."}
+{"input": "sey strim bildir yerineFutureBuilder kullan, tek seferlik data.", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "streambuilder yerine fyucir aa aa bilder yani kullan tek seferlik data.", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "strim bildir iste yerine fyucir bilder kullan tek seferlik data", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "yani strim bildır ee yerine futurebuilder kullan tek seferlik data.", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "strim bildir yerineFuturebuilder kullan tek ee seferlik data.", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "aa streamBuilder yerine fyucirbilder kullantek seferlik data.", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "StreamBuilder yerine iste fyucır bildır kullan tek seferlik data", "output": "StreamBuilder yerine FutureBuilder kullan, tek seferlik data."}
+{"input": "bu yani viceti const yap rebuild'i onle", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "tamam sey bu vicet'iconst yap, yani rebuild'i onle", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "Bu yani viceti const yap rebuild'i tamam iste onle.", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "bu widget'i yani const yap rebuild'i onle", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "sey bu widget'i hani const yap rebuild'i yani onle.", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "Bu vicet'i const yap rebuild'i iste hani onle.", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "bu ee widgeti const yap ee rebuild'i hani onle", "output": "Bu widget'i const yap, rebuild'i onle."}
+{"input": "Gesturedetector hani yerine Inkwell kullan tamam rippleefekti olsun.", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "sey gesturedetector yerine sey inkWell kullan, yani ripple efekti olsun.", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "gestureDetector yerine tamam inkwell ee ee kullan, ripple efekti olsun", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "gesturedetector hani yerine InkWell kullan ripple efekti tamam olsun", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "gestureDetector iste yerine Inkwellkullan ripple efekti olsun", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "Gesture detector yerineInkWell aa kullan ripple tamam efekti olsun.", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "aa aa gesturedetector yerine InkWell kullan, ripple efekti olsun", "output": "GestureDetector yerine InkWell kullan, ripple efekti olsun."}
+{"input": "Kubectl apply yap manifestdosyasini goster", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "kubectl apply iste yap manifest dosyasini goster", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "kubectl applyyap, manifest dosyasini goster.", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "kubectl apply yap,manifest dosyasini goster", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "yani kubectlapply yap, manifest dosyasini goster.", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "Kubectlapply yap, manifest dosy asini goster.", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "Kubectl apply yap manifest dosyasini goster.", "output": "Kubectl apply yap, manifest dosyasini goster."}
+{"input": "Terraform plan'a bak, neleri degistirecegini iste gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "terrafom plan'a bak, neleri degistirecegini gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "Terrafoarem plan'a bak, yani neleri degistirecegini gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "teraform plan'a bak neleri degistirecegini gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "terraform plan'a bak neleri degistirecegini gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "hani Terrafoeremplan'a bak, neleri degistirecegini gor", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "terefoarem plana bak,neleri degistirecegini gor.", "output": "Terraform plan'a bak, neleri degistirecegini gor."}
+{"input": "dakir compose up yap, servisleri yani ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "dakir kompoz up yap servisleri ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "dakir yani kompoz up yap, servisleri ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "doker compose yani upyap servisleri ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "iste doker compoz up yap, servisleri ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "dokir yani compose up yap, servisleri ayaga kaldir", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "doker compoz up yap, servisleri ayaga kaldir.", "output": "Docker compose up yap, servisleri ayaga kaldir."}
+{"input": "helm upgrade iste yap, yeni values dosyasini ver", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "heylm apgreyd yani yap, yeni values dosyasini ver", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "helm apgreyd yap, yeni yani values dosyasini ver.", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "yani helm apgireyd yap yenivalues dosyasini ver.", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "helm upgrade yap, yeni values dosyasini ver.", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "helm upgrade yap, yeni values dosyasini ver", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "heylm apgireid yap yeni values dosyasini ver.", "output": "Helm upgrade yap, yeni values dosyasini ver."}
+{"input": "poad'un log'larina bak, kubectl logs hani ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "Pod'un log'larina hani bak, kubectl logs ile", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "pod'un log'larina yani bak, kubectl logs ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "pad'unlog'larina bak, kubectl logs ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "pod'un log'larina bak hani kubectl logs ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "Pod'un iste log'larina bak, kubectl logs ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "poad'un log'l yani arina bak, kubectl logs ile.", "output": "Pod'un log'larina bak, kubectl logs ile."}
+{"input": "Ingress'e annotation ekle, timeout'uartir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "ingrise annotation ekle, timeout'u artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "ingirese annotation ekle, timeout'u hani artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "ingres'e annotation ekle, tayimautu yani artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "ingirese annotation ekle, taymaut'u artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "ingris'e annotation ekletimeoutu artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "Ingresse annotation ekle timeout'u artir.", "output": "Ingress'e annotation ekle, timeout'u artir."}
+{"input": "iste prome teyus confige yeni scrape target ekle.", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "prometius confige yeni iste scrape target ekle.", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "prometius config'e yeni scrape target ekle", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "prometheus iste confige yeni scrape target ekle", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "prometius confige yeni scrape target hani ekle.", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "hani Prometheus config'e yeniscrape target ekle.", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "prometius config'e yeni hani scrape target ekle.", "output": "Prometheus config'e yeni scrape target ekle."}
+{"input": "iste yuz tamam ifekt'ikaldir, yuz memo ile cozelim", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "iste iste useEffectikaldir yusımemo ile iste cozelim", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "useEffecti kaldir usememo hani ile cozelim.", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "hani hani yuz ifekt'i aa kaldir,yusımemo ile cozelim", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "yuz iste ifekt'i kaldir, yusimemo ile cozelim", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "useEf iste fecti kaldir, yuzmemo ile cozelim.", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "aa yuz ifekt'i kaldir usememo ile cozelim.", "output": "useEffect'i kaldir, useMemo ile cozelim."}
+{"input": "tamam component'ibolelim, aa header sey ayri footer ayri olsun", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "hani component'i bolelim, header ayri tamam footer ayri iste olsun.", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "iste komponentibolelim hedor ayri footer ayri olsun", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "componenti bolelim, header ayri ee footer ayri olsun.", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "komponent'i bolelimheader ayri footer ayri ee olsun", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "component'i bolelim, hani hedirayri footer ayriolsun", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "Component'i yani bolelim heder ayri footer ayri olsun.", "output": "Component'i bolelim, header ayri footer ayri olsun."}
+{"input": "risp sey tamam ansiv tasarimi kontrol et, mobilde yani bozuk", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "responsive tasarimikontrol yani aa et mobilde bozuk", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "risponsif tasarimi iste hani kontrol etmobilde tamam bozuk.", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "risponsif tasarimi kontrol hani hani hani et mobilde bozuk.", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "ee risponsif tasarimi sey kontrol et mobilde bozuk.", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "Responsive iste tasarimi kontrol et mobilde bozuk", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "responsiv tasarimi kontrol sey hani et, mobilde bozuk", "output": "Responsive tasarimi kontrol et, mobilde bozuk."}
+{"input": "aa Bueypiai tamam ee call'u try catch icine al", "output": "Bu API call'u try catch icine al."}
+{"input": "Bu eypiai call'u try catch icine iste al.", "output": "Bu API call'u try catch icine al."}
+{"input": "bu APi call'u ee try catchicine al.", "output": "Bu API call'u try catch icine al."}
+{"input": "hani bu eypiai call'u try catch icine al", "output": "Bu API call'u try catch icine al."}
+{"input": "aa ee buAPI call'u yani try catch icine al", "output": "Bu API call'u try catch icine al."}
+{"input": "hani bu tamam apiay call'u try catchicine al.", "output": "Bu API call'u try catch icine al."}
+{"input": "aa bu eypi ay callu trycatch icine al.", "output": "Bu API call'u try catch icine al."}
+{"input": "yani tayp skript sey generickullan her type icin ayri fanksiyonyazma", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "tayp sey skript generic aa kullan her type yani icin ayri function yazma.", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "taypskript generic kullan, iste her type icin ayri function yazma.", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "iste taypskript generic kullan her type yani icin ayri fanksin yazma", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "sey typeScriptgeneric kullan her type icin ayri fanksin yazma.", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "iste tayp sey skript generic kullan,her type hani icin ayri function yazma.", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "hani Typescript generic kullan, her hani type icin ayri fanksiyon yazma.", "output": "TypeScript generic kullan, her type icin ayri function yazma."}
+{"input": "si es es module kullan, iste global style kirliligi olmasin", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "iste sises modulekullan global style aa kirliligi olmasin.", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "yani si es es module iste kullan global style kirliligi olmasin", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "ee CSS module kullan global style kirliligi olmasin", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "tamam cSS module kullan, global stylekirliligi olmasin", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "css modulekullan hani global hani style kirliligi olmasin.", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "sisesmodule kullan, global style aa tamam kirliligi olmasin.", "output": "CSS module kullan, global style kirliligi olmasin."}
+{"input": "hani yusıkolbek ile hani wrap et child component gereksiz renderolmasin", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "yuskolbek ile wrap aa et child kompanent gereksiz yani render tamam olmasin.", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "iste yusikolbek ile wrap et, yani child component gereksiz rindır olmasin.", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "usekolbak ile wrap et, iste child component iste gereksiz render yani olmasin.", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "sey yuz kolbek ile wrap et, iste child component gereksiz render olmasin.", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "yuz iste iste kolbek ile wrap et child kompanent gereksiz rindir aa olmasin.", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "yuskolbekile ee yani wrap et child componenti gereksiz rindir olmasin", "output": "useCallback ile wrap et, child component gereksiz render olmasin."}
+{"input": "him dur bekle ya o degilobur aa dosyayi ac.", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "yani aslinda dur falan bekle bi dakika o degil oburdosyayi ac", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "bi dakika dur bekle hani odegil ee ya obur dosyayi ac", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "neyse dur bekle, aa sey o degil obur dosyayi tamam him ac", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "dur bekle,o aa iste degil, neyse obur dosyayi ac", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "dur bekle, o tamam degil, obur ee dosyayi falan bi dakika ac.", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "dur yani dur bi saniye bekle o degil obur sey falan dosyayi ac", "output": "Dur bekle, o degil, obur dosyayi ac."}
+{"input": "hayir yani iste hayir, aa hani bir nevi simdi for loop yerine map kullan.", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "aa hayir bir nevi hayir ya for simdi lup yerine map hani kullan.", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "hayir simdi aslinda hayir bi dakika for loop yerine map kullan.", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "tamam Hayir dur bi saniye hayir for lup bi dakika iste yerine map kullan.", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "dur bi saniye hayir simdi hayir aa forlup yerine tamam map kullan", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "hayir hayir, for neyse him loop ee yerine map kullan.", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "hayir aa hayir, bi dakika for yani neyse bi dakika lup yerine map aa kullan", "output": "Hayir hayir, for loop yerine map kullan."}
+{"input": "su bir nevi bir nevi importu sil lazim neyse degil.", "output": "Su import'u sil, lazim degil."}
+{"input": "ya ee su importu sil, lazim aa degil.", "output": "Su import'u sil, lazim degil."}
+{"input": "su yani importu tamam hani sil lazimdegil", "output": "Su import'u sil, lazim degil."}
+{"input": "Su yani ya yani importu sillazim degil.", "output": "Su import'u sil, lazim degil."}
+{"input": "tamam tamam Suimpört'u sil lazim tamam degil", "output": "Su import'u sil, lazim degil."}
+{"input": "su hani importusil, falan ee lazim degil", "output": "Su import'u sil, lazim degil."}
+{"input": "iste iste bir nevi him su impörtu sil lazim degil", "output": "Su import'u sil, lazim degil."}
+{"input": "dur bi saniye konsol log'lari sil, tamam bir nevi dıbagbitti", "output": "Console log'lari sil, debug bitti."}
+{"input": "dur bi saniye aslinda konsol log'lari sil, dur bi saniye dibagbitti.", "output": "Console log'lari sil, debug bitti."}
+{"input": "ya console bir nevi log'larisil bir nevi dibag bitti.", "output": "Console log'lari sil, debug bitti."}
+{"input": "konsol log'lari iste sil, nasil diyeyim dibag sey him bitti.", "output": "Console log'lari sil, debug bitti."}
+{"input": "konsol falan log'lari aslinda sil hani dibagbitti.", "output": "Console log'lari sil, debug bitti."}
+{"input": "bir nevi konsoul log'lari ya hani sil,dibag bitti", "output": "Console log'lari sil, debug bitti."}
+{"input": "konsoullog'lari falan hani sil iste dibag bitti", "output": "Console log'lari sil, debug bitti."}
+{"input": "Degisken simdi sey ismini degistir neoldugu simdi anlasilmiyor", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "him bir nevi degisken ismini yani degistir, simdi ne oldugu iste anlasilmiyor.", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "Degisken iste ismini iste ee degistir neoldugu anlasilmiyor.", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "tamam degi sken falan simdi ismini nasil diyeyim degistir ne iste oldugu anlasilmiyor", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "falan degisken yani ismini degistir, ne oldugu him anlasilmiyor.", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "Degisken nasil diyeyim nasil diyeyim ismini degistir, ne oldugu bir nevi anlasilmiyor", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "aslinda degisken ismini degistir ne oldugu simdi dur bi saniye iste aa anlasilmiyor", "output": "Degisken ismini degistir, ne oldugu anlasilmiyor."}
+{"input": "Oncegit pull ee yap, sonra ya sey birançolustur.", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "him once git pull yap falan ya sonra biranç yani tamam olustur.", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "falan once bi dakika git bir nevi pull yap tamam sonra aslinda brans olustur.", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "ee Once git iste pullyap sonra iste brans falan bi dakika olustur.", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "iste ee nasil diyeyim once git him pull yap,sonra biranc nasil diyeyim olustur", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "ya iste once hani git pull yap, sonra bir nevi birancolustur", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "once git aa ee pullyap sonra simdi biranc aa aa olustur", "output": "Once git pull yap, sonra branch olustur."}
+{"input": "kommit etmeden once ee dif'e dur bi saniye bak, bi dakika neyse simdi nedegistirdigini sey gor", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "komit etmeden once diffe bak nedegistirdigini ee ya dur bi saniye sey gor.", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "iste yani komit etmeden once diffe bak simdi ne falan ee degisti rdigini gor.", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "iste kommit falan etmeden aslinda once dur bi saniye dif'e bak ne bir nevi neyse degistirdigini gor.", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "kommit etmeden neyse once dife sey nasil diyeyim iste bak, ne ya degistirdigini gor", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "neyse komit aslinda etmeden oncedıf'e dur bi saniye bak yani sey ne degistirdigini bi dakika gor", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "ya aa commit etmeden tamam aa once dife bak ne degistirdigini yani gor", "output": "Commit etmeden once diff'e bak, ne degistirdigini gor."}
+{"input": "iste Burada kull anici akisini simuleedelim dogru mu calisiyor?", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "Burada kullanici akisini hani simule hani edelim, dogru mu calisiyor?", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "yani burada kullanici akisini simule edelim, dogru mu ee yani calisiyor?", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "tamam Burada sey kullanici akisini ee simule edelim, dogru mu calisiyor?", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "iste Burada kullanici aa akisini simule edelim dogru mu calisiyor", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "burada kullanici yani akisini simule edelim, dogru mu calisiyor", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "burada kullanici tamam akisinisimule edelim, dogru mu calisiyor", "output": "Burada kullanici akisini simule edelim, dogru mu calisiyor?"}
+{"input": "bu ekran tasar hani imdaki gibi degil Figma'yi kontrol sey et.", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "yani bu ekran tasarimdaki gibidegil, figma'yi kontrol et.", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "bu ekran tasarimdaki gibi degil Figma'yi kontrol aa sey yani et", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "hani bu ekran tasarimdaki gibi yani sey degil Figma'yi kontrol et", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "Buekran tasarimdaki yani gibidegil, Figma'yi kontrol et.", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "tamam bu yani ekran tasarimdaki gibi degil, Figma'yi kontrol hani et", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "Bu ekran tasarimdaki tamam ee gibi degil, Figma'yi kontrol et", "output": "Bu ekran tasarimdaki gibi degil, Figma'yi kontrol et."}
+{"input": "sey Demodabu butonu hani yani gosterecegim, calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "demoda bu butonu gosterecegim sey calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "hani demoda bu butonu gosterecegim, calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "dimooda hani yani bu butonu gosterecegim, tamam calisir halegetir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "ee demoda bu butonugosterecegim ee calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "dimooda bu butonu sey gosterecegim calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "aa iste Demoda bu aa butonu gosterecegim, calisir hale getir.", "output": "Demo'da bu butonu gosterecegim, calisir hale getir."}
+{"input": "bu API call eysingk olmali, thread bilakk ediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "bu eypiaicall asink olmali yani tired block ediyor", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "Bu eypiai call eysingk olmali tired blakk ediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "hani Bu eypiai call asink olmali tired blockediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "Bu apiay call eysingk olmali iste thread block ediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "bu eypi ay call async olmali, tıret block ediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "bu APi call async olmali, hani tıret block ediyor.", "output": "Bu API call async olmali, thread block ediyor."}
+{"input": "padding yani degerleri hardcoded sey constant'a tasi", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "sey padding degerleri hardcoded constant'a iste tasi.", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "ee Padding degerleri hardcoded, aa constanta tasi", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "hani ee hani padding degerleri hardcoded, constant'a tasi", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "sey Padding dege rleri hardcoded constanta tasi", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "ee hani padding degerleri hardcoded constanta tasi.", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "padding degerleri hardcoded, sey constanta yani tasi", "output": "Padding degerleri hardcoded, constant'a tasi."}
+{"input": "tamam hani semicolonunutmusum bir nevi hata onu gosteriyor", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "dur bi saniye semicolon unutmusum aa hata onu iste iste gosteriyor", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "Semicolon aa unutmusum hata onu dur bi saniye falan tamam gosteriyor.", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "sey sey semicolon unutmusum neyse hata onu gosteriyor", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "semicolon unutmusum, ee ya hani hataonu gosteriyor.", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "semi yani colon unutmusum nasil diyeyim hani hataonu bir nevi gosteriyor.", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "Semicolon unutmusum, hata tamam simdi onu nasil diyeyim gosteriyor.", "output": "Semicolon unutmusum, hata onu gosteriyor."}
+{"input": "Index ekle, query performance artsin", "output": "Index ekle, query performance artsin."}
+{"input": "index ekle query performance artsin", "output": "Index ekle, query performance artsin."}
+{"input": "hani index ekle, query performance artsin", "output": "Index ekle, query performance artsin."}
+{"input": "index ekle, query performance artsin.", "output": "Index ekle, query performance artsin."}
+{"input": "index ekle query perfoeremance artsin", "output": "Index ekle, query performance artsin."}
+{"input": "Index ekle, kuri performance artsin.", "output": "Index ekle, query performance artsin."}
+{"input": "hani Index ekle, kueri performance artsin", "output": "Index ekle, query performance artsin."}
+{"input": "sey color hexi yanlis, figmadan tekrar al.", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "color hexi yanlis, Figma'dan tekrar hani al", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "iste Color hexi ee yanlis, aa figma'dan tekrar al", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "Color hexi yanlis tamam aa Figma'dan sey tekrar al.", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "Color iste hexi yanlis, sey Figma'dan tekrar yani al", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "color tamam iste hexi yanlis, yani Figmadan tekrar al", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "yani Color hexi aa yanlis Figma'dan tekrar al.", "output": "Color hex'i yanlis, Figma'dan tekrar al."}
+{"input": "fanksin ya bir nevi parametresiniyanlis vermisim, type bi dakika simdi error aliyor", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "fanksin parametresiniyanlis vermisimtype simdi error neyse simdi aliyor", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "him dur bi saniye fonksiyon parametresini yanlisvermisim type falan error aliyor", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "fonksiyonparametresini neyse yanlis vermisimtype nasil diyeyim iste error aliyor.", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "fanksiyon parametresini hani neyse yanlis vermisim,type tamam error ya falan aliyor.", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "him sey bi dakika fanksiyon parametresini hani yanlis vermisim iste type error aliyor.", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "aslinda nasil diyeyim nasil diyeyim ya fanksin parametresini yanlis hani vermisim, type erroraliyor", "output": "Function parametresini yanlis vermisim, type error aliyor."}
+{"input": "tamam su akisi yani kullaniciya karmasikgeldi sadelestirmemiz yani lazim", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "Su akisi tamam kullaniciya karmasik geldi, sadelestirmemiz yani lazim.", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "sey su aa akisi kullaniciya karm asik yani geldi, sadelestirmemiz lazim.", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "iste su akisi kullaniciya yani karmasik iste geldi, sadelestirmemiz lazim.", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "Suakisi yani kullaniciya iste karmasikgeldi sadelestirmemiz lazim.", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "iste Su akisi kullaniciya hani karmasik ee geldi, sadelestirmemizlazim", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "aa Su akisi kullaniciya karmasik geldi, sadeles yani tirmemiz lazim.", "output": "Su akisi kullaniciya karmasik geldi, sadelestirmemiz lazim."}
+{"input": "Connection stringi envden oku, hardcode etme.", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "yani connection strink'i envden oku hardcode etme", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "connection string'i env'den oku hardcode etme", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "connection istringi env'den oku, hardcode etme.", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "hani Connection string'i env'den oku, hardcode etme", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "iste connection stringi env'den oku, hardcode etme", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "Connection string'i env'den iste oku, hardcodeetme.", "output": "Connection string'i env'den oku, hardcode etme."}
+{"input": "Animatedkonteyner kullan yani iste gecis animasyonu yani olsun", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "iste animatedkonteyinir kullan gecis tamam animasyonu olsun.", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "yani animatedkonteyner kullan gecis animasyonu olsun.", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "yani Animatedkonteyinir kullan gecis animasyonu aa aa olsun", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "iste animatedkontaynir kullan, gecis animasyonu hani olsun", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "animatedkontaynirkullan, iste gecis iste animasyonu olsun.", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "iste animatedkontaynir kullan, gecis hani animasyonu olsun", "output": "AnimatedContainer kullan, gecis animasyonu olsun."}
+{"input": "impört bir nevi path'i iste yanlis hani sey yazmisim, dosyayi him bulamiyor.", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "bi dakika bir nevi import pathi yanlis yazmisim him ya dosyayi bulamiyor.", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "ya import tamam ee pathi yanlis yazmisim, dosyayi bulamiyor.", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "import pathi yanlis ya yazmisim, tamam iste simdi dosyayi aslinda bulamiyor", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "Importpathi simdi neyse yanlisyazmisim sey dosyayi bulamiyor.", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "import ee bi dakika pathi yanlis yazmisim, ya dosyayi bulamiyor.", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}
+{"input": "sey import aa pathi yanlisyazmisim dosyayi tamam nasil diyeyim bulamiyor", "output": "Import path'i yanlis yazmisim, dosyayi bulamiyor."}

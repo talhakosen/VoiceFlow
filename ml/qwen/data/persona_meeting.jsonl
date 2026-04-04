@@ -1,0 +1,251 @@
+{"input": "yani diployment stratejisini blue-greene gecirelim.", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "iste depiloyment stratejisini blue-greene gecirelim.", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "depoloyment stratejisini blue-green'e yani gecirelim", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "depiloyment stratejisini blue-green'e gecirelim", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "depoloyment iste stratejisini blue-green'e gecirelim.", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "diployment stratejisini blue-green'e gecirelim", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "diployment stratejisini iste blue-greene gecirelim.", "output": "Deployment stratejisini blue-green'e gecirelim."}
+{"input": "Microservice architecturea iste gecis planini konusalim", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "hani maykreservis arkitekcira gecis planini konusalim.", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "microservice yani arkitekcir'agecis planini konusalim.", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "maykroservis arkitekcira gecis planini konusalim", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "Microservice architecture'agecis planini konusalim", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "yani Microservice architecture'a gecis planini konusalim", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "maykreservis arkitektsır'a gecis planini konusalim", "output": "Microservice architecture'a gecis planini konusalim."}
+{"input": "APi vorsiyoning hani stratejimiz ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "hani eypi ay versiyoning stratejimiz ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "API versiyoning stratejimiz iste ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "eypi ay versiyoning stratejimiz ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "yani aPi versioning stratejimiz ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "apiay versioning stratejimiz ne olacak?", "output": "API versioning stratejimiz ne olacak?"}
+{"input": "monitorink ve alerting stratejimizi gozdengecirelim.", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "monitorink ve alerting stratejimizi gozden gecirelim", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "monitoring ve alerting stratejimizi gozden gecirelim", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "Monitoring ve alerting stratejimizigozden gecirelim.", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "hani monitorink ve alerting stratejimizi gozden gecirelim.", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "hani monitöring ve alerting stratejimizi gozden gecirelim.", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "monitöring ve alerting stratejimizi gozden gecirelim.", "output": "Monitoring ve alerting stratejimizi gozden gecirelim."}
+{"input": "performens budget belirleyelim, sayfa yuklenme suresi iki hani saniye olsun.", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "iste porfoeremens budget belirleyelimsayfa yuklenme suresi iki saniye olsun.", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "performens budgetbelirleyelim, sayfa yuklenme suresi hani iki saniye olsun.", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "hani perfoaremancebudget belirleyelim, sayfa yuklenme suresi iki saniye olsun", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "iste performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun.", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "Perfoaremance budget hani belirleyelim, sayfa yuklenmesuresi iki saniye olsun", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "performens budget belirleyelim sayfa yuklenme suresi iki saniye olsun.", "output": "Performance budget belirleyelim, sayfa yuklenme suresi iki saniye olsun."}
+{"input": "iste database sharding'e ihtiyacimiz var mi trafik artiyor.", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "database sharding'e ihtiyacimizvar mi, trafikartiyor.", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "deytebes sharding'eihtiyacimiz var mi, trafik yani artiyor", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "yani deytebes sharding'e ihtiyacimiz var mi trafik artiyor", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "Database sharding'e ihtiyacimiz var mi yani trafik artiyor.", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "database shardinge hani ihtiyacimiz var mi, trafik artiyor", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "Database shardinge ihtiyacimiz var mi, trafik artiyor", "output": "Database sharding'e ihtiyacimiz var mi, trafik artiyor."}
+{"input": "yani Backend team olarak bu ceyregin hedeflerini belirleyelim.", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "yani Backend team olarak bu ceyregin hedeflerini belirleyelim", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "backend team yani olarak bu ceyregin hedeflerini belirleyelim.", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "hani backend team olarak buceyregin hedeflerini belirleyelim", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "backend team olarak bu ceyregin hedeflerini hani belirleyelim.", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "backend team olarak bu ceyregin hedeflerini belirleyelim.", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "backend team olarak bu ceyregin hedeflerini belirl hani eyelim", "output": "Backend team olarak bu ceyregin hedeflerini belirleyelim."}
+{"input": "flatirdan riyekt aa Native'e ee gecmeli miyiz artieksileri tarti salim", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "flati r'dan aa yani React nativeegecmeli miyiz arti eksileri tartisalim.", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "flutterdan riekt iste nativee gecmeli miyiz, sey arti eksileri tartisalim.", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "flatır'dan yani riekt Native'e gecmeli miyiz, arti eksi leri tartisalim.", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "sey flatır'dan hani riyekt Nativee gecmeli hani miyiz arti eksileri tartisalim", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "aa flatirdan React Nativee gecmeli miyiz arti eksileri tartisalim.", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "yani tamam flatirdan riekt Nativee gecmelimiyiz artieksileri tartisalim", "output": "Flutter'dan React Native'e gecmeli miyiz, arti eksileri tartisalim."}
+{"input": "ee component library olusturalim, ee design system aa standardizeolsun.", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "ee komponent laybıri aa olusturalimdesign system standardize olsun.", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "yani Component library olusturalim designsystem standardize olsun", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "komponent library olusturalim, designsystem iste standardize ee hani olsun.", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "sey hani componenti library olusturalim, design systemstandardize olsun", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "komponent library olusturalim, design yani system standardize olsun.", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "kompanent laybreri aa tamam hani olusturalim, design system standardize olsun", "output": "Component library olusturalim, design system standardize olsun."}
+{"input": "yani mobil uygulama performans metrikleri nasil bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "sey mobil uygulama aa perfoeremans metrikleri nasil, bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "ee mobil uygulama performans metrikleri yani nasil, bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "iste yani Mobil uygulama perfoaremans metrikleri nasil ee bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "Mobil uygulama iste aa performans metrikleri nasil bakabilir tamam miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "yani Mobil uygulamaperfoeremans metrikleri nasil, bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "hani tamam mobil uygulama performans metrikleri nasil bakabilir miyiz", "output": "Mobil uygulama performans metrikleri nasil, bakabilir miyiz?"}
+{"input": "vicet test kavrici dusuk tamam aa test sey spri nt'i ayiralim", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "aa viget test kaveric'i aa dusuk, test sprint'i ayiralim", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "viget test kavrici dusuk ee iste testispirint'i hani ayiralim.", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "iste viget test kavric'i dusuk test iste sprint'i ayiralim", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "viget test kavrıc'i aa dusuk test sipırint'i ayiralim.", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "yani tamam vicettest coverage'i aa dusuk test ispırint'i ayiralim.", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "widget test hani kavric'i dusuk, test yani hani sprint'iayiralim", "output": "Widget test coverage'i dusuk, test sprint'i ayiralim."}
+{"input": "iste aa Platform specific kod hani cok artti abst ırakt layer ekleyelim.", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "sey platform specific kod cok artti, aa hani abstırakt layer ekleyelim", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "aa Platform specific kod cok iste artti, abstrakt layer ekleyelim", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "aa platform yani specific kodcok sey artti, abstractlayer ekleyelim", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "platfoarem specific kod cok artti, ebstrekt layer tamam ekleyelim.", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "iste Platfoarem specific kod cok artti, abstırakt layerekleyelim", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "platform specific kod cok sey artti aa abstract layer ekleyelim", "output": "Platform specific kod cok artti, abstract layer ekleyelim."}
+{"input": "kubernetis apgireydi yapmaliyiz, versiyon eski kaldi.", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "kubernetesupgrade'i hani yapmaliyiz versiyon eski kaldi.", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "kuber netis upgradei yapma liyiz, iste versiyoneski kaldi", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "kubernitis apgireyd'i yapmaliyizversiyon eski kaldi", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "yani cubernetes apgireid'i yapmaliyiz, versiyon eski kaldi", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "kubernetes upgradei yapmaliyiz, versiyon eski hani kaldi.", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "kubernetis iste apgireidi yapmaliyiz versiyoneski kaldi.", "output": "Kubernetes upgrade'i yapmaliyiz, versiyon eski kaldi."}
+{"input": "Cloud cost optimization yapmamiz lazim, aylikfatura iste artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "iste Cloud cost optimization yapmamiz lazim, aylik fatura artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "cloud cost optimization hani yapmamiz lazim, aylik fatura artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "cloud costoptimization yapmamiz lazim, aylik fatura artti", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "iste cloud cost optimization yapmamiz lazim, aylik fatura artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "cloud costoptimization iste yapmamiz lazim, aylikfatura artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "Cloud cost optimization iste yapmamizlazim aylik fatura artti.", "output": "Cloud cost optimization yapmamiz lazim, aylik fatura artti."}
+{"input": "disaster recovery plan imiz var hani mi test edelim.", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "yani Disaster recovery planimiz varmi, test edelim.", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "disaster recovery plan imiz var mi, test edelim", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "Disaster reco yani very planimiz var mi testedelim.", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "hani Disaster recovery planimiz var mi, test edelim.", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "iste Disaster recovery planimiz var mi, test edelim", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "disaster recovery planimiz var mi, test edelim.", "output": "Disaster recovery planimiz var mi, test edelim."}
+{"input": "CI/cD pipeline sureleri cok uzun, optimize edelim.", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "yani CI/cD payp layn sureleri cok uzun optimayz edelim.", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "cI/CD pipeline sureleri cok uzun, optimayız edelim", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "Ci/CD paypılayn surelericok uzun optimize edelim.", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "CI/CD payp layn sureleri cok uzun, optimiz edelim", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "hani CI/CD pipeline surelericok uzun, optimize edelim.", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "CI/CD payplayn sureleri cok uzun optimız edelim", "output": "CI/CD pipeline sureleri cok uzun, optimize edelim."}
+{"input": "infirastrukcir as code'atam gecis yapalim.", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "infirastruktsir as codea tam hani gecis yapalim.", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "yani infirastrukcir as codea tam gecis yapalim.", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "infirastruktsir as codea tam gecisyapalim.", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "infirastrukcir as code'a tam gecis yapalim.", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "infrastructure as codea tam gecis yapalim", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "infrastruktur as code'a hani tam gecis yapalim", "output": "Infrastructure as code'a tam gecis yapalim."}
+{"input": "Technical debt cok birikti bir hani sipirint ayiralim.", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "aa ee technical debt cok hani birikti, bir sprint ayiralim.", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "ee technical debt cok birikti, bir ispirint ayiralim.", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "technical hani debt hani cok birikti iste bir sprint ayiralim.", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "sey technicaldebt yani aa cok birikti bir sprint ayiralim", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "technical debt cok hani ee birikti, yani bir sprint ayiralim", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "Technical sey debt cok birikti bir hani sprint ayiralim.", "output": "Technical debt cok birikti, bir sprint ayiralim."}
+{"input": "Design systemi yani Storybook'a tasiyalim", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "tamam iste ee design systemi Storybook'a tasiyalim", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "Designsystemi hani tamam Storybooka tasiyalim", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "iste design system'i storybook'a tasiyalim.", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "designsystemi iste hani Storybooka tasiyalim", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "tamam design yani iste systemi Storybook'a tasiyalim.", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "iste design systemi Storybooka yani tasiyalim.", "output": "Design system'i Storybook'a tasiyalim."}
+{"input": "frontend aa bundle size'i cok buyuk, code splitting sey yapalim.", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "hani frontend bundle size'i cok buyuk,code splitting yapalim", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "frontend bundle size'i tamam cok buyuk, code splitting yapalim", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "iste frontend bundle size'i cok buyuk, code splitting yapa lim.", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "Frontend bundle size'i sey cok tamam buyuk code splitting yapalim", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "sey frontend bundle sizei cok buyuk, code tamam splitting yapalim", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "hani Fron tend bundle sizei tamam cok buyuk, aa code splitting yapalim", "output": "Frontend bundle size'i cok buyuk, code splitting yapalim."}
+{"input": "accessibility sey standartlarina uyum saglamaliyiz", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "accessibility standartlarina uyum iste hani saglamaliyiz.", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "yani Accessibility standartlarina uyum saglamaliyiz", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "tamam accessibility standartlarina iste tamam uyum saglamaliyiz.", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "sey accessibility standartlarina tamam uyum saglamaliyiz.", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "tamam sey Accessibility standartlarina uyum saglamaliyiz.", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "aa accessibility standartlarinauyum saglamaliyiz", "output": "Accessibility standartlarina uyum saglamaliyiz."}
+{"input": "Web vitals hani skorlarimiz dusuk, iyilestirme iste plani yapalim", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "yani web vitals skorlarimiz dusuk iyilestirme plani yapalim", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "Web vitals skorlarimiz dusuk, iste iyilestirme tamam plani tamam yapa lim.", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "yani Web vitals skorlarimiz dusuk iyilestirme plani ee yapa lim.", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "Web vitals sey ee skorlarimiz dusuk iyilestirme planiyapalim", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "web vitalsskorlarimiz ee dusuk iyilestirme plani ee yapalim.", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "yani web vitals skorlarimizdusuk, iyile stirme plani yapalim", "output": "Web vitals skorlarimiz dusuk, iyilestirme plani yapalim."}
+{"input": "falan Bu toplantinin falan him amacine gundem varmi?", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "bu toplantinin neyse dur bi saniye amaci yani ne him gundemvar mi", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "iste bi dakika simdi bu toplantinin amaci ya ne, gundem var mi?", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "bu toplantinin yani amaci ne, gundem var nasil diyeyim dur bi saniye mi", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "him Butoplantinin amaci bi dakika ne bir nevi gundem var mi?", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "bu toplantinin amaci iste ne, yani iste gundem var aslinda mi?", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "bu toplantinin amacine, hani yani gundem hani var ya mi", "output": "Bu toplantinin amaci ne, gundem var mi?"}
+{"input": "ben bu dur bi saniye falan aslinda konudacok bilgili degilim tamam ee bi dakika biri aciklayabilir mi", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "Ben bu dur bi saniye konuda dur bi saniye tamam neyse cok bilgili yani degilim, nasil diyeyim biriaciklayabilir mi", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "simdi bir nevi ben bu konuda cok neyse bilgili degilim iste biri him aciklayabilir mi?", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "ben bu neyse konuda ya cok bilgili degilim biri aciklayabilir bir nevi mi?", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "ben bu konuda him cok ee bilgili degilim neyse biriaciklayabilir yani iste mi?", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "him ben bu neyse sey konuda cokbilgili ya degilim biri yani aciklayabilir mi?", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "Benbu nasil diyeyim konuda cok bilgili degilim tamam yani biri aciklayabilir aslinda falan mi?", "output": "Ben bu konuda cok bilgili degilim, biri aciklayabilir mi?"}
+{"input": "junior'lar aslinda icin bir nevi mentorluk tamam programi ya baslatalim", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "junior'lar neyse him icin yani mentorluk programibaslatalim.", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "junior'lar nasil diyeyim bi dakika icin mentorluk neyse prog rami baslatalim.", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "junior'lar icin ya neyse tamam mentorluk programi baslatalim", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "bi dakika aslinda junior'laricin mentorlukprogrami baslatalim.", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "junior'lar icin bir nevi simdi mentorluk programi yani baslatalim.", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "ya sey junior'laricin mentorluk programibaslatalim.", "output": "Junior'lar icin mentorluk programi baslatalim."}
+{"input": "Dokume ntasyon yani aa cok bir nevi eski, guncellememiz simdi lazim.", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "yani dokumentasyon cok eskiguncellememiz neyse iste lazim.", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "Dokumentasyon bir nevi aa cok eski iste guncellememiz yani lazim.", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "simdi Dokumentasyoncok bir nevi aslinda eski guncellememiz lazim.", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "ya yani Dokumentasyon cok eski, ya guncellememiz lazim.", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "tamam Dokumentasyoncok eski, guncellememiz dur bi saniye falan lazim", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "dokumentasyon cok aa iste sey eski guncellememiz aslinda lazim", "output": "Dokumentasyon cok eski, guncellememiz lazim."}
+{"input": "Onboarding aa tamam ee hani sureci uzun kisaltamaz miyiz?", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "onboarding tamam sureci uzun hani bi dakika kisaltamaz hani miyiz", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "dur bi saniye hani onboarding bi dakika sureci uzun kisaltamaz neyse miyiz", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "nasil diyeyim nasil diyeyim tamam onboarding sureci aslinda uzun, kisaltamaz miyiz?", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "onboarding sureci bir nevi dur bi saniye uzun kisaltamaz him miyiz?", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "iste yani onboarding ya sureci falan uzun, kisaltamaz miyiz?", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "him onboarding sureci uzun, bir nevi iste nasil diyeyim kisaltamaz miyiz?", "output": "Onboarding sureci uzun, kisaltamaz miyiz?"}
+{"input": "Q3 roadmapi gozden gecirelim maygresyon iste aa tamam ne durumda?", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "q3 roadmap'i iste sey aa gozden gecir elim, migration ne durumda", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "q3 roudmep'i gozden gecirelim, yani maygreysin ne durumda?", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "tamam q3 roadmapi gozden gecirelim, migration ne durumda?", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "sey Q3 iste roadmap'i gozden gecirelim migration ne durumda", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "Q3 roadmapi gozden gecirelim,migreysin hani iste aa ne durumda", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "q3 sey rodmapigozden gecirelimmigration nedurumda?", "output": "Q3 roadmap'i gozden gecirelim, migration ne durumda?"}
+{"input": "ee bu sey fiiçır'in tamam rOI'si nedir, onceliklendirelim.", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "Bu fici r'in RoI'sinedir aa sey onceliklendirelim.", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "Bu fiiçirin ROI'si nedir, ee onceliklendirelim.", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "Bu ficir'in sey iste ROI'si nedironceliklendirelim.", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "Bu feature'in ROI'si sey iste aa nedir, onceliklendirelim.", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "sey Bu ficer'in ROI'si nedir onceliklendirelim", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "ee tamam Bu ficir'in ROi'si nedir, oncelikl endirelim", "output": "Bu feature'in ROI'si nedir, onceliklendirelim."}
+{"input": "ee Sprint retraspektivde neler cikti aksiyonlar ne?", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "hani Sprint retraspektif'de neler cikti, aksiyonlar ne", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "Sprint iste retrospektifde neler cikti aksiyonlar ne", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "sipırint retrospe ctive'de ee neler hani tamam cikti aksiyonlar ne", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "sipirint iste retrospectivede neler cikti, hani aksiyonlar ne", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "ispırint retrospective'de neler ee cikti yani aksiyonlar ne", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "yani ispı rint retraspektiv'de hani neler cikti, aksiyonlar ne?", "output": "Sprint retrospective'de neler cikti, aksiyonlar ne?"}
+{"input": "iste ee Deadlinei yani kaciracagiz, scopeu daraltmamiz lazim", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "deadlinei kaciracagiz, skop'udaraltmamiz sey ee iste lazim.", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "sey deadlinei kacira cagiz, iskopu daraltmamiz lazim.", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "deadlinei sey kaciracagiz, skoup'u daraltmamiz lazim", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "deadline'i kaciracagiz, scope'u daraltmamiz ee lazim", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "tamam Deadlinei kaciracagiz iste skoupu daraltmamiz lazim.", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "ee tamam ee Deadlinei kaciracagiz, skoupu daraltmamiz lazim", "output": "Deadline'i kaciracagiz, scope'u daraltmamiz lazim."}
+{"input": "hani steykhol dr'lardan aa feedback geldi requirement degisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "hani steykholdir'lardan feedback geldi, requirementdegisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "Stakeholder'lardan feedback iste geldi, requirement degisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "steykholdr'lardan feedback yani geldi, rikuayırmınt aa degisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "hani Stakeholder'lardan sey sey feedback geldi rikuayrment degisti", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "hani stakeholder'lardan feedback geldi requirement degisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "iste steykholdir'lardan feedback geldi iste aa requirement degisti.", "output": "Stakeholder'lardan feedback geldi, requirement degisti."}
+{"input": "sey User research sonuclarini paylasayim, ilginc bulgular var", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "user sey research sonuclarini paylasayim, ilgincbulgular var", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "user research iste sonuclarini paylasayim yani ilginc bulgular var", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "User researchsonuclarini tamam paylasayim, ilginc bulgular var.", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "User research aa sonuclarini yani payla sayim, ilginc bulgularvar.", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "sey ee user research sonuclarini paylasayim aa ilginc bulgular var.", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "hani aa User research sonuc tamam larini paylasayim, ilginc bulgular var", "output": "User research sonuclarini paylasayim, ilginc bulgular var."}
+{"input": "Release cyclei iki haftadan bir haftaya iste dusurelim", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "release aa tamam cyclei iki haftadan bir aa haftaya dusurelim.", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "aa rilis cycle'iiki haftadan aa bir haftaya dusurelim.", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "Releasecyclei iki iste ee haftadan bir haftaya sey dusurelim.", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "Release cyclei iki haftadan aa bir haftaya yani dusurelim", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "riliyz cyclei iki yani haftadan birhaftaya dusurelim.", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "Release cyclei iki haftadan bir yani ee haftaya dusurelim", "output": "Release cycle'i iki haftadan bir haftaya dusurelim."}
+{"input": "mvpden sonra hangi sey feature'lari tamam ekley ecegiz", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "MVPden iste tamam tamam sonra hangi feature'lari ekleyecegiz?", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "MVPden yani sonra hangi feature'lari ekleyecegiz", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "mvp'den sonrahangi tamam ficir'lari ekleyecegiz", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "mvpden sonra hangi ficer'lari aa ekleyecegiz?", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "mVpden sonra hangi sey feature'lari ee ekleyecegiz?", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "yani mVP'den sonra hangi feature'lari ekleyecegiz?", "output": "MVP'den sonra hangi feature'lari ekleyecegiz?"}
+{"input": "Budgeti aa astik maliyet optimizasyonuyapmamiz lazim.", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "aa Budgeti astikmaliyet optimizasyonu yapmamiz lazim.", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "iste budget'i astik, hani maliyet optimizasyonu yapmamiz lazim.", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "iste budgeti astik maliyet aa optimizasyonu yapmamiz tamam lazim", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "Budgeti astik, maliyet optimizasyonu tamam yapmamiz lazim.", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "tamam budg et'i astik maliyet optimizasyonu yapmamiz lazim", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}
+{"input": "budgeti astik tamam maliyet hani optimizasyonu yapmamizlazim.", "output": "Budget'i astik, maliyet optimizasyonu yapmamiz lazim."}

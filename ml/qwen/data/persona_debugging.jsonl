@@ -1,0 +1,334 @@
+{"input": "iste Stack tracee bak error middleweyrden geli yor.", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "Stack trace'e bak, errormiddlewareden geliyor.", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "stack trace'e bak, error midilveyr'den geliyor", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "Stack tracee bak, error midilver'den geliyor", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "Stack trace'e bak iste error middleware'den geliyor.", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "Stack trace'e bak, error yani middleweyrdengeliyor", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "stack trace'e bak, error middleware'den geliyor", "output": "Stack trace'e bak, error middleware'den geliyor."}
+{"input": "deytabeysconnection taym aut aliyoruz, pool size'i kontrol et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "yani database connection tayimaut aliyoruz, pool size'i kontrol et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "deytebes connection taym aut aliyoruz pool size'i kontrol yani et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "deytabeys connection timeout aliyoruz, pool sizeikontrol et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "deytabeys connection taym hani aut aliyoruz, pool sizei kontrol et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "Database connection tayimaut aliyoruz, pool size'i kontrol et", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "hani databeys connectiontaymaut aliyoruz, pool size'i kontrol et.", "output": "Database connection timeout aliyoruz, pool size'i kontrol et."}
+{"input": "memory leak var heap dump al, analizet.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "Memory leak var heap dump al,analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "memory leak var heap iste dump al, analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "memory leak var heap dump al analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "memory leak var, heap dump al, analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "memory iste leak var, heap dump al,analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "yani memory leak var, heap dumpal, analiz et.", "output": "Memory leak var, heap dump al, analiz et."}
+{"input": "yani eypiai risponz suresi uc saniyeyi geciyor, profiling yap", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "yani apiay response suresi uc saniyeyi geciyor profiling yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "iste aPI risponz suresi uc saniyeyi geciyor, profiling yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "iste apiayrispons suresi uc saniyeyi geciyor,profiling yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "aPi risponz suresi uc saniyeyi geciyor, profiling iste yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "apiay response hani suresi uc saniyeyi geciyor profiling yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "hani aPI risponz suresi uc sani yeyi geciyor, profiling yap.", "output": "API response suresi uc saniyeyi geciyor, profiling yap."}
+{"input": "DNs resolution tayimaut resolvconf'u kontrol et.", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "dns resolution hani taymaut, resolv.conf'ukontrol et", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "dienes resolution tayimaut resolvconfu kontrol et", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "DNS resolution taymaut, resolvconf'u kontrol et", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "dnS resolution taym aut, resolv.conf'u kontrol et", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "dienes resolution yani tayimaut, resolv.conf'u kontrol et.", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "DNS hani resolution tayimaut, resolv.conf'u kontrol et.", "output": "DNS resolution timeout, resolv.conf'u kontrol et."}
+{"input": "Thread deadlock var lock sirasini kontrol et.", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "hani Thread deadlock var, lock sirasini kontrol et.", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "yani tired dead lock var, lock sirasini kontrol et", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "hani Thread deadlock var, lock sirasini kontrol et", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "yani Thread deadlock var lock sirasini kontrol et", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "tiret deadlock var, lock sirasini kontrol et", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "yani tiretdeadlock var, lock sirasinikontrol et", "output": "Thread deadlock var, lock sirasini kontrol et."}
+{"input": "query plan'a bak, index eksik olabilir", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "Query planabak, iste index eksik olabilir", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "query plana bak, index eksik olabilir.", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "Query plan'a yani bak, index eksik olabilir.", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "kueri iste plan'abak index eksik olabilir.", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "yani Query plan'a bak, index eksik olabilir.", "output": "Query plan'a bak, index eksik olabilir."}
+{"input": "widget yani rebuild surekli oluyor tamam key eksikolabilir", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "ee vicet rebuild surekli oluyor, key eksik olabilir.", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "tamam vicet tamam rebuild surekli oluyor key eksik olabilir.", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "iste vicet yani rebuild surekli yani oluyor, key eksik olabilir", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "yani Widget rebuild surekli oluyor,key eksik olabilir", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "iste tamam viget rebuild surekli oluyor, key eksik olabilir.", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "aa widget rebuild surekli oluyor, key eksikolabilir.", "output": "Widget rebuild surekli oluyor, key eksik olabilir."}
+{"input": "aa Hot reload calismiyor, flutter sey clean yapip tekrar dene.", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "Hot reload calismiyor, Flutter clean yeypiaip sey tekrar tamam dene", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "hani hat rilöd calismiyor, flater clean yeypiaip tekrar dene", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "yani Hot reloadcalismiyor flatir clean yeypiayp tekrar dene.", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "hat rilod calismiyor sey flatır clean yapip sey iste tekrardene.", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "aa Hot reload calismiyor, flatirclean yapip iste tekrar dene", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "yani hot reload calismiyor flater clean yeypiaip tekrar dene", "output": "Hot reload calismiyor, Flutter clean yapip tekrar dene."}
+{"input": "null pointer tamam iksepsinaliyor optional iste sey chaining ekle.", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "hani nul pointer exception aliyor, optional chaining ekle", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "yani Null pointer exception aliyor, ee optional chaining ekle", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "naal pointer yani hani exception aliyor opti onal sey chainingekle.", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "nul pointer eksepsn aliyor, iste optional chaining aa ekle.", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "yani yani nul pointer exception aliyor, optional chaining ekle.", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "tamam hani null pointer exception aliyor, optional chaining ekle", "output": "Null pointer exception aliyor, optional chaining ekle."}
+{"input": "state guncellenmiyorimmutability yani kuralini cignemisiz", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "state guncellenmiyor, sey yani yani immutability kuralini cignemisiz", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "State hani iste guncellenmiyor,immutability kuralini cigne aa misiz.", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "tamam aa State guncellenmiyor, immutability kuralini cignemisiz.", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "yani tamam state guncellenmiyor, immutability tamam kuralini cignemisiz.", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "yani state guncellenmiyor, immutability yani kuralini cignemisiz.", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "ee hani State guncellenmiyor,immutability aa kuralini cignemisiz.", "output": "State guncellenmiyor, immutability kuralini cignemisiz."}
+{"input": "platform channel hata aa veriyor native tarafta log'a yani bak", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "platform channel hata veriyor native tarafta log'a ee bak.", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "yani Platfoerem channel hata hani veriyor native tarafta log'a bak.", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "aa hani Platfoarem channel hata veriyor aa native tarafta loga bak.", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "platfoaremchannel hata sey veriyor native tarafta log'a bak", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "yani platfoerem channel hata veriyornative tarafta log'a bak", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "sey platform channel hata veriyor, native tarafta loga bak", "output": "Platform channel hata veriyor, native tarafta log'a bak."}
+{"input": "build context sey hata tamam veriyor async gap sorunu", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "build kontekst sey hata veriyor async gap sorunu", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "hani buildkontekst hataveriyor async gap ee iste sorunu.", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "build kantekst hata yani veriyor eysingk gap sorunu", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "Build aa context hata veriyor tamam asyncgap sorunu", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "build kontekst hata yani tamam veriyor asink gap sorunu.", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "hani Build konteks hata veriyor asink gap tamam sorunu.", "output": "Build context hata veriyor, async gap sorunu."}
+{"input": "riverpoad provaydır'i aa dispose sey iste olmuyor ref.onDisposeekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "tamam ee rivirpad provaydiri dispose olmuyor, refondispose ekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "rivırpad aa provaydıri dispose olmuyor, tamam ref.onDisposeekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "iste rivirpad iste provaydiri dispose olmuyor refonDispose ekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "riverpad hani provaydıri disposeolmuyor refonDispose ekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "sey rivırpod provaydr'i dispose olmuyor, ee ref.ondispose ekle.", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "aa rivırpod aa hani provaydir'i disposeolmuyor, refondispose ekle", "output": "Riverpod provider'i dispose olmuyor, ref.onDispose ekle."}
+{"input": "container restart lupa girmis, log'lara bak", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "container ristart lüp'a girmis log'lara bak", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "konteyner restart lup'agirmis, log'lara bak.", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "container restartlupa girmis, log'lara bak", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "Container restart lupa girmis, log'lara bak.", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "iste konteyner restart loop'a girmis, log'lara bak.", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "konteyner ristart loop'a girmis log'lara yani bak.", "output": "Container restart loop'a girmis, log'lara bak."}
+{"input": "pod CrashLoopBackoff'ta, iste describe pod yap", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "podcrashlüpBackOff'ta, desc ribe poad yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "hani Pod CrashlüpbackOff'ta describe poad yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "poad CrashLoopBackOff'ta, hani describe poad yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "Pod CrashlupBackOff'ta, describe pod yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "hani pad CrashlüpBackOff'ta, describe pod yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "PodCrashLoopBackOff'ta, describe hani pod yap.", "output": "Pod CrashLoopBackOff'ta, describe pod yap."}
+{"input": "ingress'ten 502 donuyor backend service'i kontrol et", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "ingres'ten 502 donuyor, backend service'i kontrol et", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "Ingress'ten 502 donuyor, backend service'i iste kontrol et.", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "ingires'ten 502 donuyor, backend servicei iste kontrol et", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "iste Ingress'ten 502 donuyor backend servicei kontrolet.", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "Ingressten 502 donuyor, backend service'i kontrol et", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "iste ingressten 502 donuyor, backend service'i kontrol et.", "output": "Ingress'ten 502 donuyor, backend service'i kontrol et."}
+{"input": "Prometheus scrape fail oluyor, port yani mapping kontrol et.", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "promiteus scrape fail oluyor port mapping yani kontrol et.", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "iste promiteus scrape fail oluyor port mapping kontrol et.", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "prometius scrape fail oluyor, port mapping kontrol et", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "hani Prometheus scrape fail oluyor portmapping kontrol et.", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "iste Prometheus scrape fail oluyor port mapping kontrol et.", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "Prometheus hani scrape fail oluyor port mapping kontrol et", "output": "Prometheus scrape fail oluyor, port mapping kontrol et."}
+{"input": "hani helm apgireyd fail oldu, rollback yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "iste helm upgrade fail oldu rollback yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "helm upgrade fail oldu, rollback yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "Helm upgrade fail oldu, rolbek hani yap", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "iste Helm apgreyd fail oldu rolbek yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "helim upgrade hani fail oldu, rollback yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "helim apgireid yani fail oldu, rollback yap.", "output": "Helm upgrade fail oldu, rollback yap."}
+{"input": "docker build kes bozulmus, no-keys ile rebuild et.", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "iste dakir build cache bozulmus, no-kas ile rebuild et.", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "yani Docker build cache bozu lmus no-kas ile rebuild et", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "docker build cache hani bozulmus no-cache ile rebuild et.", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "dakir iste build cachebozulmus, no-cache ile rebuild et", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "hani Docker build keys bozulmus, no-cache ile rebuild et", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "Docker build cache bozulmus, yani no-kes ile rebuild et.", "output": "Docker build cache bozulmus, no-cache ile rebuild et."}
+{"input": "teraf oarem statelock iste kalmis, force unlock yap.", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "teraform state lock kalmis, force unlock yap.", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "hani tereform state lock kalmis, force unlock yap.", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "yani terrafoarem state lock kalmis, force unlock yap", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "tereform state lock kalmis, force unlock yap.", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "Terrafoerem state lock kalmis force unlock yap", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "tereform state iste lock kalmis, force unlock yap.", "output": "Terraform state lock kalmis, force unlock yap."}
+{"input": "kompanent mount edilmiyor, conditional rendirda ee sorun var.", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "compo nenti mount edilmiyor, sey hani conditional render'da aa sorun var.", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "komponent mount edilmiyor,conditional tamam renderda yani sorun var.", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "component tamam yani mount edilmiyor,conditional iste render'dasorun var.", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "kompanentmount edilmiyor, conditional rindirda sorun tamam var", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "sey kompanentmount edilmiyor, conditional rendirda sorunvar.", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "componenti mount edilmiyor, conditional renderda iste sorun hani var", "output": "Component mount edilmiyor, conditional render'da sorun var."}
+{"input": "useEffect iki hani kere calisiyor riekt strict mode yuzunden", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "tamam iste useEffect iki kere calisiyor yani riyakt strict mode yuzunden.", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "ee yusifekt iki kere calisiyor react strict modeyuzunden", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "yuz ifekt iki kere calisiyor React strict mode tamam yuzunden.", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "yani yuzifekt iki kere ee calisiyor riekt yani strict mode yuzunden", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "hani yusifekt iki kere calisiyor aa aa react strict mode yuzunden.", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "aa useEffect iki ee kere calisiyor, riekt strict mode yuzunden.", "output": "useEffect iki kere calisiyor, React strict mode yuzunden."}
+{"input": "sey si eses'te z-index savasivar, stacking konteksi duzelt.", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "si iste eseste z-index savasi var, aa yani stacking kantekst'i duzelt", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "si tamam es este z-index sey savasi var, hani stacking konteks'i duzelt.", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "csste iste z-index savasi varstacking contexti sey duzelt", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "si es es'te z-indexsavasi iste var stacking kontekst'i duzelt.", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "sey css'te z-index yani savasi var, stackingkontekst'i duzelt.", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "ee ee CSSte z-index sey savasi var stacking contextiduzelt", "output": "CSS'te z-index savasi var, stacking context'i duzelt."}
+{"input": "hydration mismatch aliyor sorvir hani veclient farkli render ediyor", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "hidreysin mismatch aliyor server yani aa ve client farkli render ediyor.", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "iste hidreysin mismatch aliyor server ve client farkli render ediyor", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "sey Hydration mismatch aliyor, ee sorvir ve seelayent farkli render ediyor", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "aa hidreysin mismatch aliyor server ve hani client farkli render ediyor", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "aa Hydration mismatch aliyor servir ve client farkli render ediyor.", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "iste hayıdreysin mismatch aliyor, server ve sielayent farklirender hani ediyor.", "output": "Hydration mismatch aliyor, server ve client farkli render ediyor."}
+{"input": "sey hani sey Form state resetlenmiyor key propekle.", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "Form yani iste state resetlenmiyor key propekle", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "form state ee resetlenmiyor key yani propekle", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "ee foarem state resetlenmiyor, tamam key prop ekle.", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "Foerem aa state resetlenmiyor, key prop ekle", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "yani form iste state sey resetlenmiyor, key propekle", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "ee form stateresetlenmiyor key yani prop ekle.", "output": "Form state resetlenmiyor, key prop ekle."}
+{"input": "iste Layout shift oluyor, image dimensions ver", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "leyavut shift oluyor ee image iste hani dimensions ver", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "layout tamam shift oluyor image dimensions ver", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "sey leyaut shift oluyor image dimensions ver.", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "yani hani leyavut sey shift oluyor image dimensions ver.", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "layout shift oluyor image hani dimensionsver.", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "layout shift iste oluyor, image tamam dimensions ver.", "output": "Layout shift oluyor, image dimensions ver."}
+{"input": "bundle size cok aa buyuk, lazy sey import kullan", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "tamam Bundle size cok buyuk, lazy impört yani kullan.", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "bundle size cok buyuk, lazy hani import kullan", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "tamam bundlesize iste cok buyuk lazy hani impört kullan.", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "bundle size cok buyuk, aa lazy import kullan", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "bundle hani size tamam cok iste buyuk lazy impörtkullan.", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "Bundle tamam sizecok buyuk, lazy import sey sey kullan", "output": "Bundle size cok buyuk, lazy import kullan."}
+{"input": "ee Error mesajini okuyamiyorum sey tamam turkcedegil.", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "bi dakika error mesajini nasil diyeyim aa okuyamiyorum, turkcedegil", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "simdi Error mesajini okuyamiyorum, aa turkce dur bi saniye degil.", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "him ya error mesajini falan okuyamiyorum,turkce degil", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "Error mesajini simdi okuyamiyorum turkce ya neyse degil.", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "ya error mesajini okuyamiyorum, turkce dur bi saniye hani degil", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "dur bi saniye error sey mesajiniokuyamiyorum turkcedegil", "output": "Error mesajini okuyamiyorum, turkce degil."}
+{"input": "ya konsoul'da aa bir falan suru nasil diyeyim warning var, hangisionemli?", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "aa bi dakika console'da tamam bi dakika bir suru warning var, hangisi onemli?", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "ee konsoldabir bir nevi suru warningvar, yani hangisi sey onemli?", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "ee konsoldabir dur bi saniye suru warning var neyse falan hangisi onemli", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "konso ee bir nevi bir nevi dur bi saniye ul'da sey bir suru warning var hangisi onemli", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "ya konsolda nasil diyeyim bir suru aslinda warningvar, hangisi onemli?", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "tamam neyse konsoul'da bir suru warning var hangisi sey falan sey onemli", "output": "Console'da bir suru warning var, hangisi onemli?"}
+{"input": "Git morc him conflict'i cozemedim dosya neyse bir nevi karismis", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "simdi git mörc konfl ıkt'i falan aslinda aa cozemedim, bir nevi dosya karismis.", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "git merc konflikt'i cozemedim, him dosya simdi ee karismis", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "sey neyse him git morc konflikt'i cozemedim ya dosyakarismis.", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "bi dakika git morc konfilikt'i cozemedimdosya iste dur bi saniye him karismis", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "gitmerc konflikti cozemedim, nasil diyeyim dosya iste kari nasil diyeyim tamam smis", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "nasil diyeyim hani tamam git morc konflikt'i cozemedim dosya karismis", "output": "Git merge conflict'i cozemedim, dosya karismis."}
+{"input": "sey eysinkawait'te aa sira falan karismisPromise.all kullanmaliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "Asyncaveyitte sira karismis falan Promise.all kullanm nasil diyeyim simdi aliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "Asynceveyt'te falan sira karismispromiseall kullanm dur bi saniye tamam aliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "eysink eveytte hani sira karismis ee bir nevi Promiseall kullanmaliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "asink nasil diyeyim bi dakika simdi iveyt'te sira karismis hani bi dakika promiseall kullanmaliydin.", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "simdi bi dakika eysingk awaitte him sira ee karismis, Promiseall kullanmaliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "falan eysink iveyt'te sira iste ee karismis sey Promiseall bir nevi kullanmaliydin", "output": "Async await'te sira karismis, Promise.all kullanmaliydin."}
+{"input": "tamam Npm iste installhata bi dakika veriyornoud versiyonunu bir nevi kontrol bi dakika et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "npm installhata veriyor node versiyonunu falan him kontrol nasil diyeyim et.", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "dur bi saniye neyse npm install hataveriyor yani noud versiyonunukontrol et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "npm install hata yani veriyor tamam hani noud sey versiyonunu kontrol falan et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "npm install hata iste dur bi saniye tamam veriyor, aslinda nod versiyonunukontrol bir nevi et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "npm install hata veriyor nod versi bir nevi him yonunu him kontrol et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "Npm install hata veriyor, nodversiyonunu kontrol simdi dur bi saniye sey iste et", "output": "Npm install hata veriyor, node versiyonunu kontrol et."}
+{"input": "bu hata falan ee ilk defa sey cikti, dun calisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "tamam him Bu hata bi dakika bir nevi ilk nasil diyeyim defa cikti, dun calisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "aa Bu hatailk dur bi saniye defacikti iste dun calisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "iste bu hata him aslinda ilk defa cikti hani dun calisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "Bu hata yani bir nevi ilkdefa sey cikti, iste nasil diyeyim dun calisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "hani simdi bu hata ilkdefa falan cikti dun calisi sey yordu.", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "bu hata ilk simdi defa yani cikti, tamam duncalisiyordu", "output": "Bu hata ilk defa cikti, dun calisiyordu."}
+{"input": "stack neyse overflow hatasi aliyor him tamam recursive fanksin sonsuzdonuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "stack overflow dur bi saniye hatasi aliyor, recursive hani nasil diyeyim function bir nevi sonsuz donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "stack overflow hatasi sey aliyor neyse recursive ya fanksin falan sonsuz donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "Stackoverflow yani hatasi aliyorrecursive simdi fonk siyon sonsuz simdi donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "nasil diyeyim dur bi saniye Stack falan ya overflow hatasi aliyor, recursive aa functionsonsuz donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "hani stack overflow hani hatasi aliyor nasil diyeyim recursive functionsonsuz donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "stack ya overflow hatasi simdi him aliyor recursive him fanksiyon sonsuz bir nevi donuyor", "output": "Stack overflow hatasi aliyor, recursive function sonsuz donuyor."}
+{"input": "sprint'tekibug sayisi artti, root aa cause yani analysis hani yapalim", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "sipırint'teki bug iste sayisi artti root hani cause analysis yapalim", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "yani Sprint'teki bug sayisi artti hani root cause analysis hani yapalim.", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "Sprint'teki tamam bug sayisi artti, iste root cause analysis yapalim.", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "iste sprint'teki tamam bug sayisiartti, root ee cause analysis yapalim.", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "sipırint'teki bug sayisi ee yani artti, root cause yani analysis yapalim.", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "yani sprint'teki bug sayisi artti, aa root cause analysis yapalim.", "output": "Sprint'teki bug sayisi artti, root cause analysis yapalim."}
+{"input": "aa Musteri bu hatayi raporladi oncelikli duzelt.", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "tamam musteri bu hatayi sey raporladi, oncelikli duzelt", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "Musteri aa ee bu hatayi raporladi oncelikli duzelt", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "Musteri yani bu aa hatayiraporladi, sey oncelikli duzelt", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "musteri hani yani bu hatayi aa raporladi, oncelikli duzelt", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "Musteri bu hatayi raporladi, oncelikli sey duzelt", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "musteri bu hatayi aa raporladi oncelikli duzelt.", "output": "Musteri bu hatayi raporladi, oncelikli duzelt."}
+{"input": "Demoda yani crash yani oldu hotfix sey gerekiyor", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "dimoda crash oldu, yani hotfix gerekiyor.", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "demoda hani crasholdu hotfix gerekiyor", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "aa dimoda hani ee crash oldu, hotfix gerekiyor", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "sey tamam Demoda crash aa oldu,hotfix gerekiyor.", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "yani dimo'da crash oldu, hotfix gerekiyor", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "sey Demoda crash hani oldu,hotfix gerekiyor", "output": "Demo'da crash oldu, hotfix gerekiyor."}
+{"input": "kashit rate cok dusuk yani key pattern'i yanlis.", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "kes hit rate cok dusuk,key patterni yanlis.", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "yani cache hit rate cok dusuk key patterni yanlis.", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "keys hit rate cok dusukkey pattern'i yanlis.", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "cache hit rate cok iste dusuk, key patterni yanlis", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "cache hit rate cok dusuk key pattern'i yanlis", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "cache hit rate cok dusuk key pattern'i yanlis.", "output": "Cache hit rate cok dusuk, key pattern'i yanlis."}
+{"input": "overflow hatasialiyor aa SinglechildScrollview ekle.", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "sey overflow yani hatasi aliyor, iste SingleChildscrollview ekle.", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "overflow tamam hatasi aliyor iste SingleChildScrollView ekle.", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "iste aa tamam Overflow hatasi aliyor singleChildScrollView ekle", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "tamam ee Overflowhatasi aliyor SingleChildscrollView aa ekle.", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "hani overflowhatasi aliyor, SingleChildscrollView ekle.", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "hani hani overflow hatasi aliyor SinglechildScrollView ekle", "output": "Overflow hatasi aliyor, SingleChildScrollView ekle."}
+{"input": "undefined is not nasil diyeyim bir nevi bir nevi a fanksiyon hatasi, typoolabilir", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "undefined dur bi saniye is ee iste not a fonksiyon hatasi typoolabilir.", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "undefined is not neyse iste a dur bi saniye fonksiyon hatasi sey hani typo olabilir", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "aa him bir nevi undefined yani is not a bir nevi function him hatasi typoolabilir", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "undefined is not bi dakika a hani fanksiyon aslinda hatasitypo olabilir", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "undefined yani is nota fank aslinda aslinda siyon hatasi ee typo sey olabilir", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "iste simdi bi dakika undefined is dur bi saniye not a function hatasi, typo neyse olabilir.", "output": "Undefined is not a function hatasi, typo olabilir."}
+{"input": "Race condition var, mutex ekle", "output": "Race condition var, mutex ekle."}
+{"input": "race condition var mutex ekle", "output": "Race condition var, mutex ekle."}
+{"input": "hani Race condition varmutex ekle.", "output": "Race condition var, mutex ekle."}
+{"input": "race condition var iste mutex ekle.", "output": "Race condition var, mutex ekle."}
+{"input": "hani racecondition var, mutex ekle", "output": "Race condition var, mutex ekle."}
+{"input": "iste race condition var, mutex ekle.", "output": "Race condition var, mutex ekle."}
+{"input": "aa ee build modeu release'de calisiyor, debug'a cevir.", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "Build mode'u yani ee release'de calisiyor dibag'a yani cevir.", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "iste build modeu rilizde tamam calisiyor, dibag'a hani cevir.", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "Build sey mode'u release'de yani calisiyor debuga sey cevir", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "ee Build hani aa modeu riliyz'de calisiyor, dibag'a cevir.", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "yani Buildmodeu rilizde calisiyor,debug'a tamam yani cevir", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "sey Build mode'u releasede calisiyor, hani debuga cevir", "output": "Build mode'u release'de calisiyor, debug'a cevir."}
+{"input": "Git neyse diffe baktim falan amane degistirdigimi iste anlamadim.", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "git aslinda dif'e baktim neyse ama ne nasil diyeyim hani degistirdigimi ee anlamadim", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "gitdiffe baktim ama aa ne ya degistirdigimi anla bir nevi madim", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "yani git diffe baktim him ama ya nedegistirdigimi falan anlamadim.", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "neyse Git hani dıf'ebaktim ya ama ne simdi yani degistirdigimi anla nasil diyeyim madim", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "tamam git dife baktim ama ne nasil diyeyim degistirdigimi bi dakika anlamadim", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "aslinda bi dakika Git diff'ebaktim amane degistirdigimi aa anlamadim.", "output": "Git diff'e baktim ama ne degistirdigimi anlamadim."}
+{"input": "Kullanicibu ekranda sikiliyoranalytics verisi iste dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "kullanici bu ekranda hani sikiliyor, analyticsverisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "kullanici yani bu aa ekranda hani sikiliyor analytics verisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "Kullanici buekranda iste sikiliyor, analytics verisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "iste Kullanici bu ekranda sikiliyor analytics verisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "kullanici aa bu ekranda sey sikiliyor, analytics verisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "kullanici bu iste sey ekranda sikiliyor,analytics verisi dusuk.", "output": "Kullanici bu ekranda sikiliyor, analytics verisi dusuk."}
+{"input": "connection leak var, finally blockta close cagir.", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "connection leak var, finally block'taclose cagir.", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "iste Connectionleak var,finally bilokkta close cagir.", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "connection leak var, finally blockta close cagir", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "connection leak var, finally bilokk'ta close cagir.", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "connection leak var, finally blakkta hani close cagir", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "connection leak var, finally bilokkta close cagir.", "output": "Connection leak var, finally block'ta close cagir."}
+{"input": "tamam theme data overraydii sey olmamis, default renk geliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "iste theme dataoverride olmamis, yani default renk geliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "sey theme ee dataoverride olmamis default renk geliyor.", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "iste theme data override olmamis, default renkgeliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "theme data aa overraydii iste olmamis tamam default renk geliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "aa theme data overraydii olmamis, default renkgeliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "Theme data hani overraydii sey olmamis default renkgeliyor", "output": "Theme data override olmamis, default renk geliyor."}
+{"input": "buliin logic bir nevi yanlis, trueyerine aslinda simdi falsekoymusum", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "nasil diyeyim boolean logic yanlis,true ee bi dakika yani yerine false koymusum", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "buliyen sey logic ee ya nasil diyeyim tamam yanlis, true yerine false him koymusum.", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "nasil diyeyim buliyen logic yanlis ee sey bi dakika true yerine neyse nasil diyeyim false koymusum.", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "bir nevi falan dur bi saniye boolean logic yanlis, aa iste true yerine false koymusum.", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "bi dakika buliyen hani logic yanlis, trueyerine ee iste tamam false koymusum.", "output": "Boolean logic yanlis, true yerine false koymusum."}
+{"input": "booliinlogic yanlis true yerine neyse aslinda false dur bi saniye neyse bir nevi koymusum", "output": "Boolean logic yanlis, true yerine false koymusum."}

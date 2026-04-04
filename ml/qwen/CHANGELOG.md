@@ -5,7 +5,31 @@ Adapter dosyaları gitignore'da — HuggingFace'te yedekli.
 
 ---
 
-## v3.0 — 2026-04-04 ✅ AKTİF
+## v4.0 — 2026-04-04 ✅ AKTİF
+
+**Dosya:** `adapters/v4.0/`
+
+**Ne öğrendi:**
+- Türk developer fonetik bozuklukları: "depıloyment"→"Deployment", "kubernetis"→"Kubernetes"
+- 6 persona stili: Senior Backend, Flutter, DevOps, Frontend, Junior, PM
+- 8 senaryo: standup, code review, pair programming, debugging, toplantı, onboarding, günlük sohbet, Slack
+- Cümle başı filler + anlamsal ayrım + backtrack (v3'ten devralındı)
+
+**Dataset:** `datasets/v4/` — 3096 pairs (v3 2155 + persona 941)
+- phonetic_corruptions.py: 160+ teknik terim fonetik sözlüğü
+- 6 persona × 8 senaryo × 5 varyant
+
+**Eğitim:**
+- Base: Qwen/Qwen2.5-7B-Instruct (sıfırdan LoRA)
+- Script: `mlx_lm.lora` (Mac M4 local, 48 dk)
+- iters=1000, batch=1, LR=1e-5, grad_checkpoint
+- **val_loss: 0.428** (best, iter 400) — v3: 0.513, **%17 iyileşme**
+- Final val: 0.463, train: 0.430
+- Peak mem: 5.26 GB
+
+---
+
+## v3.0 — 2026-04-04 (arşiv)
 
 **Dosya:** `adapters/v3.0/` (eğitim sonrası)
 **HF:** `tkosen/voiceflow-qwen-adapter-v3` (eğitim sonrası)
