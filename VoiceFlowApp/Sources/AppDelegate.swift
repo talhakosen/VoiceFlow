@@ -27,22 +27,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.recordingOverlay = overlay
         vm.onShowRecordingOverlay = { [weak self] in
             DispatchQueue.main.async {
-                overlay.pillState.isProcessing = false
-                overlay.orderFront(nil)
+                overlay.showRecording()
                 self?.modeIndicator.showPersistent(mode: vm.currentAppMode)
             }
         }
         vm.onShowProcessingOverlay = { [weak self] in
             DispatchQueue.main.async {
-                overlay.pillState.isProcessing = true
-                overlay.orderFront(nil)
+                overlay.showProcessing()
                 self?.modeIndicator.close()
             }
         }
         vm.onHideRecordingOverlay = { [weak self] in
             DispatchQueue.main.async {
-                overlay.pillState.isProcessing = false
-                overlay.orderOut(nil)
+                overlay.hide()
                 self?.modeIndicator.close()
             }
         }

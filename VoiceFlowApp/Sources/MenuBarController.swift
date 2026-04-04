@@ -45,7 +45,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private func syncUI() {
         guard let menu = statusItem?.menu else { return }
 
-        // Rebuild menu if role changed (e.g. after login)
+        // Rebuild if role changed
         let currentRole = viewModel.currentUser?.role ?? ""
         if currentRole != lastKnownRole {
             lastKnownRole = currentRole
@@ -53,29 +53,40 @@ class MenuBarController: NSObject, NSMenuDelegate {
             return
         }
 
-        // Status text (bottom) — version sol, status sağa yapışık
-        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        if let item = menu.item(withTag: 100) {
-            item.attributedTitle = makeVersionStatusAttr(version: v, build: b, status: viewModel.statusText)
-        }
-
-        // Mode checkmarks
-        for item in menu.items {
-            if let raw = item.representedObject as? String,
-               let mode = AppMode(rawValue: raw) {
-                item.state = viewModel.currentAppMode == mode ? .on : .off
-            }
-        }
-
-        // Recording toggle title + icon
+        // Recording toggle (tag 101)
         let recording = viewModel.isRecording
         if let recItem = menu.item(withTag: 101) {
             recItem.title = recording ? "Kaydı Durdur" : "Kaydı Başlat"
-            if let img = NSImage(systemSymbolName: recording ? "stop.circle" : "mic",
-                                  accessibilityDescription: nil) {
+            if let img = NSImage(systemSymbolName: recording ? "stop.circle.fill" : "mic",
+                                 accessibilityDescription: nil) {
                 img.isTemplate = true
                 recItem.image = img
+            }
+        }
+
+        // Paste last transcript (tag 102) — enabled only when a result exists
+        if let pasteItem = menu.item(withTag: 102) {
+            let hasResult = viewModel.lastResult != nil
+            pasteItem.isEnabled = hasResult
+        }
+
+        // Mode checkmarks in submenu
+        for item in menu.items {
+            if item.tag == 103, let sub = item.submenu {
+                for subItem in sub.items {
+                    if let raw = subItem.representedObject as? String,
+                       let mode = AppMode(rawValue: raw) {
+                        subItem.state = viewModel.currentAppMode == mode ? .on : .off
+                    }
+                }
+            }
+            if item.tag == 104, let sub = item.submenu {
+                for subItem in sub.items {
+                    if let raw = subItem.representedObject as? String,
+                       let lang = LanguageMode(rawValue: raw) {
+                        subItem.state = viewModel.currentLanguageMode == lang ? .on : .off
+                    }
+                }
             }
         }
 
@@ -91,43 +102,98 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private func rebuildMenu() {
         let menu = NSMenu()
 
+        // ── Branding header ──────────────────────────────────────────────
+        menu.addItem(brandHeader())
+        menu.addItem(.separator())
+
+        // ── Primary action ───────────────────────────────────────────────
         let isRec = viewModel.isRecording
         menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
                             sel: #selector(toggleRecording),
-                            key: "", icon: isRec ? "stop.circle" : "mic", tag: 101))
-        // Mode switcher
-        menu.addItem(.separator())
-        for mode in AppMode.allCases {
-            let item = action(mode.displayName, sel: #selector(switchMode(_:)),
-                              key: mode.menuKeyEquivalent, icon: mode.menuIcon)
-            item.keyEquivalentModifierMask = [.option]
-            item.state = viewModel.currentAppMode == mode ? .on : .off
-            item.representedObject = mode.rawValue
-            menu.addItem(item)
-        }
+                            key: "", icon: isRec ? "stop.circle.fill" : "mic", tag: 101))
+
+        let pasteItem = action("Son Transkripsiyonu Yapıştır",
+                               sel: #selector(pasteLastTranscript),
+                               key: "v", icon: "doc.on.clipboard", tag: 102)
+        pasteItem.keyEquivalentModifierMask = [.control, .command]
+        pasteItem.isEnabled = viewModel.lastResult != nil
+        menu.addItem(pasteItem)
         menu.addItem(.separator())
 
-        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
-                            key: "", icon: "arrow.clockwise"))
-        menu.addItem(action("Ses Eğitimi...",         sel: #selector(openITDataset),
-                            key: "", icon: "waveform.badge.microphone"))
-        menu.addItem(action("Settings...",            sel: #selector(openSettings),
-                            key: "", icon: "gearshape"))
+        // ── Config submenus ──────────────────────────────────────────────
+        let shortcutItem = NSMenuItem(title: "Kısayol: Fn × 2 (başlat/durdur)", action: nil, keyEquivalent: "")
+        shortcutItem.isEnabled = false
+        menu.addItem(shortcutItem)
+
+        let langMenu = NSMenu()
+        for lang in LanguageMode.allCases {
+            let item = action(lang.rawValue, sel: #selector(switchLanguage(_:)), key: "")
+            item.representedObject = lang.rawValue
+            item.state = viewModel.currentLanguageMode == lang ? .on : .off
+            langMenu.addItem(item)
+        }
+        let langItem = NSMenuItem(title: "Dil", action: nil, keyEquivalent: "")
+        langItem.tag = 104
+        langItem.submenu = langMenu
+        menu.addItem(langItem)
+
+        let modeMenu = NSMenu()
+        for mode in AppMode.allCases {
+            let item = action(mode.displayName, sel: #selector(switchMode(_:)), key: "")
+            item.representedObject = mode.rawValue
+            item.state = viewModel.currentAppMode == mode ? .on : .off
+            if let img = NSImage(systemSymbolName: mode.menuIcon, accessibilityDescription: nil) {
+                img.isTemplate = true
+                item.image = img
+            }
+            modeMenu.addItem(item)
+        }
+        let modeItem = NSMenuItem(title: "Kullanım Alanı", action: nil, keyEquivalent: "")
+        modeItem.tag = 103
+        modeItem.submenu = modeMenu
+        menu.addItem(modeItem)
+
+        menu.addItem(.separator())
+
+        // ── Settings / Tools ─────────────────────────────────────────────
+        menu.addItem(action("Ayarlar…",       sel: #selector(openSettings),   key: ",", icon: "gearshape"))
+        menu.addItem(action("Ses Eğitimi…",   sel: #selector(openITDataset),  key: "", icon: "waveform.badge.microphone"))
 
         let role = viewModel.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
-            menu.addItem(action("Admin Panel...", sel: #selector(openAdminPanel),
+            menu.addItem(action("Admin Panel…", sel: #selector(openAdminPanel),
                                 key: "", icon: "shield.lefthalf.filled"))
         }
 
-        menu.addItem(action("Quit", sel: #selector(quit), key: "", icon: "power"))
         menu.addItem(.separator())
-        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-        let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        menu.addItem(versionStatusItem(version: version, build: build, status: viewModel.statusText))
+
+        // ── Service ──────────────────────────────────────────────────────
+        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
+                            key: "", icon: "arrow.clockwise"))
+        menu.addItem(.separator())
+
+        // ── Quit ─────────────────────────────────────────────────────────
+        menu.addItem(action("VoiceFlow'dan Çık", sel: #selector(quit), key: "q"))
 
         menu.delegate = self
         statusItem?.menu = menu
+    }
+
+    private func brandHeader() -> NSMenuItem {
+        let item = NSMenuItem()
+        item.isEnabled = false
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let attr = NSMutableAttributedString()
+        attr.append(NSAttributedString(string: "VoiceFlow", attributes: [
+            .font: NSFont.menuFont(ofSize: NSFont.systemFontSize),
+            .foregroundColor: NSColor.labelColor
+        ]))
+        attr.append(NSAttributedString(string: "  v\(version)", attributes: [
+            .font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize),
+            .foregroundColor: NSColor.tertiaryLabelColor
+        ]))
+        item.attributedTitle = attr
+        return item
     }
 
     // MARK: - NSMenuDelegate
@@ -150,7 +216,15 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func forceStop() { viewModel.forceStop() }
 
+    @objc private func pasteLastTranscript() { viewModel.pasteLastResult() }
+
     @objc private func restartService() { viewModel.restartBackend() }
+
+    @objc private func switchLanguage(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let lang = LanguageMode(rawValue: raw) else { return }
+        viewModel.selectLanguageMode(lang)
+    }
 
     @objc private func switchMode(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String,
@@ -198,35 +272,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     // MARK: - Helpers
 
-    private func versionStatusItem(version: String, build: String, status: String) -> NSMenuItem {
-        let item = NSMenuItem()
-        item.isEnabled = false
-        item.tag = 100
-        item.attributedTitle = makeVersionStatusAttr(version: version, build: build, status: status)
-        return item
-    }
-
-    private func makeVersionStatusAttr(version: String, build: String, status: String) -> NSAttributedString {
-        let small = NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)
-        let tiny  = NSFont.menuFont(ofSize: NSFont.smallSystemFontSize - 1.5)
-        let result = NSMutableAttributedString()
-        result.append(NSAttributedString(string: status, attributes: [
-            .foregroundColor: NSColor.secondaryLabelColor,
-            .font: small
-        ]))
-        result.append(NSAttributedString(string: "  (v\(version) · \(build))", attributes: [
-            .foregroundColor: NSColor.tertiaryLabelColor,
-            .font: tiny
-        ]))
-        return result
-    }
-
-    private func disabled(_ title: String, tag: Int = 0) -> NSMenuItem {
-        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        item.isEnabled = false
-        item.tag = tag
-        return item
-    }
 
     private func action(_ title: String, sel: Selector, key: String,
                         icon: String? = nil, tag: Int = 0) -> NSMenuItem {

@@ -163,25 +163,21 @@ class HotkeyManager {
     }
 
     private func handleFnUp() {
-        // During cooldown after a start/stop action, ignore releases
-        if let lastAction = lastActionTime,
-           Date().timeIntervalSince(lastAction) < cooldownAfterAction {
-            log(" Fn RELEASED → IGNORED (cooldown)")
-            return
-        }
-
-        // Within double-tap window, don't stop (user might be mid-double-tap)
-        if let last = lastFnDownTime, Date().timeIntervalSince(last) < doubleTapThreshold {
-            log(" Fn RELEASED → IGNORED (within double-tap window)")
-            return
-        }
-
-        // Fn release stops recording (push-to-talk)
+        // If recording is active, always stop on release — cooldown must not block a stop
         if isRecordingActive {
             isRecordingActive = false
             lastActionTime = Date()
+            lastFnDownTime = nil
             log(" Fn RELEASED → STOP recording")
             onStopRecording?()
+            return
+        }
+
+        // Not recording: ignore releases during cooldown or double-tap window
+        if let lastAction = lastActionTime,
+           Date().timeIntervalSince(lastAction) < cooldownAfterAction {
+            log(" Fn RELEASED → IGNORED (cooldown, not recording)")
+            return
         }
     }
 

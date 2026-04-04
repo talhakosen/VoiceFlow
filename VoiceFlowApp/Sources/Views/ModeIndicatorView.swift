@@ -10,17 +10,10 @@ struct ModeIndicatorView: View {
     let mode: AppMode
 
     var body: some View {
-        HStack(spacing: VFSpacing.lg) {
-            Image(systemName: mode.indicatorIcon)
-                .font(VFFont.pillIcon)
-                .foregroundStyle(mode.color)
-
-            Text(mode.displayName)
-                .font(VFFont.pillText)
-                .foregroundStyle(.white)
-        }
-        .padding(.horizontal, VFSpacing.xxxl)
-        .padding(.vertical, 14)
+        Image(systemName: mode.indicatorIcon)
+            .font(VFFont.pillIcon)
+            .foregroundStyle(mode.color)
+        .padding(VFSpacing.xxl)
         .background(
             ZStack {
                 Capsule().fill(.ultraThinMaterial)

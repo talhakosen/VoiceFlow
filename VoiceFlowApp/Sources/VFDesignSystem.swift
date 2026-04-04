@@ -203,8 +203,9 @@ enum VFLayout {
     }
 
     // Sidebar
-    static let sidebarWidth:    CGFloat = 200
-    static let sidebarMinWidth: CGFloat = 190
+    static let sidebarWidth:          CGFloat = 200
+    static let sidebarMinWidth:       CGFloat = 190
+    static let sidebarCollapsedWidth: CGFloat = 56
 
     // Input fields
     static let fieldLarge:  CGFloat = 360
