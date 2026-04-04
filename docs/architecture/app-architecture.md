@@ -27,7 +27,8 @@ VoiceFlowApp/Sources/
 │   ├── SettingsView.swift        # SwiftUI Settings window
 │   ├── OnboardingView.swift      # İlk açılış sihirbazı (NavigationStack, 3 adım)
 │   ├── ModeIndicatorView.swift   # Sağ üst köşe mod kapsülü (kayıt + mod değişimi)
-│   └── TrainingPillView.swift    # Sağ alt köşe 60px circle, 10s countdown arc, NSAlert dialog
+│   ├── TrainingPillView.swift    # Sağ alt köşe 60px circle, 10s countdown arc, NSAlert dialog
+│   └── SymbolPickerView.swift    # Engineering mode sembol seçim diyaloğu (NSAlert + checkbox listesi)
 │
 ├── Services/
 │   ├── BackendService.swift      # HTTP API client (actor, BackendServiceProtocol impl)

@@ -252,18 +252,33 @@ final class AppViewModel {
                 statusText = "Ready"
                 return
             }
+            // Engineering mode: sembol picker — seçim sonrası yapıştır
+            if let refs = result.symbolRefs, !refs.isEmpty, let showPicker = onShowSymbolPicker {
+                let capturedResult = result
+                let capturedApp = savedApp
+                showPicker(result.text, refs) { [weak self] filteredText in
+                    Task { @MainActor [weak self] in
+                        guard let self else { return }
+                        if let app = capturedApp { app.activate(options: .activateIgnoringOtherApps) }
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        self.paste.pasteText(filteredText)
+                        self.onHideRecordingOverlay?()
+                        self.statusText = "Ready"
+                        if self.trainingModeEnabled && !capturedResult.text.isEmpty && capturedResult.snippetUsed != true {
+                            self.trainingPillResult = capturedResult
+                            self.showTrainingPill = true
+                        }
+                    }
+                }
+                return
+            }
+
             if let app = savedApp {
                 app.activate(options: .activateIgnoringOtherApps)
             }
             try? await Task.sleep(nanoseconds: 300_000_000)
             paste.pasteText(result.text)
             onHideRecordingOverlay?()
-
-            // Engineering mode: show detected symbols in status
-            if let refs = result.symbolRefs, !refs.isEmpty {
-                statusText = refs.joined(separator: " · ")
-                try? await Task.sleep(nanoseconds: 3_000_000_000)
-            }
             statusText = "Ready"
 
             // Training Mode: show feedback pill after paste — skip if snippet was used
@@ -599,6 +614,8 @@ final class AppViewModel {
     var onShowProcessingOverlay: (() -> Void)?
     var onHideRecordingOverlay: (() -> Void)?
     var onModeChanged: ((AppMode) -> Void)?
+    /// Engineering mode: sembol seçim picker'ı göster. text = orijinal metin, refs = ["Name → path:line"], completion = filtrelenmiş metin
+    var onShowSymbolPicker: ((String, [String], @escaping (String) -> Void) -> Void)?
 
     func restartBackend() {
         isRecording = false

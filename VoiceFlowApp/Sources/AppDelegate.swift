@@ -12,6 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let trainingPillController = TrainingPillWindowController()
     private var trainingPillObserver: Task<Void, Never>? = nil
     private let modeIndicator = ModeIndicatorWindowController()
+    private let symbolPicker = SymbolPickerWindowController()
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
@@ -48,6 +49,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.onModeChanged = { [weak self] mode in
             DispatchQueue.main.async {
                 self?.modeIndicator.showBriefly(mode: mode)
+            }
+        }
+        vm.onShowSymbolPicker = { [weak self] text, refs, completion in
+            DispatchQueue.main.async {
+                self?.symbolPicker.show(refs: refs, onConfirm: { items in
+                    completion(Self.applySymbolSelection(text: text, items: items))
+                }, onSkip: {
+                    // Atla → tüm @ref'leri metinden çıkar
+                    let allDeselected = refs.map { ref -> SymbolItem in
+                        var item = SymbolItem(ref: ref)
+                        item.selected = false
+                        return item
+                    }
+                    completion(Self.applySymbolSelection(text: text, items: allDeselected))
+                })
             }
         }
 
@@ -436,6 +452,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         return "/usr/bin/python3"
+    }
+
+    // MARK: - Symbol Picker Helpers
+
+    /// Seçilmeyen semboller için @pathKey referanslarını metinden kaldırır.
+    static func applySymbolSelection(text: String, items: [SymbolItem]) -> String {
+        var result = text
+        for item in items where !item.selected {
+            result = result.replacingOccurrences(of: "@\(item.pathKey)", with: "")
+        }
+        // Birden fazla boşluğu tek boşluğa indir
+        while result.contains("  ") {
+            result = result.replacingOccurrences(of: "  ", with: " ")
+        }
+        return result.trimmingCharacters(in: .whitespaces)
     }
 
     // MARK: - User Identity
