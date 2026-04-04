@@ -1,0 +1,3 @@
+{"audio": "/Users/talhakosen/Developer/utils/voiceflow/ml/whisper/datasets/user_corrections/1775280099083.wav", "whisper_out": "Çalışan kron kapları durdur.", "corrected": "Çalışan cron jobları durdur."}
+{"audio": "/Users/talhakosen/Developer/utils/voiceflow/ml/whisper/datasets/user_corrections/1775280303329.wav", "whisper_out": "Kroncapları kapat.", "corrected": "cron job’lari kapat."}
+{"audio": "/Users/talhakosen/Developer/utils/voiceflow/ml/whisper/datasets/user_corrections/1775280350319.wav", "whisper_out": "cron capları kapat.", "corrected": "cron jopları kapat."}
