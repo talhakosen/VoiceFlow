@@ -14,7 +14,7 @@ Pipeline:
 ── H100 80GB optimize edilmiş komutlar ──────────────────────────────────────────
 
 # 0. Deps
-pip install 'transformers==4.44.2' 'peft==0.12.0' soundfile librosa accelerate bitsandbytes -q
+pip install 'transformers>=4.44' 'peft>=0.12' soundfile librosa accelerate -q
 
 # 1. Script yükle
 scp ml/whisper/whisper_stage2_finetune.py root@<pod>:/workspace/
@@ -36,6 +36,12 @@ import tarfile
 from pathlib import Path
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["TORCHDYNAMO_DISABLE"] = "1"   # inductor compile devre dışı
+
+import torch.backends.cuda as _cuda_backends
+_cuda_backends.enable_cudnn_sdp(False)     # cuDNN SDPA → cuDNN Frontend hatası (CUDA 12.1)
+_cuda_backends.enable_flash_sdp(True)      # Flash attention → memory efficient
+_cuda_backends.enable_math_sdp(True)       # math fallback
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", stream=sys.stderr)
 log = logging.getLogger(__name__)
 
@@ -102,8 +108,8 @@ LANGUAGE        = "tr"
 TASK            = "transcribe"
 
 # H100 80GB — optimize edilmiş
-BATCH_SIZE      = 32    # Stage 1=16 → 32 (H100 80GB'de memory sorun yok, daha az step)
-GRAD_ACCUM      = 1     # effective batch = 32 (accum gereksiz, batch direkt 2×)
+BATCH_SIZE      = 16    # 32→16: OOM fix (step 3183'te crash). Effective batch 32 korunur (grad_accum=2)
+GRAD_ACCUM      = 2     # effective batch = 32 (batch yarılandı, accum 2× ile telafi)
 NUM_EPOCHS      = 2     # Stage 1=3, Stage 2=2
 LR              = 5e-6  # catastrophic forgetting önle
 WARMUP_STEPS    = 50
@@ -122,7 +128,7 @@ def find_issai_dir() -> Path:
     # Fallback: indir
     log.info("ISSAI bulunamadı — HuggingFace'ten indiriliyor (~20GB)...")
     tar_path = Path("/workspace/issai/ISSAI_TSC_218.tar.gz")
-    extract_to = Path("/workspace/issai/extracted")
+    extract_to = Path("/root/issai/extracted")   # container SSD — NFS'ten 60× hızlı
     tar_path.parent.mkdir(parents=True, exist_ok=True)
 
     from huggingface_hub import hf_hub_download
@@ -134,9 +140,20 @@ def find_issai_dir() -> Path:
         token=os.getenv("HF_TOKEN"),
     )
     extract_to.mkdir(parents=True, exist_ok=True)
-    log.info("Çıkartılıyor...")
-    with tarfile.open(tar_path, "r:gz") as tar:
-        tar.extractall(str(extract_to))
+    log.info("Çıkartılıyor... (container SSD /root, ~3 dk)")
+    # tarfile.extractall chown hatalarında exception fırlatır — subprocess ile --no-same-owner kullan
+    import subprocess
+    subprocess.run(
+        ["tar", "--no-same-owner", "-xzf", str(tar_path), "-C", str(extract_to)],
+        check=False,  # chown permission hataları exit!=0 yapar, ignore et
+        stderr=subprocess.DEVNULL,
+    )
+    # tar.gz artık gerekmez — disk yönetimi (50GB volume)
+    try:
+        tar_path.unlink()
+        log.info(f"tar.gz silindi: {tar_path}")
+    except Exception:
+        pass
 
     return extract_to
 
@@ -193,14 +210,14 @@ def punctuate_with_qwen(pairs: list[dict]) -> list[dict]:
             p["text"] = cache.get(p["text"], p["text"])
         return pairs
 
-    log.info(f"Qwen 7B yükleniyor: {QWEN_MODEL} (4-bit)...")
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    log.info(f"Qwen 7B yükleniyor: {QWEN_MODEL} (fp16, H100 80GB)...")
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    bnb_cfg = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
     qwen_tok = AutoTokenizer.from_pretrained(QWEN_MODEL, padding_side="left")
     qwen_tok.pad_token = qwen_tok.eos_token
     qwen_model = AutoModelForCausalLM.from_pretrained(
-        QWEN_MODEL, quantization_config=bnb_cfg, device_map="auto"
+        QWEN_MODEL, dtype=torch.bfloat16, device_map="auto",
+        attn_implementation="eager",  # cuDNN SDPA hatası önleme (CUDA 12.1 uyumluluğu)
     )
     qwen_model.eval()
     log.info("Qwen yüklendi.")
@@ -342,7 +359,9 @@ def train():
 
     # 5. Model + processor
     processor = WhisperProcessor.from_pretrained(MODEL_NAME, language=LANGUAGE, task=TASK, token=hf_token)
-    model = WhisperForConditionalGeneration.from_pretrained(MODEL_NAME, token=hf_token)
+    model = WhisperForConditionalGeneration.from_pretrained(
+        MODEL_NAME, token=hf_token
+    )
     model.generation_config.language = LANGUAGE
     model.generation_config.task = TASK
     model.generation_config.forced_decoder_ids = None
@@ -367,11 +386,12 @@ def train():
         output_dir=str(OUTPUT_DIR),
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
+        eval_accumulation_steps=4,           # logitleri CPU'ya adım adım taşı → VRAM tasarrufu
         gradient_accumulation_steps=GRAD_ACCUM,
         learning_rate=LR,
         warmup_steps=WARMUP_STEPS,
         num_train_epochs=NUM_EPOCHS,
-        evaluation_strategy="steps",
+        eval_strategy="steps",
         eval_steps=EVAL_STEPS,
         save_strategy="steps",
         save_steps=SAVE_STEPS,
@@ -379,15 +399,16 @@ def train():
         load_best_model_at_end=False,
         predict_with_generate=False,
         bf16=True,
+        bf16_full_eval=True,             # H100 fix: eval'ı bf16'da tut, fp32 dönüşümü yapma → OOM önler
         tf32=True,
         # ── H100 hız optimizasyonları ──────────────────────────────────
-        optim="adamw_bnb_8bit",          # 8-bit Adam: optimizer memory küçük, hızlı
+        optim="adamw_torch",             # bitsandbytes CUDA 12.1 uyumsuz — torch AdamW
         torch_compile=True,              # inductor JIT: ~20% GPU hızlanması
         torch_compile_backend="inductor",
-        dataloader_num_workers=16,       # Stage 1=8, 2× worker → CPU darboğazı azalır
-        dataloader_pin_memory=True,
-        dataloader_prefetch_factor=4,    # 4 batch önceden hazırla → GPU sürekli dolu
-        # gradient_checkpointing=False   # Gerek yok: 80GB'da zaten sığıyor
+        dataloader_num_workers=0,        # multiprocessing shared memory hatası önleme
+        dataloader_pin_memory=False,     # num_workers=0 ile pin_memory anlamsız
+        # dataloader_prefetch_factor kaldırıldı — num_workers=0 ile uyumsuz
+        gradient_checkpointing=True,     # OOM fix: aktivasyon belleğini azalt (batch=32 80GB'a sığmıyor)
         # ──────────────────────────────────────────────────────────────
         report_to="none",
         remove_unused_columns=False,
@@ -400,11 +421,13 @@ def train():
         train_dataset=train_ds,
         eval_dataset=eval_ds,
         data_collator=DataCollator(processor),
-        tokenizer=processor.feature_extractor,
+        processing_class=processor.feature_extractor,
     )
 
+    import os as _os
+    _resume = _os.environ.get("RESUME_CHECKPOINT")
     log.info("\nStage 2 training başlıyor...")
-    trainer.train()
+    trainer.train(resume_from_checkpoint=_resume if _resume else None)
 
     # 8. Adapter + merge
     model.save_pretrained(str(OUTPUT_DIR / "final"))
