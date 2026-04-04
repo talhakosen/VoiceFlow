@@ -1,0 +1,496 @@
+{"input": "Hata mesajı, şey, anlaşılmaz.", "output": "Hata mesajı anlaşılmaz.", "type": "filler", "difficulty": "medium"}
+{"input": "İki bin yirmi beşin sonuna kadar.", "output": "2025 sonuna kadar.", "type": "number", "difficulty": "medium"}
+{"input": "Şey, fatura ödendi.", "output": "Fatura ödendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Dört saat sürdü, hayır, altı saat sürdü.", "output": "Altı saat sürdü.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani, performans değerlendirmeleri başladı.", "output": "Performans değerlendirmeleri başladı.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey ee hani kullanıcılar yani şu şey hatayı alıyorlar ama yani ne zaman bilmiyorum.", "output": "Kullanıcılar bu hatayı alıyorlar ama ne zaman bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Ta-takım toplantısı ertelendi.", "output": "Takım toplantısı ertelendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Kabul kriterleri, ee, belirlendi.", "output": "Kabul kriterleri belirlendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Su-sunumda hata var.", "output": "Sunumda hata var.", "type": "stutter", "difficulty": "easy"}
+{"input": "Gi-gidecek misin yarın?", "output": "Gidecek misin yarın?", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey yani hani ee kod okunabilir değil, yani refactoring lazım.", "output": "Kod okunabilir değil, yani refactoring lazım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Da-dashboard güncellendi.", "output": "Dashboard güncellendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Hata frontend'de, pardon, backend'de ortaya çıkıyor.", "output": "Hata backend'de ortaya çıkıyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ve-veriler yedeklendi.", "output": "Veriler yedeklendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Kullanıcı sayısı bin, yok yok, iki bin kişiyi geçti.", "output": "Kullanıcı sayısı iki bin kişiyi geçti.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee, production'a deploy ettim.", "output": "Production'a deploy ettim.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani hani şey ee bu öneri şey kabul edildi mi reddedildi mi şey sormadım işte.", "output": "Bu önerinin kabul edilip edilmediğini sormadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Şey yani hatalı, yani geri almalıyız.", "output": "Hatalı, yani geri almalıyız.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani, incident kapandı.", "output": "Incident kapandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Saat sekizde sabah koşusu.", "output": "Saat 8:00'de sabah koşusu.", "type": "number", "difficulty": "medium"}
+{"input": "Kodu sil, yok yok, şöyle diyeyim, kodu yorum satırına al.", "output": "Kodu yorum satırına al.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani ee, sunucu yanıt vermiyor.", "output": "Sunucu yanıt vermiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Yüzde doksan beş uptime sağlandı.", "output": "%95 uptime sağlandı.", "type": "number", "difficulty": "medium"}
+{"input": "Metrik, hani, toplanmıyor.", "output": "Metrik toplanmıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Raporu Mehmet'e gönderdim işte.", "output": "Raporu Mehmet'e gönderdim.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee, izin başvurusu onaylandı.", "output": "İzin başvurusu onaylandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yüz megabayt limit.", "output": "100 MB limit.", "type": "number", "difficulty": "medium"}
+{"input": "Bin beş yüz dolar maliyet.", "output": "1.500 dolar maliyet.", "type": "number", "difficulty": "medium"}
+{"input": "Ee şey yani toplantıda şey dediler ki hani bütçe şey kesilecekmiş yani.", "output": "Toplantıda bütçenin kesileceğini söylediler.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani yani ee şey bu dokümana şey bakmam lazım yani ama zamanım yok işte.", "output": "Bu dokümana bakmam lazım ama zamanım yok.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani şey hani, bu mimariyi yeniden tasarlamamız lazım.", "output": "Bu mimariyi yeniden tasarlamamız lazım.", "type": "filler", "difficulty": "medium"}
+{"input": "SSL sertifikası, yani, yakında dolacak.", "output": "SSL sertifikası yakında dolacak.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee şey hani yani müşteri şey onayladı mı onaylamadı mı şey sormadım.", "output": "Müşterinin onaylayıp onaylamadığını sormadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani, uçak bileti aldım.", "output": "Uçak bileti aldım.", "type": "filler", "difficulty": "easy"}
+{"input": "Bu projeyi, şey, önümüzdeki haftaya kadar teslim etmem gerekiyor.", "output": "Bu projeyi önümüzdeki haftaya kadar teslim etmem gerekiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani, server yeniden başlatıldı.", "output": "Server yeniden başlatıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Top toplantı saat üçte başlıyor.", "output": "Toplantı saat üçte başlıyor.", "type": "stutter", "difficulty": "easy"}
+{"input": "Proje yüzde seksen, yok yok, yüzde altmış tamamlandı.", "output": "Proje yüzde altmış tamamlandı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "İş gereksinimi, şey, değişti.", "output": "İş gereksinimi değişti.", "type": "filler", "difficulty": "medium"}
+{"input": "Beş yüz istek per saniye.", "output": "500 istek/saniye.", "type": "number", "difficulty": "medium"}
+{"input": "Hani şey yani ee değişiklik şey geri alındı mı alınmadı mı şey kontrol etmem lazım.", "output": "Değişikliğin geri alınıp alınmadığını kontrol etmem lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "Ee yani şey hani kullanıcı arayüzü şey beğenildi mi beğenilmedi mi yani.", "output": "Kullanıcı arayüzünün beğenilip beğenilmediği belli değil.", "type": "filler", "difficulty": "hard"}
+{"input": "İşlemci, hani, aşırı yüklendi.", "output": "İşlemci aşırı yüklendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Analiz, yani, tamamlanmadı.", "output": "Analiz tamamlanmadı.", "type": "filler", "difficulty": "medium"}
+{"input": "Bu hafta bitecek, yok yok, gelecek hafta bitecek.", "output": "Gelecek hafta bitecek.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Kaynak tahsisi, şey, değişti.", "output": "Kaynak tahsisi değişti.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee şey yani bu raporu hani şey kim yazacak yani bilmiyorum işte.", "output": "Bu raporu kimin yazacağını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Fatura, şey, hala ödenmedi.", "output": "Fatura hala ödenmedi.", "type": "filler", "difficulty": "medium"}
+{"input": "Aa, ofis malzemeleri bitti.", "output": "Ofis malzemeleri bitti.", "type": "filler", "difficulty": "easy"}
+{"input": "Yirmi yedinci versiyonu çıktı.", "output": "27. versiyonu çıktı.", "type": "number", "difficulty": "medium"}
+{"input": "Ka-kaynak tükendi.", "output": "Kaynak tükendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Aa, postmortem raporu yazıldı.", "output": "Postmortem raporu yazıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "On dört Mayıs itibarıyla.", "output": "14 Mayıs itibarıyla.", "type": "number", "difficulty": "medium"}
+{"input": "Beş bin satır değişiklik.", "output": "5.000 satır değişiklik.", "type": "number", "difficulty": "medium"}
+{"input": "Şey, bu haftaki strateji toplantısına hazırlanmam gerekiyor.", "output": "Bu haftaki strateji toplantısına hazırlanmam gerekiyor.", "type": "filler", "difficulty": "easy"}
+{"input": "Sözleşme iptal edildi, dur dur, sözleşme askıya alındı.", "output": "Sözleşme askıya alındı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani yani şey bu yaklaşım yanlış, yani baştan düşünelim.", "output": "Bu yaklaşım yanlış, yani baştan düşünelim.", "type": "semantic", "difficulty": "hard"}
+{"input": "VPN, ee, bağlantı kesiliyor.", "output": "VPN bağlantı kesiliyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani şey ee bu özelliği hani ekleyecektik şey ama yetişmedi işte.", "output": "Bu özelliği ekleyecektik ama yetişmedi.", "type": "filler", "difficulty": "hard"}
+{"input": "Saat on dörtte dönüş.", "output": "Saat 14:00'te dönüş.", "type": "number", "difficulty": "medium"}
+{"input": "Hani şey, bu endpoint çok yavaş.", "output": "Bu endpoint çok yavaş.", "type": "filler", "difficulty": "medium"}
+{"input": "İşte, release notları hazır.", "output": "Release notları hazır.", "type": "filler", "difficulty": "easy"}
+{"input": "Raporu revize ettim işte.", "output": "Raporu revize ettim.", "type": "filler", "difficulty": "easy"}
+{"input": "Mo-mobil uygulama çöktü.", "output": "Mobil uygulama çöktü.", "type": "stutter", "difficulty": "easy"}
+{"input": "Ee, müşteri memnun kalmış.", "output": "Müşteri memnun kalmış.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee, hotfix deploy edildi.", "output": "Hotfix deploy edildi.", "type": "filler", "difficulty": "easy"}
+{"input": "On beş megabayt upload limiti.", "output": "15 MB upload limiti.", "type": "number", "difficulty": "medium"}
+{"input": "Şey, dokümanlar güncellendi.", "output": "Dokümanlar güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Saat on ikide öğle.", "output": "Saat 12:00'de öğle.", "type": "number", "difficulty": "medium"}
+{"input": "Message queue, şey, tıkandı.", "output": "Message queue tıkandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Güvenlik açığı, hani, kapatıldı.", "output": "Güvenlik açığı kapatıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey hani ee yani ekip şey bu kadar işi yapabilir mi yapamaz mı bilmiyorum.", "output": "Ekibin bu kadar işi yapıp yapamayacağını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Regresyon testi, yani, geçti.", "output": "Regresyon testi geçti.", "type": "filler", "difficulty": "medium"}
+{"input": "Microservice, ee, birbirleriyle konuşmuyor.", "output": "Microservice'ler birbirleriyle konuşmuyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Güvenlik taraması, şey, tamamlandı.", "output": "Güvenlik taraması tamamlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani yani ee şey ekip şey bu değişime hazır mı değil mi şey bilmiyorum.", "output": "Ekibin bu değişime hazır olup olmadığını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Sunumda elli slayt var, pardon, otuz slayt var.", "output": "Sunumda otuz slayt var.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee hani şey yani deadline şey geçti mi geçmedi mi yani kontrol etmedim.", "output": "Deadline'ın geçip geçmediğini kontrol etmedim.", "type": "filler", "difficulty": "hard"}
+{"input": "Refactoring, şey, planlandı.", "output": "Refactoring planlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani, veritabanı bağlantısı çalışıyor.", "output": "Veritabanı bağlantısı çalışıyor.", "type": "filler", "difficulty": "easy"}
+{"input": "Bugün markete gideceğim yani.", "output": "Bugün markete gideceğim.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey bu özellik çalışmıyor, yani kullanıcıya gösterme.", "output": "Bu özellik çalışmıyor, yani kullanıcıya gösterme.", "type": "semantic", "difficulty": "hard"}
+{"input": "Kullanıcı verileri korunuyor, aslında şöyle diyeyim, kullanıcı verileri şifreleniyor.", "output": "Kullanıcı verileri şifreleniyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Saat yirmide kapanıyor.", "output": "Saat 20:00'de kapanıyor.", "type": "number", "difficulty": "medium"}
+{"input": "Yani, wiki sayfası oluşturuldu.", "output": "Wiki sayfası oluşturuldu.", "type": "filler", "difficulty": "easy"}
+{"input": "Sistemi kapat, dur bir saniye, sistemi bakım moduna al.", "output": "Sistemi bakım moduna al.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani, tag oluşturuldu.", "output": "Tag oluşturuldu.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey hani yani ee veriler uyuşmuyor, yani veri kalitesi sorunlu.", "output": "Veriler uyuşmuyor, yani veri kalitesi sorunlu.", "type": "semantic", "difficulty": "hard"}
+{"input": "Ee, tatil onaylandı.", "output": "Tatil onaylandı.", "type": "filler", "difficulty": "easy"}
+{"input": "İşte, mobil versiyon tamamlandı.", "output": "Mobil versiyon tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey şey hani ee bu API şey dokümante edildi mi şey bilmiyorum işte.", "output": "Bu API'nin dokümante edilip edilmediğini bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Ekibe söyle, hayır dur, sadece takım liderlerine söyle.", "output": "Sadece takım liderlerine söyle.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Top-toplantıyı erteleyelim.", "output": "Toplantıyı erteleyelim.", "type": "stutter", "difficulty": "easy"}
+{"input": "İzin izin izni onaylandı.", "output": "İzin onaylandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Kuy-kuyruk doldu.", "output": "Kuyruk doldu.", "type": "stutter", "difficulty": "easy"}
+{"input": "İşte asıl mesele bu.", "output": "İşte asıl mesele bu.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani şey, dün konuşmuştuk.", "output": "Dün konuşmuştuk.", "type": "semantic", "difficulty": "hard"}
+{"input": "Bellek kullanımı, şey, yüksek.", "output": "Bellek kullanımı yüksek.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey ee hani yani sistem şey bu yükü kaldırabilir mi kaldıramaz mı bilmiyorum.", "output": "Sistemin bu yükü kaldırıp kaldıramayacağını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Kul-kullanıcı şikayeti geldi.", "output": "Kullanıcı şikayeti geldi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Gereksinim belgesi, şey, onaylandı.", "output": "Gereksinim belgesi onaylandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Ha-hafıza sızıntısı tespit edildi.", "output": "Hafıza sızıntısı tespit edildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey, bu PR'ı merge edebilirsin.", "output": "Bu PR'ı merge edebilirsin.", "type": "filler", "difficulty": "easy"}
+{"input": "Bütçeyi Kemal onayladı, dur bir saniye, Kemal değil Hüseyin onayladı.", "output": "Bütçeyi Hüseyin onayladı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Şey hani ee yani deployment şey başarılı mı oldu şey kontrol ettim mi etmedim mi.", "output": "Deployment'ın başarılı olup olmadığını kontrol etmedim.", "type": "filler", "difficulty": "hard"}
+{"input": "Şi-şifre sıfırlandı.", "output": "Şifre sıfırlandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Sunucu, yani şey, yeniden başlatıldı.", "output": "Sunucu yeniden başlatıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "Müşteri yarın geliyor, aslında öbür gün geliyor.", "output": "Müşteri öbür gün geliyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani, yeni çalışan işe başladı.", "output": "Yeni çalışan işe başladı.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey yani hani ee yetkilendirme şey düzgün çalışıyor mu çalışmıyor mu şey anlamadım.", "output": "Yetkilendirmenin düzgün çalışıp çalışmadığını anlamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "İşte, fiyat teklifi hazırlandı.", "output": "Fiyat teklifi hazırlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Sunumu, ee, beş dakikada hazırladım.", "output": "Sunumu beş dakikada hazırladım.", "type": "filler", "difficulty": "medium"}
+{"input": "Veritabanını sil, yok yok şöyle diyeyim, veritabanını yedekle ve sıfırla.", "output": "Veritabanını yedekle ve sıfırla.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee şey hani yani bu süreç şey iyileştirilebilir mi iyileştirilemez mi tartışabiliriz.", "output": "Bu sürecin iyileştirilip iyileştirilemeyeceğini tartışabiliriz.", "type": "filler", "difficulty": "hard"}
+{"input": "Proje bitti, yani artık deploy edebiliriz.", "output": "Proje bitti, yani artık deploy edebiliriz.", "type": "semantic", "difficulty": "hard"}
+{"input": "Paket kaybı, şey, tespit edildi.", "output": "Paket kaybı tespit edildi.", "type": "filler", "difficulty": "medium"}
+{"input": "İşte, code review tamamlandı.", "output": "Code review tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani şey ee yani bu kod şey okunabilir mi okunabilir değil mi şey incelememiz lazım.", "output": "Bu kodun okunabilir olup olmadığını incelememiz lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "Yarın İstanbul'a uçuyorum hani.", "output": "Yarın İstanbul'a uçuyorum.", "type": "filler", "difficulty": "easy"}
+{"input": "Deadline geçti, yani ceza uygulanacak.", "output": "Deadline geçti, yani ceza uygulanacak.", "type": "semantic", "difficulty": "hard"}
+{"input": "Üçüncü çeyrekte hedef.", "output": "3. çeyrekte hedef.", "type": "number", "difficulty": "medium"}
+{"input": "Şey hani ee yani loglarda şey herhangi bir hata var mı yok mu şey bakmadım.", "output": "Loglarda herhangi bir hata olup olmadığına bakmadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Aylık maliyet bin lira, yok yok, iki bin lira.", "output": "Aylık maliyet iki bin lira.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Sunu sunuyu hazırladım.", "output": "Sunuyu hazırladım.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey yani hani ee sonuç beklenenden iyi, yani devam edelim.", "output": "Sonuç beklenenden iyi, yani devam edelim.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani şey hani ee bütçe şey yetecek mi yetmeyecek mi şey hesaplamadım.", "output": "Bütçenin yetip yetmeyeceğini hesaplamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani, ödeme gecikti.", "output": "Ödeme gecikti.", "type": "filler", "difficulty": "easy"}
+{"input": "Müşteriyle, ee, anlaşma sağlandı.", "output": "Müşteriyle anlaşma sağlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey şey şey nasıl açıklasam.", "output": "Nasıl açıklasam.", "type": "stutter", "difficulty": "easy"}
+{"input": "Rate limit, ee, aşıldı.", "output": "Rate limit aşıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani, projeyi cuma gününe kadar teslim etmeliyiz.", "output": "Projeyi cuma gününe kadar teslim etmeliyiz.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani, sözleşme imzalandı.", "output": "Sözleşme imzalandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Index, yani, eksik.", "output": "Index eksik.", "type": "filler", "difficulty": "medium"}
+{"input": "Sertifika doldu, yani site erişilemez.", "output": "Sertifika doldu, yani site erişilemez.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani, renk paleti değiştirildi.", "output": "Renk paleti değiştirildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Bu fonksiyonu sil, dur bir saniye, şöyle diyeyim: bu fonksiyonu refactor et.", "output": "Bu fonksiyonu refactor et.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Beş kişilik ekip, dur bir dakika, altı kişilik ekip çalışacak.", "output": "Altı kişilik ekip çalışacak.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Bir milyon aktif kullanıcı.", "output": "1.000.000 aktif kullanıcı.", "type": "number", "difficulty": "medium"}
+{"input": "Bu bu bu bağımlılık güncellenmeli.", "output": "Bu bağımlılık güncellenmeli.", "type": "stutter", "difficulty": "easy"}
+{"input": "Paydaş görüşmesi, ee, tamamlandı.", "output": "Paydaş görüşmesi tamamlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Yüz elli milisaniye timeout.", "output": "150 ms timeout.", "type": "number", "difficulty": "medium"}
+{"input": "Ee, feedback olumlu geldi.", "output": "Feedback olumlu geldi.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey yani hani ee teknik borç şey ne zaman azalacak yani planlamadık.", "output": "Teknik borcun ne zaman azalacağını planlamadık.", "type": "filler", "difficulty": "hard"}
+{"input": "Teklif, yani, kabul edildi.", "output": "Teklif kabul edildi.", "type": "filler", "difficulty": "medium"}
+{"input": "Token, şey, geçersiz.", "output": "Token geçersiz.", "type": "filler", "difficulty": "medium"}
+{"input": "Bu özelliği bu özelliği kaldıralım.", "output": "Bu özelliği kaldıralım.", "type": "stutter", "difficulty": "easy"}
+{"input": "On dakika içinde, pardon, yarım saat içinde gelebilirim.", "output": "Yarım saat içinde gelebilirim.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani bu karar yanlış, yani gerçekten düşünmeliyiz.", "output": "Bu karar yanlış, yani gerçekten düşünmeliyiz.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani şey ee hani proje gereksinimleri şey net mi değil mi şey tartışmamız lazım.", "output": "Proje gereksinimlerinin net olup olmadığını tartışmamız lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani hani, oturum açma sorunu var.", "output": "Oturum açma sorunu var.", "type": "filler", "difficulty": "medium"}
+{"input": "Sunucu doldu, yani yeni dosya yükleyemiyoruz.", "output": "Sunucu doldu, yani yeni dosya yükleyemiyoruz.", "type": "semantic", "difficulty": "hard"}
+{"input": "Saat altıda uçuş.", "output": "Saat 6:00'da uçuş.", "type": "number", "difficulty": "medium"}
+{"input": "Dış servis çöktü, pardon, dış servis yavaşladı.", "output": "Dış servis yavaşladı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ağ gecikmesi, ee yani, artmış.", "output": "Ağ gecikmesi artmış.", "type": "filler", "difficulty": "medium"}
+{"input": "Proje bitti, hayır dur, test aşamasında.", "output": "Proje test aşamasında.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Sunumu tamamladım işte.", "output": "Sunumu tamamladım.", "type": "filler", "difficulty": "easy"}
+{"input": "On beş Ocak son tarih.", "output": "15 Ocak son tarih.", "type": "number", "difficulty": "medium"}
+{"input": "Şey, bu özelliği eklemem lazım.", "output": "Bu özelliği eklemem lazım.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey, bu toplantıya gitmen gerekiyor.", "output": "Bu toplantıya gitmen gerekiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee yani hani şey bu toplantı şey verimli miydi verimsiz miydi yani sormadım.", "output": "Bu toplantının verimli olup olmadığını sormadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani ee yani şey plan tutmadı, yani revizyona ihtiyaç var.", "output": "Plan tutmadı, yani revizyona ihtiyaç var.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani o bug vardı ya, kapandı.", "output": "Hani o bug vardı ya, kapandı.", "type": "semantic", "difficulty": "hard"}
+{"input": "Saat on yedide sunum.", "output": "Saat 17:00'de sunum.", "type": "number", "difficulty": "medium"}
+{"input": "İstanbul ofisinde, dur dur, Ankara ofisinde toplantı var.", "output": "Ankara ofisinde toplantı var.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Kullanıcı rolü, ee, güncellendi.", "output": "Kullanıcı rolü güncellendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey ee yani proje hani bitti mi bitmedi mi şey anlayamadım.", "output": "Projenin bitip bitmediğini anlayamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani yani, saat altıda çıkalım.", "output": "Saat altıda çıkalım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Python üçle yaz, aslında şöyle diyeyim, Python üç on dörtle yaz.", "output": "Python 3.14 ile yaz.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Kod kalitesi, yani ee, düşük.", "output": "Kod kalitesi düşük.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey şey şey nasıl desem yani bu kişiyle çalışmak hani zor oluyor işte.", "output": "Bu kişiyle çalışmak zor oluyor.", "type": "filler", "difficulty": "hard"}
+{"input": "İkinci ayın sonunda.", "output": "2. ayın sonunda.", "type": "number", "difficulty": "medium"}
+{"input": "Aa, bu bug düzeltildi.", "output": "Bu bug düzeltildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey, migration script'ini çalıştırdım.", "output": "Migration script'ini çalıştırdım.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey, bu tasarımı beğenmedim.", "output": "Bu tasarımı beğenmedim.", "type": "filler", "difficulty": "easy"}
+{"input": "On yedinci güncellemesi.", "output": "17. güncellemesi.", "type": "number", "difficulty": "medium"}
+{"input": "Ee, bütçe aşıldı.", "output": "Bütçe aşıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Pipeline, şey hani, optimize edildi.", "output": "Pipeline optimize edildi.", "type": "filler", "difficulty": "medium"}
+{"input": "İki yüz elli istek.", "output": "250 istek.", "type": "number", "difficulty": "medium"}
+{"input": "Elli bin kayıt.", "output": "50.000 kayıt.", "type": "number", "difficulty": "medium"}
+{"input": "Risk değerlendirmesi, hani yani, yapıldı.", "output": "Risk değerlendirmesi yapıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey yani hani ee bu sprint'te şey ne yaptık tam olarak şey bilmiyorum.", "output": "Bu sprint'te tam olarak ne yaptığımızı bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Bu bu fonksiyonu düzeltmem lazım.", "output": "Bu fonksiyonu düzeltmem lazım.", "type": "stutter", "difficulty": "easy"}
+{"input": "Rol-rollback yapıldı.", "output": "Rollback yapıldı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yani, sözleşme uzatıldı.", "output": "Sözleşme uzatıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee, teknik borç listesi güncellendi.", "output": "Teknik borç listesi güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Mü-müşteri geldi.", "output": "Müşteri geldi.", "type": "stutter", "difficulty": "easy"}
+{"input": "İşte, eğitim materyali hazırlandı.", "output": "Eğitim materyali hazırlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Rapor rapor raporu gönderdim.", "output": "Raporu gönderdim.", "type": "stutter", "difficulty": "easy"}
+{"input": "Sabah toplantısı, pardon, öğleden sonra toplantısı var.", "output": "Öğleden sonra toplantısı var.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yüzde seksen doluluk oranı.", "output": "%80 doluluk oranı.", "type": "number", "difficulty": "medium"}
+{"input": "Featureı kapat, aslında öyle demek istemedim, feature'ı gizle.", "output": "Feature'ı gizle.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee hani yani şey takım iyi çalışıyor, yani bu yapıyı koruyalım.", "output": "Takım iyi çalışıyor, yani bu yapıyı koruyalım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey yani, bunu yapamam.", "output": "Bunu yapamam.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani hani ee şey kaynak yetersiz, yani önceliklendirme yapalım.", "output": "Kaynak yetersiz, yani önceliklendirme yapalım.", "type": "semantic", "difficulty": "hard"}
+{"input": "İşte, otel rezervasyonu tamam.", "output": "Otel rezervasyonu tamam.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey, sprint retrospektifi yarın.", "output": "Sprint retrospektifi yarın.", "type": "filler", "difficulty": "easy"}
+{"input": "Kütüphane, ee şey, eskimiş.", "output": "Kütüphane eskimiş.", "type": "filler", "difficulty": "medium"}
+{"input": "Par-parametre eksik.", "output": "Parametre eksik.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yarın çalışmıyorum, aslında yarın çalışıyorum.", "output": "Yarın çalışıyorum.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Şey hani yani ee sonuç şey beklentileri karşıladı mı karşılamadı mı değerlendirmedik.", "output": "Sonucun beklentileri karşılayıp karşılamadığını değerlendirmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Bu bu iş bu hafta bitirilmeli.", "output": "Bu iş bu hafta bitirilmeli.", "type": "stutter", "difficulty": "easy"}
+{"input": "On altı paralel işlem.", "output": "16 paralel işlem.", "type": "number", "difficulty": "medium"}
+{"input": "Şey şey hani yani ee bu ticket şey kapatıldı mı açık mı yani bakamadım.", "output": "Bu ticket'ın kapatılıp kapatılmadığına bakamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Saat yirmi birde kapandı.", "output": "Saat 21:00'de kapandı.", "type": "number", "difficulty": "medium"}
+{"input": "Performans, hani, düşmüş.", "output": "Performans düşmüş.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee, proje onaylandı.", "output": "Proje onaylandı.", "type": "filler", "difficulty": "easy"}
+{"input": "İki bin kullanıcıya ulaştık.", "output": "2.000 kullanıcıya ulaştık.", "type": "number", "difficulty": "medium"}
+{"input": "Bütçe, ee, yetmeyebilir.", "output": "Bütçe yetmeyebilir.", "type": "filler", "difficulty": "medium"}
+{"input": "İs-istek zaman aşımına uğradı.", "output": "İstek zaman aşımına uğradı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yüzde yetmiş yedi CPU kullanımı.", "output": "%77 CPU kullanımı.", "type": "number", "difficulty": "medium"}
+{"input": "Müşteriye hayır de, hayır dur, müşteriye alternatif sun.", "output": "Müşteriye alternatif sun.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee şey yani hani müşteri memnun, yani sözleşme uzatılacak.", "output": "Müşteri memnun, yani sözleşme uzatılacak.", "type": "semantic", "difficulty": "hard"}
+{"input": "İki dakika on saniye işlem süresi.", "output": "2 dakika 10 saniye işlem süresi.", "type": "number", "difficulty": "medium"}
+{"input": "Ha-hata düzeltildi.", "output": "Hata düzeltildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Ee şey hani yani dosya boyutu şey çok büyük mü değil mi şey kontrol etmedim.", "output": "Dosya boyutunun çok büyük olup olmadığını kontrol etmedim.", "type": "filler", "difficulty": "hard"}
+{"input": "Yüzde kırk beş indirimi var.", "output": "%45 indirimi var.", "type": "number", "difficulty": "medium"}
+{"input": "Beş yüz milisaniye gecikme var.", "output": "500 ms gecikme var.", "type": "number", "difficulty": "medium"}
+{"input": "Bugün erken çıkacağım yani.", "output": "Bugün erken çıkacağım.", "type": "filler", "difficulty": "easy"}
+{"input": "İşte sorun burada.", "output": "İşte sorun burada.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani, conflict çözüldü.", "output": "Conflict çözüldü.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani şey yani ee eski kod şey hala çalışıyor mu çalışmıyor mu şey test etmedik.", "output": "Eski kodun hala çalışıp çalışmadığını test etmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Toplantıda, hani, yeni strateji açıklandı.", "output": "Toplantıda yeni strateji açıklandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Bin altı yüz kayıt.", "output": "1.600 kayıt.", "type": "number", "difficulty": "medium"}
+{"input": "Şey, ofiste kimse yok.", "output": "Ofiste kimse yok.", "type": "filler", "difficulty": "easy"}
+{"input": "Raporu Ayşe yazacak, hayır, Fatma yazacak.", "output": "Raporu Fatma yazacak.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Circuit breaker, hani, açık kalmış.", "output": "Circuit breaker açık kalmış.", "type": "filler", "difficulty": "medium"}
+{"input": "Dört çekirdek işlemci.", "output": "4 çekirdek işlemci.", "type": "number", "difficulty": "medium"}
+{"input": "Beşinci iterasyon.", "output": "5. iterasyon.", "type": "number", "difficulty": "medium"}
+{"input": "İş iş iş isteği onaylandı.", "output": "İş isteği onaylandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey yani hani ee bu özellik şey kullanıcılara gösterildi mi şey bilmiyorum yani.", "output": "Bu özelliğin kullanıcılara gösterilip gösterilmediğini bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Yüzde doksan güven skoru.", "output": "%90 güven skoru.", "type": "number", "difficulty": "medium"}
+{"input": "Raporun, yani, ikinci bölümünü yazmadım.", "output": "Raporun ikinci bölümünü yazmadım.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani şey yani ekip yorgun, yani sprint'i hafifletelim.", "output": "Ekip yorgun, yani sprint'i hafifletelim.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey, CHANGELOG güncellendi.", "output": "CHANGELOG güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "İki gigabayt bellek.", "output": "2 GB bellek.", "type": "number", "difficulty": "medium"}
+{"input": "Fallback, şey yani, devreye girmiyor.", "output": "Fallback devreye girmiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani ee yani şey hangi kütüphane şey daha iyi olur yani araştırmadım.", "output": "Hangi kütüphanenin daha iyi olacağını araştırmadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Kullanıcıyı engelle, hayır, kullanıcının iznini kısıtla.", "output": "Kullanıcının iznini kısıtla.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Arabayı servise verdim hani.", "output": "Arabayı servise verdim.", "type": "filler", "difficulty": "easy"}
+{"input": "Bu kodu, şey, refactor etmemiz gerekiyor.", "output": "Bu kodu refactor etmemiz gerekiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani şey yani server şey ee down oldu mu yoksa şey performans mı düştü.", "output": "Server'ın down olup olmadığı yoksa performansın mı düştüğü belli değil.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani hani ee şey bu sorun şey tekrar oluşur mu oluşmaz mı yani izliyoruz.", "output": "Bu sorunun tekrar oluşup oluşmayacağını izliyoruz.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani hani şey bu fonksiyon şey çalışmıyor ee düzeltmem lazım işte.", "output": "Bu fonksiyon çalışmıyor, düzeltmem lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "İşte, user story tamamlandı.", "output": "User story tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Üç sprint daha, hayır, iki sprint daha yeter.", "output": "İki sprint daha yeter.", "type": "backtrack", "difficulty": "medium"}
+{"input": "İki faktörlü doğrulama, şey, etkinleştirildi.", "output": "İki faktörlü doğrulama etkinleştirildi.", "type": "filler", "difficulty": "medium"}
+{"input": "Şifre, ee, sıfırlandı.", "output": "Şifre sıfırlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee yani şey hani proje şey zamanında bitecek mi bitmeyecek mi şey belli değil.", "output": "Projenin zamanında bitip bitmeyeceği belli değil.", "type": "filler", "difficulty": "hard"}
+{"input": "İki hafta daha, dur şöyle söyleyeyim, bir ay daha zaman lazım.", "output": "Bir ay daha zaman lazım.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Toplantı salı günü, hayır dur, çarşamba günü saat ikide.", "output": "Toplantı çarşamba günü saat ikide.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Bağ-bağlantı kesildi.", "output": "Bağlantı kesildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Bi-bildirim gönderildi.", "output": "Bildirim gönderildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şifreyi sıfırla, dur şöyle diyeyim, şifreyi değiştir ve kullanıcıyı bilgilendir.", "output": "Şifreyi değiştir ve kullanıcıyı bilgilendir.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani, bug production'da, şey, ortaya çıktı.", "output": "Bug production'da ortaya çıktı.", "type": "filler", "difficulty": "medium"}
+{"input": "Log, şey, yazılmıyor.", "output": "Log yazılmıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Al-alert kapandı.", "output": "Alert kapandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Ekip toplantısı, ee, uzadı.", "output": "Ekip toplantısı uzadı.", "type": "filler", "difficulty": "medium"}
+{"input": "Güvenlik açığı bulundu, yani acil yama gerekiyor.", "output": "Güvenlik açığı bulundu, yani acil yama gerekiyor.", "type": "semantic", "difficulty": "hard"}
+{"input": "Health check, ee, başarısız.", "output": "Health check başarısız.", "type": "filler", "difficulty": "medium"}
+{"input": "On beşinci sprint.", "output": "15. sprint.", "type": "number", "difficulty": "medium"}
+{"input": "Aa, yeni özellik canlıya alındı.", "output": "Yeni özellik canlıya alındı.", "type": "filler", "difficulty": "easy"}
+{"input": "Kod merge edildi, yani özellik artık canlıda.", "output": "Kod merge edildi, yani özellik artık canlıda.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey, bu branch'i merge etmem lazım.", "output": "Bu branch'i merge etmem lazım.", "type": "filler", "difficulty": "easy"}
+{"input": "Ser-servis durduruldu.", "output": "Servis durduruldu.", "type": "stutter", "difficulty": "easy"}
+{"input": "Elli gigabayt log dosyası.", "output": "50 GB log dosyası.", "type": "number", "difficulty": "medium"}
+{"input": "Test test testler geçti.", "output": "Testler geçti.", "type": "stutter", "difficulty": "easy"}
+{"input": "API API API cevap vermiyor.", "output": "API cevap vermiyor.", "type": "stutter", "difficulty": "easy"}
+{"input": "Ee, deploy başarılı oldu.", "output": "Deploy başarılı oldu.", "type": "filler", "difficulty": "easy"}
+{"input": "Dashboard, ee şey, güncel değil.", "output": "Dashboard güncel değil.", "type": "filler", "difficulty": "medium"}
+{"input": "En-endpoint eklendi.", "output": "Endpoint eklendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Kod incelemesinde, yani, iki sorun bulduk.", "output": "Kod incelemesinde iki sorun bulduk.", "type": "filler", "difficulty": "medium"}
+{"input": "Ya-yama uygulandı.", "output": "Yama uygulandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yani, backlog grooming yapıldı.", "output": "Backlog grooming yapıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey ee hani bu endpoint şey rate limit'e takılıyor mu takılmıyor mu şey bilmiyorum.", "output": "Bu endpoint'in rate limit'e takılıp takılmadığını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Performans düştü, yani kullanıcılar şikayet ediyor.", "output": "Performans düştü, yani kullanıcılar şikayet ediyor.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani ee yani şey bu konfigürasyon şey doğru mu yanlış mı yani anlamadım.", "output": "Bu konfigürasyonun doğru olup olmadığını anlamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Beş bin beş yüz kayıt işlendi.", "output": "5.500 kayıt işlendi.", "type": "number", "difficulty": "medium"}
+{"input": "Pa-paket yüklendi.", "output": "Paket yüklendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "DNS, hani şey, yanlış çözümlüyor.", "output": "DNS yanlış çözümlüyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani şey, bu sistemi düzeltmemiz lazım.", "output": "Bu sistemi düzeltmemiz lazım.", "type": "filler", "difficulty": "medium"}
+{"input": "Toplantı saat onda, dur, saat on birde başlıyor.", "output": "Toplantı saat on birde başlıyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Kod kod kodu commit ettim.", "output": "Kodu commit ettim.", "type": "stutter", "difficulty": "easy"}
+{"input": "Toplantıyı iptal et, yok yok, toplantıyı bir saat ertele.", "output": "Toplantıyı bir saat ertele.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Teknik ekip sorumlu, aslında ürün ekibi sorumlu.", "output": "Ürün ekibi sorumlu.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hata log'da görünüyor, dur dur, hata uyarı seviyesinde.", "output": "Hata uyarı seviyesinde görünüyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Aa, onboarding akışı yenilendi.", "output": "Onboarding akışı yenilendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani ee, toplantıda söyledi.", "output": "Toplantıda söyledi.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey ee şey hani yani dokümantasyon şey güncel mi değil mi şey bilmiyorum.", "output": "Dokümantasyonun güncel olup olmadığını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Şey, müşteriye demo yaptım.", "output": "Müşteriye demo yaptım.", "type": "filler", "difficulty": "easy"}
+{"input": "Aa, QA testi geçti.", "output": "QA testi geçti.", "type": "filler", "difficulty": "easy"}
+{"input": "İşte, bu kadar.", "output": "Bu kadar.", "type": "semantic", "difficulty": "hard"}
+{"input": "Re-response yanlış.", "output": "Response yanlış.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yani ee şey hani bu sistem şey ölçeklenebilir mi değil mi şey test etmedik.", "output": "Bu sistemin ölçeklenebilir olup olmadığını test etmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani, pasaportum doldu.", "output": "Pasaportum doldu.", "type": "filler", "difficulty": "easy"}
+{"input": "Yüzde yirmi performans artışı.", "output": "%20 performans artışı.", "type": "number", "difficulty": "medium"}
+{"input": "Bü-bütçe onaylandı.", "output": "Bütçe onaylandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Sprint hedefi, şey, tamamlanamadı.", "output": "Sprint hedefi tamamlanamadı.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani, ekip toplantısı iptal edildi.", "output": "Ekip toplantısı iptal edildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yeni çalışan, hani, adapte olmakta zorlanıyor.", "output": "Yeni çalışan adapte olmakta zorlanıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Güvenlik duvarı, yani, güncellendi.", "output": "Güvenlik duvarı güncellendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Ekipte beş kişi var, dur, dört kişi var.", "output": "Ekipte dört kişi var.", "type": "backtrack", "difficulty": "medium"}
+{"input": "İç-içerik güncellendi.", "output": "İçerik güncellendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey, kodu push ettim.", "output": "Kodu push ettim.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee şey yani hani kullanıcılar şey bu özelliği kullanıyor mu kullanmıyor mu analitik baktım.", "output": "Kullanıcıların bu özelliği kullanıp kullanmadığına analitikten baktım.", "type": "filler", "difficulty": "hard"}
+{"input": "Event stream, yani, işlenemiyor.", "output": "Event stream işlenemiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey, toplantı yarın saat üçte.", "output": "Toplantı yarın saat üçte.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani yani ekip hazır değil, yani tarihi ertelememiz lazım.", "output": "Ekip hazır değil, yani tarihi ertelememiz lazım.", "type": "semantic", "difficulty": "hard"}
+{"input": "İşte bu yüzden test önemli.", "output": "İşte bu yüzden test önemli.", "type": "semantic", "difficulty": "hard"}
+{"input": "İşte, loading ekranı iyileştirildi.", "output": "Loading ekranı iyileştirildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Versiyon güncellemesi, yani, gerekiyor.", "output": "Versiyon güncellemesi gerekiyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Ca-canlıya aldım.", "output": "Canlıya aldım.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yüzde otuz beş daha hızlı.", "output": "%35 daha hızlı.", "type": "number", "difficulty": "medium"}
+{"input": "Ha-hotfix deploy edildi.", "output": "Hotfix deploy edildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "Üç yüz elli milyon lira bütçe ayrıldı.", "output": "350 milyon lira bütçe ayrıldı.", "type": "number", "difficulty": "medium"}
+{"input": "Disk alanı, ee, dolmuş.", "output": "Disk alanı dolmuş.", "type": "filler", "difficulty": "medium"}
+{"input": "Aa, şirket pikniği iptal oldu.", "output": "Şirket pikniği iptal oldu.", "type": "filler", "difficulty": "easy"}
+{"input": "Bütçe tükendi, yani proje durdu.", "output": "Bütçe tükendi, yani proje durdu.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani, versiyon yükseltildi.", "output": "Versiyon yükseltildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey, anlattım sana.", "output": "Anlattım sana.", "type": "semantic", "difficulty": "hard"}
+{"input": "Versiyon üç yayınlandı, hayır dur, versiyon iki nokta beş yayınlandı.", "output": "Versiyon iki nokta beş yayınlandı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani, bu raporu bugün bitirmem gerekiyor.", "output": "Bu raporu bugün bitirmem gerekiyor.", "type": "filler", "difficulty": "easy"}
+{"input": "Con-conflict çözüldü.", "output": "Conflict çözüldü.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey, font güncellendi.", "output": "Font güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani ee şey hani kod şey review'dan geçti mi geçmedi mi şey kontrol etmem lazım.", "output": "Kodun review'dan geçip geçmediğini kontrol etmem lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "Birinci çeyrek sonuçları açıklandı.", "output": "1. çeyrek sonuçları açıklandı.", "type": "number", "difficulty": "medium"}
+{"input": "Üç yüz satır dokümantasyon.", "output": "300 satır dokümantasyon.", "type": "number", "difficulty": "medium"}
+{"input": "Yüzde elli altı başarı.", "output": "%56 başarı.", "type": "number", "difficulty": "medium"}
+{"input": "Kod kod kodu incele.", "output": "Kodu incele.", "type": "stutter", "difficulty": "easy"}
+{"input": "Sabah sekizde başlayalım.", "output": "Sabah 8:00'de başlayalım.", "type": "number", "difficulty": "medium"}
+{"input": "Hani, SSL sertifikası yenilendi.", "output": "SSL sertifikası yenilendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Aa, Ahmet bugün gelmeyecek.", "output": "Ahmet bugün gelmeyecek.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani geçen hafta konuştuğumuz sorun, onu çözdüm.", "output": "Hani geçen hafta konuştuğumuz sorun, onu çözdüm.", "type": "semantic", "difficulty": "hard"}
+{"input": "Dokümantasyon, ee, eksik.", "output": "Dokümantasyon eksik.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee yani bütçe bitti, yani ek kaynak istememiz lazım.", "output": "Bütçe bitti, yani ek kaynak istememiz lazım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey yani hani ee bu entegrasyon şey ne zaman hazır olur yani söyleyemem.", "output": "Bu entegrasyonun ne zaman hazır olacağını söyleyemem.", "type": "filler", "difficulty": "hard"}
+{"input": "Güvenlik açığı kritik, aslında orta seviye risk.", "output": "Güvenlik açığı orta seviye risk.", "type": "backtrack", "difficulty": "medium"}
+{"input": "CI/CD, ee, konfigüre edildi.", "output": "CI/CD konfigüre edildi.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani şey hani bu kodu şey ee refactor etmemiz yani çok önemli aslında.", "output": "Bu kodu refactor etmemiz çok önemli.", "type": "filler", "difficulty": "hard"}
+{"input": "Ee, uygulama çöktü.", "output": "Uygulama çöktü.", "type": "filler", "difficulty": "easy"}
+{"input": "Sunucu üç gün önce, aslında dört gün önce çöktü.", "output": "Sunucu dört gün önce çöktü.", "type": "backtrack", "difficulty": "medium"}
+{"input": "On bir Nisan yarın.", "output": "11 Nisan yarın.", "type": "number", "difficulty": "medium"}
+{"input": "Saat dokuzda standup.", "output": "Saat 9:00'da standup.", "type": "number", "difficulty": "medium"}
+{"input": "Saat on beşte toplantı var.", "output": "Saat 15:00'te toplantı var.", "type": "number", "difficulty": "medium"}
+{"input": "Hani, dark mode eklendi.", "output": "Dark mode eklendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani, cache temizlendi.", "output": "Cache temizlendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Aa, para transferi tamamlandı.", "output": "Para transferi tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee, sigorta yenilendi.", "output": "Sigorta yenilendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Toplantıya gidemeyeceğim, yani, hastalandım.", "output": "Toplantıya gidemeyeceğim; hastalandım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Müşteri onayladı, yani üretim başlayabilir.", "output": "Müşteri onayladı, yani üretim başlayabilir.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey, şifrem değişti.", "output": "Şifrem değişti.", "type": "filler", "difficulty": "easy"}
+{"input": "Do-dokümantasyon güncellendi.", "output": "Dokümantasyon güncellendi.", "type": "stutter", "difficulty": "easy"}
+{"input": "İki bin yirmi altı yılında başladı.", "output": "2026 yılında başladı.", "type": "number", "difficulty": "medium"}
+{"input": "Yani yani şey hani toplantı ee ertelendi mi iptal mi oldu şey anlayamadım.", "output": "Toplantının ertelenip ertelenmediğini anlayamadım.", "type": "filler", "difficulty": "hard"}
+{"input": "Hani şey ee yani güvenlik açığı kritik, yani hemen yamalamalıyız.", "output": "Güvenlik açığı kritik, yani hemen yamalamalıyız.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani şey yani ee yeni sistem şey eski sistemle uyumlu mu değil mi şey test etmedik.", "output": "Yeni sistemin eski sistemle uyumlu olup olmadığını test etmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Yani ee şey hani veri kaybı oldu, yani yedekten geri dönmeliyiz.", "output": "Veri kaybı oldu, yani yedekten geri dönmeliyiz.", "type": "semantic", "difficulty": "hard"}
+{"input": "Projeye, ee, ek kaynak aktarıldı.", "output": "Projeye ek kaynak aktarıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "İşte bu hatayı düzeltmemiz lazım.", "output": "İşte bu hatayı düzeltmemiz lazım.", "type": "semantic", "difficulty": "hard"}
+{"input": "On dört Temmuz başlangıç.", "output": "14 Temmuz başlangıç.", "type": "number", "difficulty": "medium"}
+{"input": "Bu değişiklik, yani, geri alınmalı.", "output": "Bu değişiklik geri alınmalı.", "type": "filler", "difficulty": "medium"}
+{"input": "Yüzde otuz iki daha az hata.", "output": "%32 daha az hata.", "type": "number", "difficulty": "medium"}
+{"input": "Üç buçuk saat sürdü.", "output": "3,5 saat sürdü.", "type": "number", "difficulty": "medium"}
+{"input": "Hani, toplantı odası rezervasyonu yaptım.", "output": "Toplantı odası rezervasyonu yaptım.", "type": "filler", "difficulty": "easy"}
+{"input": "Ee hani şey yani bu yazı şey doğru anlaşılıyor mu anlaşılmıyor mu şey göstermedik.", "output": "Bu yazının doğru anlaşılıp anlaşılmadığını test etmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Üçüncü öncelik, dur bir saniye, birinci öncelik olarak işaretle.", "output": "Birinci öncelik olarak işaretle.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani yani şey müşteriyle ee konuştum şey ama anlaşamadık işte yani.", "output": "Müşteriyle konuştum ama anlaşamadık.", "type": "filler", "difficulty": "hard"}
+{"input": "Ee yani, bitirdim.", "output": "Bitirdim.", "type": "semantic", "difficulty": "hard"}
+{"input": "Performans sorununu Mehmet çözecek, hayır, ekibin tamamı çalışacak.", "output": "Performans sorununu ekibin tamamı çalışacak.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Sistem sistem sistemi güncelledim.", "output": "Sistemi güncelledim.", "type": "stutter", "difficulty": "easy"}
+{"input": "Pro-proje geride kalıyor.", "output": "Proje geride kalıyor.", "type": "stutter", "difficulty": "easy"}
+{"input": "Pro proje bitti mi?", "output": "Proje bitti mi?", "type": "stutter", "difficulty": "easy"}
+{"input": "Hani yani ee test başarısız, yani release'i erteleyelim.", "output": "Test başarısız, yani release'i erteleyelim.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey yani, bu özelliği eklemek zaman alacak.", "output": "Bu özelliği eklemek zaman alacak.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani, backup alındı.", "output": "Backup alındı.", "type": "filler", "difficulty": "easy"}
+{"input": "Server, ee, fazla bellek kullanıyor.", "output": "Server fazla bellek kullanıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Şey hani ee bu değişiklik yani sistemi şey etkiledi mi etkilemedi mi.", "output": "Bu değişikliğin sistemi etkileyip etkilemediği belli değil.", "type": "filler", "difficulty": "hard"}
+{"input": "Load balancer, ee, yanlış yönlendiriyor.", "output": "Load balancer yanlış yönlendiriyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Yüzde altmış beş tamamlandı.", "output": "%65 tamamlandı.", "type": "number", "difficulty": "medium"}
+{"input": "Hani, şey, müşteri şikayeti var.", "output": "Müşteri şikayeti var.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani, sistem güncellemesi yapıldı.", "output": "Sistem güncellemesi yapıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Retry mekanizması, ee, düzgün çalışmıyor.", "output": "Retry mekanizması düzgün çalışmıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Proje bütçesi beş milyon, hayır yanlış, iki buçuk milyon.", "output": "Proje bütçesi iki buçuk milyon.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Dört yüz seksen dört hata.", "output": "484 hata.", "type": "number", "difficulty": "medium"}
+{"input": "Yani şey yani bu çok karmaşık, yani basitleştirmemiz lazım.", "output": "Bu çok karmaşık, yani basitleştirmemiz lazım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Ürün hazır, aslında hayır, beta aşamasında.", "output": "Ürün beta aşamasında.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yirmi iki Aralık son gün.", "output": "22 Aralık son gün.", "type": "number", "difficulty": "medium"}
+{"input": "Sorgu, şey, optimize edilmeli.", "output": "Sorgu optimize edilmeli.", "type": "filler", "difficulty": "medium"}
+{"input": "Me-metrik toplanıyor.", "output": "Metrik toplanıyor.", "type": "stutter", "difficulty": "easy"}
+{"input": "Şey şey yani hani ee bu önbellek şey ne kadar süre geçerli olmalı yani bilmiyorum.", "output": "Bu önbelleğin ne kadar süre geçerli olması gerektiğini bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Sö-sözleşme imzalandı.", "output": "Sözleşme imzalandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Beş yüz seksen kullanıcı aktif.", "output": "580 kullanıcı aktif.", "type": "number", "difficulty": "medium"}
+{"input": "İkinci sürüm yayınlandı.", "output": "2. sürüm yayınlandı.", "type": "number", "difficulty": "medium"}
+{"input": "Sorunu çözdüm işte.", "output": "Sorunu çözdüm.", "type": "semantic", "difficulty": "hard"}
+{"input": "Ee, rebase tamamlandı.", "output": "Rebase tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Fe-feature flag açıldı.", "output": "Feature flag açıldı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Server İstanbul'da, hayır, Ankara'da konumlanıyor.", "output": "Server Ankara'da konumlanıyor.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani, haftalık özet gönderildi.", "output": "Haftalık özet gönderildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Tüm kullanıcılar etkilendi, hayır dur, sadece premium kullanıcılar etkilendi.", "output": "Sadece premium kullanıcılar etkilendi.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Şikayet geldi, pardon, öneri geldi.", "output": "Öneri geldi.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Bir terabayt depolama.", "output": "1 TB depolama.", "type": "number", "difficulty": "medium"}
+{"input": "Hani yani, mobil uygulama çok yavaş.", "output": "Mobil uygulama çok yavaş.", "type": "filler", "difficulty": "medium"}
+{"input": "Hizmeti durdur, pardon, hizmeti yeniden başlat.", "output": "Hizmeti yeniden başlat.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Müşteriyle, şey, görüşmemiz iyi geçti.", "output": "Müşteriyle görüşmemiz iyi geçti.", "type": "filler", "difficulty": "medium"}
+{"input": "Test planı, yani, hazırlandı.", "output": "Test planı hazırlandı.", "type": "filler", "difficulty": "medium"}
+{"input": "Teknik borç, hani, artıyor.", "output": "Teknik borç artıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani, hata sayfası güncellendi.", "output": "Hata sayfası güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yük testi, hani, yapıldı.", "output": "Yük testi yapıldı.", "type": "filler", "difficulty": "medium"}
+{"input": "Müşteri memnun değil, dur dur, aslında memnun.", "output": "Müşteri memnun.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani ee şey yani kullanıcı verisi şey doğru işleniyor mu işlenmiyor mu test etmedik.", "output": "Kullanıcı verisinin doğru işlenip işlenmediğini test etmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "Otuzuncu gün bildirimi.", "output": "30. gün bildirimi.", "type": "number", "difficulty": "medium"}
+{"input": "Altı yüz megabayt dosya.", "output": "600 MB dosya.", "type": "number", "difficulty": "medium"}
+{"input": "Yani, yeni ofis düzenlemesi yapıldı.", "output": "Yeni ofis düzenlemesi yapıldı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yüzde doksan iki kapsam.", "output": "%92 kapsam.", "type": "number", "difficulty": "medium"}
+{"input": "On iki Mart toplantımız var.", "output": "12 Mart toplantımız var.", "type": "number", "difficulty": "medium"}
+{"input": "Yetki, yani, düzenlendi.", "output": "Yetki düzenlendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Mi-migration tamamlandı.", "output": "Migration tamamlandı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yani şey ee, bu mimari karar doğru değil.", "output": "Bu mimari karar doğru değil.", "type": "filler", "difficulty": "medium"}
+{"input": "Veri silindi, hayır dur, veri arşivlendi.", "output": "Veri arşivlendi.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani, kullanıcı şikayeti geldi.", "output": "Kullanıcı şikayeti geldi.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey, müşteri toplantısı ertelendi.", "output": "Müşteri toplantısı ertelendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Ticket açıldı, pardon, ticket kapatıldı.", "output": "Ticket kapatıldı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Hani, onboarding dokümanı tamamlandı.", "output": "Onboarding dokümanı tamamlandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani şey ee hani eski yöntem işe yaramıyor, yani yeni yaklaşım deneyelim.", "output": "Eski yöntem işe yaramıyor, yani yeni yaklaşım deneyelim.", "type": "semantic", "difficulty": "hard"}
+{"input": "Performans testi, ee, başarısız.", "output": "Performans testi başarısız.", "type": "filler", "difficulty": "medium"}
+{"input": "On beş gün içinde, aslında yirmi gün içinde teslim ederiz.", "output": "Yirmi gün içinde teslim ederiz.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Test ortamında, hayır dur, production'da hata aldık.", "output": "Production'da hata aldık.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yüzde seksen beş başarı oranına ulaştık.", "output": "%85 başarı oranına ulaştık.", "type": "number", "difficulty": "medium"}
+{"input": "Veri tabanı, şey hani, yedeklendi.", "output": "Veri tabanı yedeklendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani o kütüphane vardı ya, onu kullanalım.", "output": "Hani o kütüphane vardı ya, onu kullanalım.", "type": "semantic", "difficulty": "hard"}
+{"input": "Şey, akşam yemeği rezervasyonu yaptım.", "output": "Akşam yemeği rezervasyonu yaptım.", "type": "filler", "difficulty": "easy"}
+{"input": "Bağımlılık, hani, çakışıyor.", "output": "Bağımlılık çakışıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani, acceptance criteria karşılandı.", "output": "Acceptance criteria karşılandı.", "type": "filler", "difficulty": "easy"}
+{"input": "İşte böyle yapılır.", "output": "Böyle yapılır.", "type": "semantic", "difficulty": "hard"}
+{"input": "Yani ee hani şey mobil uygulama şey yavaş mı değil mi şey ölçmedik.", "output": "Mobil uygulamanın yavaş olup olmadığını ölçmedik.", "type": "filler", "difficulty": "hard"}
+{"input": "De-deployment başarılı.", "output": "Deployment başarılı.", "type": "stutter", "difficulty": "easy"}
+{"input": "İşte, log dosyasını inceledim.", "output": "Log dosyasını inceledim.", "type": "filler", "difficulty": "easy"}
+{"input": "Bu bu branch silinebilir.", "output": "Bu branch silinebilir.", "type": "stutter", "difficulty": "easy"}
+{"input": "Bu özelliği, şey, kullanıcılar seviyor.", "output": "Bu özelliği kullanıcılar seviyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Versiyon iki nokta sıfır, pardon, iki nokta bir yayınlandı.", "output": "Versiyon iki nokta bir yayınlandı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Proje planı, ee, güncellendi.", "output": "Proje planı güncellendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Dört yüz bin satır kod.", "output": "400.000 satır kod.", "type": "number", "difficulty": "medium"}
+{"input": "Çıktı, şey hani, beklenenden farklı.", "output": "Çıktı beklenenden farklı.", "type": "filler", "difficulty": "medium"}
+{"input": "İşte, doktor raporu hazır.", "output": "Doktor raporu hazır.", "type": "filler", "difficulty": "easy"}
+{"input": "Build, yani, hata veriyor.", "output": "Build hata veriyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Altı ay garanti.", "output": "6 ay garanti.", "type": "number", "difficulty": "medium"}
+{"input": "Dört yüz gigabayt disk.", "output": "400 GB disk.", "type": "number", "difficulty": "medium"}
+{"input": "Alert, yani, yanlış tetiklendi.", "output": "Alert yanlış tetiklendi.", "type": "filler", "difficulty": "medium"}
+{"input": "Gü-güvenlik taraması yapıldı.", "output": "Güvenlik taraması yapıldı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Bu database, şey, çok yavaş çalışıyor.", "output": "Bu database çok yavaş çalışıyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee, animasyon düzeltildi.", "output": "Animasyon düzeltildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Yüzde yirmi beş büyüme.", "output": "%25 büyüme.", "type": "number", "difficulty": "medium"}
+{"input": "Rapor, hani, eksik veri içeriyor.", "output": "Rapor eksik veri içeriyor.", "type": "filler", "difficulty": "medium"}
+{"input": "Beş dakika timeout süresi.", "output": "5 dakika timeout süresi.", "type": "number", "difficulty": "medium"}
+{"input": "Canlıya alındı, dur bir saniye, test ortamına alındı.", "output": "Test ortamına alındı.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Yani, ikonlar değiştirildi.", "output": "İkonlar değiştirildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Pa-pipeline çalıştı.", "output": "Pipeline çalıştı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Lo-loglara baktım.", "output": "Loglara baktım.", "type": "stutter", "difficulty": "easy"}
+{"input": "İşte, bütçe onaylandı.", "output": "Bütçe onaylandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Yüzde yetmiş iki dolu.", "output": "%72 dolu.", "type": "number", "difficulty": "medium"}
+{"input": "Re-release hazır.", "output": "Release hazır.", "type": "stutter", "difficulty": "easy"}
+{"input": "Timeout, yani, çok kısa ayarlanmış.", "output": "Timeout çok kısa ayarlanmış.", "type": "filler", "difficulty": "medium"}
+{"input": "Bütçe iki yüz bin, pardon, iki yüz elli bin lira olarak belirlendi.", "output": "Bütçe iki yüz elli bin lira olarak belirlendi.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee yani şey hani bu özelliği şey kaldırabilir miyiz kaldıramaz mıyız tartışmamız lazım.", "output": "Bu özelliği kaldırıp kaldıramayacağımızı tartışmamız lazım.", "type": "filler", "difficulty": "hard"}
+{"input": "Testi, ee, geçemedik.", "output": "Testi geçemedik.", "type": "filler", "difficulty": "medium"}
+{"input": "Hani şey yani ee bu test senaryosu şey kapsıyor mu kapsamıyor mu yani bilmiyorum.", "output": "Bu test senaryosunun yeterli kapsamı olup olmadığını bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Yüz elli bin kullanıcı.", "output": "150.000 kullanıcı.", "type": "number", "difficulty": "medium"}
+{"input": "Mobil app güncellendi, hayır, web app güncellendi.", "output": "Web app güncellendi.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Kodu main branch'e push et, yok yok, develop branch'e push et.", "output": "Kodu develop branch'e push et.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Bu bu bu raporu yazmam lazım.", "output": "Bu raporu yazmam lazım.", "type": "stutter", "difficulty": "easy"}
+{"input": "Müdüre, ee, mail attım ama cevap gelmedi.", "output": "Müdüre mail attım ama cevap gelmedi.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee yani şey hani sistem yavaş, yani optimizasyon şart.", "output": "Sistem yavaş, yani optimizasyon şart.", "type": "semantic", "difficulty": "hard"}
+{"input": "Hani, API endpoint'i güncellendi.", "output": "API endpoint'i güncellendi.", "type": "filler", "difficulty": "easy"}
+{"input": "Kodu Ahmet commit etti, hayır dur, Burak commit etti.", "output": "Kodu Burak commit etti.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Test geçti, yani kod doğru çalışıyor.", "output": "Test geçti, yani kod doğru çalışıyor.", "type": "semantic", "difficulty": "hard"}
+{"input": "Proje, yani, geride kaldı.", "output": "Proje geride kaldı.", "type": "filler", "difficulty": "medium"}
+{"input": "API'yi, yani, güncellememiz lazım.", "output": "API'yi güncellememiz lazım.", "type": "filler", "difficulty": "medium"}
+{"input": "Yani, randevuyu iptal ettim.", "output": "Randevuyu iptal ettim.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey, müdürle görüşmem var.", "output": "Müdürle görüşmem var.", "type": "filler", "difficulty": "easy"}
+{"input": "Yani, sabah on birde ofise geleceğim.", "output": "Sabah on birde ofise geleceğim.", "type": "filler", "difficulty": "easy"}
+{"input": "Şey ee yani hani bu değişikliği yapmak şey ne kadar sürer yani bilmiyorum işte.", "output": "Bu değişikliği yapmanın ne kadar süreceğini bilmiyorum.", "type": "filler", "difficulty": "hard"}
+{"input": "Ali'ye mail at, yok yok, Mehmet'e at.", "output": "Mehmet'e mail at.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Aa, vize başvurusu onaylandı.", "output": "Vize başvurusu onaylandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Hani, biliyorsun.", "output": "Biliyorsun.", "type": "semantic", "difficulty": "hard"}
+{"input": "Üçüncü dönem raporu.", "output": "3. dönem raporu.", "type": "number", "difficulty": "medium"}
+{"input": "Yüzde dört büyüme.", "output": "%4 büyüme.", "type": "number", "difficulty": "medium"}
+{"input": "Raporu sil, dur, raporu güncelle.", "output": "Raporu güncelle.", "type": "backtrack", "difficulty": "medium"}
+{"input": "Ee, takım lideri değişti.", "output": "Takım lideri değişti.", "type": "filler", "difficulty": "easy"}
+{"input": "Ser-sunucu yeniden başlatıldı.", "output": "Sunucu yeniden başlatıldı.", "type": "stutter", "difficulty": "easy"}
+{"input": "Yani, VPN bağlantısı kesildi.", "output": "VPN bağlantısı kesildi.", "type": "filler", "difficulty": "easy"}
+{"input": "Deployment, şey, başarısız oldu.", "output": "Deployment başarısız oldu.", "type": "filler", "difficulty": "medium"}
+{"input": "Ee şey, kullanıcı arayüzü, hani, kafa karıştırıcı.", "output": "Kullanıcı arayüzü kafa karıştırıcı.", "type": "filler", "difficulty": "medium"}
+{"input": "Cache, ee, süresi dolmuş.", "output": "Cache süresi dolmuş.", "type": "filler", "difficulty": "medium"}
+{"input": "Veri veri veritabanı bağlantısı kesildi.", "output": "Veritabanı bağlantısı kesildi.", "type": "stutter", "difficulty": "easy"}
+{"input": "İşte, testler geçti.", "output": "Testler geçti.", "type": "filler", "difficulty": "easy"}
+{"input": "İşte, monitoring alarmı kapandı.", "output": "Monitoring alarmı kapandı.", "type": "filler", "difficulty": "easy"}
+{"input": "Slack'te yaz, hayır, email at.", "output": "Email at.", "type": "backtrack", "difficulty": "medium"}
