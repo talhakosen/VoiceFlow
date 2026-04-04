@@ -277,23 +277,27 @@ private struct GeneralSection: View {
             // Bağlantı
             VFSectionHeader("Bağlantı")
             VFCard {
-                VFRow("Dağıtım Modu",
-                      divider: deploymentMode == "local" || deploymentMode == "server") {
+                VFRow("Dağıtım Modu", divider: deploymentMode == "server") {
                     Picker("", selection: $deploymentMode) {
-                        Text("Yerel (Mac — MLX)").tag("local")
+                        Text("Yerel (Mac)").tag("local")
                         Text("Sunucu (Şirket İçi)").tag("server")
                     }
                     .pickerStyle(.menu)
                     .onChange(of: deploymentMode) { showRestartNotice = true }
                 }
                 if deploymentMode == "local" {
-                    VFRow("Konuşma Modeli") {
-                        Text(viewModel.whisperModelName.isEmpty ? "—" : viewModel.whisperModelName)
-                            .foregroundStyle(.secondary)
-                    }
-                    VFRow("Qwen Düzeltme", divider: false) {
-                        Text(viewModel.llmAdapterVersion.isEmpty ? "—" : viewModel.llmAdapterVersion)
-                            .foregroundStyle(.secondary)
+                    VFRow("", divider: false) {
+                        HStack(spacing: 8) {
+                            if !viewModel.whisperModelName.isEmpty {
+                                Text("Whisper \(viewModel.whisperModelName)")
+                                    .font(.caption).foregroundStyle(.tertiary)
+                            }
+                            if !viewModel.llmAdapterVersion.isEmpty {
+                                Text("·").foregroundStyle(.tertiary).font(.caption)
+                                Text("Qwen \(viewModel.llmAdapterVersion)")
+                                    .font(.caption).foregroundStyle(.tertiary)
+                            }
+                        }
                     }
                 }
                 if deploymentMode == "server" {
@@ -614,9 +618,9 @@ private struct RecordingSection: View {
                 if viewModel.currentAppMode != .engineering {
                     VFRow("Yapay Zeka Motoru", divider: llmMode != "cloud") {
                         Picker("", selection: $llmMode) {
-                            Text("Yerel (Mac)").tag("local")
-                            Text("Bulut (RunPod)").tag("cloud")
-                            Text("Alibaba API").tag("alibaba")
+                            Text("Yerel").tag("local")
+                            Text("Bulut").tag("cloud")
+                            Text("Alibaba").tag("alibaba")
                         }
                         .pickerStyle(.menu)
                         .frame(width: 160)
@@ -636,7 +640,7 @@ private struct RecordingSection: View {
                 VFInfoRow(icon: VFIcon.warning, text: "Engineering modda düzeltme kapalıdır — teknik terimler korunur.", color: VFColor.warning)
             }
             if llmMode == "alibaba" {
-                VFInfoRow(icon: VFIcon.bolt, text: "Alibaba DashScope — qwen-max. Hızlı, yüksek kalite. İnternet gerektirir.", color: VFColor.warning)
+                VFInfoRow(icon: VFIcon.bolt, text: "Alibaba — Hızlı, yüksek kalite. İnternet gerektirir.", color: VFColor.warning)
             }
             if showRestartNotice {
                 VFInfoRow(icon: VFIcon.restartCircle, text: "Değişikliği uygulamak için servisi yeniden başlatın.", color: VFColor.warning)
