@@ -166,7 +166,8 @@ Hedef: şey/yani/hani/işte/ee/aa temizleme + backtrack + stutter + sayı normal
 # 1. Pod oluştur (RTX 4090 yeterli — ~30 dk)
 python create_pod.py qwen
 
-# 2. Dataset + script yükle
+# 2. Dataset + script + V1 adapter yükle
+scp -rP <PORT> ../ml/qwen/adapters_mlx/raw root@<IP>:/workspace/adapters_v1   # V1'den devam
 scp -P <PORT> ../ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl
 scp -P <PORT> ../ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
 scp -P <PORT> ../ml/qwen/scripts/train_runpod_v2.py root@<IP>:/workspace/

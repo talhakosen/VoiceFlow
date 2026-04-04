@@ -1,12 +1,13 @@
 """
-VoiceFlow Qwen v2 Fine-tuning — filler/disfluency temizleme
-Mevcut adapter bilgisi korunur (mixed dataset: 496 filler + 600 existing)
+VoiceFlow Qwen v2 Fine-tuning — V1 adapter üzerine filler/disfluency temizleme
+
+V1 adapter ağırlıklarından başlar (Whisper Stage 2 mantığı):
+  noktalama + karakter düzeltme bilgisi korunur → üstüne filler öğretilir.
+
 RunPod H100 veya RTX 4090
 
-Usage:
-  python train_runpod_v2.py
-
 SCP öncesi:
+  scp -rP <PORT> ml/qwen/adapters_mlx/raw root@<IP>:/workspace/adapters_v1
   scp -P <PORT> ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl
   scp -P <PORT> ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
   scp -P <PORT> ml/qwen/scripts/train_runpod_v2.py root@<IP>:/workspace/
@@ -17,23 +18,34 @@ Output: /workspace/adapters_v2/
 from datasets import Dataset
 from unsloth import FastLanguageModel
 from trl import SFTTrainer, SFTConfig
+import os
 
-MODEL_NAME  = "unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
+# V1 adapter varsa ondan başla, yoksa base model
+V1_ADAPTER_PATH = "/workspace/adapters_v1"
+BASE_MODEL_NAME  = "unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
 MAX_SEQ_LEN = 512
 LORA_RANK   = 8
 LORA_ALPHA  = 16
 BATCH_SIZE  = 8
-GRAD_ACCUM  = 2          # effective batch = 16
-LR          = 8e-6       # v1'den biraz düşük — catastrophic forgetting azalt
-NUM_EPOCHS  = 3          # küçük dataset, 3 epoch yeterli (~930 * 3 = 2790 step / eff_batch 16 = ~174 iter)
-MAX_STEPS   = 500        # ~15 dk H100, ~30 dk 4090 — erken dur
+GRAD_ACCUM  = 2
+LR          = 5e-6       # v1 üzerine devam — düşük LR, bilgiyi koru
+NUM_EPOCHS  = 3
+MAX_STEPS   = 400        # ~12 dk H100, ~25 dk 4090
 OUTPUT_DIR  = "/workspace/adapters_v2"
 TRAIN_FILE  = "/workspace/train_v2.jsonl"
 VALID_FILE  = "/workspace/valid_v2.jsonl"
 
+# V1 adapter'dan başla (varsa), yoksa base model
+if os.path.isdir(V1_ADAPTER_PATH):
+    print(f"V1 adapter bulundu: {V1_ADAPTER_PATH} — oradan devam ediliyor")
+    START_MODEL = V1_ADAPTER_PATH
+else:
+    print(f"V1 adapter yok — base model kullanılıyor: {BASE_MODEL_NAME}")
+    START_MODEL = BASE_MODEL_NAME
+
 print("Loading model...")
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name=MODEL_NAME,
+    model_name=START_MODEL,
     max_seq_length=MAX_SEQ_LEN,
     dtype=None,
     load_in_4bit=True,
