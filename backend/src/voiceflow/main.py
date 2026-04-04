@@ -11,7 +11,7 @@ from starlette.requests import Request
 from .api import router, engineering_router
 from .api.auth_routes import router as auth_router
 from .api.admin_routes import router as admin_router
-from .core.config import BACKEND_MODE as _BACKEND_MODE, LLM_BACKEND, LLM_ENDPOINT
+from .core.config import BACKEND_MODE as _BACKEND_MODE, LLM_BACKEND, LLM_ENDPOINT, WHISPER_MODEL as _WHISPER_MODEL
 from .db import init_db
 
 _HOST = "0.0.0.0" if _BACKEND_MODE == "server" else "127.0.0.1"
@@ -86,10 +86,13 @@ async def root():
 async def health(request: Request):
     svc = request.app.state.recording_service
     corrector = svc.corrector
+    import os
+    model_display = os.path.basename(_WHISPER_MODEL.rstrip("/"))
     return {
         "status": "healthy",
-        "model_loaded": getattr(svc.transcriber, "_model", None) is not None,
+        "model_loaded": getattr(svc.transcriber, "_model_loaded", False) or getattr(svc.transcriber, "_model", None) is not None,
         "llm_loaded": getattr(corrector, "_model", None) is not None,
+        "whisper_model": model_display,
     }
 
 

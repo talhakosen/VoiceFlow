@@ -50,6 +50,8 @@ class TranscriptionResponse(BaseModel):
     processing_ms: int | None = None
     id: int | None = None
     it_wav_path: str | None = None
+    pending_wav_path: str | None = None
+    symbol_refs: list[str] | None = None
 
 
 class ConfigRequest(BaseModel):
@@ -97,6 +99,7 @@ async def stop_recording(
     x_selected_text: str | None = Header(default=None, alias="X-Selected-Text"),
     x_cmd_intervals: str | None = Header(default=None, alias="X-Cmd-Intervals"),
     x_it_dataset_index: str | None = Header(default=None, alias="X-IT-Dataset-Index"),
+    x_training_mode: str | None = Header(default=None, alias="X-Training-Mode"),
 ):
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
@@ -123,6 +126,8 @@ async def stop_recording(
         except ValueError:
             it_dataset_idx = None
 
+    save_pending_wav = x_training_mode == "1" and it_dataset_idx is None
+
     try:
         result = await svc.stop(
             user_id=user_id,
@@ -132,6 +137,7 @@ async def stop_recording(
             selected_text=x_selected_text or None,
             cmd_intervals=cmd_intervals,
             it_dataset_index=it_dataset_idx,
+            save_pending_wav=save_pending_wav,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -186,6 +192,28 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
                 await loop.run_in_executor(None, corrector.unload)
             else:
                 await loop.run_in_executor(_mlx_executor, corrector.unload)
+
+        if config.mode == "engineering":
+            # Auto re-index if last path is known and index is stale (>5 min)
+            import time as _time
+            last_paths = getattr(request.app.state, "last_index_paths", {})
+            req_user_id = getattr(request.state, "user_id", "") or ""
+            entry = last_paths.get(req_user_id) or last_paths.get("default")
+            if entry and (_time.time() - entry["indexed_at"]) > 300:
+                async def _reindex(path: str, uid: str, app_state) -> None:
+                    try:
+                        from ..services.symbol_indexer import build_symbol_index, generate_project_notes
+                        sym_count = await build_symbol_index(path, uid)
+                        logger.info("Auto re-index (engineering mode): %d symbols", sym_count)
+                        if sym_count > 0:
+                            await generate_project_notes(path, uid)
+                        import time as _t
+                        if not hasattr(app_state, "last_index_paths"):
+                            app_state.last_index_paths = {}
+                        app_state.last_index_paths[uid] = {"path": path, "indexed_at": _t.time()}
+                    except Exception as _e:
+                        logger.warning("Auto re-index failed: %s", _e)
+                asyncio.create_task(_reindex(entry["path"], req_user_id, request.app.state))
 
     # Update output format
     if config.output_format is not None:
@@ -279,11 +307,20 @@ async def context_ingest(
         except Exception as e:
             logger.warning("Smart dictionary failed: %s", e)
         try:
-            from ..services.symbol_indexer import build_symbol_index
+            from ..services.symbol_indexer import build_symbol_index, generate_project_notes
             sym_count = await build_symbol_index(body.path, user_id)
             logger.info("Symbol index: %d symbols for user %s", sym_count, user_id)
+            if sym_count > 0:
+                notes_path = await generate_project_notes(body.path, user_id)
+                if notes_path:
+                    logger.info("Project notes generated: %s", notes_path)
         except Exception as e:
             logger.warning("Symbol index failed: %s", e)
+
+    import time as _t
+    if not hasattr(request.app.state, "last_index_paths"):
+        request.app.state.last_index_paths = {}
+    request.app.state.last_index_paths[user_id] = {"path": body.path, "indexed_at": _t.time()}
 
     task = asyncio.create_task(_run())
     request.app.state.ingest_task = task
@@ -295,9 +332,8 @@ async def context_status(
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
     request: Request = None,
 ):
-    """Return smart dictionary entry count."""
+    """Return smart dictionary + symbol index status."""
     import aiosqlite
-    from pathlib import Path
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
     from ..db.storage import DB_PATH as db_path
     async with aiosqlite.connect(db_path) as db:
@@ -307,7 +343,24 @@ async def context_status(
         ) as cursor:
             row = await cursor.fetchone()
             n = row[0] if row else 0
-    return {"count": n, "is_ready": True, "is_empty": n == 0}
+        async with db.execute(
+            "SELECT COUNT(*), MAX(indexed_at) FROM symbol_index_v2 WHERE user_id = ?",
+            (user_id,),
+        ) as cursor:
+            row2 = await cursor.fetchone()
+            sym_count = row2[0] if row2 else 0
+            last_indexed_at = row2[1] if row2 else None
+
+    last_paths = getattr(request.app.state, "last_index_paths", {}) if request else {}
+    entry = last_paths.get(user_id) or last_paths.get("default")
+    return {
+        "count": n,
+        "is_ready": True,
+        "is_empty": n == 0,
+        "symbol_count": sym_count,
+        "last_indexed_at": last_indexed_at,
+        "last_index_path": entry["path"] if entry else None,
+    }
 
 
 @router.get("/context/projects")
@@ -417,6 +470,40 @@ async def add_dict_entry(
     return {"id": entry_id, "trigger": body.trigger, "replacement": body.replacement, "scope": body.scope}
 
 
+@router.post("/dictionary/bundle")
+async def load_dict_bundle(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+    """Load the pre-built IT Turkish phonetics bundle into DB (scope=bundle, hidden from UI)."""
+    import json as _json
+    from pathlib import Path
+    bundle_path = Path(__file__).parents[4] / "ml" / "dictionary" / "it_bundle_full.json"
+    if not bundle_path.exists():
+        raise HTTPException(status_code=404, detail="Bundle file not found")
+    with open(bundle_path, encoding="utf-8") as f:
+        entries = _json.load(f)
+    import aiosqlite
+    from ..db.storage import DB_PATH as _db_path
+    async with aiosqlite.connect(_db_path) as db:
+        # Clear existing bundle entries for this tenant first
+        await db.execute("DELETE FROM user_dictionary WHERE tenant_id = ? AND scope = 'bundle'", ("default",))
+        await db.executemany(
+            "INSERT OR IGNORE INTO user_dictionary (tenant_id, user_id, trigger, replacement, scope) VALUES (?, ?, ?, ?, 'bundle')",
+            [("default", "", e["trigger"], e["replacement"]) for e in entries],
+        )
+        await db.commit()
+    return {"status": "loaded", "count": len(entries)}
+
+
+@router.delete("/dictionary/bundle")
+async def clear_dict_bundle():
+    """Remove all bundle entries."""
+    import aiosqlite
+    from ..db.storage import DB_PATH as _db_path
+    async with aiosqlite.connect(_db_path) as db:
+        await db.execute("DELETE FROM user_dictionary WHERE scope = 'bundle'")
+        await db.commit()
+    return {"status": "cleared"}
+
+
 @router.delete("/dictionary/{entry_id}")
 async def delete_dict_entry(
     entry_id: int,
@@ -522,6 +609,8 @@ async def submit_feedback(req: FeedbackRequest, request: Request):
 _IT_DATASET_PATH = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "whisper_sentences.jsonl"
 _IT_TERMS_PATH   = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "it_terms.jsonl"
 _IT_RECORDINGS_DIR = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings"
+_USER_CORRECTIONS_DIR = Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "user_corrections"
+_USER_CORRECTIONS_JSONL = _USER_CORRECTIONS_DIR / "corrections.jsonl"
 
 _TRAINING_DATA_PATHS: dict[str, Path] = {
     "it_dataset": _IT_DATASET_PATH,
@@ -656,3 +745,53 @@ async def get_recorded_it_sentences(training_set: str = "it_dataset") -> list[IT
         )
         for r in rows
     ]
+
+
+# ------------------------------------------------------------------
+# User correction training pairs
+# ------------------------------------------------------------------
+
+class SaveCorrectionRequest(BaseModel):
+    wav_path: str
+    whisper_text: str
+    corrected_text: str
+
+
+class DeletePendingWavRequest(BaseModel):
+    wav_path: str
+
+
+@router.post("/training/save-correction")
+async def save_user_correction(req: SaveCorrectionRequest) -> dict:
+    """Keep pending WAV and append (wav, whisper, corrected) pair to JSONL."""
+    wav = Path(req.wav_path)
+    if not wav.exists():
+        raise HTTPException(status_code=404, detail="WAV not found")
+
+    # Move from pending/ to user_corrections/
+    final_dir = _USER_CORRECTIONS_DIR
+    final_dir.mkdir(parents=True, exist_ok=True)
+    final_path = final_dir / wav.name
+    wav.rename(final_path)
+
+    # Append to JSONL
+    import json as _json
+    with open(_USER_CORRECTIONS_JSONL, "a", encoding="utf-8") as f:
+        f.write(_json.dumps({
+            "audio": str(final_path),
+            "whisper_out": req.whisper_text,
+            "corrected": req.corrected_text,
+        }, ensure_ascii=False) + "\n")
+
+    logger.info("User correction saved: %s → '%s'", final_path.name, req.corrected_text[:60])
+    return {"status": "ok", "wav_path": str(final_path)}
+
+
+@router.delete("/training/pending-wav")
+async def delete_pending_wav(req: DeletePendingWavRequest) -> dict:
+    """Delete a pending WAV (user dismissed or approved without editing)."""
+    wav = Path(req.wav_path)
+    if wav.exists():
+        wav.unlink()
+        logger.info("Pending WAV deleted: %s", wav.name)
+    return {"status": "ok"}

@@ -84,12 +84,14 @@ class AudioCapture:
             if self._state != RecordingState.RECORDING:
                 return np.array([], dtype=np.float32)
 
-            self._state = RecordingState.STOPPED
-
+            # Stop stream FIRST while state is still RECORDING so the
+            # callback flushes remaining buffered audio into the queue.
             if self._stream:
                 self._stream.stop()
                 self._stream.close()
                 self._stream = None
+
+            self._state = RecordingState.STOPPED
 
             # Collect all queued audio with timeout to prevent blocking
             while True:

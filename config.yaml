@@ -12,8 +12,9 @@ llm:
   adapter_path: ml/qwen/adapters_mlx  # LoRA adapter; empty = no adapter
 
 whisper:
-  model: ml/whisper/models/voiceflow-whisper-tr-mlx  # fine-tuned TR model (ISSAI 164K)
-  server_model: large-v3                             # faster-whisper (server mode)
+  #model: mlx-community/whisper-large-v3-turbo  # base
+  model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx  # Stage 2: noktalama + büyük harf (ISSAI 164K + Qwen GT)
+  server_model: large-v3  # faster-whisper (server mode) — NVIDIA GPU, kurumsal merkezi sunucu için. Mac local modunda kullanılmaz.
 
 auth:
   jwt_access_ttl_minutes: 60

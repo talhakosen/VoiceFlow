@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from ..audio import AudioCapture, AudioConfig
 from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
 from ..db import save_transcription, get_dictionary, get_snippets
-from ..services.dictionary import apply_dictionary
+from ..services.dictionary import _apply_aho_corasick, _apply_regex_fallback, _build_automaton, _HAS_AC
 from ..services.snippets import apply_snippets
 
 logger = logging.getLogger(__name__)
@@ -98,6 +98,9 @@ class RecordingService:
         self._audio = AudioCapture(config=AudioConfig())
         self._transcriber = transcriber
         self._corrector = corrector
+        # Aho-Corasick automaton cache: rebuilt only when dictionary entries change
+        self._dict_automaton: object | None = None
+        self._dict_entry_count: int = 0
 
     # ------------------------------------------------------------------
     # Status
@@ -133,6 +136,7 @@ class RecordingService:
         selected_text: str | None = None,
         cmd_intervals: list[tuple[float, float]] | None = None,
         it_dataset_index: int | None = None,
+        save_pending_wav: bool = False,
     ) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
 
@@ -208,6 +212,7 @@ class RecordingService:
                 language=result.language, duration=result.duration,
                 mode=active_mode, user_id=user_id, tenant_id=tenant_id,
                 processing_ms=processing_ms,
+                whisper_model=self._transcriber.config.model_name,
             )
             return {
                 "text": raw_text, "raw_text": raw_text, "corrected": False,
@@ -220,13 +225,42 @@ class RecordingService:
         if result.text and user_id:
             entries = await get_dictionary(user_id=user_id, include_smart=True)
             if entries:
-                result.text = apply_dictionary(result.text, entries)
+                if _HAS_AC:
+                    # Rebuild automaton only when entry count changes (bundle load/edit)
+                    if self._dict_automaton is None or len(entries) != self._dict_entry_count:
+                        self._dict_automaton = _build_automaton(entries)
+                        self._dict_entry_count = len(entries)
+                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
+                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
+                else:
+                    result.text = _apply_regex_fallback(result.text, entries)
             snippets = await get_snippets(user_id=user_id)
             if snippets:
                 expanded = apply_snippets(result.text, snippets)
                 if expanded != result.text:
                     snippet_used = True
                 result.text = expanded
+
+        # Engineering mode: auto symbol detection (no Cmd required)
+        # Symbol refs replace phonetic text with "SymbolName (file.swift:line)"
+        # Directory refs (@path/) are stripped — only file:line symbols kept.
+        symbol_refs: list[str] = []
+        if active_mode == "engineering" and result.text and user_id:
+            import re as _re
+            from .symbol_indexer import inject_symbol_refs as _inject
+            injected = await _inject(result.text, user_id)
+            if injected != result.text:
+                # Symbol refs: @some/path/File.ext:line SymbolName
+                # → paste as "SymbolName (File.ext:line)"  e.g. "BackendService (BackendService.swift:212)"
+                def _fmt_sym(m: "_re.Match") -> str:
+                    full_path, name = m.group(1), m.group(2)
+                    # Strip line number: "VoiceFlowApp/Sources/BackendService.swift:212" → path only
+                    path_only = full_path.rsplit(":", 1)[0]
+                    symbol_refs.append(f"{name} → {full_path}")
+                    return f"@{path_only}"
+                result.text = _re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
+                # Keep directory refs as-is (@runpod/setup/ stays in pasted text)
+                logger.info("Engineering symbols detected: %s", symbol_refs)
 
         # Correct (if enabled)
         if self._corrector.config.enabled and result.text:
@@ -263,7 +297,25 @@ class RecordingService:
             user_id=user_id,
             tenant_id=tenant_id,
             processing_ms=processing_ms,
+            whisper_model=self._transcriber.config.model_name,
         )
+
+        # Pending WAV for user correction training (only when training mode is on)
+        _pending_wav_path: str | None = None
+        if save_pending_wav and len(audio_data) > 0 and raw_text.strip():
+            try:
+                import soundfile as _sf
+                from pathlib import Path as _Path
+                import time as _t
+                pending_dir = _Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "user_corrections" / "pending"
+                pending_dir.mkdir(parents=True, exist_ok=True)
+                ts = int(_t.time() * 1000)
+                pending_wav = pending_dir / f"{ts}.wav"
+                _sf.write(str(pending_wav), audio_data, _SAMPLE_RATE)
+                _pending_wav_path = str(pending_wav)
+                logger.info("Pending WAV saved: %s", pending_wav.name)
+            except Exception as e:
+                logger.warning("Pending WAV save failed: %s", e)
 
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
         return {
@@ -276,6 +328,8 @@ class RecordingService:
             "processing_ms": processing_ms,
             "id": row_id,
             "it_wav_path": _it_wav_path,
+            "pending_wav_path": _pending_wav_path,
+            "symbol_refs": symbol_refs or None,
         }
 
     def force_stop(self) -> bool:
