@@ -11,6 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var loginWindow: NSPanel?
     private let trainingPillController = TrainingPillWindowController()
     private var trainingPillObserver: Task<Void, Never>? = nil
+    private let modeIndicator = ModeIndicatorWindowController()
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
@@ -23,9 +24,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
         let overlay = RecordingOverlayWindow()
         self.recordingOverlay = overlay
-        vm.onShowRecordingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = false; overlay.orderFront(nil) } }
-        vm.onShowProcessingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = true; overlay.orderFront(nil) } }
-        vm.onHideRecordingOverlay = { DispatchQueue.main.async { overlay.pillState.isProcessing = false; overlay.orderOut(nil) } }
+        vm.onShowRecordingOverlay = { [weak self] in
+            DispatchQueue.main.async {
+                overlay.pillState.isProcessing = false
+                overlay.orderFront(nil)
+                self?.modeIndicator.showPersistent(mode: vm.currentAppMode)
+            }
+        }
+        vm.onShowProcessingOverlay = { [weak self] in
+            DispatchQueue.main.async {
+                overlay.pillState.isProcessing = true
+                overlay.orderFront(nil)
+                self?.modeIndicator.close()
+            }
+        }
+        vm.onHideRecordingOverlay = { [weak self] in
+            DispatchQueue.main.async {
+                overlay.pillState.isProcessing = false
+                overlay.orderOut(nil)
+                self?.modeIndicator.close()
+            }
+        }
+        vm.onModeChanged = { [weak self] mode in
+            DispatchQueue.main.async {
+                self?.modeIndicator.showBriefly(mode: mode)
+            }
+        }
 
         // Observe Training Mode pill state
         trainingPillObserver = Task { @MainActor [weak self] in
@@ -160,7 +184,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func shellKillPort(_ port: Int, signal: String) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/bash")
-        task.arguments = ["-c", "lsof -ti:\(port) 2>/dev/null | xargs kill -\(signal) 2>/dev/null"]
+        task.arguments = ["-c", "lsof -nP -iTCP:\(port) -sTCP:LISTEN -t 2>/dev/null | xargs kill -\(signal) 2>/dev/null"]
         task.standardOutput = Pipe()
         task.standardError = Pipe()
         try? task.run()

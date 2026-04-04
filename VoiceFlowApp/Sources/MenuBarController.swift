@@ -60,6 +60,14 @@ class MenuBarController: NSObject, NSMenuDelegate {
             item.attributedTitle = makeVersionStatusAttr(version: v, build: b, status: viewModel.statusText)
         }
 
+        // Mode checkmarks
+        for item in menu.items {
+            if let raw = item.representedObject as? String,
+               let mode = AppMode(rawValue: raw) {
+                item.state = viewModel.currentAppMode == mode ? .on : .off
+            }
+        }
+
         // Recording toggle title + icon
         let recording = viewModel.isRecording
         if let recItem = menu.item(withTag: 101) {
@@ -87,10 +95,20 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
                             sel: #selector(toggleRecording),
                             key: "", icon: isRec ? "stop.circle" : "mic", tag: 101))
+        // Mode switcher
+        menu.addItem(.separator())
+        for mode in AppMode.allCases {
+            let item = action(mode.displayName, sel: #selector(switchMode(_:)),
+                              key: mode.menuKeyEquivalent, icon: mode.menuIcon)
+            item.keyEquivalentModifierMask = [.option]
+            item.state = viewModel.currentAppMode == mode ? .on : .off
+            item.representedObject = mode.rawValue
+            menu.addItem(item)
+        }
+        menu.addItem(.separator())
+
         menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
                             key: "", icon: "arrow.clockwise"))
-        menu.addItem(action("Zorla Yeniden Başlat",  sel: #selector(hardRestart),
-                            key: "", icon: "exclamationmark.arrow.circlepath"))
         menu.addItem(action("Ses Eğitimi...",         sel: #selector(openITDataset),
                             key: "", icon: "waveform.badge.microphone"))
         menu.addItem(action("Settings...",            sel: #selector(openSettings),
@@ -134,7 +152,11 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func restartService() { viewModel.restartBackend() }
 
-    @objc private func hardRestart() { viewModel.hardReset() }
+    @objc private func switchMode(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let mode = AppMode(rawValue: raw) else { return }
+        viewModel.selectAppMode(mode)
+    }
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }

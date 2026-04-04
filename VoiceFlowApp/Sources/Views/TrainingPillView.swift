@@ -2,114 +2,112 @@ import SwiftUI
 import AppKit
 
 // MARK: - TrainingPillView
-// Simple correction toast: shows transcribed text + approve/edit actions.
-// Replaces the word-chip UI — no chips, no FlowLayout, single text field on edit.
+// Floating "Düzelt" button — bottom-right corner, semi-transparent, 10s countdown.
 
 struct TrainingPillView: View {
     var viewModel: AppViewModel
 
-    @State private var isEditing = false
-    @State private var editedText = ""
-    @FocusState private var textFocused: Bool
+    @State private var countdown = 10
+    @State private var countdownTask: Task<Void, Never>?
 
     private var displayText: String { viewModel.trainingPillResult?.text ?? "" }
 
+    private let accent = Color.blue
+
     var body: some View {
-        Group {
-            if isEditing {
-                editingRow
-            } else {
-                viewingRow
+        Button {
+            countdownTask?.cancel()
+            showEditDialog()
+        } label: {
+            ZStack {
+                // Background
+                Circle().fill(.ultraThinMaterial)
+                Circle().fill(accent.opacity(0.18))
+                Circle().strokeBorder(accent.opacity(0.45), lineWidth: 1.5)
+
+                // Countdown arc track
+                Circle()
+                    .stroke(accent.opacity(0.2), lineWidth: 2.5)
+                    .padding(6)
+
+                // Countdown arc progress
+                Circle()
+                    .trim(from: 0, to: CGFloat(countdown) / 10.0)
+                    .stroke(accent.opacity(0.7), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                    .padding(6)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 1), value: countdown)
+
+                VStack(spacing: 2) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text("\(countdown)")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
             }
+            .frame(width: 60, height: 60)
+            .contentShape(Circle())
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(minWidth: 380, maxWidth: 600)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 4)
-        .padding(12)
-        .task {
-            // Auto-dismiss after 5 seconds if user doesn't interact
-            try? await Task.sleep(nanoseconds: 5_000_000_000)
-            if !isEditing {
-                viewModel.dismissFeedback()
+        .buttonStyle(.plain)
+        .shadow(color: accent.opacity(0.35), radius: 16, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 2)
+        .padding(20)
+        .onAppear { startCountdown() }
+        .onDisappear { countdownTask?.cancel() }
+    }
+
+    private func startCountdown() {
+        countdownTask = Task {
+            for remaining in stride(from: 9, through: 0, by: -1) {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard !Task.isCancelled else { return }
+                await MainActor.run { countdown = remaining }
             }
+            guard !Task.isCancelled else { return }
+            viewModel.dismissFeedback()
         }
     }
 
-    // MARK: - Viewing row
+    // MARK: - Edit dialog (NSAlert)
 
-    private var viewingRow: some View {
-        HStack(spacing: 10) {
-            Text(displayText)
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .truncationMode(.tail)
-                .frame(maxWidth: .infinity, alignment: .leading)
+    private func showEditDialog() {
+        let alert = NSAlert()
+        alert.messageText = "Metni Düzelt"
+        alert.informativeText = "Doğru metni yazın:"
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Kaydet")
+        alert.addButton(withTitle: "İptal")
 
-            Button("Düzelt") {
-                editedText = displayText
-                isEditing = true
-                textFocused = true
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 11))
-            .foregroundStyle(.secondary)
+        let scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: 420, height: 100))
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
 
-            Button {
-                Task { await viewModel.approveFeedback() }
-            } label: {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 11, weight: .semibold))
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.green)
-            .controlSize(.small)
+        let textView = NSTextView(frame: scrollView.bounds)
+        textView.string = displayText
+        textView.isEditable = true
+        textView.isRichText = false
+        textView.font = NSFont.systemFont(ofSize: 13)
+        textView.autoresizingMask = [.width]
+        scrollView.documentView = textView
 
-            Button {
-                viewModel.dismissFeedback()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.tertiary)
-            }
-            .buttonStyle(.plain)
+        alert.accessoryView = scrollView
+
+        DispatchQueue.main.async {
+            textView.selectAll(nil)
         }
-    }
 
-    // MARK: - Editing row
-
-    private var editingRow: some View {
-        HStack(spacing: 10) {
-            TextField("Düzeltilmiş metin", text: $editedText, axis: .vertical)
-                .font(.system(size: 12))
-                .textFieldStyle(.plain)
-                .focused($textFocused)
-                .lineLimit(1...4)
-                .frame(maxWidth: .infinity)
-                .onSubmit { submitEdit() }
-
-            Button("Kaydet") { submitEdit() }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
-                .controlSize(.small)
-
-            Button("İptal") { isEditing = false }
-                .buttonStyle(.plain)
-                .controlSize(.small)
-                .foregroundStyle(.secondary)
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else {
+            viewModel.dismissFeedback()
+            return
         }
-    }
 
-    // MARK: - Submit
-
-    private func submitEdit() {
         let original = displayText
-        let corrected = editedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let corrected = textView.string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !corrected.isEmpty else { return }
-        isEditing = false
 
         if corrected != original {
             addWordCorrectionsToDictionary(original: original, corrected: corrected)
@@ -119,7 +117,6 @@ struct TrainingPillView: View {
         }
     }
 
-    // Word-level diff: add personal dictionary entries for changed words (same length only)
     private func addWordCorrectionsToDictionary(original: String, corrected: String) {
         let origWords = original.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         let corrWords = corrected.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
@@ -142,7 +139,7 @@ final class TrainingPillWindowController: NSObject {
         hosting.sizingOptions = [.preferredContentSize]
 
         let p = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 60),
+            contentRect: NSRect(x: 0, y: 0, width: 88, height: 88),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -157,7 +154,7 @@ final class TrainingPillWindowController: NSObject {
 
         if let screen = NSScreen.main {
             let sw = screen.visibleFrame
-            p.setFrameOrigin(NSPoint(x: sw.midX - p.frame.width / 2, y: sw.minY + 32))
+            p.setFrameOrigin(NSPoint(x: sw.maxX - p.frame.width - 20, y: sw.minY + 20))
         }
 
         p.orderFront(nil)

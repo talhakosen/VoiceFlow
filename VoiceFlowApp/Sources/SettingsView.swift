@@ -79,7 +79,7 @@ struct SettingsView: View {
             ScrollView {
                 Group {
                     switch selectedSection {
-                    case .general:       GeneralSection()
+                    case .general:       GeneralSection(viewModel: viewModel)
                     case .recording:     RecordingSection(viewModel: viewModel)
                     case .dictionary:    DictionarySection(viewModel: viewModel)
                     case .snippets:      SnippetsSection(viewModel: viewModel)
@@ -114,6 +114,7 @@ struct SettingsView: View {
 // MARK: - General
 
 private struct GeneralSection: View {
+    var viewModel: AppViewModel
     @AppStorage(AppSettings.deploymentMode) private var deploymentMode = "local"
     @AppStorage(AppSettings.serverURL)      private var serverURL      = "http://127.0.0.1:8765"
     @AppStorage(AppSettings.apiKey)         private var apiKey         = ""
@@ -138,6 +139,13 @@ private struct GeneralSection: View {
                     Text("Sunucu (Şirket İçi)").tag("server")
                 }
                 .onChange(of: deploymentMode) { showRestartNotice = true }
+
+                if deploymentMode == "local" {
+                    LabeledContent("Konuşma Modeli") {
+                        Text(viewModel.whisperModelName.isEmpty ? "—" : viewModel.whisperModelName)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 if deploymentMode == "server" {
                     LabeledContent("Sunucu Adresi") {
@@ -654,11 +662,11 @@ private struct AboutSection: View {
                 Button("Servisi Yeniden Başlat") { viewModel.restartBackend() }
                     .buttonStyle(.bordered)
 
-                Button("Sıfırla") { viewModel.hardReset() }
+                Button("Zorla Yeniden Başlat") { viewModel.hardReset() }
                     .buttonStyle(.bordered)
                     .foregroundStyle(.red)
 
-                Text("Sıfırlama, arka plan servisini tamamen durdurur ve yeniden başlatır.")
+                Text("Zorla yeniden başlatma, arka plan servisini tamamen durdurur ve sıfırdan başlatır.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }

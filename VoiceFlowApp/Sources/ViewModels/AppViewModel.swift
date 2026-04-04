@@ -47,6 +47,7 @@ final class AppViewModel {
     private var backendWasAvailable = false
     private var healthCheckTask: Task<Void, Never>? = nil
     var isLLMReady = false
+    var whisperModelName: String = ""
 
     // MARK: - Init
 
@@ -74,6 +75,9 @@ final class AppViewModel {
                 if let health = try? await self.backend.getHealth() {
                     let available = health.status == "healthy"
                     self.isLLMReady = health.llmLoaded
+                    if let modelName = health.whisperModel, !modelName.isEmpty {
+                        self.whisperModelName = modelName
+                    }
                     if available && !self.backendWasAvailable {
                         // Backend just came (back) online — push current config
                         try? await self.backend.updateConfig(
@@ -118,6 +122,14 @@ final class AppViewModel {
         }
         hotkey.onStopRecording = { [weak self] in
             Task { @MainActor [weak self] in await self?.stopAndTranscribe() }
+        }
+        hotkey.onSwitchMode = { [weak self] index in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let modes = AppMode.allCases
+                guard index < modes.count else { return }
+                self.selectAppMode(modes[index])
+            }
         }
         hotkey.start()
     }
@@ -231,7 +243,8 @@ final class AppViewModel {
                 windowTitle: windowTitle,
                 selectedText: selectedText,
                 cmdIntervals: cmdIntervals.isEmpty ? nil : cmdIntervals,
-                itDatasetIndex: nil
+                itDatasetIndex: nil,
+                trainingMode: trainingModeEnabled
             )
             lastResult = result
             guard !result.text.isEmpty else {
@@ -245,6 +258,12 @@ final class AppViewModel {
             try? await Task.sleep(nanoseconds: 300_000_000)
             paste.pasteText(result.text)
             onHideRecordingOverlay?()
+
+            // Engineering mode: show detected symbols in status
+            if let refs = result.symbolRefs, !refs.isEmpty {
+                statusText = refs.joined(separator: " · ")
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+            }
             statusText = "Ready"
 
             // Training Mode: show feedback pill after paste — skip if snippet was used
@@ -276,6 +295,9 @@ final class AppViewModel {
                 userAction: "approved",
                 userEdit: nil
             )
+            if let wav = result.pendingWavPath {
+                try? await backend.deletePendingWav(wavPath: wav)
+            }
         }
     }
 
@@ -294,6 +316,13 @@ final class AppViewModel {
                 userAction: "edited",
                 userEdit: corrected
             )
+            if let wav = result.pendingWavPath {
+                try? await backend.saveUserCorrection(
+                    wavPath: wav,
+                    whisperText: rawWhisper,
+                    correctedText: corrected
+                )
+            }
         }
     }
 
@@ -315,6 +344,9 @@ final class AppViewModel {
                 userAction: "dismissed",
                 userEdit: nil
             )
+            if let wav = result.pendingWavPath {
+                try? await backend.deletePendingWav(wavPath: wav)
+            }
         }
     }
 
@@ -359,6 +391,7 @@ final class AppViewModel {
         }
         UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
         UserDefaults.standard.set(isCorrectionEnabled, forKey: AppSettings.correctionEnabled)
+        onModeChanged?(mode)
         Task {
             try? await backend.updateConfig(
                 language: currentLanguageMode.language,
@@ -465,7 +498,8 @@ final class AppViewModel {
                     windowTitle: nil,
                     selectedText: nil,
                     cmdIntervals: nil,
-                    itDatasetIndex: itDatasetCurrentIndex >= 0 ? itDatasetCurrentIndex : nil
+                    itDatasetIndex: itDatasetCurrentIndex >= 0 ? itDatasetCurrentIndex : nil,
+                    trainingMode: false
                 )
                 if itDatasetActive && itDatasetCurrentIndex >= 0 {
                     itDatasetLastWhisper = result.rawText ?? result.text
@@ -564,6 +598,7 @@ final class AppViewModel {
     var onShowRecordingOverlay: (() -> Void)?
     var onShowProcessingOverlay: (() -> Void)?
     var onHideRecordingOverlay: (() -> Void)?
+    var onModeChanged: ((AppMode) -> Void)?
 
     func restartBackend() {
         isRecording = false

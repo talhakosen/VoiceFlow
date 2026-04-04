@@ -10,6 +10,8 @@ struct TranscriptionResult: Codable {
     let processingMs: Int?
     let id: Int?
     let itWavPath: String?
+    let pendingWavPath: String?
+    let symbolRefs: [String]?
 
     enum CodingKeys: String, CodingKey {
         case text
@@ -21,6 +23,8 @@ struct TranscriptionResult: Codable {
         case processingMs = "processing_ms"
         case id
         case itWavPath = "it_wav_path"
+        case pendingWavPath = "pending_wav_path"
+        case symbolRefs = "symbol_refs"
     }
 }
 
@@ -153,11 +157,13 @@ struct HealthResponse: Decodable {
     let status: String
     let modelLoaded: Bool
     let llmLoaded: Bool
+    let whisperModel: String?
 
     enum CodingKeys: String, CodingKey {
         case status
-        case modelLoaded = "model_loaded"
-        case llmLoaded   = "llm_loaded"
+        case modelLoaded  = "model_loaded"
+        case llmLoaded    = "llm_loaded"
+        case whisperModel = "whisper_model"
     }
 }
 
@@ -165,7 +171,9 @@ struct HealthResponse: Decodable {
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?, trainingMode: Bool) async throws -> TranscriptionResult
+    func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws
+    func deletePendingWav(wavPath: String) async throws
     func forceStop() async throws
     func getHealth() async throws -> HealthResponse
     func getStatus() async throws -> StatusResponse
@@ -302,7 +310,7 @@ actor BackendService: BackendServiceProtocol {
         }
     }
 
-    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil, itDatasetIndex: Int? = nil) async throws -> TranscriptionResult {
+    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil, itDatasetIndex: Int? = nil, trainingMode: Bool = false) async throws -> TranscriptionResult {
         var request = makeRequest(path: "stop", method: "POST")
         if let bundleID = activeAppBundleID {
             request.setValue(bundleID, forHTTPHeaderField: "X-Active-App")
@@ -320,11 +328,36 @@ actor BackendService: BackendServiceProtocol {
         if let idx = itDatasetIndex {
             request.setValue(String(idx), forHTTPHeaderField: "X-IT-Dataset-Index")
         }
+        if trainingMode {
+            request.setValue("1", forHTTPHeaderField: "X-Training-Mode")
+        }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
         }
         return try JSONDecoder().decode(TranscriptionResult.self, from: data)
+    }
+
+    func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws {
+        var request = makeRequest(path: "training/save-correction", method: "POST")
+        let body = ["wav_path": wavPath, "whisper_text": whisperText, "corrected_text": correctedText]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func deletePendingWav(wavPath: String) async throws {
+        var request = makeRequest(path: "training/pending-wav", method: "DELETE")
+        let body = ["wav_path": wavPath]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
     }
 
     func forceStop() async throws {

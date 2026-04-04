@@ -49,9 +49,25 @@ enum AppMode: String, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .general:     return "General"
-        case .engineering: return "Engineering"
-        case .office:      return "Office"
+        case .general:     return "Genel"
+        case .engineering: return "Mühendislik"
+        case .office:      return "Ofis"
+        }
+    }
+
+    var menuKeyEquivalent: String {
+        switch self {
+        case .general:     return "1"
+        case .engineering: return "2"
+        case .office:      return "3"
+        }
+    }
+
+    var menuIcon: String {
+        switch self {
+        case .general:     return "text.bubble"
+        case .engineering: return "chevron.left.forwardslash.chevron.right"
+        case .office:      return "envelope"
         }
     }
 }

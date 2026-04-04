@@ -18,9 +18,12 @@ class HotkeyManager {
     var onStartRecording: (() -> Void)?
     /// Called when recording should stop
     var onStopRecording: (() -> Void)?
+    /// Called when ⌥1/2/3 pressed — index 0=Genel, 1=Mühendislik, 2=Ofis
+    var onSwitchMode: ((Int) -> Void)?
 
     private var globalMonitor: Any?
     private var localMonitor: Any?
+    private var keyMonitor: Any?
 
     private var lastFnDownTime: Date?
     private var isFnPressed = false
@@ -62,6 +65,17 @@ class HotkeyManager {
             return event
         }
 
+        // ⌥1/2/3 global mode switch — keyCode 18/19/20 = 1/2/3
+        keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard event.modifierFlags.intersection([.option, .command, .control, .shift]) == .option else { return }
+            switch event.keyCode {
+            case 18: self?.onSwitchMode?(0)
+            case 19: self?.onSwitchMode?(1)
+            case 20: self?.onSwitchMode?(2)
+            default: break
+            }
+        }
+
         log(" started - Double-tap Fn to toggle recording")
     }
 
@@ -73,6 +87,10 @@ class HotkeyManager {
         if let monitor = localMonitor {
             NSEvent.removeMonitor(monitor)
             localMonitor = nil
+        }
+        if let monitor = keyMonitor {
+            NSEvent.removeMonitor(monitor)
+            keyMonitor = nil
         }
     }
 
