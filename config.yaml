@@ -9,11 +9,9 @@ llm:
   backend: mlx         # mlx | ollama
   endpoint: ""         # Ollama endpoint; empty = local MLX
   model: qwen2.5:7b    # Ollama model name
-  adapter_path: ml/qwen/adapters_mlx  # LoRA adapter; empty = no adapter
-  # --- adapter versioning ---
+  adapter_path: ml/qwen/adapters/v2.0  # LoRA adapter; empty = no adapter. Versiyon geçmişi: ml/qwen/CHANGELOG.md
   adapter_version: "2.0"
   adapter_trained_at: "2026-04-04"
-  adapter_notes: "filler temizleme — şey/yani/hani/işte/ee/aa + backtrack + stutter + sayı norm"
 
 whisper:
   #model: mlx-community/whisper-large-v3-turbo  # base

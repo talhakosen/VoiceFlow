@@ -61,8 +61,10 @@ backend/scripts/training/test.jsonl
 # Large raw data (gecturk: 138K pairs, 31MB — download from HuggingFace mcemilg/GECTurk-generation)
 backend/scripts/data_gen/gecturk_pairs.jsonl
 # ml/ — new structure
-ml/qwen/adapters_mlx/
-ml/qwen/adapters_runpod/
+ml/qwen/adapters/           # binary weights — HF'te yedekli
+ml/qwen/adapters_mlx/       # eski yapı artık kullanılmıyor
+ml/qwen/adapters_runpod/    # eski yapı artık kullanılmıyor
+ml/qwen/adapters_v2_runpod/ # eski yapı artık kullanılmıyor
 ml/qwen/datasets/
 ml/qwen/data/gecturk_pairs.jsonl
 ml/whisper/datasets/issai/issai_pairs_all.jsonl
