@@ -15,6 +15,7 @@ from ..core.interfaces import AbstractCorrector, AbstractTranscriber, Transcript
 from ..db import save_transcription, get_dictionary, get_snippets
 from ..services.dictionary import _apply_aho_corasick, _apply_regex_fallback, _build_automaton, _HAS_AC
 from ..services.snippets import apply_snippets
+from ..services.filler_cleaner import clean_fillers
 
 logger = logging.getLogger(__name__)
 
@@ -240,6 +241,10 @@ class RecordingService:
                 if expanded != result.text:
                     snippet_used = True
                 result.text = expanded
+
+        # Filler word removal — deterministic, general/office only
+        if result.text and active_mode != "engineering":
+            result.text = clean_fillers(result.text)
 
         # Engineering mode: auto symbol detection (no Cmd required)
         # Symbol refs replace phonetic text with "SymbolName (file.swift:line)"

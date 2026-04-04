@@ -133,6 +133,8 @@ _FEW_SHOT_EXAMPLES = [
     ("the api endpoint returns a json response we need to parse it", "The API endpoint returns a JSON response, we need to parse it."),
     # Filler word removal — Turkish
     ("yani şey ee bu fonksiyonu hani işte düzeltmemiz lazım", "Bu fonksiyonu düzeltmemiz lazım."),
+    ("şimdi genel müdürlüğü bir görüşmem var şey akşamüstü yani şimdi şey bir görüşme yapmamız gerekiyor", "Genel müdürlükle akşamüstü bir görüşmemiz var."),
+    ("yani şimdi şey toplantıya gitmemiz gerekiyor yani", "Toplantıya gitmemiz gerekiyor."),
     # Filler word removal — English
     ("um so uh we need to like fix this function you know", "We need to fix this function."),
     # Backtracking / course correction — Turkish
@@ -231,16 +233,13 @@ class LLMCorrector:
             using_adapter = bool(self.config.adapter_path)
 
             if using_adapter:
-                system_prompt = (
-                    "Fix the ASR transcription: correct Turkish characters, "
-                    "punctuation, capitalization, remove fillers. "
-                    "Output ONLY the corrected text."
-                )
-                messages = [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text},
-                ]
-                logger.debug("Using adapter short-prompt path")
+                system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
+                messages = [{"role": "system", "content": system_prompt}]
+                for user_text, assistant_text in _FEW_SHOT_EXAMPLES:
+                    messages.append({"role": "user", "content": user_text})
+                    messages.append({"role": "assistant", "content": assistant_text})
+                messages.append({"role": "user", "content": text})
+                logger.debug("Using adapter with full prompt path")
             else:
                 system_prompt = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
                 # Tone override based on active app (independent of mode)
