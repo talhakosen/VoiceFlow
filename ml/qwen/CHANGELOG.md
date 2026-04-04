@@ -5,7 +5,47 @@ Adapter dosyaları gitignore'da — HuggingFace'te yedekli.
 
 ---
 
-## v2.0 — 2026-04-04 ✅ AKTİF
+## v3.0 — PENDING (hazır, henüz eğitilmedi)
+
+**Dosya:** `adapters/v3.0/` (eğitim sonrası)
+**HF:** `tkosen/voiceflow-qwen-adapter-v3` (eğitim sonrası)
+
+**Ne öğrendi (hedef):**
+- Cümle başı filler temizleme: "Yani, ...", "Şey, ...", "Hani, ...", "Tamam, ..." (geçiş dolgu), "İşte, ..."
+- Zincirleme filler: "Yani şey,", "Hani yani,", "Ee yani," → tamamı sil
+- Anlamsal ayrım: "500 kişi, yani yarısı" → koru; "Yani, toplantı saat 3" → sil
+- Backtrack + filler combo: "Yani, şuna bak, hayır buna bak" → "Buna bak."
+- v2'de öğrendikleri koru
+
+**Dataset:** `datasets/v3/` — 2155 pairs (v2 1096 + yeni 1059)
+- `data/filler_initial.jsonl` — 387 cümle başı filler örnekleri
+- `data/filler_complex.jsonl` — 167 zincirleme/çok katmanlı filler
+- `data/filler_semantic.jsonl` — 400 anlamsal ayrım (KEEP vs REMOVE)
+- `data/filler_backtrack.jsonl` — 105 backtrack+filler combo
+
+**Eğitim:**
+- Base: v2.0 adapter
+- Script: `scripts/train_hf.py` (MAX_STEPS=800, LR=5e-6, batch=4, grad_accum=4)
+- GPU: H100 80GB, RunPod SECURE
+
+**Eğitim komutu:**
+```bash
+# Dataset + script yükle
+scp -rP <PORT> ml/qwen/adapters/v2.0/raw root@<IP>:/workspace/adapters_v2
+scp -P <PORT> ml/qwen/datasets/v3/train.jsonl root@<IP>:/workspace/train_v3.jsonl
+scp -P <PORT> ml/qwen/datasets/v3/valid.jsonl root@<IP>:/workspace/valid_v3.jsonl
+scp -P <PORT> ml/qwen/scripts/train_hf.py root@<IP>:/workspace/
+# Deps + training
+pip install -q transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets
+nohup python /workspace/train_hf.py > /workspace/training.log 2>&1 &
+# İndir
+scp -rP <PORT> root@<IP>:/workspace/adapters_v3 ./ml/qwen/adapters/v3.0-hf
+python ml/qwen/scripts/convert_adapter.py --input adapters/v3.0-hf --output adapters/v3.0
+```
+
+---
+
+## v2.0 — 2026-04-04
 
 **Dosya:** `adapters/v2.0/`
 **HF:** `tkosen/voiceflow-qwen-adapter-v2`

@@ -1,0 +1,167 @@
+{"input": "Yani, tamam, yani şuna bakalım, nasıl çalışacak? Görelim, bakalım. Yani. Tamam, şimdi bakalım, nasıl olacak? İşte şimdi, tamam.", "output": "Şuna bakalım, nasıl çalışacak? Görelim. Şimdi bakalım, nasıl olacak?"}
+{"input": "Yani şey, tamam, şu dosyayı aç.", "output": "Şu dosyayı aç."}
+{"input": "Ee, yani, hani, bunu halledelim.", "output": "Bunu halledelim."}
+{"input": "İşte, yani, şey, toplantı ertelendi.", "output": "Toplantı ertelendi."}
+{"input": "Tamam, yani şey, bu kodu inceleyelim.", "output": "Bu kodu inceleyelim."}
+{"input": "Şey, hani, yani, o raporu gönderdim.", "output": "O raporu gönderdim."}
+{"input": "Yani, işte, ee, müşteri aradı.", "output": "Müşteri aradı."}
+{"input": "Hani, şey, tamam, servisi yeniden başlatalım.", "output": "Servisi yeniden başlatalım."}
+{"input": "Ee, yani şey, tamam, deploy yapalım.", "output": "Deploy yapalım."}
+{"input": "İşte, hani, yani, bu özelliği test ettim.", "output": "Bu özelliği test ettim."}
+{"input": "Yani, tamam, şey, hani, işte, bağlantı kesildi.", "output": "Bağlantı kesildi."}
+{"input": "Şey, ee, tamam, şu branch'e geçelim.", "output": "Şu branch'e geçelim."}
+{"input": "Hani, işte, ee, yani, proje teslim edildi.", "output": "Proje teslim edildi."}
+{"input": "Yani, şey, işte, tamam, o kararı müşteri verdi.", "output": "O kararı müşteri verdi."}
+{"input": "Ee, hani, yani, şu hata prod'da.", "output": "Şu hata prod'da."}
+{"input": "Tamam, işte, şey, yani, CI/CD pipeline bozuk.", "output": "CI/CD pipeline bozuk."}
+{"input": "Yani, ee, hani, toplantı saat 3'te.", "output": "Toplantı saat 3'te."}
+{"input": "Şey, yani, tamam, bu sprint kapandı.", "output": "Bu sprint kapandı."}
+{"input": "İşte, şey, ee, konfigürasyon eksik.", "output": "Konfigürasyon eksik."}
+{"input": "Hani, yani, işte, şey, ee, sunucu yavaş.", "output": "Sunucu yavaş."}
+{"input": "Tamam, yani, hani, şey, build başarısız.", "output": "Build başarısız."}
+{"input": "Ee, işte, yani, tamam, müşteri onayladı.", "output": "Müşteri onayladı."}
+{"input": "Yani şey, hani, işte, o dosyayı bulamıyorum.", "output": "O dosyayı bulamıyorum."}
+{"input": "Şey, tamam, yani, hani, bu modülü değiştirmeliyiz.", "output": "Bu modülü değiştirmeliyiz."}
+{"input": "İşte, ee, yani şey, test ortamı hazır.", "output": "Test ortamı hazır."}
+{"input": "Yani yani, bu API düzeltilmeli.", "output": "Bu API düzeltilmeli."}
+{"input": "Şey şey, toplantı ertelendi.", "output": "Toplantı ertelendi."}
+{"input": "Hani hani, o özelliği ekledik.", "output": "O özelliği ekledik."}
+{"input": "Ee ee, raporu bitirdim.", "output": "Raporu bitirdim."}
+{"input": "Yani yani yani, servisi yeniden başlattım.", "output": "Servisi yeniden başlattım."}
+{"input": "Tamam tamam tamam, şu kodu inceleyelim.", "output": "Şu kodu inceleyelim."}
+{"input": "Şey şey şey, bu hata kritik.", "output": "Bu hata kritik."}
+{"input": "Hani hani yani, müşteri aradı.", "output": "Müşteri aradı."}
+{"input": "Yani yani şey, bağlantı kesildi.", "output": "Bağlantı kesildi."}
+{"input": "Ee ee yani, sunucu yavaşladı.", "output": "Sunucu yavaşladı."}
+{"input": "İşte işte, eski sürümü arşivledik.", "output": "Eski sürümü arşivledik."}
+{"input": "Tamam tamam yani, deploy yapalım.", "output": "Deploy yapalım."}
+{"input": "Yani yani işte, proje geride.", "output": "Proje geride."}
+{"input": "Şey şey işte, backend yavaş.", "output": "Backend yavaş."}
+{"input": "Hani hani işte, bu sprint kapandı.", "output": "Bu sprint kapandı."}
+{"input": "Ee ee şey, sözleşme imzalandı.", "output": "Sözleşme imzalandı."}
+{"input": "Yani yani ee, konfigürasyon hatalı.", "output": "Konfigürasyon hatalı."}
+{"input": "Tamam tamam şey, şu dosyayı aç.", "output": "Şu dosyayı aç."}
+{"input": "Şey şey hani, bu değişiklik onaylandı.", "output": "Bu değişiklik onaylandı."}
+{"input": "İşte işte yani ee, şu testi çalıştır.", "output": "Şu testi çalıştır."}
+{"input": "Yani yani hani yani, kodu refactor etmeliyiz.", "output": "Kodu refactor etmeliyiz."}
+{"input": "Ee ee tamam ee, build alayım.", "output": "Build alayım."}
+{"input": "Şey şey tamam, müşteri geri döndü.", "output": "Müşteri geri döndü."}
+{"input": "Hani hani şey hani, bu branch silinmeli.", "output": "Bu branch silinmeli."}
+{"input": "Yani yani tamam yani, log'a bakalım.", "output": "Log'a bakalım."}
+{"input": "İşte yani şey hani, bunu çözmemiz lazım.", "output": "Bunu çözmemiz lazım."}
+{"input": "Ee yani şey işte, proje teslim edildi.", "output": "Proje teslim edildi."}
+{"input": "Hani şey yani işte, bu özellik hazır.", "output": "Bu özellik hazır."}
+{"input": "Tamam şey yani hani işte, servisi kontrol edelim.", "output": "Servisi kontrol edelim."}
+{"input": "Şey hani yani ee işte, bütçe onaylandı.", "output": "Bütçe onaylandı."}
+{"input": "Yani ee hani şey işte, müşteri şikayet etti.", "output": "Müşteri şikayet etti."}
+{"input": "İşte ee yani hani şey, sunucu aşırı yüklendi.", "output": "Sunucu aşırı yüklendi."}
+{"input": "Tamam yani ee şey, şu ticket'ı kapat.", "output": "Şu ticket'ı kapat."}
+{"input": "Şey ee hani yani tamam, deployment yarın.", "output": "Deployment yarın."}
+{"input": "Hani ee yani şey işte tamam, log dosyasına bak.", "output": "Log dosyasına bak."}
+{"input": "Yani işte hani şey tamam ee, bu kütüphane uyumsuz.", "output": "Bu kütüphane uyumsuz."}
+{"input": "Ee tamam yani hani, güvenlik açığı bulundu.", "output": "Güvenlik açığı bulundu."}
+{"input": "İşte hani yani ee şey, toplantı iptal oldu.", "output": "Toplantı iptal oldu."}
+{"input": "Şey yani hani ee tamam işte, kod incelemesi tamamlandı.", "output": "Kod incelemesi tamamlandı."}
+{"input": "Tamam ee işte yani şey, yeni sürüm yayınlandı.", "output": "Yeni sürüm yayınlandı."}
+{"input": "Hani yani ee tamam işte şey, bağımlılık çakışıyor.", "output": "Bağımlılık çakışıyor."}
+{"input": "Yani şey ee hani tamam, sprint kapandı.", "output": "Sprint kapandı."}
+{"input": "İşte tamam yani şey ee hani, şu hatayı düzelt.", "output": "Şu hatayı düzelt."}
+{"input": "Ee şey yani hani işte, konfigürasyon güncellendi.", "output": "Konfigürasyon güncellendi."}
+{"input": "Hani tamam ee yani şey işte, cache temizlendi.", "output": "Cache temizlendi."}
+{"input": "Yani, şey, hani, o toplantıya katılacağım, yani katılmayacağım, ee, evet katılacağım.", "output": "O toplantıya katılacağım."}
+{"input": "Şey, biliyor musun, yani şöyle bir şey var, hani şunu yapmak lazım, ee, raporu göndermek lazım.", "output": "Raporu göndermek lazım."}
+{"input": "Tamam şimdi, yani şey, işte şöyle, hani ee, bu bug'ı düzeltmemiz lazım önce.", "output": "Bu bug'ı düzeltmemiz lazım önce."}
+{"input": "Ee yani, hani işte, şey, tamam, müşteri bugün değil yarın geliyor.", "output": "Müşteri yarın geliyor."}
+{"input": "Hani yani şöyle bir durum var, işte şey, ee, tamam, API'yi güncellemeliyiz.", "output": "API'yi güncellemeliyiz."}
+{"input": "Yani şey, işte hani, ee, bütçe onayı için bekleyeceğiz.", "output": "Bütçe onayı için bekleyeceğiz."}
+{"input": "Tamam tamam, yani şey, hani işte, ee, deployment cuma günü.", "output": "Deployment cuma günü."}
+{"input": "İşte şey, hani yani, ee, tamam tamam, sunucu kapasitesini artırmalıyız.", "output": "Sunucu kapasitesini artırmalıyız."}
+{"input": "Ee, şey işte, hani yani, tamam, şu servisi yeniden başlat.", "output": "Şu servisi yeniden başlat."}
+{"input": "Yani, hani, ee, işte, şey, proje zamanında teslim edildi.", "output": "Proje zamanında teslim edildi."}
+{"input": "Şey, yani, tamam, hani, işte, ee, müşteri ek süre istedi.", "output": "Müşteri ek süre istedi."}
+{"input": "Hani, işte, yani, şey, ee, tamam, bu sprint kapandı.", "output": "Bu sprint kapandı."}
+{"input": "Tamam, ee, yani, şey, hani, işte, kod review tamamlandı.", "output": "Kod review tamamlandı."}
+{"input": "Ee, işte, yani, hani, şey, tamam, yeni sürüm çıktı.", "output": "Yeni sürüm çıktı."}
+{"input": "Yani şey, işte hani, ee, tamam, güncelleme başarılı.", "output": "Güncelleme başarılı."}
+{"input": "Hani şey, ee yani, işte tamam, bellek sızıntısı var.", "output": "Bellek sızıntısı var."}
+{"input": "İşte, ee, yani, tamam tamam, şey hani, veritabanı yedeklendi.", "output": "Veritabanı yedeklendi."}
+{"input": "Şey, hani yani, ee, işte, tamam, pull request açıldı.", "output": "Pull request açıldı."}
+{"input": "Ee, yani şey, tamam, hani işte, şu ticket atandı.", "output": "Şu ticket atandı."}
+{"input": "Yani, ee, işte, şey, hani, tamam, testler yeşil.", "output": "Testler yeşil."}
+{"input": "Ee yani, bu sorunu çözmemiz lazım.", "output": "Bu sorunu çözmemiz lazım."}
+{"input": "Şey hani, o branch merge edildi.", "output": "O branch merge edildi."}
+{"input": "Yani ee, müşteri geri döndü.", "output": "Müşteri geri döndü."}
+{"input": "Ee şey, sunucu yeniden başlatıldı.", "output": "Sunucu yeniden başlatıldı."}
+{"input": "Şey yani, şu kodu inceleyelim.", "output": "Şu kodu inceleyelim."}
+{"input": "Yani hani, API dökümantasyonu güncellendi.", "output": "API dökümantasyonu güncellendi."}
+{"input": "Ee işte, bu sprint bitti.", "output": "Bu sprint bitti."}
+{"input": "İşte ee, konfigürasyon hatalı.", "output": "Konfigürasyon hatalı."}
+{"input": "Hani ee, sözleşme uzatıldı.", "output": "Sözleşme uzatıldı."}
+{"input": "Yani işte, deploy başarılı.", "output": "Deploy başarılı."}
+{"input": "Ee tamam, şu testi çalıştır.", "output": "Şu testi çalıştır."}
+{"input": "Tamam ee, kod review tamamlandı.", "output": "Kod review tamamlandı."}
+{"input": "Şey ee yani, bağlantı kesildi.", "output": "Bağlantı kesildi."}
+{"input": "Yani şey hani, bu özelliği kaldırmalıyız.", "output": "Bu özelliği kaldırmalıyız."}
+{"input": "Hani yani ee, müşteri memnun.", "output": "Müşteri memnun."}
+{"input": "Ee hani yani, bu metot null dönüyor.", "output": "Bu metot null dönüyor."}
+{"input": "İşte yani ee, proje deadline'ı cuma.", "output": "Proje deadline'ı cuma."}
+{"input": "Yani ee şey, yeni özellik hazır.", "output": "Yeni özellik hazır."}
+{"input": "Şey işte ee, log dosyasına bak.", "output": "Log dosyasına bak."}
+{"input": "Hani tamam ee, rollback yaptık.", "output": "Rollback yaptık."}
+{"input": "Ee yani işte şey, cache temizlendi.", "output": "Cache temizlendi."}
+{"input": "Tamam hani yani, servisi yeniden başlat.", "output": "Servisi yeniden başlat."}
+{"input": "Yani şöyle bir şey var, hani nasıl diyeyim, şey, ee, tamam işte, müşteri bugün sabah aradı ve dedi ki sözleşmeyi uzatalım.", "output": "Müşteri bugün sabah aradı ve sözleşmeyi uzatalım dedi."}
+{"input": "Ee, yani şu an, hani şöyle, işte nasıl söylesem, tamam, veritabanı migration'ı yarın yapacağız.", "output": "Veritabanı migration'ı yarın yapacağız."}
+{"input": "Şey, hani yani, ee, işte, tamam, şu an prod'da kritik bir hata var, bakıyoruz.", "output": "Şu an prod'da kritik bir hata var, bakıyoruz."}
+{"input": "Yani, ee, hani nasıl diyeyim, işte şöyle bir şey, tamam, API rate limit aşıldı.", "output": "API rate limit aşıldı."}
+{"input": "Hani şey, ee, yani, işte, tamam, sprint review yarın saat 2'de.", "output": "Sprint review yarın saat 2'de."}
+{"input": "Tamam şimdi, yani hani, şey, ee, işte, şu endpoint'i test edeceğiz.", "output": "Şu endpoint'i test edeceğiz."}
+{"input": "Ee, işte yani, hani şöyle, şey, tamam, bütçe onaylandı, projeye başlayabiliriz.", "output": "Bütçe onaylandı, projeye başlayabiliriz."}
+{"input": "Yani, hani, ee, işte, şey, tamam tamam, yeni ekip üyesi pazartesi başlıyor.", "output": "Yeni ekip üyesi pazartesi başlıyor."}
+{"input": "Şey, yani ee, hani işte, tamam, şu modülü bu hafta teslim etmeliyiz.", "output": "Şu modülü bu hafta teslim etmeliyiz."}
+{"input": "İşte, ee, yani, hani, şey, tamam, sunucu kapasitesi artırıldı, artık daha hızlı.", "output": "Sunucu kapasitesi artırıldı, artık daha hızlı."}
+{"input": "Yani, ee, şey, hani, işte, tamam, kod refactor edildi, şimdi çok daha temiz.", "output": "Kod refactor edildi, şimdi çok daha temiz."}
+{"input": "Ee, tamam, yani, şey, hani, işte, müşteri feedback'i aldık, revizyon gerekiyor.", "output": "Müşteri feedback'i aldık, revizyon gerekiyor."}
+{"input": "Hani yani, işte şey, ee, tamam, CI/CD pipeline düzeltildi, artık çalışıyor.", "output": "CI/CD pipeline düzeltildi, artık çalışıyor."}
+{"input": "Tamam tamam, yani şey, ee hani, işte, yeni sürümü bugün deploy edeceğiz.", "output": "Yeni sürümü bugün deploy edeceğiz."}
+{"input": "İşte, ee, tamam, yani hani, şey, tasarım onaylandı, geliştirmeye geçebiliriz.", "output": "Tasarım onaylandı, geliştirmeye geçebiliriz."}
+{"input": "Şey, yani ee, tamam işte, hani, toplantı notlarını paylaştım, herkes görebilir.", "output": "Toplantı notlarını paylaştım, herkes görebilir."}
+{"input": "Ee, hani, yani şey, işte, tamam, güvenlik açığı kapatıldı, prod'a alındı.", "output": "Güvenlik açığı kapatıldı, prod'a alındı."}
+{"input": "Yani, hani ee, şey işte, tamam, eski API deprecated oldu, yenisine geçmemiz lazım.", "output": "Eski API deprecated oldu, yenisine geçmemiz lazım."}
+{"input": "Tamam, yani, hani, şey, ee, işte, cache süresi uzatıldı, performans arttı.", "output": "Cache süresi uzatıldı, performans arttı."}
+{"input": "Ee, yani, işte, hani, şey, tamam, log analizi tamamlandı, sorun tespit edildi.", "output": "Log analizi tamamlandı, sorun tespit edildi."}
+{"input": "Yani şey toplantıda, tamam, ee, hani, şu konuya baktık, işte, karara vardık.", "output": "Toplantıda şu konuya baktık, karara vardık."}
+{"input": "Tamam, yani, şey, hani, müşteri sunum istedi, ee, cuma günü yapacağız işte.", "output": "Müşteri sunum istedi, cuma günü yapacağız."}
+{"input": "Hani şey, yani, ee işte, tamam, bütçe toplantısı yarın, hazırlıklı olalım.", "output": "Bütçe toplantısı yarın, hazırlıklı olalım."}
+{"input": "Ee, yani tamam, hani, işte şey, sözleşme imzalandı, artık başlayabiliriz.", "output": "Sözleşme imzalandı, artık başlayabiliriz."}
+{"input": "Şey, ee, hani yani, işte, tamam, ekip genişliyor, iki yeni kişi katılıyor.", "output": "Ekip genişliyor, iki yeni kişi katılıyor."}
+{"input": "Yani, işte, tamam, ee, hani, şey, aylık hedefleri tutturduk, çok iyi.", "output": "Aylık hedefleri tutturduk, çok iyi."}
+{"input": "Tamam tamam, şey, yani, hani, ee, işte, proje kapsamı genişledi, ek süre lazım.", "output": "Proje kapsamı genişledi, ek süre lazım."}
+{"input": "Ee, hani, yani şey, işte, tamam, onboarding süreci güncellendi.", "output": "Onboarding süreci güncellendi."}
+{"input": "Hani yani ee, şey işte, tamam, yeni CRM sistemi devreye girdi.", "output": "Yeni CRM sistemi devreye girdi."}
+{"input": "Yani, ee, işte, hani, şey, tamam, müşteri talebini ilettik, onay bekliyoruz.", "output": "Müşteri talebini ilettik, onay bekliyoruz."}
+{"input": "Yani şey, ee, hani, işte, tamam, migration script hazır, test edildi.", "output": "Migration script hazır, test edildi."}
+{"input": "Ee, işte yani, hani, şey tamam, unit testlerin hepsi geçiyor.", "output": "Unit testlerin hepsi geçiyor."}
+{"input": "Tamam, şey, yani, hani ee, işte, Docker image boyutu düşürüldü.", "output": "Docker image boyutu düşürüldü."}
+{"input": "Hani, ee, yani şey, işte, tamam, GraphQL endpoint eklendi.", "output": "GraphQL endpoint eklendi."}
+{"input": "Şey yani, hani ee, işte, tamam, Redis cache entegrasyonu tamamlandı.", "output": "Redis cache entegrasyonu tamamlandı."}
+{"input": "Yani, hani, ee, işte, şey, tamam, rate limiting eklendi, flood saldırıları engelleniyor.", "output": "Rate limiting eklendi, flood saldırıları engelleniyor."}
+{"input": "Ee, tamam, yani, şey, hani, işte, Kubernetes cluster güncellendi.", "output": "Kubernetes cluster güncellendi."}
+{"input": "İşte, yani, hani, ee, şey, tamam, WebSocket bağlantısı kararlı.", "output": "WebSocket bağlantısı kararlı."}
+{"input": "Tamam, ee, işte, yani, şey, hani, load balancer devreye alındı.", "output": "Load balancer devreye alındı."}
+{"input": "Şey, yani, hani, ee, işte, tamam, SSL sertifikası yenilendi.", "output": "SSL sertifikası yenilendi."}
+{"input": "Yani, şey, tamam, hani, ee, işte, bugün markete gitmem lazım.", "output": "Bugün markete gitmem lazım."}
+{"input": "Ee, hani yani, şey, işte, tamam, akşam yemeği için rezervasyon yaptım.", "output": "Akşam yemeği için rezervasyon yaptım."}
+{"input": "Tamam, yani, ee, şey, hani, işte, arabayı servise götürmem gerekiyor.", "output": "Arabayı servise götürmem gerekiyor."}
+{"input": "Şey, ee, yani, hani, işte, tamam, randevuyu erteledim.", "output": "Randevuyu erteledim."}
+{"input": "Hani, yani, şey, ee, tamam, işte, hafta sonu geziye gidiyoruz.", "output": "Hafta sonu geziye gidiyoruz."}
+{"input": "Yani şey, ee, hani, işte, tamam, fatura ödenmeli.", "output": "Fatura ödenmeli."}
+{"input": "Ee, işte, yani, hani, tamam, şey, saat 7'de buluşuyoruz.", "output": "Saat 7'de buluşuyoruz."}
+{"input": "Tamam, hani, şey, yani, ee, işte, doktora gitmem lazım.", "output": "Doktora gitmem lazım."}
+{"input": "İşte, yani, ee, hani, şey, tamam, kitabı bitirdim.", "output": "Kitabı bitirdim."}
+{"input": "Şey, tamam, yani, hani, ee, işte, nefes egzersizi yapmalıyım.", "output": "Nefes egzersizi yapmalıyım."}
+{"input": "Yani, şey, hani, ee, işte, tamam, nasıl diyeyim, şöyle bir şey, ee yani, hani şöyle, tamam tamam, işte şimdi, ee, yani, şu raporu hazırlamam lazım.", "output": "Şu raporu hazırlamam lazım."}
+{"input": "Ee, yani, şey, hani, işte, tamam, nasıl söylesem, ee, tamam şimdi, yani, hani, ee, şey, işte, toplantı saat 4'te.", "output": "Toplantı saat 4'te."}
+{"input": "Hani, şey, yani, ee, işte, tamam, şöyle diyeyim, nasıl diyeyim, yani, ee, hani, şey, tamam, deployment bugün.", "output": "Deployment bugün."}
+{"input": "Tamam, yani, hani, şey, ee, işte, nasıl desem, yani şöyle, ee hani, şey işte, tamam, müşteri iptal etti.", "output": "Müşteri iptal etti."}
+{"input": "Şey, ee, hani, yani, işte, tamam, nasıl anlatayım, şöyle bir şey, ee, yani, tamam, sunucu çöktü.", "output": "Sunucu çöktü."}

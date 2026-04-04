@@ -1,0 +1,400 @@
+{"input": "Yani, toplantıyı erteliyoruz.", "output": "Toplantıyı erteliyoruz."}
+{"input": "Yani, kod review yarına kaldı.", "output": "Kod review yarına kaldı."}
+{"input": "Yani, sunucu şu an kapalı.", "output": "Sunucu şu an kapalı."}
+{"input": "Yani, bu özelliği iptal ettik.", "output": "Bu özelliği iptal ettik."}
+{"input": "Yani, müşteri memnun değildi.", "output": "Müşteri memnun değildi."}
+{"input": "Yani, sprint bitti.", "output": "Sprint bitti."}
+{"input": "Yani, raporu dün gönderdim.", "output": "Raporu dün gönderdim."}
+{"input": "Yani, bütçe onaylandı.", "output": "Bütçe onaylandı."}
+{"input": "Yani, ekip yarın ofise geliyor.", "output": "Ekip yarın ofise geliyor."}
+{"input": "Yani, sistem güncellendi.", "output": "Sistem güncellendi."}
+{"input": "Yani, bu haftaki demo iptal.", "output": "Bu haftaki demo iptal."}
+{"input": "Yani, tasarım değişti.", "output": "Tasarım değişti."}
+{"input": "Yani, sözleşme imzalandı.", "output": "Sözleşme imzalandı."}
+{"input": "Yani, veritabanı migrate edildi.", "output": "Veritabanı migrate edildi."}
+{"input": "Yani, login sayfası hazır.", "output": "Login sayfası hazır."}
+{"input": "Proje gecikti yani.", "output": "Proje gecikti."}
+{"input": "Bunu yapamayız yani.", "output": "Bunu yapamayız."}
+{"input": "Çok yoruldum yani.", "output": "Çok yoruldum."}
+{"input": "Anlamadım yani.", "output": "Anlamadım."}
+{"input": "Çalışmıyor yani.", "output": "Çalışmıyor."}
+{"input": "Geç kaldım yani.", "output": "Geç kaldım."}
+{"input": "Düzeldi yani.", "output": "Düzeldi."}
+{"input": "Beğenmedim yani.", "output": "Beğenmedim."}
+{"input": "Kabul etmiyorum yani.", "output": "Kabul etmiyorum."}
+{"input": "Bitirdim yani.", "output": "Bitirdim."}
+{"input": "Sorun çözüldü yani.", "output": "Sorun çözüldü."}
+{"input": "Fatura ödendi yani.", "output": "Fatura ödendi."}
+{"input": "Test geçti yani.", "output": "Test geçti."}
+{"input": "Bağlantı kesildi yani.", "output": "Bağlantı kesildi."}
+{"input": "Görüşme iptal yani.", "output": "Görüşme iptal."}
+{"input": "Yani yani, ne yapalım?", "output": "Ne yapalım?"}
+{"input": "Yani yani, projeyi durduralım.", "output": "Projeyi durduralım."}
+{"input": "Yani yani, biraz bekleyelim.", "output": "Biraz bekleyelim."}
+{"input": "Yani yani, sormak istedim.", "output": "Sormak istedim."}
+{"input": "Yani yani, fark etmez.", "output": "Fark etmez."}
+{"input": "Yani şey, nasıl desem.", "output": "Nasıl desem."}
+{"input": "Yani şey, o dosyayı sil.", "output": "O dosyayı sil."}
+{"input": "Yani şey, konuyu değiştirelim.", "output": "Konuyu değiştirelim."}
+{"input": "Yani şey, bunu düşüneceğim.", "output": "Bunu düşüneceğim."}
+{"input": "Yani şey, haberdar ederim.", "output": "Haberdar ederim."}
+{"input": "Proje, yani, yarın teslim.", "output": "Proje yarın teslim."}
+{"input": "Rapor, yani, hazır değil.", "output": "Rapor hazır değil."}
+{"input": "Sunum, yani, iptal edildi.", "output": "Sunum iptal edildi."}
+{"input": "Ekip, yani, çok yorgun.", "output": "Ekip çok yorgun."}
+{"input": "Bütçe, yani, yetersiz.", "output": "Bütçe yetersiz."}
+{"input": "Bir şey yapalım yani, toplantıyı erteleyelim.", "output": "Bir şey yapalım, toplantıyı erteleyelim."}
+{"input": "Değiştirmemiz lazım yani, bu yaklaşım işe yaramıyor.", "output": "Değiştirmemiz lazım, bu yaklaşım işe yaramıyor."}
+{"input": "Farklı bir yol deneyelim yani, bu çalışmadı.", "output": "Farklı bir yol deneyelim, bu çalışmadı."}
+{"input": "Düşünmem lazım yani, karar vereceğim.", "output": "Düşünmem lazım, karar vereceğim."}
+{"input": "İptal edelim yani, kimse hazır değil.", "output": "İptal edelim, kimse hazır değil."}
+{"input": "Proje iki haftada biter, yani Cuma teslim edebiliriz.", "output": "Proje iki haftada biter, yani Cuma teslim edebiliriz."}
+{"input": "Sistem yüzde doksanlık uptime tutuyor, yani çok sağlam.", "output": "Sistem yüzde doksanlık uptime tutuyor, yani çok sağlam."}
+{"input": "500 kullanıcı var, yani sunucu kapasitesini artırmak lazım.", "output": "500 kullanıcı var, yani sunucu kapasitesini artırmak lazım."}
+{"input": "API key gerekiyor, yani önce kayıt olman lazım.", "output": "API key gerekiyor, yani önce kayıt olman lazım."}
+{"input": "Türkiye'deki ofisimiz, yani Ankara ekibi bu konuyu yönetiyor.", "output": "Türkiye'deki ofisimiz, yani Ankara ekibi bu konuyu yönetiyor."}
+{"input": "Test ortamı çöktü, yani deploy yapamıyoruz.", "output": "Test ortamı çöktü, yani deploy yapamıyoruz."}
+{"input": "Kullanıcı girişi zorunlu, yani anonim erişim kapalı.", "output": "Kullanıcı girişi zorunlu, yani anonim erişim kapalı."}
+{"input": "Deadline bugün, yani sabaha kadar bitirmem lazım.", "output": "Deadline bugün, yani sabaha kadar bitirmem lazım."}
+{"input": "Yetki yok, yani o sayfaya giremezsin.", "output": "Yetki yok, yani o sayfaya giremezsin."}
+{"input": "Fiyat arttı, yani bütçeyi gözden geçirmemiz gerekiyor.", "output": "Fiyat arttı, yani bütçeyi gözden geçirmemiz gerekiyor."}
+{"input": "Cache temizlenmedi, yani eski veri görünüyor.", "output": "Cache temizlenmedi, yani eski veri görünüyor."}
+{"input": "Model 7B minimum, yani daha küçükleri deneyelim bile.", "output": "Model 7B minimum, yani daha küçükleri deneyelim bile."}
+{"input": "Lisans bir yıllık, yani Ocak'ta yenilememiz lazım.", "output": "Lisans bir yıllık, yani Ocak'ta yenilememiz lazım."}
+{"input": "Branch korunuyor, yani direkt push yapamazsın.", "output": "Branch korunuyor, yani direkt push yapamazsın."}
+{"input": "Ortam değişkeni eksik, yani uygulama başlamıyor.", "output": "Ortam değişkeni eksik, yani uygulama başlamıyor."}
+{"input": "O zaman yani iyi, devam edelim.", "output": "O zaman yani iyi, devam edelim."}
+{"input": "Onayladıysan yani başlayabiliriz.", "output": "Onayladıysan yani başlayabiliriz."}
+{"input": "Hazır değilse yani bekleyeceğiz.", "output": "Hazır değilse yani bekleyeceğiz."}
+{"input": "Bütçe yoksa yani iptal etmek zorundayız.", "output": "Bütçe yoksa yani iptal etmek zorundayız."}
+{"input": "Sorun giderdiysen yani deploy edebiliriz.", "output": "Sorun giderdiysen yani deploy edebiliriz."}
+{"input": "Bu yani demek ki işe yarıyor.", "output": "Bu yani demek ki işe yarıyor."}
+{"input": "Hata aldıysan yani demek ki config yanlış.", "output": "Hata aldıysan yani demek ki config yanlış."}
+{"input": "Bağlantı olmadıysa yani demek ki VPN açık değil.", "output": "Bağlantı olmadıysa yani demek ki VPN açık değil."}
+{"input": "Performans düştüyse yani demek ki bellek sızıntısı var.", "output": "Performans düştüyse yani demek ki bellek sızıntısı var."}
+{"input": "Test geçtiyse yani demek ki PR merge edilebilir.", "output": "Test geçtiyse yani demek ki PR merge edilebilir."}
+{"input": "İstanbul ofisimiz, yani Levent'teki bina, restore ediliyor.", "output": "İstanbul ofisimiz, yani Levent'teki bina, restore ediliyor."}
+{"input": "Backend servisi, yani Node.js tarafı, güncellendi.", "output": "Backend servisi, yani Node.js tarafı, güncellendi."}
+{"input": "Birinci sprint, yani ilk iki hafta, planlama aşamasıydı.", "output": "Birinci sprint, yani ilk iki hafta, planlama aşamasıydı."}
+{"input": "Ana ürün, yani mobil uygulama, öncelikli.", "output": "Ana ürün, yani mobil uygulama, öncelikli."}
+{"input": "Lider, yani takım kaptanı, toplantıya katılamayacak.", "output": "Lider, yani takım kaptanı, toplantıya katılamayacak."}
+{"input": "Üç yüz istek var, yani kapasiteyi iki katına çıkarmak lazım.", "output": "Üç yüz istek var, yani kapasiteyi iki katına çıkarmak lazım."}
+{"input": "On beş gün kaldı, yani takvimi sıkıştırmamız gerekiyor.", "output": "On beş gün kaldı, yani takvimi sıkıştırmamız gerekiyor."}
+{"input": "Dört farklı modül var, yani dört ayrı test paketi lazım.", "output": "Dört farklı modül var, yani dört ayrı test paketi lazım."}
+{"input": "İki bin satır kod, yani review uzun sürecek.", "output": "İki bin satır kod, yani review uzun sürecek."}
+{"input": "Beş müşteri şikayet etti, yani bu kritik bir hata.", "output": "Beş müşteri şikayet etti, yani bu kritik bir hata."}
+{"input": "Veri yok, yani rapor boş gelecek.", "output": "Veri yok, yani rapor boş gelecek."}
+{"input": "Şifre hatalıysa yani oturum açamazsın.", "output": "Şifre hatalıysa yani oturum açamazsın."}
+{"input": "Onay gelmezse yani bekleyeceğiz.", "output": "Onay gelmezse yani bekleyeceğiz."}
+{"input": "Token süresi dolmuş, yani tekrar giriş yapman lazım.", "output": "Token süresi dolmuş, yani tekrar giriş yapman lazım."}
+{"input": "Dosya bulunamadı, yani path yanlış.", "output": "Dosya bulunamadı, yani path yanlış."}
+{"input": "Ben şunu söylüyorum yani, bu yaklaşım sürdürülebilir değil.", "output": "Ben şunu söylüyorum yani, bu yaklaşım sürdürülebilir değil."}
+{"input": "Kastım şu yani, daha az kod daha iyi.", "output": "Kastım şu yani, daha az kod daha iyi."}
+{"input": "Şöyle düşün yani, her kullanıcının ayrı bir tenant'ı var.", "output": "Şöyle düşün yani, her kullanıcının ayrı bir tenant'ı var."}
+{"input": "Mesele şu yani, ölçeklendirme maliyetli.", "output": "Mesele şu yani, ölçeklendirme maliyetli."}
+{"input": "Sorunum şu yani, bu kod test edilemiyor.", "output": "Sorunum şu yani, bu kod test edilemiyor."}
+{"input": "Bu kadar karmaşık olmak zorunda değil yani.", "output": "Bu kadar karmaşık olmak zorunda değil yani."}
+{"input": "Daha iyi bir yol var yani.", "output": "Daha iyi bir yol var yani."}
+{"input": "Çözüm bu değil yani.", "output": "Çözüm bu değil yani."}
+{"input": "İşe yaramıyor yani demek ki.", "output": "İşe yaramıyor yani demek ki."}
+{"input": "Mantıklı bir karar değil yani.", "output": "Mantıklı bir karar değil yani."}
+{"input": "İşte, toplantı başlıyor.", "output": "Toplantı başlıyor."}
+{"input": "İşte, raporu gönderdim.", "output": "Raporu gönderdim."}
+{"input": "İşte, sunucu çöktü.", "output": "Sunucu çöktü."}
+{"input": "İşte, sprint planı hazır.", "output": "Sprint planı hazır."}
+{"input": "İşte, yeni versiyon yayınlandı.", "output": "Yeni versiyon yayınlandı."}
+{"input": "İşte, müşteri aradı.", "output": "Müşteri aradı."}
+{"input": "İşte, kod merge edildi.", "output": "Kod merge edildi."}
+{"input": "İşte, bütçe onaylandı.", "output": "Bütçe onaylandı."}
+{"input": "İşte, ekip hazır.", "output": "Ekip hazır."}
+{"input": "İşte, sözleşme imzalandı.", "output": "Sözleşme imzalandı."}
+{"input": "İşte, tasarım değişti.", "output": "Tasarım değişti."}
+{"input": "İşte, test tamamlandı.", "output": "Test tamamlandı."}
+{"input": "İşte, hata bulundu.", "output": "Hata bulundu."}
+{"input": "İşte, PR açıldı.", "output": "PR açıldı."}
+{"input": "İşte, deployment tamamlandı.", "output": "Deployment tamamlandı."}
+{"input": "İşte işte, şimdi anladım.", "output": "Şimdi anladım."}
+{"input": "İşte işte, doğru yoldasın.", "output": "Doğru yoldasın."}
+{"input": "İşte işte, bu oldu.", "output": "Bu oldu."}
+{"input": "İşte işte, bunu söylemeye çalışıyordum.", "output": "Bunu söylemeye çalışıyordum."}
+{"input": "İşte işte, devam et.", "output": "Devam et."}
+{"input": "İşte yani, yapamam.", "output": "Yapamam."}
+{"input": "İşte yani, zor bir durum.", "output": "Zor bir durum."}
+{"input": "İşte yani, karar vermeliyiz.", "output": "Karar vermeliyiz."}
+{"input": "İşte yani, değişiklik lazım.", "output": "Değişiklik lazım."}
+{"input": "İşte yani, başka bir yol yok.", "output": "Başka bir yol yok."}
+{"input": "Proje işte tamamlandı.", "output": "Proje tamamlandı."}
+{"input": "Dosya işte kayboldu.", "output": "Dosya kayboldu."}
+{"input": "Ekip işte ayrıldı.", "output": "Ekip ayrıldı."}
+{"input": "Bütçe işte yetersiz.", "output": "Bütçe yetersiz."}
+{"input": "Sistem işte çalışıyor.", "output": "Sistem çalışıyor."}
+{"input": "İşte şey, nasıl anlatsam.", "output": "Nasıl anlatsam."}
+{"input": "İşte şey, biraz bekle.", "output": "Biraz bekle."}
+{"input": "İşte şey, düşünmem lazım.", "output": "Düşünmem lazım."}
+{"input": "İşte şey, söylemesi zor.", "output": "Söylemesi zor."}
+{"input": "İşte şey, farklı bir yaklaşım deneyelim.", "output": "Farklı bir yaklaşım deneyelim."}
+{"input": "Ee işte, bilmiyorum.", "output": "Bilmiyorum."}
+{"input": "Ee işte, şimdi ne yapalım?", "output": "Şimdi ne yapalım?"}
+{"input": "Aa işte, fark etmez.", "output": "Fark etmez."}
+{"input": "Aa işte, devam edebiliriz.", "output": "Devam edebiliriz."}
+{"input": "Hmm işte, bakalım.", "output": "Bakalım."}
+{"input": "Hani işte o toplantı, ertelendi.", "output": "O toplantı ertelendi."}
+{"input": "Hani işte o rapor, kayboldu.", "output": "O rapor kayboldu."}
+{"input": "Hani işte dedim ya, yapamam.", "output": "Dedim ya, yapamam."}
+{"input": "Hani işte bilirsin, o konu.", "output": "Bilirsin, o konu."}
+{"input": "Hani işte şey, çok zor.", "output": "Çok zor."}
+{"input": "Toplantı ertelendi işte.", "output": "Toplantı ertelendi."}
+{"input": "Bitti işte.", "output": "Bitti."}
+{"input": "Sildim işte.", "output": "Sildim."}
+{"input": "Gönderdim işte.", "output": "Gönderdim."}
+{"input": "Anladım işte.", "output": "Anladım."}
+{"input": "İşte tam olarak bunu istiyordum.", "output": "İşte tam olarak bunu istiyordum."}
+{"input": "İşte bu özellik eksikti.", "output": "İşte bu özellik eksikti."}
+{"input": "İşte bunu kastediyordum.", "output": "İşte bunu kastediyordum."}
+{"input": "İşte doğru cevap bu.", "output": "İşte doğru cevap bu."}
+{"input": "İşte aradığım çözüm.", "output": "İşte aradığım çözüm."}
+{"input": "İşte bu hatayı buldum.", "output": "İşte bu hatayı buldum."}
+{"input": "İşte merak ettiğim şey bu.", "output": "İşte merak ettiğim şey bu."}
+{"input": "İşte gerçek sorun bu.", "output": "İşte gerçek sorun bu."}
+{"input": "İşte istediğim yaklaşım bu.", "output": "İşte istediğim yaklaşım bu."}
+{"input": "İşte bunu bekledim.", "output": "İşte bunu bekledim."}
+{"input": "İşte bu yüzden test yazmak önemli.", "output": "İşte bu yüzden test yazmak önemli."}
+{"input": "İşte bu nedenle deploy başarısız oldu.", "output": "İşte bu nedenle deploy başarısız oldu."}
+{"input": "İşte bu yüzden monorepo kullanıyoruz.", "output": "İşte bu yüzden monorepo kullanıyoruz."}
+{"input": "İşte bu sebeple cache'i temizlemek gerekiyor.", "output": "İşte bu sebeple cache'i temizlemek gerekiyor."}
+{"input": "İşte bu yüzden rate limiting şart.", "output": "İşte bu yüzden rate limiting şart."}
+{"input": "İşte bu yüzden code review süreci var.", "output": "İşte bu yüzden code review süreci var."}
+{"input": "İşte bu nedenle migration öncesi yedek alınıyor.", "output": "İşte bu nedenle migration öncesi yedek alınıyor."}
+{"input": "İşte bu yüzden dokümantasyon şart.", "output": "İşte bu yüzden dokümantasyon şart."}
+{"input": "İşte bu nedenle staging ortamı kullanıyoruz.", "output": "İşte bu nedenle staging ortamı kullanıyoruz."}
+{"input": "İşte bu yüzden takvimi kaçırdık.", "output": "İşte bu yüzden takvimi kaçırdık."}
+{"input": "İşte sorun burada.", "output": "İşte sorun burada."}
+{"input": "İşte hata bu satırda.", "output": "İşte hata bu satırda."}
+{"input": "İşte çakışma buradan kaynaklanıyor.", "output": "İşte çakışma buradan kaynaklanıyor."}
+{"input": "İşte kayıp veri bu tabloda.", "output": "İşte kayıp veri bu tabloda."}
+{"input": "İşte yavaşlık bu fonksiyondan.", "output": "İşte yavaşlık bu fonksiyondan."}
+{"input": "İşte bug tam burada.", "output": "İşte bug tam burada."}
+{"input": "İşte performans sorunu bu query'den.", "output": "İşte performans sorunu bu query'den."}
+{"input": "İşte log burada kesiyor.", "output": "İşte log burada kesiyor."}
+{"input": "İşte bağlantı burada kopuyor.", "output": "İşte bağlantı burada kopuyor."}
+{"input": "İşte memory leak tam burada.", "output": "İşte memory leak tam burada."}
+{"input": "İşte, gördün mü nasıl çalışıyor?", "output": "İşte, gördün mü nasıl çalışıyor?"}
+{"input": "İşte, dediğim gibi hata verdi.", "output": "İşte, dediğim gibi hata verdi."}
+{"input": "İşte, söyledim olmayacak diye.", "output": "İşte, söyledim olmayacak diye."}
+{"input": "İşte, test başarısız oldu işte.", "output": "İşte, test başarısız oldu."}
+{"input": "İşte, şimdi anladın mı sebebini?", "output": "İşte, şimdi anladın mı sebebini?"}
+{"input": "İşte bu konfigürasyonu kullan.", "output": "İşte bu konfigürasyonu kullan."}
+{"input": "İşte şu endpoint'i test et.", "output": "İşte şu endpoint'i test et."}
+{"input": "İşte o model daha iyi.", "output": "İşte o model daha iyi."}
+{"input": "İşte bu pattern'i uygulayın.", "output": "İşte bu pattern'i uygulayın."}
+{"input": "İşte şu branch'i merge et.", "output": "İşte şu branch'i merge et."}
+{"input": "- Neden çalışmıyor? - İşte onu bulmaya çalışıyorum.", "output": "- Neden çalışmıyor? - İşte onu bulmaya çalışıyorum."}
+{"input": "- Nasıl düzelteceksiniz? - İşte bu toplantının konusu.", "output": "- Nasıl düzelteceksiniz? - İşte bu toplantının konusu."}
+{"input": "- Kimin sorumluluğu? - İşte orada anlaşamıyoruz.", "output": "- Kimin sorumluluğu? - İşte orada anlaşamıyoruz."}
+{"input": "- Sorun ne? - İşte tam onu anlamaya çalışıyorum.", "output": "- Sorun ne? - İşte tam onu anlamaya çalışıyorum."}
+{"input": "- Neden bu kadar sürdü? - İşte bu soruyu sormak istedim.", "output": "- Neden bu kadar sürdü? - İşte bu soruyu sormak istedim."}
+{"input": "İşte şimdi anlıyorum neden bu şekilde yapılmış.", "output": "İşte şimdi anlıyorum neden bu şekilde yapılmış."}
+{"input": "İşte asıl mesele bu tasarım kararı.", "output": "İşte asıl mesele bu tasarım kararı."}
+{"input": "İşte fark burada ortaya çıkıyor.", "output": "İşte fark burada ortaya çıkıyor."}
+{"input": "İşte kritik nokta bu.", "output": "İşte kritik nokta bu."}
+{"input": "İşte önemli olan kısım şu.", "output": "İşte önemli olan kısım şu."}
+{"input": "Tamam, şimdi bakalım.", "output": "Şimdi bakalım."}
+{"input": "Tamam, kodun ne durumda?", "output": "Kodun ne durumda?"}
+{"input": "Tamam, toplantıya geçelim.", "output": "Toplantıya geçelim."}
+{"input": "Tamam, listeye bakalım.", "output": "Listeye bakalım."}
+{"input": "Tamam, raporu inceleyelim.", "output": "Raporu inceleyelim."}
+{"input": "Tamam, bir sonraki madde.", "output": "Bir sonraki madde."}
+{"input": "Tamam, devam edelim.", "output": "Devam edelim."}
+{"input": "Tamam, nerede kalmıştık?", "output": "Nerede kalmıştık?"}
+{"input": "Tamam, başlayalım.", "output": "Başlayalım."}
+{"input": "Tamam, şimdi ne yapacağız?", "output": "Şimdi ne yapacağız?"}
+{"input": "Tamam, bir şey soracağım.", "output": "Bir şey soracağım."}
+{"input": "Tamam, sıradaki konuya geçelim.", "output": "Sıradaki konuya geçelim."}
+{"input": "Tamam, özet geçeyim.", "output": "Özet geçeyim."}
+{"input": "Tamam, ilerleyelim.", "output": "İlerleyelim."}
+{"input": "Tamam, ekleyecek bir şey var mı?", "output": "Ekleyecek bir şey var mı?"}
+{"input": "Tamam tamam, anladım.", "output": "Anladım."}
+{"input": "Tamam tamam, yapacağım.", "output": "Yapacağım."}
+{"input": "Tamam tamam, devam et.", "output": "Devam et."}
+{"input": "Tamam tamam, duruyorum.", "output": "Duruyorum."}
+{"input": "Tamam tamam, söyle.", "output": "Söyle."}
+{"input": "Tamam tamam, bakıyorum.", "output": "Bakıyorum."}
+{"input": "Tamam tamam, biliyorum.", "output": "Biliyorum."}
+{"input": "Tamam tamam yani, ne yapalım?", "output": "Ne yapalım?"}
+{"input": "Tamam yani, farklı deneyelim.", "output": "Farklı deneyelim."}
+{"input": "Tamam yani, kabul ettim.", "output": "Kabul ettim."}
+{"input": "Ee tamam, şey X", "output": "X"}
+{"input": "Ee tamam, neyse.", "output": "Neyse."}
+{"input": "Ee tamam, geçelim.", "output": "Geçelim."}
+{"input": "Ee tamam, bir bak.", "output": "Bir bak."}
+{"input": "Ee tamam, anlıyorum.", "output": "Anlıyorum."}
+{"input": "Tamam, hani şöyle bir şey var, bütçe sorunumuz var.", "output": "Şöyle bir şey var, bütçe sorunumuz var."}
+{"input": "Tamam, hani o toplantı vardı ya, onu iptal ettik.", "output": "O toplantı vardı ya, onu iptal ettik."}
+{"input": "Tamam, hani şey yani, düşünmem lazım.", "output": "Düşünmem lazım."}
+{"input": "Tamam, şöyle ki, veritabanı migrate edildi.", "output": "Şöyle ki, veritabanı migrate edildi."}
+{"input": "Tamam, yani şu an durum şu.", "output": "Yani şu an durum şu."}
+{"input": "Tamam, mesele şu.", "output": "Mesele şu."}
+{"input": "Bunu, tamam, sonra halledeceğiz.", "output": "Bunu sonra halledeceğiz."}
+{"input": "Proje, tamam, yolunda gidiyor.", "output": "Proje yolunda gidiyor."}
+{"input": "Ekip, tamam, hazır.", "output": "Ekip hazır."}
+{"input": "Bitti tamam.", "output": "Bitti."}
+{"input": "Sildim tamam.", "output": "Sildim."}
+{"input": "Gönderdim tamam.", "output": "Gönderdim."}
+{"input": "Yaptım tamam.", "output": "Yaptım."}
+{"input": "Kapattım tamam.", "output": "Kapattım."}
+{"input": "Tamam, biliyorum bunu.", "output": "Biliyorum bunu."}
+{"input": "Tamam, duydum.", "output": "Duydum."}
+{"input": "Tamam, fark ettim.", "output": "Fark ettim."}
+{"input": "Tamam, gördüm.", "output": "Gördüm."}
+{"input": "Tamam, okudum.", "output": "Okudum."}
+{"input": "Tamam, şimdi ne bekliyoruz?", "output": "Şimdi ne bekliyoruz?"}
+{"input": "Tamam, yarın görüşürüz.", "output": "Tamam, yarın görüşürüz."}
+{"input": "Tamam, o saatte olacağım.", "output": "Tamam, o saatte olacağım."}
+{"input": "Tamam, dosyayı göndereceğim.", "output": "Tamam, dosyayı göndereceğim."}
+{"input": "Tamam, yapacağım.", "output": "Tamam, yapacağım."}
+{"input": "Tamam, katılacağım toplantıya.", "output": "Tamam, katılacağım toplantıya."}
+{"input": "Tamam, PR'ı inceleyeceğim.", "output": "Tamam, PR'ı inceleyeceğim."}
+{"input": "Tamam, bu yaklaşımı deneyeceğim.", "output": "Tamam, bu yaklaşımı deneyeceğim."}
+{"input": "Tamam, kodu refactor edeceğim.", "output": "Tamam, kodu refactor edeceğim."}
+{"input": "Tamam, raporla ilgileneceğim.", "output": "Tamam, raporla ilgileneceğim."}
+{"input": "Tamam, deploy i takip edeceğim.", "output": "Tamam, deploy'i takip edeceğim."}
+{"input": "Tamam mı, anlaştık mı?", "output": "Tamam mı, anlaştık mı?"}
+{"input": "Tamam mı bu plan?", "output": "Tamam mı bu plan?"}
+{"input": "Bu yaklaşım tamam mı?", "output": "Bu yaklaşım tamam mı?"}
+{"input": "Toplantı saati tamam mı?", "output": "Toplantı saati tamam mı?"}
+{"input": "Rapor hazır, tamam mı?", "output": "Rapor hazır, tamam mı?"}
+{"input": "PR merge edildi, tamam mı?", "output": "PR merge edildi, tamam mı?"}
+{"input": "Sistem ayarlandı, tamam mı?", "output": "Sistem ayarlandı, tamam mı?"}
+{"input": "Kod tamamlandı, tamam mı?", "output": "Kod tamamlandı, tamam mı?"}
+{"input": "Tamam o zaman toplantı iptal.", "output": "Tamam o zaman toplantı iptal."}
+{"input": "Tamam o zaman yarın konuşuruz.", "output": "Tamam o zaman yarın konuşuruz."}
+{"input": "Tamam o zaman bekleriz.", "output": "Tamam o zaman bekleriz."}
+{"input": "Tamam o zaman sen halledersin.", "output": "Tamam o zaman sen halledersin."}
+{"input": "Tamam o zaman planı değiştirelim.", "output": "Tamam o zaman planı değiştirelim."}
+{"input": "- PR'ı gönderir misin? - Tamam.", "output": "- PR'ı gönderir misin? - Tamam."}
+{"input": "- Yarın gelecek misin? - Tamam.", "output": "- Yarın gelecek misin? - Tamam."}
+{"input": "- Bunu düzeltir misin? - Tamam.", "output": "- Bunu düzeltir misin? - Tamam."}
+{"input": "- Raporları paylaşır mısın? - Tamam.", "output": "- Raporları paylaşır mısın? - Tamam."}
+{"input": "- Toplantıya katılır mısın? - Tamam.", "output": "- Toplantıya katılır mısın? - Tamam."}
+{"input": "Tamam, bu versiyonla devam edebiliriz.", "output": "Tamam, bu versiyonla devam edebiliriz."}
+{"input": "Tamam, bu hatayı şimdilik kabul ediyoruz.", "output": "Tamam, bu hatayı şimdilik kabul ediyoruz."}
+{"input": "Tamam, bu planı onaylıyorum.", "output": "Tamam, bu planı onaylıyorum."}
+{"input": "Tamam, tasarımı beğendim.", "output": "Tamam, tasarımı beğendim."}
+{"input": "Tamam, bu çözüm yeterli.", "output": "Tamam, bu çözüm yeterli."}
+{"input": "Her şey tamam göründü.", "output": "Her şey tamam göründü."}
+{"input": "Sistem tamam çalışıyor.", "output": "Sistem tamam çalışıyor."}
+{"input": "Kod tamam ama test eksik.", "output": "Kod tamam ama test eksik."}
+{"input": "Tasarım tamam, içerik bekleniyor.", "output": "Tasarım tamam, içerik bekleniyor."}
+{"input": "Altyapı tamam, uygulama hazır değil.", "output": "Altyapı tamam, uygulama hazır değil."}
+{"input": "Her şey yolunda ve tamam.", "output": "Her şey yolunda ve tamam."}
+{"input": "Durum tamam değil, hata var.", "output": "Durum tamam değil, hata var."}
+{"input": "Bağlantı tamam ama veri gelmiyor.", "output": "Bağlantı tamam ama veri gelmiyor."}
+{"input": "Lisans tamam, aktivasyon bekliyor.", "output": "Lisans tamam, aktivasyon bekliyor."}
+{"input": "Ödeme tamam, teslim bekleniyor.", "output": "Ödeme tamam, teslim bekleniyor."}
+{"input": "Build tamam, testler çalışıyor.", "output": "Build tamam, testler çalışıyor."}
+{"input": "Migration tamam, veri doğrulandı.", "output": "Migration tamam, veri doğrulandı."}
+{"input": "Deploy tamam, monitoring izliyor.", "output": "Deploy tamam, monitoring izliyor."}
+{"input": "Setup tamam, uygulama ayağa kalktı.", "output": "Setup tamam, uygulama ayağa kalktı."}
+{"input": "Config tamam, restart gerekiyor.", "output": "Config tamam, restart gerekiyor."}
+{"input": "Tamam, bu kararı onaylıyorum.", "output": "Tamam, bu kararı onaylıyorum."}
+{"input": "Tamam, sana güveniyorum bu konuda.", "output": "Tamam, sana güveniyorum bu konuda."}
+{"input": "Hani, toplantı vardı ya.", "output": "Toplantı vardı ya."}
+{"input": "Hani, şimdi ne yapacağız?", "output": "Şimdi ne yapacağız?"}
+{"input": "Hani, bunu düşünüyordum.", "output": "Bunu düşünüyordum."}
+{"input": "Hani, kod review bitsin.", "output": "Kod review bitsin."}
+{"input": "Hani, raporu yazmam lazım.", "output": "Raporu yazmam lazım."}
+{"input": "Hani, bir fikrim vardı.", "output": "Bir fikrim vardı."}
+{"input": "Hani, müşteri bekliyordu.", "output": "Müşteri bekliyordu."}
+{"input": "Hani, şey dediler ya.", "output": "Şey dediler ya."}
+{"input": "Hani, sprint bitmek üzere.", "output": "Sprint bitmek üzere."}
+{"input": "Hani, yeni özellik ekliyoruz.", "output": "Yeni özellik ekliyoruz."}
+{"input": "Hani, bütçe sorunu var.", "output": "Bütçe sorunu var."}
+{"input": "Hani, ekip değişiyor.", "output": "Ekip değişiyor."}
+{"input": "Hani, sunum yarın.", "output": "Sunum yarın."}
+{"input": "Hani, sözleşme bitti.", "output": "Sözleşme bitti."}
+{"input": "Hani, test sonuçları geldi.", "output": "Test sonuçları geldi."}
+{"input": "Hani yani, ne diyeyim.", "output": "Ne diyeyim."}
+{"input": "Hani yani, zor bir durum.", "output": "Zor bir durum."}
+{"input": "Hani yani, bilmiyorum.", "output": "Bilmiyorum."}
+{"input": "Hani yani, değişmez artık.", "output": "Değişmez artık."}
+{"input": "Hani yani, fark etmez.", "output": "Fark etmez."}
+{"input": "Hani yani, düşünmem lazım.", "output": "Düşünmem lazım."}
+{"input": "Hani şey, nasıl desem.", "output": "Nasıl desem."}
+{"input": "Hani şey, o dosya.", "output": "O dosya."}
+{"input": "Hani şey, söylemesi güç.", "output": "Söylemesi güç."}
+{"input": "Hani şey, bilirsin.", "output": "Bilirsin."}
+{"input": "Hani şey, şöyle bir durum var.", "output": "Şöyle bir durum var."}
+{"input": "Hani işte, ne yapacağız?", "output": "Ne yapacağız?"}
+{"input": "Hani işte, sorun bu.", "output": "Sorun bu."}
+{"input": "Hani işte, bilirsin nasıl oluyor.", "output": "Bilirsin nasıl oluyor."}
+{"input": "Bunu, hani, yapabiliriz.", "output": "Bunu yapabiliriz."}
+{"input": "Proje, hani, gecikmedi.", "output": "Proje gecikmedi."}
+{"input": "Sistem, hani, çalışıyor.", "output": "Sistem çalışıyor."}
+{"input": "Ekip, hani, hazır.", "output": "Ekip hazır."}
+{"input": "Rapor, hani, tamamlandı.", "output": "Rapor tamamlandı."}
+{"input": "Yapamam hani.", "output": "Yapamam."}
+{"input": "Bilmiyorum hani.", "output": "Bilmiyorum."}
+{"input": "Anlamadım hani.", "output": "Anlamadım."}
+{"input": "Yoruldum hani.", "output": "Yoruldum."}
+{"input": "Hazır değilim hani.", "output": "Hazır değilim."}
+{"input": "Hani, nasıl desem, zor.", "output": "Zor."}
+{"input": "Hani, şöyle bir şey, zaten biliyorsun.", "output": "Zaten biliyorsun."}
+{"input": "Hani, ne bileyim, fark etmez.", "output": "Fark etmez."}
+{"input": "Hani, bilmiyorum, bakacağım.", "output": "Bakacağım."}
+{"input": "Hani, nasıl anlatayım, karmaşık.", "output": "Karmaşık."}
+{"input": "Ee hani, toplantı.", "output": "Toplantı."}
+{"input": "Aa hani, fark ettim.", "output": "Fark ettim."}
+{"input": "Yani hani, ne yapalım?", "output": "Ne yapalım?"}
+{"input": "İşte hani, sorun var.", "output": "Sorun var."}
+{"input": "Tamam hani, geçelim.", "output": "Geçelim."}
+{"input": "Hani, ne zaman bitecek bu?", "output": "Ne zaman bitecek bu?"}
+{"input": "Hani o toplantı vardı ya, onu erteledik.", "output": "Hani o toplantı vardı ya, onu erteledik."}
+{"input": "Hani o bug vardı ya, düzeldi.", "output": "Hani o bug vardı ya, düzeldi."}
+{"input": "Hani o müşteri vardı ya, geri döndü.", "output": "Hani o müşteri vardı ya, geri döndü."}
+{"input": "Hani o özellik vardı ya, şimdi aktif.", "output": "Hani o özellik vardı ya, şimdi aktif."}
+{"input": "Hani o sözleşme vardı ya, imzalandı.", "output": "Hani o sözleşme vardı ya, imzalandı."}
+{"input": "Hani o rapordu ya, kayboldu.", "output": "Hani o rapordu ya, kayboldu."}
+{"input": "Hani o sunum vardı ya, iptal edildi.", "output": "Hani o sunum vardı ya, iptal edildi."}
+{"input": "Hani o API vardı ya, değişti.", "output": "Hani o API vardı ya, değişti."}
+{"input": "Hani o veritabanı vardı ya, migrate edildi.", "output": "Hani o veritabanı vardı ya, migrate edildi."}
+{"input": "Hani o model vardı ya, güncelledik.", "output": "Hani o model vardı ya, güncelledik."}
+{"input": "Hani dün söylediğim şey, haklıymışım.", "output": "Hani dün söylediğim şey, haklıymışım."}
+{"input": "Hani geçen hafta konuştuğumuz sorun, çözüldü.", "output": "Hani geçen hafta konuştuğumuz sorun, çözüldü."}
+{"input": "Hani toplantıda anlattığım plan, onaylandı.", "output": "Hani toplantıda anlattığım plan, onaylandı."}
+{"input": "Hani sabah bahsettiğim hata, tekrar çıktı.", "output": "Hani sabah bahsettiğim hata, tekrar çıktı."}
+{"input": "Hani daha önce denediğimiz yöntem, işe yarıyor.", "output": "Hani daha önce denediğimiz yöntem, işe yarıyor."}
+{"input": "Hani geçen ay iptal ettiğimiz feature, geri geliyor.", "output": "Hani geçen ay iptal ettiğimiz feature, geri geliyor."}
+{"input": "Hani o zaman konuştuğumuz mimari, şimdi anlıyorum.", "output": "Hani o zaman konuştuğumuz mimari, şimdi anlıyorum."}
+{"input": "Hani sana söylediğim o araç, burada da işe yarar.", "output": "Hani sana söylediğim o araç, burada da işe yarar."}
+{"input": "Hani ilk sprintte aldığımız karar, değişmesi lazım.", "output": "Hani ilk sprintte aldığımız karar, değişmesi lazım."}
+{"input": "Hani benim önerdiğim çözüm, onu dene.", "output": "Hani benim önerdiğim çözüm, onu dene."}
+{"input": "Hani, şöyle bir durum var, proje beklenmedik gecikti.", "output": "Hani, şöyle bir durum var, proje beklenmedik gecikti."}
+{"input": "Hani, bunu söylemek zor ama, bütçe yetmeyecek.", "output": "Hani, bunu söylemek zor ama, bütçe yetmeyecek."}
+{"input": "Hani, aramızda kalsın, ekipte ciddi bir sorun var.", "output": "Hani, aramızda kalsın, ekipte ciddi bir sorun var."}
+{"input": "Hani, bilesin diye söylüyorum, deadline değişti.", "output": "Hani, bilesin diye söylüyorum, deadline değişti."}
+{"input": "Hani, kendi aramızda, o yaklaşım yanlış.", "output": "Hani, kendi aramızda, o yaklaşım yanlış."}
+{"input": "Hani o dosyayı nereye koydun?", "output": "Hani o dosyayı nereye koydun?"}
+{"input": "Hani o linki paylaşmıştın, hâlâ var mı?", "output": "Hani o linki paylaşmıştın, hâlâ var mı?"}
+{"input": "Hani o toplantı notları, bulabilir misin?", "output": "Hani o toplantı notları, bulabilir misin?"}
+{"input": "Hani o PR'ı açmıştın, merge edildi mi?", "output": "Hani o PR'ı açmıştın, merge edildi mi?"}
+{"input": "Hani o rakibi analiz etmiştik, rapor nerede?", "output": "Hani o rakibi analiz etmiştik, rapor nerede?"}
+{"input": "Hani o zor müşteri ya, sonunda ikna oldu.", "output": "Hani o zor müşteri ya, sonunda ikna oldu."}
+{"input": "Hani o yavaş query ya, index ekleyince düzeldi.", "output": "Hani o yavaş query ya, index ekleyince düzeldi."}
+{"input": "Hani o büyük release ya, beklenenden iyi gitti.", "output": "Hani o büyük release ya, beklenenden iyi gitti."}
+{"input": "Hani o kritik hata ya, hiç kimseyi etkilemedi.", "output": "Hani o kritik hata ya, hiç kimseyi etkilemedi."}
+{"input": "Hani o uzun sprint ya, sonunda bitti.", "output": "Hani o uzun sprint ya, sonunda bitti."}
+{"input": "Hani şöyle bir şey, bir tür middleware gibi.", "output": "Hani şöyle bir şey, bir tür middleware gibi."}
+{"input": "Hani proxy gibi bir şey, ama daha akıllı.", "output": "Hani proxy gibi bir şey, ama daha akıllı."}
+{"input": "Hani cache ama gerçek zamanlı, öyle bir şey.", "output": "Hani cache ama gerçek zamanlı, öyle bir şey."}
+{"input": "Hani event-driven ama senkron, anladın mı?", "output": "Hani event-driven ama senkron, anladın mı?"}
+{"input": "Hani microservice ama monorepo içinde, öyle.", "output": "Hani microservice ama monorepo içinde, öyle."}
+{"input": "Hani biz anlaşmıştık bunu yapmamak için.", "output": "Hani biz anlaşmıştık bunu yapmamak için."}
+{"input": "Hani sen de biliyorsun bu işin nasıl döndüğünü.", "output": "Hani sen de biliyorsun bu işin nasıl döndüğünü."}
+{"input": "Hani o kuralı koymuştuk, unuttun mu?", "output": "Hani o kuralı koymuştuk, unuttun mu?"}
+{"input": "Hani geçen toplantıda karar aldık, uygulayalım.", "output": "Hani geçen toplantıda karar aldık, uygulayalım."}
+{"input": "Hani sana göstermiştim nasıl yapıldığını.", "output": "Hani sana göstermiştim nasıl yapıldığını."}
+{"input": "Hani geçen yıl çöken o sistem, şimdi yeniden yazdık.", "output": "Hani geçen yıl çöken o sistem, şimdi yeniden yazdık."}
+{"input": "Hani o eski mimari, artık kullanmıyoruz.", "output": "Hani o eski mimari, artık kullanmıyoruz."}
+{"input": "Hani ilk versiyonda olan o sorun, şimdi yok.", "output": "Hani ilk versiyonda olan o sorun, şimdi yok."}
+{"input": "Hani o kötü şöhretli modül, yeniden yazıldı.", "output": "Hani o kötü şöhretli modül, yeniden yazıldı."}
+{"input": "Hani o eski provider, artık desteklenmiyor.", "output": "Hani o eski provider, artık desteklenmiyor."}

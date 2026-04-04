@@ -301,6 +301,8 @@
 - [DONE 2026-04-02] **1. round adapter canlı test** — 3 kriter geçti: noktalama ✅, filler temizleme ✅, Türkçe karakter ✅; ISSAI 2. round riski tespit edildi (ground truth noktalamasız → model noktalama silmeyi öğrenir)
 - [DONE 2026-04-04] **Qwen v2 filler dataset** — 496 filler/disfluency pair üretildi (şey/yani/hani/işte/ee/aa + backtrack + stutter + sayı norm); `generate_filler_data.py` (API key gereksiz); 1096 mixed pair (v1+v2); train/valid/test split
 - [DONE 2026-04-04] **Qwen v2 RunPod training** — H100 80GB, unsloth-free stack (transformers 4.47+peft 0.13+trl 0.13), 400 step, 3 dk, eval_loss=0.71; adapters_v2_runpod → MLX dönüşümü → adapters_mlx/ canlıda
+- [DONE 2026-04-04] **Qwen v3 dataset hazır** — 1059 yeni örnek (filler_initial 387 + filler_complex 167 + filler_semantic 400 + filler_backtrack 105); v2+yeni = 2155 pairs datasets/v3/; _BASE_PROMPT güncellendi (cümle başı filler + anlamsal KEEP kuralları)
+- [ ] **Qwen v3 RunPod training** — H100, 800 step, v2 adapter'dan devam; train_hf.py güncellendi; datasets/v3 hazır
 - [DONE 2026-04-04] **Qwen RunPod setup dökümante edildi** — unsloth KULLANMA kuralı, H100 pod config, tüm bilinen sorunlar runpod/README.md'e eklendi
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri
@@ -415,6 +417,7 @@ ISSAI (164K) → merge → voiceflow-whisper-tr
 | Adapter | Sorumluluk | Durum |
 |---|---|---|
 | **Qwen Adapter v2** (~80MB) | Filler temizleme (şey/yani/hani+), noktalama, Türkçe karakter, backtracking | ✅ Canlıda (v2, 1096 pair, eval_loss=0.71, 2026-04-04) |
+| **Qwen Adapter v3** | + Cümle başı filler (Yani/Şey/Hani/Tamam/İşte), zincirleme filler, anlamsal ayrım | 🔲 Dataset hazır (2155 pair), eğitim bekliyor |
 | **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | ✅ Canlıda (production, MLX float16) |
 | **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | ✅ HF'te hazır — `tkosen/voiceflow-whisper-tr-v2` (2026-04-04), MLX dönüşümü bekliyor |
 | **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr-v2 sonrası |

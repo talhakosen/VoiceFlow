@@ -1,18 +1,19 @@
 """
-VoiceFlow Qwen v2 Fine-tuning — transformers + peft (unsloth-free)
+VoiceFlow Qwen v3 Fine-tuning — transformers + peft (unsloth-free)
 CUDA 12.4 uyumlu (torch 2.x cu121/cu124)
 
-V1 adapter ağırlıklarından başlar. Yoksa base model.
+v2 adapter ağırlıklarından başlar. Yoksa base model.
+Dataset: ml/qwen/datasets/v3/ — 2155 pairs (v2 filler + new initial/complex/semantic/backtrack)
 
-RunPod RTX 4090 / H100
+RunPod H100 80GB
 
 SCP:
-  scp -rP <PORT> ml/qwen/adapters_mlx/raw root@<IP>:/workspace/adapters_v1
-  scp -P <PORT> ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl
-  scp -P <PORT> ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
-  scp -P <PORT> ml/qwen/scripts/train_runpod_v2_hf.py root@<IP>:/workspace/
+  scp -rP <PORT> ml/qwen/adapters/v2.0/raw root@<IP>:/workspace/adapters_v2
+  scp -P <PORT> ml/qwen/datasets/v3/train.jsonl root@<IP>:/workspace/train_v3.jsonl
+  scp -P <PORT> ml/qwen/datasets/v3/valid.jsonl root@<IP>:/workspace/valid_v3.jsonl
+  scp -P <PORT> ml/qwen/scripts/train_hf.py root@<IP>:/workspace/
 
-Output: /workspace/adapters_v2/
+Output: /workspace/adapters_v3/
 """
 
 import os
@@ -23,7 +24,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
 from peft import LoraConfig, get_peft_model, PeftModel
 from trl import SFTTrainer, SFTConfig
 
-V1_ADAPTER_PATH = "/workspace/adapters_v1"
+V2_ADAPTER_PATH = "/workspace/adapters_v2"
 BASE_MODEL      = "Qwen/Qwen2.5-7B-Instruct"
 MAX_SEQ_LEN     = 512
 LORA_RANK       = 8
@@ -31,24 +32,24 @@ LORA_ALPHA      = 16
 BATCH_SIZE      = 4
 GRAD_ACCUM      = 4       # effective batch = 16
 LR              = 5e-6
-MAX_STEPS       = 400
-OUTPUT_DIR      = "/workspace/adapters_v2"
-TRAIN_FILE      = "/workspace/train_v2.jsonl"
-VALID_FILE      = "/workspace/valid_v2.jsonl"
+MAX_STEPS       = 800
+OUTPUT_DIR      = "/workspace/adapters_v3"
+TRAIN_FILE      = "/workspace/train_v3.jsonl"
+VALID_FILE      = "/workspace/valid_v3.jsonl"
 
 print(f"CUDA: {torch.cuda.is_available()}, device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'N/A'}")
 
 # Load model
-if os.path.isdir(V1_ADAPTER_PATH) and os.path.exists(os.path.join(V1_ADAPTER_PATH, "adapter_config.json")):
-    print(f"V1 adapter bulundu: {V1_ADAPTER_PATH}")
+if os.path.isdir(V2_ADAPTER_PATH) and os.path.exists(os.path.join(V2_ADAPTER_PATH, "adapter_config.json")):
+    print(f"V2 adapter bulundu: {V2_ADAPTER_PATH}")
     base = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL, torch_dtype=torch.bfloat16, device_map="auto"
     )
-    model = PeftModel.from_pretrained(base, V1_ADAPTER_PATH, is_trainable=True)
-    tokenizer = AutoTokenizer.from_pretrained(V1_ADAPTER_PATH)
-    print("V1 adapter yüklendi — devam ediliyor")
+    model = PeftModel.from_pretrained(base, V2_ADAPTER_PATH, is_trainable=True)
+    tokenizer = AutoTokenizer.from_pretrained(V2_ADAPTER_PATH)
+    print("V2 adapter yüklendi — devam ediliyor")
 else:
-    print(f"V1 adapter yok — base model: {BASE_MODEL}")
+    print(f"V2 adapter yok — base model: {BASE_MODEL}")
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL, torch_dtype=torch.bfloat16, device_map="auto"
     )
