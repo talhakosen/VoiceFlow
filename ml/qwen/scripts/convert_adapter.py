@@ -11,13 +11,19 @@ Giriş:  ml/qwen/adapters_runpod/   (unsloth/HF PEFT format — RunPod çıktıs
 """
 
 import json
+import sys
 import numpy as np
 from pathlib import Path
 from safetensors import safe_open
 from safetensors.numpy import save_file
 
-HF_PATH  = Path(__file__).parent.parent / "adapters_runpod"
-MLX_PATH = Path(__file__).parent.parent / "adapters_mlx"
+# CLI args: --input <path> --output <path>
+_args = sys.argv[1:]
+def _arg(flag, default):
+    return Path(_args[_args.index(flag) + 1]) if flag in _args else default
+
+HF_PATH  = _arg("--input",  Path(__file__).parent.parent / "adapters_runpod")
+MLX_PATH = _arg("--output", Path(__file__).parent.parent / "adapters_mlx")
 
 # Qwen2.5-7B = 28 layer
 NUM_LAYERS = 28

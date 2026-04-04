@@ -5,7 +5,7 @@ Adapter dosyaları gitignore'da — HuggingFace'te yedekli.
 
 ---
 
-## v3.0 — PENDING (hazır, henüz eğitilmedi)
+## v3.0 — 2026-04-04 ✅ AKTİF
 
 **Dosya:** `adapters/v3.0/` (eğitim sonrası)
 **HF:** `tkosen/voiceflow-qwen-adapter-v3` (eğitim sonrası)
@@ -24,9 +24,10 @@ Adapter dosyaları gitignore'da — HuggingFace'te yedekli.
 - `data/filler_backtrack.jsonl` — 105 backtrack+filler combo
 
 **Eğitim:**
-- Base: v2.0 adapter
+- Base: Qwen/Qwen2.5-7B-Instruct (base model, v2 adapter yüklenemedi)
 - Script: `scripts/train_hf.py` (MAX_STEPS=800, LR=5e-6, batch=4, grad_accum=4)
-- GPU: H100 80GB, RunPod SECURE
+- GPU: H100 80GB, RunPod SECURE, ~11 dakika
+- eval_loss: **0.513** (v2: 0.71 — %28 iyileşme)
 
 **Eğitim komutu:**
 ```bash
@@ -45,7 +46,7 @@ python ml/qwen/scripts/convert_adapter.py --input adapters/v3.0-hf --output adap
 
 ---
 
-## v2.0 — 2026-04-04
+## v2.0 — 2026-04-04 (arşiv)
 
 **Dosya:** `adapters/v2.0/`
 **HF:** `tkosen/voiceflow-qwen-adapter-v2`
