@@ -1,0 +1,25 @@
+{"input": "yani şimdi şey ben yarın izinliyim hani söylemiştim ya yani", "output": "Yarın izinliyim, söylemiştim."}
+{"input": "ee kahve içelim mi şey aşağı inelim biraz yani mola verelim", "output": "Kahve içelim mi? Aşağı inelim, mola verelim."}
+{"input": "bozulmuş yine klima çok sıcak yani dayanılmıyor", "output": "Klima yine bozulmuş, çok sıcak, dayanılmıyor."}
+{"input": "geldi mi kargo hani sipariş etmiştik ya şey o", "output": "Kargo geldi mi? Sipariş etmiştik."}
+{"input": "yani ben şey öğle yemeğinde dışarı çıkacağım hani gelmek isteyen var mı", "output": "Öğle yemeğinde dışarı çıkacağım, gelmek isteyen var mı?"}
+{"input": "tamam tamam ben hallederim yani merak etmeyin", "output": "Tamam, ben hallederim, merak etmeyin."}
+{"input": "şey hani dün konuştuğumuz konu var ya yani onu bir çözelim", "output": "Dün konuştuğumuz konuyu bir çözelim."}
+{"input": "geç kaldım yani trafik vardı çok kötüydü şey özür dilerim", "output": "Geç kaldım, trafik çok kötüydü, özür dilerim."}
+{"input": "ee neyse boş ver şimdi yani başka konuya geçelim", "output": "Neyse, başka konuya geçelim."}
+{"input": "çok yoruldum yani bugün çok yoğundu şey hani nefes alamadım", "output": "Çok yoruldum, bugün çok yoğundu, nefes alamadım."}
+{"input": "şey yani hava güzel bugün dışarıda yiyelim mi yemeği", "output": "Hava güzel bugün, dışarıda yemek yiyelim mi?"}
+{"input": "ee tamam ben çıkıyorum yani görüşürüz yarın", "output": "Tamam, ben çıkıyorum, yarın görüşürüz."}
+{"input": "yani şey asansör yine bozuk merdivenden inelim hani", "output": "Asansör yine bozuk, merdivenden inelim."}
+{"input": "aa evet unuttum söylemeyi yani yeni bi kafe açılmış yanımıza", "output": "Evet, unuttum söylemeyi, yanımıza yeni bir kafe açılmış."}
+{"input": "hani şey geçen de söyledim yani su sebili bozuk", "output": "Geçen de söyledim, su sebili bozuk."}
+{"input": "toplantı saat ikide hayır üçte pardon üçte", "output": "Toplantı saat üçte."}
+{"input": "raporu ali beye gönder hayır mehmet beye gönder", "output": "Raporu Mehmet Bey'e gönder."}
+{"input": "yarın gel hayır öbür gün gel daha iyi olur", "output": "Öbür gün gel, daha iyi olur."}
+{"input": "bunu sil dur dur silme kalsın", "output": "Bunu silme, kalsın."}
+{"input": "müşteriye yaz hayır önce müdüre danış", "output": "Önce müdüre danış."}
+{"input": "merhaba nasılsınız bugün toplantımız var saat ikide bekliyorum", "output": "Merhaba, nasılsınız? Bugün toplantımız var, saat ikide bekliyorum."}
+{"input": "teşekkürler çok yardımcı oldunuz bir sorun olursa yazarım", "output": "Teşekkürler, çok yardımcı oldunuz. Bir sorun olursa yazarım."}
+{"input": "günaydın herkes bugün yoğun bir gün olacak hazır olun", "output": "Günaydın herkes, bugün yoğun bir gün olacak. Hazır olun."}
+{"input": "iyi akşamlar yarın görüşmek üzere iyi geceler", "output": "İyi akşamlar, yarın görüşmek üzere. İyi geceler."}
+{"input": "tamamdır ben de onaylıyorum devam edebilirsiniz teşekkürler", "output": "Tamamdır, ben de onaylıyorum. Devam edebilirsiniz, teşekkürler."}
