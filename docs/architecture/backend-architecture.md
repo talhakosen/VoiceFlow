@@ -64,25 +64,31 @@ class RecordingService:
 ```
 Pipeline sırası: **Whisper (+Symbol Injection) → Dictionary → Snippets → LLM correction → SQLite**
 
+**Engineering mode symbol detection:** `stop()` içinde, dictionary/snippets adımından sonra, `active_mode == "engineering"` ise `inject_symbol_refs()` otomatik çağrılır. Tespit edilen semboller `symbol_refs` listesine eklenir, pasted text temiz kalır. Cmd basılı segment varsa ek olarak `_transcribe_segmented()` de çalışır.
+
 **Cmd-interval injection** (`cmd_intervals` doluysa, `_transcribe_segmented()`):
-Ses numpy array olarak cmd sınırlarında bölünür. Her segment ayrı Whisper → cmd-held segmentlere `inject_symbol_refs()` uygulanır → normal segmentler olduğu gibi bırakılır → birleştirilir.
-Symbol injection sadece cmd-held segmentlerde çalışır (normal konuşmada injection yok). `word_timestamps` kullanılmaz.
+Ses numpy array olarak cmd sınırlarında bölünür. Her segment ayrı Whisper → cmd-held segmentlere `inject_symbol_refs()` uygulanır. `word_timestamps` kullanılmaz.
 
 **Smart Dictionary** (`services/smart_dictionary.py`): `POST /api/context/ingest` tetiklenince çalışır. Klasördeki `.swift/.dart/.py/.ts` dosyalarını tarar, PascalCase/camelCase identifier'ları regex ile çıkarır, `_TURKISH_VARIANTS` ile Türkçe fonetik varyantlar üretir (örn. `SupabaseSavedOutfitRepository` → `"superbase saved outfit reposteri"`) ve `user_dictionary` tablosuna `scope='smart'` ile ekler. Tekrar indexlemede var olan trigger'lar üzerine yazılmaz.
 
-**2-pass Dictionary** (`services/dictionary.py`): İki geçişte uygular — ilk geçiş kısa trigger'ları dönüştürür (`super bass` → `Supabase`), ikinci geçiş ortaya çıkan yeni eşleşmeleri yakalar (`Supabase saved outfit repository` → `SupabaseSavedOutfitRepository`).
+**Aho-Corasick Dictionary** (`services/dictionary.py`): `pyahocorasick` ile tek geçişte O(|metin|) eşleşme. 70K+ bundle entry için naif regex döngüsüne kıyasla ~275.000× daha hızlı (0.012ms/kayıt). Automaton `RecordingService` içinde cache'lenir — sadece `len(entries)` değiştiğinde (bundle yükle/sil, yeni entry) rebuild edilir (36ms). 2 pass yapılır: ilk geçiş kısa trigger'ları dönüştürür, ikinci geçiş zincirleme eşleşmeleri yakalar. Bkz. `docs/architecture/it-dictionary-bundle.md`.
 
-**Symbol Index** (`services/symbol_indexer.py`): `POST /api/context/ingest` sonrası çalışır. Swift/Dart/Python/TS/Go/Kotlin dosyalarından class/struct/enum/func sembollerini regex ile çıkarır, `symbol_index` tablosuna `file_path + line_number` ile yazar. `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82` döner.
+**Symbol Index** (`services/symbol_indexer.py`): `POST /api/context/ingest` sonrası çalışır. **tree-sitter AST parser** ile Swift/Python/TS/Go/Kotlin dosyalarını parse eder — regex değil. `symbol_index_v2` tablosuna zengin metadata yazar (`parent_class`, `conformances`, `signature`, `return_type`, `visibility`). Backward-compat için `symbol_index` tablosuna da düz kayıt yapar. `.claude/worktrees/` ve `node_modules/` gibi gürültülü dizinler otomatik atlanır.
 
-`inject_symbol_refs(text, user_id)` — **sadece cmd-held segmentler için çağrılır** (normal konuşmada injection yok):
-- **Pass 0: directory matching** — `symbol_index.file_path` + filesystem walk'tan dizin adları toplanır; her kelime (ve ardışık 2 kelime bigram) JW ile karşılaştırılır. `"voiceflow"` → `@VoiceFlowApp/`, `"Voice flow"` (Whisper split) → bigram `"voiceflow"` → `@VoiceFlowApp/`. Eşik: 0.82 JW veya prefix bonus (≥5 karakter prefix = 0.95 skor).
+`generate_project_notes(path, user_id)` — ingest sonrası `{project_root}/.claude/project-notes.md` üretir: mimari pattern tespiti (MVVM, Service Layer, DI), kütüphane listesi, key symbols tablosu. Claude agent her konuşmada bu dosyayı otomatik okur.
+
+`inject_symbol_refs(text, user_id)` — **engineering modda otomatik çağrılır** (Cmd şartsız):
+- **Pass 0: directory matching** — dizin adları → `@VoiceFlowApp/` gibi ref
 - Pass 1: exact PascalCase token → DB exact match
 - Pass 2: JW fuzzy PascalCase (OutService → AuthService)
 - Pass 3: phonetic sliding window ("recording service" → RecordingService)
 
-Sözcük tetikleyici yok ("at/et/folder" kaldırıldı). Cmd tuşu = tek injection sinyali.
+Tespit edilen semboller `symbol_refs: ["BackendService → VoiceFlowApp/Sources/BackendService.swift:212"]` olarak response'a eklenir. Pasted text değişmez — semboller status bar'da 3s gösterilir.
 
 **Snippet matching notu:** `apply_snippets()` tüm metni trigger ile karşılaştırır (tam eşleşme). Whisper cümle sonuna noktalama ekler — bu nedenle karşılaştırma öncesi `rstrip(".,!?;:")` uygulanır. Snippet expand olduysa `snippet_used=True` response'a eklenir; Training Pill bu durumda gösterilmez.
+
+**AudioCapture `stop()` sıralaması** (`audio/capture.py`):
+`stream.stop()` + `stream.close()` — state `STOPPED`'a çevrilmeden **önce** çağrılır. Nedeni: PortAudio callback'i `RecordingState.RECORDING` kontrolü yapar; state erken değiştirilirse son ses chunk'ları kaybolur. Doğru sıra: stream durdur → buffer drain → state güncelle.
 
 Constructor injection → test için mock takılabilir.
 
@@ -140,7 +146,7 @@ PUT  /admin/users/{id}/role   → {role: "admin"|"member"|"superadmin"}
 DELETE /admin/users/{id}      → soft delete (is_active=0)
 
 # API (JWT Bearer veya X-Api-Key)
-GET  /health                  → {status, model_loaded, llm_loaded}
+GET  /health                  → {status, model_loaded, llm_loaded, whisper_model}
 GET  /api/status              → {status: str, is_recording: bool}
 POST /api/start               → Kayıt başlat
 POST /api/stop                → Durdur + transcribe
@@ -150,16 +156,18 @@ GET  /api/devices             → Ses girişi cihazları listesi
 GET  /api/history             → SQLite geçmişi [?limit=&offset=] — tenant filtered
 DELETE /api/history           → Geçmişi sil
 POST /api/context/ingest      → Smart Dictionary + Symbol Index taraması (async, ChromaDB yok)
-GET  /api/context/status      → {count: smart_dict_entry_count, is_ready, is_empty}
+GET  /api/context/status      → {count, symbol_count, last_indexed_at, last_index_path, is_ready, is_empty}
 GET  /api/context/projects    → [{name, path, symbol_count}] + smart_word_count + total_symbols
 DELETE /api/context           → kullanıcının smart dict (scope=smart) entry'lerini sil
 GET  /api/symbol/lookup?q=X   → [{symbol_name, symbol_type, file_path, line_number}] fuzzy arama
 POST /api/feedback            → {raw_whisper, model_output, user_action, user_edit, ...}
 GET  /api/context/status      → {count, is_ready, is_empty}
 DELETE /api/context           → Knowledge base'i temizle
-GET  /api/dictionary          → Kullanıcı sözlüğü
+GET  /api/dictionary          → Kullanıcı sözlüğü (personal + team, bundle gizli)
 POST /api/dictionary          → {trigger, replacement, scope}
 DELETE /api/dictionary/{id}   → Kişisel entry sil
+POST /api/dictionary/bundle   → {bundle_path} → bundle JSON'ı DB'ye yükle (scope='bundle', UI'da gizli)
+DELETE /api/dictionary/bundle → Tüm bundle entry'lerini sil
 GET  /api/snippets            → Snippet listesi
 POST /api/snippets            → {trigger_phrase, expansion, scope}
 DELETE /api/snippets/{id}     → Kişisel snippet sil
@@ -168,6 +176,10 @@ GET  /api/it-dataset/random         → Yeni shuffle (next ile aynı)
 POST /api/it-dataset/record         → {index: sentence_id, whisper_output, audio_b64?} → kayıt kaydet
 DELETE /api/it-dataset/record       → {wav_path} → kaydı sil
 GET  /api/it-dataset/recorded       → En az 1 kaydı olan cümleler (Pratik tab)
+
+# User Correction Training (Training Mode pill'inden tetiklenir)
+POST /api/training/save-correction  → {wav_path, whisper_text, corrected_text} → WAV sakla + JSONL'e ekle
+DELETE /api/training/pending-wav    → {wav_path} → pending WAV sil (dismiss/approve)
 ```
 
 **Auth:**
@@ -189,9 +201,18 @@ GET  /api/it-dataset/recorded       → En az 1 kaydı olan cümleler (Pratik ta
     "language": "tr",
     "duration": 3.45,
     "processing_ms": 1240,               # ses durma → paste arası toplam süre (ms)
-    "id": 42                             # SQLite row ID
+    "id": 42,                            # SQLite row ID
+    "pending_wav_path": "/abs/path.wav", # X-Training-Mode=1 ise dolu; null otherwise
+    "symbol_refs": ["BackendService → VoiceFlowApp/Sources/BackendService.swift:212"]  # engineering mode, null otherwise
 }
 ```
+
+**Pending WAV akışı:**
+- `X-Training-Mode: 1` → `recording.py` pending WAV kaydeder → `pending_wav_path` response'a eklenir
+- Swift Training Pill gösterilir
+- Kullanıcı **Düzelt + Kaydet** → `POST /training/save-correction` → WAV `user_corrections/` klasörüne taşınır, `corrections.jsonl`'e eklenir
+- Kullanıcı **Onayla / Dismiss / Timeout** → `DELETE /training/pending-wav` → WAV silinir
+- JSONL format: `{"audio": "/abs/path.wav", "whisper_out": "...", "corrected": "..."}`
 
 ## ConfigRequest
 
@@ -257,6 +278,7 @@ JWT_SECRET=<strong-random-secret>
 
 ## Kritik Implementation Detayları
 
+- **AudioCapture.stop() race fix:** `stream.stop()` → state=STOPPED sırası kritik. Stream önce durdurulur (buffer flush callback'e gider, state hâlâ RECORDING), sonra state STOPPED olur. Ters sıra = son audio chunk'ları atılır.
 - **MLX thread safety:** `ThreadPoolExecutor(max_workers=1, thread_name_prefix="mlx")` — Metal GPU tek thread
 - **Lazy loading:** Model ilk kullanımda yükler, `_ensure_model_loaded()` idempotent
 - **LLM on-demand:** Correction açılınca yükle, kapanınca unload (~4GB boşalt)
@@ -312,7 +334,8 @@ CREATE TABLE user_dictionary (
     replacement TEXT NOT NULL,
     scope       TEXT NOT NULL DEFAULT 'personal'  -- 'personal' | 'team' | 'smart'
 );
--- scope='smart': build_smart_dictionary() tarafından otomatik eklenir, UI'da gösterilmez
+-- scope='smart':    build_smart_dictionary() tarafından otomatik eklenir, UI'da gösterilmez
+-- scope='bundle':   IT Bundle — fonetik Türkçe → doğru IT terimi (70K+ entry), UI'da gizli, pipeline'da aktif
 -- scope='personal'/'team': kullanıcı tarafından manuel eklenir, Sözlük UI'da görünür
 
 CREATE TABLE symbol_index (
@@ -400,15 +423,23 @@ ChromaDB kaldırıldı. Embedding/RAG yok. İki hafif SQLite tabanlı sistem:
 
 **Smart Dictionary** (`user_dictionary` tablosu, `scope='smart'`):
 - Klasör taranır → PascalCase/camelCase identifier'lar → Türkçe fonetik varyantlar
-- Whisper pipeline'da apply_dictionary() 2-pass ile uygular
+- Whisper pipeline'da Aho-Corasick ile uygulanır
 - `GET /api/dictionary` sadece manual (personal/team) entry döner — 6K+ smart entry UI'ı ezmez
-- `RecordingService.stop()` → `get_dictionary(include_smart=True)` ile hem manual hem smart entry'leri kullanır
+- `RecordingService.stop()` → `get_dictionary(include_smart=True)` ile personal + team + smart + bundle entry'lerini kullanır
 
-**Symbol Index** (`symbol_index` tablosu):
-- Klasör taranır → class/struct/func/enum → file_path + line_number
-- Swift, Dart, Python, TypeScript, Kotlin, Go desteklenir
-- `GET /api/symbol/lookup?q=HistoryRow` → `VoiceFlowApp/Sources/HistoryView.swift:82`
-- Tam eşleşme → prefix → substring sırasıyla fuzzy match
+**IT Bundle** (`user_dictionary` tablosu, `scope='bundle'`):
+- 1.660 base terim × 42 Türkçe çekim eki = ~70.000 entry
+- Türkçe fonetik → doğru IT terimi: "invayrınmınt" → "environment", "arketçır" → "architecture"
+- `POST /api/dictionary/bundle {bundle_path}` ile yüklenir; mevcut bundle önce temizlenir
+- Bkz. `ml/dictionary/generate_it_bundle.py` ve `docs/architecture/it-dictionary-bundle.md`
+
+**Symbol Index** (`symbol_index` + `symbol_index_v2` tabloları):
+- tree-sitter AST ile parse edilir (Swift/Python/TS/Go/Kotlin)
+- `symbol_index_v2`: zengin metadata (parent_class, conformances, signature, return_type, visibility, is_static)
+- `symbol_index`: backward-compat düz kayıt (inject_symbol_refs bu tabloyu sorgular)
+- `.claude/project-notes.md` otomatik üretilir — Claude agent context'i
+- Engineering mode'a geçişte (>5dk stale ise) arka planda otomatik re-index tetiklenir
+- `app.state.last_index_paths[user_id]` — son ingest path in-memory saklanır
 
 ---
 
@@ -457,9 +488,11 @@ CREATE TABLE correction_feedback (
 X-Window-Title: "Re: Q3 Roadmap - Mail"   (max 300 char, sanitized)
 X-Selected-Text: "Lütfen bütçeyi..."      (max 300 char, sanitized)
 X-Cmd-Intervals: "2.16-10.19,22.82-25.78" (Cmd basılı saniye aralıkları)
+X-Training-Mode: "1"                       (Training Mode açıksa — pending WAV kaydedilir)
 ```
 Backend, `X-Window-Title` / `X-Selected-Text`'i OllamaCorrector'a "untrusted metadata" olarak iletir.
 `X-Cmd-Intervals` varsa ses bölünür, o segmentlere symbol injection uygulanır.
+`X-Training-Mode=1` ise her kayıt sonrası WAV geçici olarak `ml/whisper/datasets/user_corrections/pending/` klasörüne kaydedilir; path `pending_wav_path` alanı ile response'a eklenir.
 
 ### ML Scripts (`ml/`)
 

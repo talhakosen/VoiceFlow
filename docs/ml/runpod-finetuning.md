@@ -7,6 +7,57 @@ RTX 4090 üzerinde 1 epoch (~305K örnek) = ~8-10 saat, ~$5-6.
 
 ---
 
+## H100 — Whisper Stage 2 Kritik Notlar (torch 2.11 + transformers 5.5 + CUDA 12.1)
+
+### Zorunlu Seq2SeqTrainingArguments ayarları
+
+> **2× OOM crash sonrası doğrulanan çalışan config (2026-04-04):**
+> batch=32 → OOM. batch=16 + gradient_checkpointing=True → stabil.
+
+```python
+training_args = Seq2SeqTrainingArguments(
+    bf16=True,
+    bf16_full_eval=True,          # ZORUNLU: eval'da fp32 dönüşümü OOM yapar
+    eval_accumulation_steps=4,    # logitleri CPU'ya adım adım taşı
+    per_device_train_batch_size=16,  # 32 OOM verdi — 16 stabil (gradient_checkpointing ile effective=32)
+    gradient_checkpointing=True,   # ZORUNLU OOM fix: aktivasyonları yeniden hesapla, VRAM %40 azaltır
+    per_device_eval_batch_size=16,
+    predict_with_generate=False,
+    optim="adamw_torch",          # bitsandbytes CUDA 12.1 uyumsuz
+    dataloader_num_workers=0,     # multiprocessing shared memory hatası
+    dataloader_pin_memory=False,
+)
+```
+
+### Başlatma komutu (tüm fix'ler dahil)
+
+```bash
+RESUME_CHECKPOINT=/root/training_out/whisper_stage2/checkpoint-N \
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+HF_TOKEN=hf_xxx nohup python whisper_stage2_finetune.py >> stage2_v3.log 2>&1 &
+```
+
+> **Not:** `TORCHDYNAMO_DISABLE=1` artık gerekli değil — gradient_checkpointing ile torch.compile birlikte çalışıyor.
+> Log dosyası adını değiştir (v2, v3...) böylece önceki crash logları korunur.
+
+### Uyumsuzluk tablosu
+
+| Paket/Flag | Sorun | Çözüm |
+|---|---|---|
+| `bitsandbytes` | CUDA 12.1: `libnvJitLink.so.13` yok | Kaldır, `adamw_torch` kullan |
+| `torchvision` | torch 2.11+: `torchvision::nms` yok | `pip uninstall -y torchvision` |
+| cuDNN SDPA | `cuDNN Frontend error` at eval | `enable_cudnn_sdp(False)` |
+| `evaluation_strategy` | transformers 5.5'te rename | `eval_strategy` kullan |
+| `tokenizer=` (Trainer) | transformers 5.5'te rename | `processing_class=` kullan |
+| `num_workers>0` | shared memory `rebuild_storage_fd` | `num_workers=0` |
+
+### RunPod UI GPU% yanıltıcı
+
+RunPod dashboard'daki "GPU %" = render engine (CUDA compute değil) → training'de hep 0 görünür.
+Gerçek kullanım: `nvidia-smi` veya VRAM% (training sırasında VRAM %97-98 = GPU tam çalışıyor).
+
+---
+
 ## Pod Oluşturma (Sorunsuz Çalışan Config)
 
 ```
@@ -244,22 +295,29 @@ cp -r /root/issai/extracted /dev/shm/issai/  # ~60 saniye
 **Whisper Stage 2 için:** `output` alanını kullan — TXT dosyasındaki ground truth, `_clean_gt()` ile temel noktalama eklenmiş.
 **Qwen için:** `input → output` çifti — Whisper hatalarını düzeltmeyi öğreniyor.
 
+### Stage 2 Sonuç (TAMAMLANDI 2026-04-04)
+
+- **Model:** `tkosen/voiceflow-whisper-tr-v2` (HF) + `ml/whisper/models/voiceflow-whisper-tr-v2-mlx/` (lokal aktif)
+- **Toplam:** 10644 step, 2 epoch, ~4.5 saat H100 (checkpoint resume dahil)
+- **OOM crash:** 2× — checkpoint-500 ve checkpoint-3000'de. Fix: batch=32→16, gradient_checkpointing=True
+
 ### Stage 2 Optimizasyon (Stage 1 ile karşılaştırma)
 
 | Faktör | Stage 1 | Stage 2 |
 |---|---|---|
 | Base model | whisper-large-v3-turbo | **voiceflow-whisper-tr** (Stage 1 çıktısı) |
 | Epoch | 3 | **2** |
-| Batch | 16 | **32** |
+| Batch | 16 | **16** (32 OOM verdi — gradient_checkpointing ile) |
+| gradient_checkpointing | ✗ | **✓ (ZORUNLU OOM fix)** |
 | LoRA rank | 16 | **8** (catastrophic forgetting önle) |
 | LR | 1e-3 | **5e-6** (200× düşük) |
 | Workers | 8 | **16** |
 | torch.compile | ✗ | **✓ (+20%)** |
-| Adam | default | **adamw_bnb_8bit** |
+| Adam | default | **adamw_torch** (bitsandbytes CUDA 12.1 uyumsuz) |
 | prefetch_factor | ✗ | **4** |
 | RAM disk | ✗ | **✓** |
-| **Süre** | ~4.6 saat | **~2 saat** |
-| **Maliyet** | ~$18 | **~$8** |
+| **Süre** | ~4.6 saat | **~4.5 saat** (2× crash + resume dahil, ~2 saat tek run) |
+| **Maliyet** | ~$18 | **~$12** (crash maliyeti dahil) |
 
 ### Stage 2 Çalıştırma
 

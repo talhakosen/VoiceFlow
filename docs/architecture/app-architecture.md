@@ -25,7 +25,9 @@ VoiceFlowApp/Sources/
 │   ├── MenuBarController.swift   # NSStatusItem + NSMenu (UI only, ~200 satır)
 │   ├── HistoryView.swift         # Transkripsiyon geçmişi (backend API'den çeker)
 │   ├── SettingsView.swift        # SwiftUI Settings window
-│   └── OnboardingView.swift      # İlk açılış sihirbazı (NavigationStack, 3 adım)
+│   ├── OnboardingView.swift      # İlk açılış sihirbazı (NavigationStack, 3 adım)
+│   ├── ModeIndicatorView.swift   # Sağ üst köşe mod kapsülü (kayıt + mod değişimi)
+│   └── TrainingPillView.swift    # Sağ alt köşe 60px circle, 10s countdown arc, NSAlert dialog
 │
 ├── Services/
 │   ├── BackendService.swift      # HTTP API client (actor, BackendServiceProtocol impl)
@@ -51,6 +53,7 @@ var currentLanguageMode: LanguageMode
 var currentAppMode: AppMode
 var isCorrectionEnabled: Bool
 var isLLMReady: Bool           // /health llm_loaded alanından — recording başında uyarı için
+var whisperModelName: String   // /health whisper_model alanından — Settings → Genel'de gösterilir
 ```
 
 **Business logic:**
@@ -60,6 +63,7 @@ var isLLMReady: Bool           // /health llm_loaded alanından — recording ba
   - Backend erişilemezse: `statusText = "⚠ Servis başlatılıyor..."` (start hatası) veya `"⚠ Bağlantı hatası — servisi yeniden başlatın"` (stop hatası)
 - `selectLanguageMode(_:)` / `selectAppMode(_:)` / `toggleCorrection()`
   - `selectAppMode(.engineering)` → `isCorrectionEnabled = false` (LLM correction otomatik kapatılır; backend de enforce eder)
+- Engineering mode stop sonucu `symbolRefs` içeriyorsa `statusText` 3 saniye sembol listesini gösterir: `"BackendService → .swift:212 · RecordingService → ..."`, sonra `"Ready"`
 - `loadDictionary()` / `addDictionaryEntry()` / `deleteDictionaryEntry()`
 - `loadSnippets()` / `addSnippet()` / `deleteSnippet()`
 - `ingestContext()` / `loadContextStatus()` / `clearContext()` — Smart Dictionary: klasörü tarar, class/method identifier'larını `user_dictionary`'e ekler. ChromaDB/RAG yok.
@@ -83,6 +87,9 @@ Sadece UI — sıfır iş mantığı. `NSMenuDelegate` ile menü açılmadan sta
 **Menü yapısı:**
 ```
 🎤 Kaydı Başlat / Kaydı Durdur   ← toggle, kısayolsuz
+   text.bubble    Genel           ⌥1  ← aktif mod → tik işareti
+   code           Mühendislik     ⌥2
+   envelope       Ofis            ⌥3
 ↺  Servisi Yeniden Başlat
 〰  Ses Eğitimi...
 ⚙  Settings...
@@ -103,7 +110,7 @@ v1.0.x (N)              Ready     ← status sağa yapışık (tab stop)
 ```swift
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?, trainingMode: Bool) async throws -> TranscriptionResult
     func forceStop() async throws
     func getStatus() async throws -> StatusResponse
     func updateConfig(language:task:correctionEnabled:mode:) async throws
@@ -122,6 +129,9 @@ protocol BackendServiceProtocol: Actor {
     func getITDatasetNext(offset:) async throws -> ITDatasetResponse
     func saveITDatasetPair(index:whisperOutput:) async throws
     func deleteITDatasetPair(wavPath:) async throws
+    // User Correction Training
+    func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws
+    func deletePendingWav(wavPath: String) async throws
 }
 ```
 `BackendService` bu protokolü implement eder. Test/preview'da `MockBackendService` kullanılabilir.
@@ -129,20 +139,63 @@ protocol BackendServiceProtocol: Actor {
 ---
 
 ### HotkeyManager
-Fn double-tap → start/stop. Ek olarak **Cmd-interval tracking**:
+Fn double-tap → start/stop. Ek olarak:
+
+**Cmd-interval tracking:**
 - `recordingDidStart()` → zaman sıfırla, `cmdIntervals = []`
 - Kayıt sırasında `NSEvent.flagsChanged` ile Cmd basma/bırakma zamanları kaydedilir
 - `recordingDidStop()` → açık aralığı kapat
 - `cmdIntervals: [(Double, Double)]` → `AppViewModel` bunu `/api/stop` isteğine `X-Cmd-Intervals` header olarak gönderir
+
+**⌥1/2/3 global mod kısayolları:**
+- `NSEvent.addGlobalMonitorForEvents(.keyDown)` — yalnızca `.option` modifier olduğunda tetiklenir
+- keyCode 18→`onSwitchMode?(0)` (Genel), 19→1 (Mühendislik), 20→2 (Ofis)
+- NSMenuItem `keyEquivalentModifierMask = [.option]` menü içi görsel için — gerçek tetik global monitor'dan
+- `var onSwitchMode: ((Int) -> Void)?` → `AppViewModel.hotkey.onSwitchMode` closure
+
+### ModeIndicatorView + ModeIndicatorWindowController
+Sağ üst köşe kayan kapsül — mod adını + SF Symbol ikonunu gösterir.
+
+```
+ultraThinMaterial + mod rengi fill (opacity 0.18) + mod rengi stroke (opacity 0.45)
+```
+
+**API:**
+- `showPersistent(mode:)` — kayıt boyunca kalır; `close()` çağrılana kadar kapanmaz
+- `showBriefly(mode:)` — mod değişiminde 2 sn gösterir, `Task.sleep(2s)` + cancel ile kaldırır
+- Her ikisi de aynı `_show(mode:)` yardımcısını kullanır (panel varsa `contentView` günceller)
+
+**AppDelegate bağlantısı:**
+- `onShowRecordingOverlay` → `modeIndicator.showPersistent(mode: vm.currentAppMode)`
+- `onShowProcessingOverlay` + `onHideRecordingOverlay` → `modeIndicator.close()`
+- `vm.onModeChanged` → `modeIndicator.showBriefly(mode: mode)`
+
+### TrainingPillView + TrainingPillWindowController
+Sağ alt köşe 60×60px circle float button — paste sonrası 10s geri sayım arc ile.
+
+```
+ultraThinMaterial + .blue fill (0.18) + .blue stroke (0.45)
+Arc progress: Circle().trim(from: 0, to: CGFloat(countdown)/10).stroke(style: StrokeStyle(lineCap: .round))
+```
+
+- `.contentShape(Circle())` label **içinde** olmalı (SwiftUI hit test label content'ten alır)
+- Tıklama → `countdownTask?.cancel()` + `showEditDialog()` (NSAlert + NSScrollView + NSTextView)
+- NSAlert İptal → `dismissFeedback()`, Kaydet → kelime farklıysa `editFeedback(corrected:)`, aynıysa `approveFeedback()`
+- `addWordCorrectionsToDictionary(original:corrected:)` — token diff → aynı sayıda kelimeyse her farklı çifti personal dictionary'e ekler
+
+**Tasarım tutarlılığı:** Mod göstergesi ve Training Pill aynı `ultraThinMaterial + renk dili`ni kullanır. Her ikisi 20px sağ kenar boşluğu ile konumlanır.
+
+---
 
 ### AppDelegate
 Sadece lifecycle:
 1. `ensureUserID()` — ilk açılışta UUID oluştur
 2. `AppViewModel()` oluştur + closure injection:
    - `onRestartBackend` / `onHardReset` — backend process yönetimi
-   - `onShowRecordingOverlay` — overlay göster (waveform state)
-   - `onShowProcessingOverlay` — overlay processing state'e geçir (bouncing dots)
-   - `onHideRecordingOverlay` — overlay kapat (paste sonrası)
+   - `onShowRecordingOverlay` → recording overlay + modeIndicator.showPersistent
+   - `onShowProcessingOverlay` → processing overlay + modeIndicator.close
+   - `onHideRecordingOverlay` → overlay kapat + modeIndicator.close
+   - `vm.onModeChanged` → modeIndicator.showBriefly
 3. Backend process başlat (local mode) veya atla (server mode)
 4. `MenuBarController(viewModel: vm)` oluştur
 5. `requestAccessibilityPermission()`
@@ -171,9 +224,10 @@ enum AppSettings                         // UserDefaults key constants
 ```
 
 API modelleri `BackendService.swift`'te:
-- `TranscriptionResult` — `text`, `rawText`, `corrected`, `snippetUsed`, `language`, `duration`, `processingMs`, `id`, `itWavPath`
+- `TranscriptionResult` — `text`, `rawText`, `corrected`, `snippetUsed`, `language`, `duration`, `processingMs`, `id`, `itWavPath`, `pendingWavPath`, `symbolRefs: [String]?`
 - `StatusResponse`, `HistoryItem`, `HistoryResponse`
 - `ContextStatus`, `DictionaryEntry`, `SnippetEntry`
+- `HealthResponse` — `status`, `modelLoaded`, `llmLoaded`, `whisperModel: String?` (aktif Whisper model adı, Settings → Genel'de gösterilir)
 - `ITDatasetResponse` — `index`, `total`, `sentence`, `persona`, `scenario`, `recordings: [ITRecordingItem]?`
 - `ITRecordingItem` — `whisper`, `wavPath`
 
@@ -300,16 +354,23 @@ final class RecordingOverlayWindow: NSPanel {
 ---
 
 ### Training Pill (P1 — Tamamlandı)
-Paste sonrası NSPanel — Training Mode açıksa gösterilir. Ekranın alt ortasında konumlanır.
+Paste sonrası NSPanel — Training Mode açıksa gösterilir. **Sağ alt köşede küçük yuvarlak float buton** olarak konumlanır.
 
-**Basit metin UX** (word chip UI kaldırıldı):
-- Transkript metni tek satır olarak gösterilir
-- **Onayla ✓** → feedback gönderilir, pill kapanır
-- **Düzenle** → metin alanı açılır (`@FocusState`), kullanıcı düzeltir → gönderir
-- **✗ (dismiss)** → pill kapanır, gönderilmez
-- **5 saniye otomatik kapanma** — kullanıcı etkileşim yapmadıysa `dismissFeedback()` çağrılır
+**Float button UX:**
+- 56×56px yuvarlak, `ultraThinMaterial`, semi-transparent
+- Kalem ikonu + geri sayan rakam (10→0), etrafında ince arc animasyonu
+- **`.contentShape(Circle())`** — tüm daire tıklanabilir (sadece ikon değil, tam yuvarlak hit area)
+- **Tıkla → NSAlert dialog açılır** — tam metin editable `NSTextView`, Kaydet/İptal
+- **10 saniye timeout** → dismiss, WAV silinir
+- **Düzelt tıklandığında** timer iptal edilir (dialog açık kalır)
 
-**Dictionary auto-add:** Edit modunda kaydet'e basınca orijinal ve düzeltilmiş metin kelime kelime karşılaştırılır (aynı kelime sayısı şartıyla); farklı olan her çift `scope=personal` olarak Dictionary'e eklenir.
+**WAV kayıt pipeline:**
+- Training Mode açıksa `stopRecording(trainingMode: true)` çağrılır → backend `X-Training-Mode: 1` header'ı alır
+- Backend pending WAV kaydeder → `pendingWavPath` response'a eklenir
+- **Düzelt + Kaydet** → `saveUserCorrection()` → WAV `user_corrections/` klasörüne taşınır, `corrections.jsonl`'e eklenir
+- **Onayla / Dismiss / Timeout** → `deletePendingWav()` → WAV silinir
+
+**Dictionary auto-add:** Kaydet'e basınca orijinal ve düzeltilmiş metin kelime kelime karşılaştırılır (aynı kelime sayısı şartıyla); farklı olan her çift `scope=personal` olarak Dictionary'e eklenir.
 
 ```swift
 // AppViewModel state:
@@ -318,17 +379,13 @@ var showTrainingPill: Bool
 var trainingPillResult: TranscriptionResult?
 
 // Actions:
-func approveFeedback() async   // metin doğru
-func editFeedback(corrected:)  // düzeltilmiş metin gönder
-func dismissFeedback()         // iptal
-
-// Feedback payload:
-// - hasEdits → user_action="edited", user_edit=correctedText
-// - clean    → user_action="approved"
+func approveFeedback() async   // WAV sil, feedback gönder
+func editFeedback(corrected:)  // WAV sakla + JSONL'e yaz, feedback gönder
+func dismissFeedback()         // WAV sil
 ```
 
 `AppSettings.trainingMode` — Bool UserDefaults key.
-`TrainingPillWindowController` — NSPanel, bottom-center konumlanır.
+`TrainingPillWindowController` — NSPanel, sağ alt köşe (screen.maxX - 20, minY + 20).
 
 ---
 

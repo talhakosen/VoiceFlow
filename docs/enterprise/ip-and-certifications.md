@@ -79,12 +79,21 @@
 
 ### Süreç
 1. GAP analizi (mevcut durum vs. ISO 27001 standardı)
-2. Risk değerlendirmesi ve risk işleme planı
-3. Politika ve prosedür dokümantasyonu
-4. Çalışan farkındalık eğitimi
-5. İç tetkik
-6. TÜRKAK onaylı belgelendirme kurumuyla dış denetim
-7. Belge verilmesi
+2. Varlık envanteri (ses kayıtları, SQLite DB, backend API, code repo, sunucular)
+3. Risk değerlendirmesi ve risk işleme planı
+4. Politika ve prosedür dokümantasyonu (şifre politikası, veri saklama, olay yönetimi)
+5. Kontrolleri uygula (şifreleme, erişim kontrolü, yedekleme, log tutma)
+6. Çalışan farkındalık eğitimi
+7. İç tetkik + Yönetim Gözden Geçirme (YGG) toplantısı
+8. TÜRKAK onaylı belgelendirme kurumuyla dış denetim (2 aşama)
+9. Belge verilmesi
+
+### VoiceFlow için Spesifik Gereksinimler
+- Data at rest encryption — SQLCipher (develop-plan'da mevcut)
+- API erişim logları
+- Tenant izolasyonu (müşteri verisi ayrımı)
+- Olay müdahale prosedürü (ses verisi ihlali senaryosu)
+- On-premise deployment dokümantasyonu (veri egemenliği kanıtı)
 
 ### 2026 Maliyet
 | Kalem | Tutar |
@@ -94,7 +103,8 @@
 | **Toplam** | **~80.000–230.000 TL** |
 
 - Geçerlilik: 3 yıl (yıllık gözetim denetimleriyle)
-- Küçük startup için başlangıçta şart değil — ilk kurumsal satış öncesi yeterli
+- Küçük startup = küçük kapsam = daha hızlı ve ucuz denetim (~2–4 ay)
+- 1507 KOBİ hibesiyle finanse edilebilir
 
 ---
 

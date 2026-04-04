@@ -81,6 +81,7 @@
       Backend: transkript sonrası snippet match → expand
 
 - [DONE 2026-03-30] **Ses efektleri** — kayıt başlama/bitme sesi (system sound veya custom)
+- [DONE 2026-04-03] **Ses kesme race condition fix** — PortAudio `stop()`: stream.stop() STATE değişmeden önce çağrılır; callback `RecordingState.RECORDING` kontrolü buffer flush sırasında aktif kalır
 
 ---
 
@@ -132,6 +133,27 @@
 
 - [ ] **KVKK/BDDK hazırlık belgesi** — "Veriler nerede saklanır?" dokümanı
 - [ ] **Data at rest encryption** — SQLite şifreleme (SQLCipher)
+
+### ISO 27001 Hazırlık (Nisan 2026 — Aktif)
+- [x] `.env` dosya izni 600 (owner-only) — 2026-04-04
+- [x] ISO 27001 hazırlık planı — `docs/enterprise/iso27001-preparation.md`
+- [x] Bilgi Güvenliği Politikası (ISP) — `docs/enterprise/policies/information-security-policy.md`
+- [x] Erişim Kontrol Politikası — `docs/enterprise/policies/access-control-policy.md`
+- [x] Şifreleme Politikası — `docs/enterprise/policies/encryption-policy.md`
+- [x] Olay Yönetimi Prosedürü — `docs/enterprise/policies/incident-response-plan.md`
+- [x] Varlık Envanteri — `docs/enterprise/asset-inventory.md`
+- [x] Risk Kaydı — `docs/enterprise/risk-register.md`
+- [ ] **SQLCipher entegrasyonu** — Data at rest encryption (R-001, hedef: 2026-04-30)
+- [ ] **Rate limiting** — FastAPI slowapi (R-004, hedef: 2026-04-30)
+- [ ] **Log rotation** — RotatingFileHandler (R-008, hedef: 2026-04-20)
+- [ ] **JWT token revocation** — logout blacklist (hedef: 2026-04-30)
+- [ ] Veri Sınıflandırma Politikası — `docs/enterprise/policies/data-classification-policy.md`
+- [ ] İş Sürekliliği Planı (BCP) — `docs/enterprise/policies/business-continuity-plan.md`
+- [ ] Tedarikçi Güvenlik Politikası — `docs/enterprise/policies/vendor-security-policy.md`
+- [ ] Statement of Applicability (SoA) — kontrol matrisi
+- [ ] İç tetkik (Haziran 2026)
+- [ ] Danışman GAP analizi (Temmuz 2026)
+- [ ] Dış denetim + sertifika (Ekim 2026)
 - [DONE 2026-03-30] **Audit log** — login, config_changed, history_cleared, user_data_deleted events; append-only SQLite tablo
 - [DONE 2026-03-30] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği) — transkript+sözlük+snippet+hesap kalıcı silme
 
@@ -195,6 +217,10 @@
 > `web/` klasörü: Next.js 14 + Tailwind + Framer Motion. İçerik `constants.ts`'te.
 > Design system: `docs/architecture/design-system.md` — Sora + Inter + JetBrains Mono, #070810 base, #4F7AFF brand blue.
 
+- [DONE 2026-04-03] **Mod göstergesi (ModeIndicatorView)** — sağ üst köşe kayan kapsül; Fn basılı → kayıt boyunca kalır (showPersistent), mod değişince → 2 sn sonra kapanır (showBriefly); ultraThinMaterial + mod rengi; ModeIndicatorWindowController NSPanel
+- [DONE 2026-04-03] **Menü mod switcher + ⌥1/2/3 global kısayollar** — AppMode.allCases menü bölümü, aktif mod tik; NSEvent.addGlobalMonitorForEvents(.keyDown) keyCode 18/19/20 (1/2/3); "Zorla Yeniden Başlat" menüden kaldırıldı → Settings > Hakkında'ya taşındı
+- [DONE 2026-04-03] **Training pill yeniden tasarım** — büyük yuvarlak capsule → 60px circle float button, sağ alt köşe, 10s geri sayım arc, NSAlert dialog (NSScrollView+NSTextView) düzenleme; contentShape(Circle()) label içinde (tüm yuvarlık tıklanabilir); İptal → dismissFeedback()
+- [DONE 2026-04-03] **Tasarım tutarlılığı** — mod göstergesi + training pill: aynı ultraThinMaterial + renk + stroke dili; her ikisi 20px sağ kenar boşluğu
 - [DONE 2026-04-03] **Design system yeniden yapılandırma** — Sora display font (h1/h2/h3 global), JetBrains Mono (stats/labels), electric blue #4F7AFF, dark-first tüm section'lar (zebra pattern kaldırıldı), .section-label utility, .grid-lines pattern, Navbar her zaman dark
 - [ ] **Pricing section** — `PricingTier` tipi hazır; Starter/Pro/Enterprise tiers, yıllık/aylık toggle, CTA butonları
 - [ ] **Gerçek social linkler** — Twitter/LinkedIn/GitHub şirket hesapları `constants.ts`'e girilecek
@@ -249,6 +275,7 @@
 - [DONE 2026-04-01] **Pill → Dictionary auto-add** — Onayla'da token diff → personal scope dictionary entry otomatik eklenir
 - [DONE 2026-04-01] **Dictionary UI — Kişisel/Takım tabları** — segmented picker, "Takıma ekle" butonu per-entry
 - [DONE 2026-04-01] **Snippet noktalama fix** — Whisper sona nokta koyunca eşleşmiyordu → rstrip(".,!?;:")
+- [DONE 2026-04-03] **Pending WAV pipeline** — Training Mode açıkken `stop()` WAV'ı `user_corrections/pending/{ts}.wav` kaydeder; `pending_wav_path` API response'da; Düzelt → `POST /api/training/save-correction` (WAV + corrections.jsonl); İptal/Onayla → `DELETE /api/training/pending-wav`; BackendService + AppViewModel entegre
 - [DONE 2026-03-31] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
 - [DONE 2026-03-31] **`POST /api/feedback` endpoint** — feedback kaydet
 - [DONE 2026-03-31] **Settings: Training Mode section** — toggle
@@ -292,9 +319,9 @@
 - [DONE 2026-04-03] **`whisper_stage2_finetune.py`** — Base=voiceflow-whisper-tr, LoRA r=8, LR=5e-6, batch=32, 2 epoch; Qwen 7B fp16 inline noktalama (bitsandbytes değil — CUDA 12.1 uyumsuz); punct_cache.json restart koruması; extraction /root/ SSD'ye (NFS değil)
 - [DONE 2026-04-03] **RunPod Stage 2 config** — `runpod/pods/whisper_stage2_h100.json`; pod ID: b65ji5pcpk96nv, IP: 64.247.201.34:11428
 - [DONE 2026-04-03] **RunPod Stage 2 pod aç + ISSAI extraction** — H100 80GB SECURE, ISSAI /root/issai/extracted (container SSD, tar --no-same-owner), extraction devam ediyor
-- [ ] **RunPod Stage 2 eğitimi tamamla** — extraction bitince training başlat, HF push → tkosen/voiceflow-whisper-tr-v2
-- [ ] **MLX dönüşüm** — `convert_whisper_mlx.py --dtype float16` → `voiceflow-whisper-tr-v2-mlx`
-- [ ] **config.yaml güncelle** → `whisper.model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx`
+- [DONE 2026-04-04] **RunPod Stage 2 eğitimi tamamla** — 10644 step, batch=16+grad_checkpoint (OOM fix), HF push → tkosen/voiceflow-whisper-tr-v2 ✅
+- [DONE 2026-04-04] **MLX dönüşüm** — `convert_whisper_mlx.py --dtype float16` → `voiceflow-whisper-tr-v2-mlx` (1.6GB float16)
+- [DONE 2026-04-04] **config.yaml güncelle** → `whisper.model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx`
 
 #### Katman 2 — voiceflow-whisper-it (IT layer)
 - [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
@@ -380,7 +407,7 @@ ISSAI (164K) → merge → voiceflow-whisper-tr
 |---|---|---|
 | **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
 | **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | ✅ Canlıda (production, MLX float16) |
-| **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | 🔄 RunPod pod aktif, ISSAI extraction devam ediyor |
+| **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | ✅ HF'te hazır — `tkosen/voiceflow-whisper-tr-v2` (2026-04-04), MLX dönüşümü bekliyor |
 | **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr-v2 sonrası |
 | **Müşteri Adapter** (~30MB) | Domain-specific (on-premise, KVKK uyumlu) | 🔲 İlk kurumsal satış sonrası |
 

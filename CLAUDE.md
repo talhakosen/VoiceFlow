@@ -133,7 +133,9 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **ML scripts**: `ml/qwen/` (scripts/, generators/, data/, datasets/, adapters_mlx/) + `ml/whisper/` (finetune scripts, generators/, datasets/issai/, datasets/it_dataset/).
 - **RunPod pod configs**: `runpod/pods/*.json` + `runpod/setup/*.sh`. Yeni pod: `cd runpod && python create_pod.py issai|qwen|ollama`.
 - **Whisper fine-tune (ISSAI)**: `ml/whisper/whisper_issai_finetune.py` — whisper-large-v3-turbo, ISSAI 164K pair, H100, çıktı `tkosen/voiceflow-whisper-tr` (HF). Stage 1 TAMAMLANDI.
-- **Whisper Stage 2**: `ml/whisper/whisper_stage2_finetune.py` — base=`voiceflow-whisper-tr`, LR=5e-6, LoRA r=8, 2 epoch, batch=32. Aynı ISSAI WAV + `_clean_gt()` GT → noktalama/büyük harf öğretir. Pod: `python create_pod.py stage2`.
+- **Whisper Stage 2 TAMAMLANDI**: `tkosen/voiceflow-whisper-tr-v2` (HF) + `ml/whisper/models/voiceflow-whisper-tr-v2-mlx/` (aktif, config.yaml). Script: `ml/whisper/whisper_stage2_finetune.py`. 10644 step, 2 epoch, H100.
+- **Whisper Stage 2 OOM fix (doğrulanan config)**: `batch=16` (32'den düşürüldü), `gradient_checkpointing=True`, `bf16_full_eval=True` ZORUNLU, `eval_accumulation_steps=4`, `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. Checkpoint resume: `RESUME_CHECKPOINT=/path/to/checkpoint-N` env var. Bu kombinasyon olmadan H100'da OOM — 2 kez crashed, 3. denemede stabil.
+- **RunPod UI GPU% yanıltıcı**: CUDA compute workload'da UI'daki "GPU %" sütunu 0 gösterir (render engine ölçer). Gerçek kullanım için `nvidia-smi` veya VRAM%'e bak.
 - **issai_pairs_clean.jsonl alan farkı**: `input` = Whisper ASR çıktısı (Qwen için), `output` = ground truth TXT (Whisper eğitimi için). Karıştırma!
 - **ISSAI extraction zorunluluğu**: `/workspace` (NFS) = 1K WAV/dk (~167 dk). `/root/` (container SSD) = 65K WAV/dk (~3 dk). DAIMA `/root/`'a extract et: `tar --no-same-owner -xzf ... -C /root/issai/extracted/`. `set -e` + tar chown hatası = extraction ~8K'da ölür.
 - **2. round Qwen training**: ISSAI pairs (`ml/whisper/datasets/issai/issai_pairs_clean.jsonl`) + mevcut dataset (`ml/qwen/data/`) → `prepare_dataset.py` → RunPod Qwen training.

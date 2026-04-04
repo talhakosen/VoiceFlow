@@ -23,61 +23,53 @@ python create_pod.py --list
 **Hedef:** Aynı ISSAI WAV'lar + noktalı text → decoder büyük harf + noktalama öğrenir
 **Sonuç:** `voiceflow-whisper-tr-v2`
 
-### Ground Truth Noktalama: Qwen 7B Pipeline
+### Ground Truth Noktalama: Qwen 7B Inline Pipeline
 
-Mac'te offline noktalama (Claude/Haiku API) yerine **pod üzerinde Qwen 7B ile** yapılır:
+Noktalama **ayrı script değil, `whisper_stage2_finetune.py` içinde otomatik** çalışır:
 
 ```
-ISSAI TXT (164K, noktalama yok)
-    ↓  Qwen 7B (H100, batch=64)
-issai_gt_punctuated.jsonl (~20 dk)
-    ↓
-Whisper Stage 2 training
+ISSAI WAV+TXT (164K)
+    ↓  Qwen 7B fp16 (H100, batch=64, ~15-20 dk)
+    ↓  /workspace/punct_cache.json (pod restart'ta yeniden çalışmaz)
+    ↓  Qwen unload → GPU temizle
+Whisper Stage 2 training (~2 saat)
 ```
 
-**Neden Qwen 7B (pod üzerinde):**
-- Gerçek Türkçe anlayışı → `kasım` → `Kasım`, `abdülhamit gül` → `Abdülhamit Gül`
-- H100 üzerinde batch=64 → 164K satır ~15-20 dakika
-- Zaten ISSAI training için pod ayakta — ek maliyet sıfır
-- Rule-based scriptlerin kaçırdığı özel isimleri, ay/gün adlarını yakalar
+**Neden Qwen 7B fp16 (4-bit değil):**
+- H100 80GB VRAM var — Qwen 7B fp16 = ~14GB, rahat sığar
+- `bitsandbytes` CUDA 12.1 ile uyumsuz (`libnvJitLink.so.13` eksik) — gereksiz
+- Kod daha basit, aynı kalite
 
-**Adımlar:**
+**Neden inline (ayrı script değil):**
+- Tek komutla: ISSAI indir → Qwen noktalama → Whisper training
+- Cache'li: pod restart'ta Qwen tekrar çalışmaz, `punct_cache.json` kullanılır
+- Ekstra adım yok, hata yüzeyi küçük
+
+**Tek komut çalıştırma:**
 ```bash
-# 1. Pod'da Qwen yükle + noktalama üret
-scp -P <PORT> ml/whisper/scripts/punctuate_with_qwen.py root@<IP>:/workspace/
-ssh -p <PORT> root@<IP> \
-  'HF_TOKEN=hf_xxx python /workspace/punctuate_with_qwen.py \
-   --input /workspace/issai/issai_pairs_clean.jsonl \
-   --output /workspace/issai_gt_punctuated.jsonl \
-   --batch-size 64'
-
-# 2. Mac'e indir
-scp -P <PORT> root@<IP>:/workspace/issai_gt_punctuated.jsonl \
-  ml/whisper/datasets/issai/
-
-# 3. Stage 2 training başlat (issai_gt_punctuated.jsonl otomatik kullanılır)
-ssh -p <PORT> root@<IP> 'bash /workspace/stage2.sh'
+cd /workspace
+HF_TOKEN=hf_xxx nohup python whisper_stage2_finetune.py > stage2.log 2>&1 &
+tail -f stage2.log
 ```
 
-**`punctuate_with_qwen.py` ne yapar:**
-- `issai_pairs_clean.jsonl`'dan `output` alanını okur (164K ground truth)
-- Batch=64 ile Qwen 7B'ye gönderir: "Sadece noktalama/büyük harf ekle, kelime değiştirme"
-- `{"original": "...", "punctuated": "..."}` formatında `issai_gt_punctuated.jsonl`'a yazar
-- Stage 2 script bu dosyayı lookup table olarak kullanır (yoksa `_clean_gt()` fallback)
+### Çalışan Config (2× OOM'dan sonra doğrulanan — 2026-04-04)
 
-### Neden Stage 1'den ~2× daha hızlı
+> **batch=32 OOM verir!** `accelerate._convert_to_fp32` eval sırasında VRAM patlatır.
+> `gradient_checkpointing=True` + `batch=16` ile stabil — H100'da 10644 step tamamlandı.
 
-| Faktör | Stage 1 | Stage 2 |
+| Faktör | Stage 1 | Stage 2 (doğrulanan) |
 |---|---|---|
 | Epoch | 3 | 2 |
-| Batch | 16 | **32** |
+| Batch | 16 | **16** (32 OOM — gradient_checkpointing ile) |
+| gradient_checkpointing | ✗ | **✓ ZORUNLU** |
 | Workers | 8 | **16** |
 | torch.compile | ✗ | **✓ (+20%)** |
-| Adam | default | **8-bit** |
+| Adam | default | **adamw_torch** (bitsandbytes CUDA 12.1 uyumsuz) |
 | prefetch_factor | ✗ | **4** |
 | RAM disk | ✗ | **✓ (I/O kaldırır)** |
+| bf16_full_eval | ✗ | **✓ ZORUNLU** |
 
-**Tahmini süre: ~2 saat, ~$8 @ H100**
+**Gerçek süre: ~2 saat (tek run). OOM crash + resume = ~4.5 saat toplam.**
 
 ### RAM disk trick (en büyük kazanım)
 ISSAI WAV'lar ~26GB. H100 pod'larında 200GB+ RAM var → WAV'ları RAM'e kopyala, disk I/O'yu sıfırla:
@@ -102,25 +94,43 @@ cp -r /workspace/issai/extracted /dev/shm/issai/
 # 1. Pod aç
 python create_pod.py stage2
 
-# 2. Dosyaları yükle (pod IP/PORT RunPod UI'dan)
+# 2. Deps kur (torchvision uyumsuz — kaldır; bitsandbytes gerekmez)
+ssh -p <PORT> root@<IP> "pip uninstall -y torchvision && pip install -q 'transformers>=4.44' 'peft>=0.12' soundfile librosa accelerate"
+
+# 3. Script yükle
 scp -P <PORT> ../ml/whisper/whisper_stage2_finetune.py root@<IP>:/workspace/
-scp -P <PORT> ../ml/whisper/scripts/punctuate_with_qwen.py root@<IP>:/workspace/
-scp -P <PORT> setup/stage2.sh root@<IP>:/workspace/
 
-# 3. Noktalama üret (önce — ~20 dk)
+# 4. Başlat (ISSAI indir → Qwen noktalama → Whisper training — tek komut)
 ssh -p <PORT> root@<IP> \
-  'HF_TOKEN=hf_xxx python /workspace/punctuate_with_qwen.py \
-   --input /workspace/issai/issai_pairs_clean.jsonl \
-   --output /workspace/issai_gt_punctuated.jsonl'
+  "cd /workspace && HF_TOKEN=hf_xxx nohup python whisper_stage2_finetune.py > stage2.log 2>&1 &"
 
-# 4. Stage 2 training başlat
-ssh -p <PORT> root@<IP> 'export HF_TOKEN=hf_xxx && bash /workspace/stage2.sh'
-
-# 4. Log takip
+# 5. Log takip
 ssh -p <PORT> root@<IP> 'tail -f /workspace/stage2.log'
 
-# 5. Bittikten sonra model indir
-scp -rP <PORT> root@<IP>:/workspace/voiceflow-whisper-tr-v2 ../ml/whisper/models/
+# 6. Bittikten sonra pod durdur (HF'e otomatik push eder)
+# Model: tkosen/voiceflow-whisper-tr-v2
+```
+
+**Deps notu:** `torchvision` torch 2.11+ ile uyumsuz (`torchvision::nms` operatörü yok) → cascade import hatası yapar. Kaldır.
+
+### Bilinen Sorunlar ve Çözümleri
+
+| Hata | Sebep | Çözüm |
+|---|---|---|
+| `torch.OutOfMemoryError` at eval | `_convert_to_fp32`: eval logitleri fp32'e çevrilince VRAM doldu | `bf16_full_eval=True` + `eval_accumulation_steps=4` + **`gradient_checkpointing=True`** + **`batch=16`** |
+| `torch.OutOfMemoryError` at train | batch=32 + LoRA aktivasyonları VRAM'e sığmıyor | `gradient_checkpointing=True` + `batch=16` |
+| `bitsandbytes libnvJitLink.so.13` | CUDA 12.1 uyumsuz | bitsandbytes kaldır, `optim="adamw_torch"` kullan |
+| `torchvision::nms` missing | torch 2.11+ uyumsuz | `pip uninstall -y torchvision` |
+| `cuDNN Frontend error` | cuDNN SDPA | `torch.backends.cuda.enable_cudnn_sdp(False)` |
+| DataLoader `rebuild_storage_fd` | `num_workers>0` shared memory | `dataloader_num_workers=0` |
+| RunPod UI GPU %0 gösteriyor | UI render engine ölçer, CUDA değil | `nvidia-smi` veya VRAM%'e bak |
+| eval sonrası hız yavaş (~70s/it) | torch.compile JIT recompile yapıyor | Normal — 10 step sonra ~1.75s/it'ye döner |
+
+**Checkpoint resume (log adını değiştir — önceki crash logunu korur):**
+```bash
+RESUME_CHECKPOINT=/root/training_out/whisper_stage2/checkpoint-3000 \
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+HF_TOKEN=hf_xxx nohup python whisper_stage2_finetune.py >> stage2_v3.log 2>&1 &
 ```
 
 ---
