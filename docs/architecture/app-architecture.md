@@ -24,7 +24,8 @@ VoiceFlowApp/Sources/
 ├── Views/
 │   ├── MenuBarController.swift   # NSStatusItem + NSMenu (UI only, ~200 satır)
 │   ├── HistoryView.swift         # Transkripsiyon geçmişi (backend API'den çeker)
-│   ├── SettingsView.swift        # SwiftUI Settings window
+│   ├── SettingsView.swift        # Custom 2-panel: HStack sidebar (icon-strip on collapse) + ScrollView content
+│   │   └── SidebarNavItem        # Icon + label item; collapsed=true → sadece icon (56px şerit, tooltip)
 │   ├── OnboardingView.swift      # İlk açılış sihirbazı (NavigationStack, 3 adım)
 │   ├── ModeIndicatorView.swift   # Sağ üst köşe mod kapsülü (kayıt + mod değişimi)
 │   ├── TrainingPillView.swift    # Sağ alt köşe 60px circle, 10s countdown arc, NSAlert dialog
@@ -68,6 +69,7 @@ var whisperModelName: String   // /health whisper_model alanından — Settings 
 - `loadDictionary()` / `addDictionaryEntry()` / `deleteDictionaryEntry()`
 - `loadSnippets()` / `addSnippet()` / `deleteSnippet()`
 - `ingestContext()` / `loadContextStatus()` / `clearContext()` — Smart Dictionary: klasörü tarar, class/method identifier'larını `user_dictionary`'e ekler. ChromaDB/RAG yok.
+- `pasteLastResult()` — son `lastResult.text`'i clipboard'a yazar ve Cmd+V simüle eder; `lastResult` yoksa no-op
 - Backend çağrıları + paste koordinasyonu
 
 **Dependency injection:**
@@ -87,23 +89,26 @@ Sadece UI — sıfır iş mantığı. `NSMenuDelegate` ile menü açılmadan sta
 
 **Menü yapısı:**
 ```
-🎤 Kaydı Başlat / Kaydı Durdur   ← toggle, kısayolsuz
-   text.bubble    Genel           ⌥1  ← aktif mod → tik işareti
-   code           Mühendislik     ⌥2
-   envelope       Ofis            ⌥3
-↺  Servisi Yeniden Başlat
-〰  Ses Eğitimi...
-⚙  Settings...
-⏻  Quit                          ⌘Q
+[VoiceFlow brand header]
 ──────────────────────────────────
-v1.0.x (N)              Ready     ← status sağa yapışık (tab stop)
+🎤 Kaydı Başlat / Kaydı Durdur   (tag 101) ← toggle
+   Son Transkripsiyonu Yapıştır   (tag 102) ← ⌃⌘V, lastResult yoksa disabled
+   Kısayol: Fn × 2 (başlat/durdur)          ← disabled, bilgi satırı
+   Dil ▶                          (tag 104) ← language submenu, aktif → tik
+   Mod ▶                          (tag 103) ← mode submenu, aktif → tik
+⚙  Ayarlar…                                 ⌘,
+〰  Ses Eğitimi…
+↺  Servisi Yeniden Başlat
+──────────────────────────────────
+⏻  VoiceFlow'dan Çık                        ⌘Q
 ```
 
 - `AppViewModel`'i 0.3s timer (`.common` RunLoop mode) ile observe eder → `syncUI()`
 - `NSMenuDelegate.menuWillOpen` → menü açılmadan önce `syncUI()` tetiklenir (event tracking run loop'ta timer çalışmaz sorunu)
 - İkon tutarlılığı: tüm maddelerde `isTemplate = true` SF Symbol (multicolor bozulması önlenir)
 - `toggleRecording()`: `isRecording` true → `forceStop()`, false → `startRecording()`
-- Version+status satırı: `NSAttributedString` + sağ hizalı tab stop (260pt)
+- `pasteLastTranscript()` → `viewModel.pasteLastResult()` — `lastResult` boşsa no-op
+- `brandHeader()` → NSMenuItem disabled, app adını gösterir
 
 ---
 
@@ -262,6 +267,15 @@ enum AppSettings {
 - `restoreSettings()` — startup'ta kaydedilen temayı okur ve uygular
 - Settings → Genel → "Görünüm" segmented picker (Sistem / Açık / Koyu)
 - Tüm NSPanel pencereleri `NSApp.appearance` üzerinden temayı otomatik alır
+
+### Settings Sidebar Davranışı
+
+`SettingsView` `NavigationSplitView` **kullanmaz** — custom `HStack` layout:
+- **Genişletilmiş** (200px): ikon + metin, sol alt köşede toggle butonu
+- **Daraltılmış** (56px): sadece ikonlar — sidebar tamamen kaybolmaz
+- `sidebarCollapsed: Bool` `@State` ile yönetilir, `VFAnimation.standard` geçiş
+- `SidebarNavItem.help()` → collapsed modda tooltip ile section adı gösterilir
+- `VFLayout.sidebarCollapsedWidth = 56`, `VFLayout.sidebarWidth = 200`
 
 ---
 
