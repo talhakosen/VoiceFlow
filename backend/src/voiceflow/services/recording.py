@@ -259,7 +259,17 @@ class RecordingService:
                     symbol_refs.append(f"{name} → {full_path}")
                     return f"@{path_only}"
                 result.text = _re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
-                # Keep directory refs as-is (@runpod/setup/ stays in pasted text)
+
+                # Also collect plain @path refs (dir refs and files without line numbers)
+                # Format: "basename → path" so SymbolItem.pathKey = path, removes @path from text
+                _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
+                for _m in _re.finditer(r'@([\w/.]+)', result.text):
+                    _path = _m.group(1)
+                    if _path not in _seen_paths:
+                        _seen_paths.add(_path)
+                        _basename = _path.rstrip("/").rsplit("/", 1)[-1] or _path
+                        symbol_refs.append(f"{_basename} → {_path}")
+
                 logger.info("Engineering symbols detected: %s", symbol_refs)
 
         # Correct (if enabled)

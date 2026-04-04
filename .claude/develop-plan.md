@@ -276,6 +276,8 @@
 - [DONE 2026-04-01] **Dictionary UI — Kişisel/Takım tabları** — segmented picker, "Takıma ekle" butonu per-entry
 - [DONE 2026-04-01] **Snippet noktalama fix** — Whisper sona nokta koyunca eşleşmiyordu → rstrip(".,!?;:")
 - [DONE 2026-04-03] **Pending WAV pipeline** — Training Mode açıkken `stop()` WAV'ı `user_corrections/pending/{ts}.wav` kaydeder; `pending_wav_path` API response'da; Düzelt → `POST /api/training/save-correction` (WAV + corrections.jsonl); İptal/Onayla → `DELETE /api/training/pending-wav`; BackendService + AppViewModel entegre
+- [DONE 2026-04-04] **Symbol Picker** — Engineering mode'da birden fazla sembol tespit edilince yapıştırmadan önce NSAlert tabanlı seçim diyaloğu; SymbolPickerView.swift (NSButton checkboxes — SwiftUI Toggle EXC_BREAKPOINT'ten kaçınmak için); plain path refs (@dir/, @file.sh) de symbol_refs'e eklendi
+- [DONE 2026-04-04] **fn2 EXC_BREAKPOINT crash fix** — SafeHostingView (NSHostingView subclass, needsUpdateConstraints no-op); RecordingOverlayWindow + TrainingPillView + ModeIndicatorView; borderless nonactivatingPanel + SwiftUI Timer animasyonu → constraint crash önlendi
 - [DONE 2026-03-31] **`correction_feedback` SQLite tablosu** — raw_whisper, model_output, user_action, user_edit
 - [DONE 2026-03-31] **`POST /api/feedback` endpoint** — feedback kaydet
 - [DONE 2026-03-31] **Settings: Training Mode section** — toggle

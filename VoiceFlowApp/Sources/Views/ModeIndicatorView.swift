@@ -87,7 +87,7 @@ final class ModeIndicatorWindowController: NSObject {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
 
-            let hosting = NSHostingView(rootView: ModeIndicatorView(mode: mode))
+            let hosting = SafeHostingView(rootView: ModeIndicatorView(mode: mode))
             hosting.sizingOptions = [.preferredContentSize]
 
             if let existing = self.panel {

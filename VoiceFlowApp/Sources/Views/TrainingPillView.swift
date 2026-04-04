@@ -135,7 +135,7 @@ final class TrainingPillWindowController: NSObject {
     func show(viewModel: AppViewModel) {
         guard panel == nil else { return }
 
-        let hosting = NSHostingView(rootView: TrainingPillView(viewModel: viewModel))
+        let hosting = SafeHostingView(rootView: TrainingPillView(viewModel: viewModel))
         hosting.sizingOptions = [.preferredContentSize]
 
         let p = NSPanel(

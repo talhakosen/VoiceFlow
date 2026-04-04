@@ -35,7 +35,9 @@ final class RecordingOverlayWindow: NSPanel {
         level = .floating
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         hasShadow = false
-        contentViewController = NSHostingController(rootView: RecordingPillView(state: pillState))
+        let hostingView = SafeHostingView(rootView: RecordingPillView(state: pillState))
+        hostingView.frame = NSRect(x: 0, y: 0, width: 140, height: 48)
+        contentView = hostingView
         reposition()
     }
 
