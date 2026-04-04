@@ -157,7 +157,42 @@ tail -f /workspace/training.log
 scp -rP <PORT> root@<IP>:/workspace/voiceflow-whisper-tr ../ml/whisper/
 ```
 
-## Workflow: Qwen Training
+## Workflow: Qwen v2 Training — Filler Temizleme
+
+**Yeni:** 496 filler/disfluency pair + 600 existing sample = 1096 pair mixed dataset.
+Hedef: şey/yani/hani/işte/ee/aa temizleme + backtrack + stutter + sayı normalizasyonu.
+
+```bash
+# 1. Pod oluştur (RTX 4090 yeterli — ~30 dk)
+python create_pod.py qwen
+
+# 2. Dataset + script yükle
+scp -P <PORT> ../ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl
+scp -P <PORT> ../ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
+scp -P <PORT> ../ml/qwen/scripts/train_runpod_v2.py root@<IP>:/workspace/
+scp -P <PORT> setup/qwen.sh root@<IP>:/workspace/
+
+# 3. SSH + setup + training
+ssh -p <PORT> root@<IP>
+bash /workspace/qwen.sh          # unsloth kurulum (~15 dk)
+python /workspace/train_runpod_v2.py   # training (~30 dk 4090, ~15 dk H100)
+
+# 4. Adapter indir + MLX'e dönüştür
+scp -rP <PORT> root@<IP>:/workspace/adapters_v2 ../ml/qwen/adapters_v2_runpod
+cd ../ml/qwen/scripts && python convert_adapter.py \
+  --input ../adapters_v2_runpod --output ../adapters_v2_mlx
+
+# 5. config.yaml güncelle
+# llm:
+#   adapter_path: ml/qwen/adapters_v2_mlx
+```
+
+**Training config:** LR=8e-6 (catastrophic forgetting önlemi), MAX_STEPS=500, bf16, adamw_8bit.
+
+**Bilinen sorun — unsloth + bitsandbytes:**
+RTX 4090 (CUDA 12.x) → `bitsandbytes` sorun çıkarırsa `optim="adamw_torch"` kullan.
+
+## Workflow: Qwen v1 Training — Orijinal (arşiv)
 
 ```bash
 # 1. Pod oluştur

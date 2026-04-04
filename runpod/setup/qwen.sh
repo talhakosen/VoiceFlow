@@ -28,7 +28,23 @@ echo "Unsloth tamamlandı."
 echo ""
 echo "[2/3] Dosya kontrolü..."
 MISSING=0
-for f in /workspace/train.jsonl /workspace/valid.jsonl /workspace/train_runpod.py; do
+
+# v2 varsa onu kullan, yoksa v1'e bak
+if [ -f /workspace/train_v2.jsonl ]; then
+  TRAIN_FILE=/workspace/train_v2.jsonl
+  VALID_FILE=/workspace/valid_v2.jsonl
+  TRAIN_SCRIPT=/workspace/train_runpod_v2.py
+  LOG_FILE=/workspace/training_v2.log
+  echo "  Mod: v2 (filler dataset)"
+else
+  TRAIN_FILE=/workspace/train.jsonl
+  VALID_FILE=/workspace/valid.jsonl
+  TRAIN_SCRIPT=/workspace/train_runpod.py
+  LOG_FILE=/workspace/training.log
+  echo "  Mod: v1 (orijinal dataset)"
+fi
+
+for f in "$TRAIN_FILE" "$VALID_FILE" "$TRAIN_SCRIPT"; do
   if [ ! -f "$f" ]; then
     echo "  EKSIK: $f"
     MISSING=1
@@ -39,10 +55,10 @@ done
 
 if [ "$MISSING" = "1" ]; then
   echo ""
-  echo "[UYARI] Eksik dosyalar var. Mac'ten yükle:"
-  echo "  scp -P <PORT> ml/qwen/datasets/train.jsonl root@<IP>:/workspace/"
-  echo "  scp -P <PORT> ml/qwen/datasets/valid.jsonl root@<IP>:/workspace/"
-  echo "  scp -P <PORT> ml/qwen/scripts/train_runpod.py root@<IP>:/workspace/"
+  echo "[UYARI] Eksik dosyalar var. Mac'ten yükle (v2):"
+  echo "  scp -P <PORT> ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl"
+  echo "  scp -P <PORT> ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl"
+  echo "  scp -P <PORT> ml/qwen/scripts/train_runpod_v2.py root@<IP>:/workspace/"
   exit 1
 fi
 
@@ -50,14 +66,21 @@ fi
 echo ""
 echo "[3/3] Training başlatılıyor..."
 cd /workspace
-nohup python train_runpod.py > /workspace/training.log 2>&1 &
+nohup python "$TRAIN_SCRIPT" > "$LOG_FILE" 2>&1 &
 TRAIN_PID=$!
 
 echo ""
 echo "=== Training Başladı ==="
 echo "PID: $TRAIN_PID"
-echo "Log: tail -f /workspace/training.log"
+echo "Log: tail -f $LOG_FILE"
 echo ""
-echo "Çıktı: /workspace/adapters/"
-echo "SCP sonrası: scp -rP <PORT> root@<IP>:/workspace/adapters ./ml/qwen/adapters_runpod"
-echo "Dönüşüm: cd ml/qwen/scripts && python convert_adapter.py"
+if [ "$TRAIN_SCRIPT" = "/workspace/train_runpod_v2.py" ]; then
+  echo "Çıktı: /workspace/adapters_v2/"
+  echo "SCP:   scp -rP <PORT> root@<IP>:/workspace/adapters_v2 ./ml/qwen/adapters_v2_runpod"
+  echo "MLX:   python ml/qwen/scripts/convert_adapter.py --input ml/qwen/adapters_v2_runpod --output ml/qwen/adapters_v2_mlx"
+  echo "Config: llm.adapter_path: ml/qwen/adapters_v2_mlx"
+else
+  echo "Çıktı: /workspace/adapters/"
+  echo "SCP:   scp -rP <PORT> root@<IP>:/workspace/adapters ./ml/qwen/adapters_runpod"
+  echo "MLX:   python ml/qwen/scripts/convert_adapter.py"
+fi
