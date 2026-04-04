@@ -5,7 +5,7 @@ RunPod pod oluşturucu — config dosyasından pod yarat.
 Kullanım:
   python create_pod.py issai        # issai_h100.json        (Whisper Stage 1)
   python create_pod.py stage2       # whisper_stage2_h100.json (Whisper Stage 2 noktalama)
-  python create_pod.py qwen         # qwen_4090.json
+  python create_pod.py qwen         # qwen_h100.json  (H100, ~3 dk training)
   python create_pod.py ollama       # ollama_inference.json
   python create_pod.py --list       # mevcut pod'ları listele
 
@@ -33,7 +33,7 @@ SETUP_DIR  = Path(__file__).parent / "setup"
 SHORTNAME_MAP = {
     "issai":   "issai_h100.json",
     "stage2":  "whisper_stage2_h100.json",
-    "qwen":    "qwen_4090.json",
+    "qwen":    "qwen_h100.json",
     "ollama":  "ollama_inference.json",
 }
 

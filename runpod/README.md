@@ -162,36 +162,50 @@ scp -rP <PORT> root@<IP>:/workspace/voiceflow-whisper-tr ../ml/whisper/
 **Yeni:** 496 filler/disfluency pair + 600 existing sample = 1096 pair mixed dataset.
 Hedef: şey/yani/hani/işte/ee/aa temizleme + backtrack + stutter + sayı normalizasyonu.
 
-```bash
-# 1. Pod oluştur (RTX 4090 yeterli — ~30 dk)
-python create_pod.py qwen
+### Çalışan Setup (H100, 2026-04-04 doğrulanan)
 
-# 2. Dataset + script + V1 adapter yükle
-scp -rP <PORT> ../ml/qwen/adapters_mlx/raw root@<IP>:/workspace/adapters_v1   # V1'den devam
+> **unsloth kullanma** — torch version hell yaratır. `transformers + peft + trl` direkt stack daha stabil.
+> H100 image'ı: `runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04` — torch 2.2.0+cu121 hazır gelir.
+
+```bash
+# 1. Pod oluştur — H100 tercih et (3 dk training vs RTX 4090 8 dk)
+python create_pod.py qwen   # ya da MCP ile H100 seç
+
+# 2. Deps kur (bir kerelik — ~30 sn)
+ssh -p <PORT> root@<IP> "pip install -q 'transformers==4.47.0' 'peft==0.13.0' 'trl==0.13.0' 'accelerate>=0.26' datasets"
+# NOT: torchvision kaldırmaya gerek yok (H100 image'ında yok zaten)
+
+# 3. Dataset yükle
 scp -P <PORT> ../ml/qwen/datasets/v2/train.jsonl root@<IP>:/workspace/train_v2.jsonl
 scp -P <PORT> ../ml/qwen/datasets/v2/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
-scp -P <PORT> ../ml/qwen/scripts/train_runpod_v2.py root@<IP>:/workspace/
-scp -P <PORT> setup/qwen.sh root@<IP>:/workspace/
+scp -P <PORT> ../ml/qwen/scripts/train_runpod_v2_hf.py root@<IP>:/workspace/
 
-# 3. SSH + setup + training
-ssh -p <PORT> root@<IP>
-bash /workspace/qwen.sh          # unsloth kurulum (~15 dk)
-python /workspace/train_runpod_v2.py   # training (~30 dk 4090, ~15 dk H100)
+# 4. Training başlat (~3 dk H100, ~8 dk RTX 4090)
+ssh -p <PORT> root@<IP> "nohup python /workspace/train_runpod_v2_hf.py > /workspace/training_v2.log 2>&1 &"
+ssh -p <PORT> root@<IP> "tail -f /workspace/training_v2.log"
 
-# 4. Adapter indir + MLX'e dönüştür
+# 5. Adapter indir + MLX'e dönüştür
 scp -rP <PORT> root@<IP>:/workspace/adapters_v2 ../ml/qwen/adapters_v2_runpod
 cd ../ml/qwen/scripts && python convert_adapter.py \
-  --input ../adapters_v2_runpod --output ../adapters_v2_mlx
+  --input ../../adapters_v2_runpod --output ../../adapters_v2_mlx
 
-# 5. config.yaml güncelle
+# 6. config.yaml güncelle
 # llm:
 #   adapter_path: ml/qwen/adapters_v2_mlx
 ```
 
-**Training config:** LR=8e-6 (catastrophic forgetting önlemi), MAX_STEPS=500, bf16, adamw_8bit.
+**Script:** `ml/qwen/scripts/train_runpod_v2_hf.py` (unsloth-free, transformers+peft+trl)
+**Training config:** LR=8e-6, MAX_STEPS=400, bf16, adamw_torch, batch=8, grad_accum=2
+**Sonuç:** eval_loss=0.71, ~3 dakika H100'de (2026-04-04 doğrulanan)
 
-**Bilinen sorun — unsloth + bitsandbytes:**
-RTX 4090 (CUDA 12.x) → `bitsandbytes` sorun çıkarırsa `optim="adamw_torch"` kullan.
+### Bilinen Sorunlar
+
+| Hata | Sebep | Çözüm |
+|---|---|---|
+| `unsloth: torch requires upgrade` | unsloth her torch versiyonu için ayrı build ister | **unsloth kullanma** — `train_runpod_v2_hf.py` kullan |
+| `torchvision::nms missing` | torchvision farklı torch için compile | `pip uninstall -y torchvision` |
+| `transformers 5.x + peft circular import` | peft→transformers→torchao→torch.int1 yok | `transformers==4.47.0` kullan |
+| `trl 1.0 requires transformers 5.x` | `is_trackio_available` import | `trl==0.13.0` kullan |
 
 ## Workflow: Qwen v1 Training — Orijinal (arşiv)
 

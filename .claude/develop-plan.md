@@ -299,6 +299,9 @@
 - [DONE 2026-04-02] **Genişletilmiş dataset ile RunPod LoRA fine-tune** — unsloth SFTTrainer, Qwen2.5-7B, 14115 step, 7 saat RTX 4090; loss=0.78; adapter indirildi → adapters_runpod/ + MLX'e dönüştürüldü → adapters_mlx/; LLM_ADAPTER_PATH .env'e eklendi; model çalışıyor ("korrektat"→"korrekt", "ham"→"hem")
 - [DONE 2026-04-02] **ISSAI Turkish Speech Corpus processing** — 186K wav → faster-whisper large-v3 → 177K raw pair; issai_pairs_clean.jsonl: 164K (output ≤ input*1.5 filtresi); data_gen/issai/ altında organize edildi
 - [DONE 2026-04-02] **1. round adapter canlı test** — 3 kriter geçti: noktalama ✅, filler temizleme ✅, Türkçe karakter ✅; ISSAI 2. round riski tespit edildi (ground truth noktalamasız → model noktalama silmeyi öğrenir)
+- [DONE 2026-04-04] **Qwen v2 filler dataset** — 496 filler/disfluency pair üretildi (şey/yani/hani/işte/ee/aa + backtrack + stutter + sayı norm); `generate_filler_data.py` (API key gereksiz); 1096 mixed pair (v1+v2); train/valid/test split
+- [DONE 2026-04-04] **Qwen v2 RunPod training** — H100 80GB, unsloth-free stack (transformers 4.47+peft 0.13+trl 0.13), 400 step, 3 dk, eval_loss=0.71; adapters_v2_runpod → MLX dönüşümü → adapters_mlx/ canlıda
+- [DONE 2026-04-04] **Qwen RunPod setup dökümante edildi** — unsloth KULLANMA kuralı, H100 pod config, tüm bilinen sorunlar runpod/README.md'e eklendi
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
@@ -411,7 +414,7 @@ ISSAI (164K) → merge → voiceflow-whisper-tr
 
 | Adapter | Sorumluluk | Durum |
 |---|---|---|
-| **Qwen Adapter** (~39MB) | Noktalama, filler temizleme, Türkçe karakter, backtracking | ✅ Canlıda (v1, 71K pair) |
+| **Qwen Adapter v2** (~80MB) | Filler temizleme (şey/yani/hani+), noktalama, Türkçe karakter, backtracking | ✅ Canlıda (v2, 1096 pair, eval_loss=0.71, 2026-04-04) |
 | **voiceflow-whisper-tr** | Genel Türkçe fonetik doğruluk (ISSAI base) | ✅ Canlıda (production, MLX float16) |
 | **voiceflow-whisper-tr-v2** | Noktalama + büyük harf (Stage 2) | ✅ HF'te hazır — `tkosen/voiceflow-whisper-tr-v2` (2026-04-04), MLX dönüşümü bekliyor |
 | **voiceflow-whisper-it** | IT terim telaffuzu ("doker"→"Docker") | 🔲 whisper-tr-v2 sonrası |

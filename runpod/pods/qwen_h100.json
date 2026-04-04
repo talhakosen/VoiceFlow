@@ -1,0 +1,26 @@
+{
+  "name": "voiceflow-qwen-training",
+  "imageName": "runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04",
+  "gpuTypeId": "NVIDIA H100 80GB HBM3",
+  "gpuCount": 1,
+  "cloudType": "SECURE",
+  "containerDiskInGb": 80,
+  "volumeInGb": 20,
+  "volumeMountPath": "/workspace",
+  "ports": "22/tcp",
+  "env": {
+    "PUBLIC_KEY": "__YOUR_SSH_PUBLIC_KEY__",
+    "HF_TOKEN": "__FROM_ENV__"
+  },
+  "_notes": [
+    "H100 80GB: 3 dakika training (RTX 4090 8 dk), ~$2.69/hr",
+    "torch 2.2.0+cu121 hazır — unsloth KULLANMA (version hell)",
+    "Deps: pip install transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets",
+    "torchvision yok zaten — kaldırmaya gerek yok",
+    "Script: ml/qwen/scripts/train_runpod_v2_hf.py (unsloth-free, hata vermez)",
+    "Volume 20GB: adapter ~80MB + checkpoint ~160MB = rahat"
+  ],
+  "_setup": "pip install transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets",
+  "_train_script": "ml/qwen/scripts/train_runpod_v2_hf.py",
+  "_output": "/workspace/adapters_v2/"
+}
