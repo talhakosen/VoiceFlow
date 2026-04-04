@@ -219,9 +219,10 @@ Closure injection pattern: AppViewModel → AppDelegate bağımlılığını kı
 ### Models.swift
 
 ```swift
-enum LanguageMode: String, CaseIterable  // auto, turkish, english, translateToEnglish
-enum AppMode: String, CaseIterable       // general, engineering, office
-enum AppSettings                         // UserDefaults key constants
+enum LanguageMode: String, CaseIterable   // auto, turkish, english, translateToEnglish
+enum AppMode: String, CaseIterable        // general, engineering, office
+enum AppearanceMode: String, CaseIterable // system, light, dark — NSApp.appearance yönetimi
+enum AppSettings                          // UserDefaults key constants
 ```
 
 API modelleri `BackendService.swift`'te:
@@ -249,9 +250,18 @@ enum AppSettings {
     static let userDepartment     // Opsiyonel departman (Account bölümü)
     static let llmMode            // "local" | "cloud" | "alibaba" — LLM correction backend
     static let llmEndpoint        // Cloud Ollama URL (ör. https://…-11434.proxy.runpod.net)
+    static let appearanceMode     // "system" | "light" | "dark" — NSApp.appearance
 }
 // AppSettings Models.swift'te tanımlı — BackendService + SettingsView + AppViewModel paylaşır
 ```
+
+### Tema Yönetimi
+
+`AppearanceMode` enum merkezi tema kaynağıdır:
+- `AppViewModel.appearanceMode` property — `didSet` anında `NSApp.appearance` günceller ve UserDefaults'a yazar
+- `restoreSettings()` — startup'ta kaydedilen temayı okur ve uygular
+- Settings → Genel → "Görünüm" segmented picker (Sistem / Açık / Koyu)
+- Tüm NSPanel pencereleri `NSApp.appearance` üzerinden temayı otomatik alır
 
 ---
 

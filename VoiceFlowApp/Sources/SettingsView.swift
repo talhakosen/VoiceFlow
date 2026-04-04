@@ -34,13 +34,13 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .general:       return "gearshape"
-        case .recording:     return "mic"
-        case .dictionary:    return "character.book.closed"
-        case .snippets:      return "text.badge.plus"
-        case .knowledgeBase: return "books.vertical"
-        case .account:       return "person.circle"
-        case .about:         return "info.circle"
+        case .general:       return VFIcon.settings
+        case .recording:     return VFIcon.recording
+        case .dictionary:    return VFIcon.dictionary
+        case .snippets:      return VFIcon.snippets
+        case .knowledgeBase: return VFIcon.knowledgeBase
+        case .account:       return VFIcon.account
+        case .about:         return VFIcon.about
         }
     }
 }
@@ -61,19 +61,19 @@ struct SettingsView: View {
                     .padding(.vertical, 3)
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 190, ideal: 200)
+            .navigationSplitViewColumnWidth(min: VFLayout.sidebarMinWidth, ideal: VFLayout.sidebarWidth)
             .toolbar(removing: .sidebarToggle)
             .safeAreaInset(edge: .top, spacing: 0) {
-                HStack(spacing: 6) {
-                    Image(systemName: "waveform")
+                HStack(spacing: VFSpacing.sm) {
+                    Image(systemName: VFIcon.appLogo)
                         .fontWeight(.semibold)
                     Text("VoiceFlow")
                         .fontWeight(.semibold)
                 }
-                .font(.title3)
+                .font(VFFont.sidebarLogo)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, VFSpacing.xxl)
+                .padding(.vertical, VFSpacing.xl)
             }
         } detail: {
             ScrollView {
@@ -103,7 +103,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .frame(width: 900, height: 620)
+        .frame(width: VFLayout.WindowSize.settings.width, height: VFLayout.WindowSize.settings.height)
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
@@ -122,6 +122,18 @@ private struct GeneralSection: View {
 
     var body: some View {
         Form {
+            Section("Görünüm") {
+                Picker("Tema", selection: Binding(
+                    get: { viewModel.appearanceMode },
+                    set: { viewModel.appearanceMode = $0 }
+                )) {
+                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
             Section("Kısayol") {
                 LabeledContent("Tuş") {
                     Text("Fn × 2  (kayıt başlat/durdur)")
@@ -151,27 +163,27 @@ private struct GeneralSection: View {
                     LabeledContent("Sunucu Adresi") {
                         TextField("https://voiceflow.company.internal:8765", text: $serverURL)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 360)
+                            .frame(minWidth: VFLayout.fieldLarge)
                     }
                     LabeledContent("API Anahtarı") {
                         SecureField("API anahtarını yapıştırın", text: $apiKey)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 360)
+                            .frame(minWidth: VFLayout.fieldLarge)
                     }
-                    HStack(spacing: 6) {
-                        Image(systemName: "lock.shield").foregroundStyle(.green)
+                    HStack(spacing: VFSpacing.sm) {
+                        Image(systemName: VFIcon.secure).foregroundStyle(VFColor.success)
                         Text("All audio processing happens on your server. No data leaves your network.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(VFFont.caption).foregroundStyle(.secondary)
                     }
                 }
             }
 
             if showRestartNotice {
                 Section {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
+                    HStack(spacing: VFSpacing.sm) {
+                        Image(systemName: VFIcon.restartCircle).foregroundStyle(VFColor.warning)
                         Text("Modu değiştirmek için VoiceFlow'u yeniden başlatın.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(VFFont.caption).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -259,10 +271,10 @@ private struct DictionarySection: View {
                 }
 
                 Section {
-                    HStack(spacing: 8) {
+                    HStack(spacing: VFSpacing.md) {
                         TextField("kelime (örn: voisflow)", text: $newTrigger)
                             .textFieldStyle(.roundedBorder)
-                        Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                        Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
                         TextField("doğru yazım (örn: VoiceFlow)", text: $newReplacement)
                             .textFieldStyle(.roundedBorder)
                         Button("Ekle") {
@@ -276,7 +288,7 @@ private struct DictionarySection: View {
                         .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
                     }
                     Text("Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(VFFont.caption).foregroundStyle(.secondary)
                 } header: {
                     Text(selectedTab == 0 ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle")
                 }
@@ -296,11 +308,11 @@ private struct DictionaryRow: View {
     var body: some View {
         HStack {
             Text(entry.trigger)
-                .frame(minWidth: 100, alignment: .leading)
+                .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
                 .foregroundStyle(.primary)
-            Image(systemName: "arrow.right")
+            Image(systemName: VFIcon.arrow)
                 .foregroundStyle(.secondary)
-                .font(.caption)
+                .font(VFFont.caption)
             Text(entry.replacement)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundStyle(.primary)
@@ -309,9 +321,12 @@ private struct DictionaryRow: View {
                 Button {
                     share()
                 } label: {
-                    Label(alreadyShared ? "Eklendi" : "Takıma ekle", systemImage: alreadyShared ? "checkmark" : "person.2.badge.plus")
-                        .font(.caption)
-                        .foregroundStyle(alreadyShared ? Color.secondary : Color.blue)
+                    Label(
+                        alreadyShared ? "Eklendi" : "Takıma ekle",
+                        systemImage: alreadyShared ? VFIcon.checkmark : VFIcon.shareTeam
+                    )
+                    .font(VFFont.caption)
+                    .foregroundStyle(alreadyShared ? Color.secondary : VFColor.primary)
                 }
                 .buttonStyle(.plain)
                 .disabled(alreadyShared)
@@ -320,8 +335,8 @@ private struct DictionaryRow: View {
             Button {
                 onDelete()
             } label: {
-                Image(systemName: "trash")
-                    .foregroundStyle(.red)
+                Image(systemName: VFIcon.delete)
+                    .foregroundStyle(VFColor.destructive)
             }
             .buttonStyle(.plain)
         }
@@ -347,22 +362,22 @@ private struct SnippetsSection: View {
                     ForEach(viewModel.snippetEntries) { entry in
                         HStack {
                             Text(entry.triggerPhrase)
-                                .frame(minWidth: 100, alignment: .leading)
-                            Image(systemName: "arrow.right")
+                                .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
+                            Image(systemName: VFIcon.arrow)
                                 .foregroundStyle(.secondary)
                             Text(entry.expansion)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .lineLimit(2)
                             Text(entry.scope == "personal" ? "Kişisel" : "Takım")
-                                .font(.caption)
+                                .font(VFFont.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 60)
                             if entry.scope == "personal" {
                                 Button {
                                     viewModel.deleteSnippet(id: entry.id)
                                 } label: {
-                                    Image(systemName: "trash")
-                                        .foregroundStyle(.red)
+                                    Image(systemName: VFIcon.delete)
+                                        .foregroundStyle(VFColor.destructive)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -374,10 +389,10 @@ private struct SnippetsSection: View {
             }
 
             Section("Şablon Ekle") {
-                HStack(spacing: 8) {
+                HStack(spacing: VFSpacing.md) {
                     TextField("tetikleyici (örn: standart imza)", text: $newTrigger)
                         .textFieldStyle(.roundedBorder)
-                    Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                    Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
                     TextField("içerik (açılacak metin)", text: $newExpansion)
                         .textFieldStyle(.roundedBorder)
                     Picker("", selection: $newScope) {
@@ -451,7 +466,7 @@ private struct RecordingSection: View {
 
                 if viewModel.currentAppMode == .engineering {
                     Text("Engineering modda düzeltme kapalıdır — teknik terimler korunur.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(VFFont.caption).foregroundStyle(.secondary)
                 }
 
                 Picker("Yapay Zeka Motoru", selection: $llmMode) {
@@ -465,24 +480,24 @@ private struct RecordingSection: View {
                     LabeledContent("Ollama URL") {
                         TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
                             .textFieldStyle(.roundedBorder)
-                            .frame(minWidth: 360)
+                            .frame(minWidth: VFLayout.fieldLarge)
                             .onChange(of: llmEndpoint) { showRestartNotice = true }
                     }
                 }
 
                 if llmMode == "alibaba" {
-                    HStack(spacing: 6) {
-                        Image(systemName: "bolt.fill").foregroundStyle(.orange)
+                    HStack(spacing: VFSpacing.sm) {
+                        Image(systemName: VFIcon.bolt).foregroundStyle(VFColor.warning)
                         Text("Alibaba DashScope — qwen-max. Hızlı, yüksek kalite. İnternet gerektirir.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(VFFont.caption).foregroundStyle(.secondary)
                     }
                 }
 
                 if showRestartNotice {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.clockwise.circle").foregroundStyle(.orange)
+                    HStack(spacing: VFSpacing.sm) {
+                        Image(systemName: VFIcon.restartCircle).foregroundStyle(VFColor.warning)
                         Text("Değişikliği uygulamak için servisi yeniden başlatın.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(VFFont.caption).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -495,7 +510,7 @@ private struct RecordingSection: View {
                     }
 
                 Text("Her transkripsiyondan sonra geri bildirim ekranı görünür. Düzeltmeleriniz doğruluğu artırır.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(VFFont.caption).foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
@@ -514,27 +529,27 @@ private struct KnowledgeBaseSection: View {
             Section("İndekslenen Projeler") {
                 if viewModel.indexedProjects.isEmpty {
                     HStack {
-                        Image(systemName: "circle").foregroundStyle(.secondary)
+                        Image(systemName: VFIcon.circle).foregroundStyle(.secondary)
                         Text("Henüz eklenmedi").foregroundStyle(.secondary)
                     }
                 } else {
                     ForEach(viewModel.indexedProjects) { project in
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(project.name).font(.system(.body, design: .monospaced))
+                        HStack(spacing: VFSpacing.md) {
+                            Image(systemName: VFIcon.checkFill).foregroundStyle(VFColor.success)
+                            VStack(alignment: .leading, spacing: VFSpacing.xxs) {
+                                Text(project.name).font(VFFont.monospaced)
                                 Text("\(project.symbolCount) sembol")
-                                    .font(.caption).foregroundStyle(.secondary)
+                                    .font(VFFont.caption).foregroundStyle(.secondary)
                             }
                             Spacer()
                         }
                     }
                     HStack {
                         Text("\(viewModel.contextChunkCount) sözcük · \(viewModel.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(VFFont.caption).foregroundStyle(.secondary)
                         Spacer()
                         Button("Temizle") { viewModel.clearContext() }
-                            .buttonStyle(.plain).foregroundStyle(.red)
+                            .buttonStyle(.plain).foregroundStyle(VFColor.destructive)
                     }
                 }
             }
@@ -543,19 +558,19 @@ private struct KnowledgeBaseSection: View {
                 HStack {
                     TextField("Klasör yolu", text: $selectedFolderPath)
                         .textFieldStyle(.roundedBorder)
-                        .font(.system(.body, design: .monospaced))
+                        .font(VFFont.monospaced)
                     Button("Seç…") { pickFolder() }
                 }
 
                 Text("Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(VFFont.caption).foregroundStyle(.secondary)
 
                 Button {
                     guard !selectedFolderPath.isEmpty else { return }
                     viewModel.ingestContext(folderPath: selectedFolderPath)
                 } label: {
                     if viewModel.isIndexing {
-                        HStack(spacing: 6) {
+                        HStack(spacing: VFSpacing.sm) {
                             ProgressView().scaleEffect(0.7)
                             Text("Indexing…")
                         }
@@ -567,7 +582,7 @@ private struct KnowledgeBaseSection: View {
                 .disabled(selectedFolderPath.isEmpty || viewModel.isIndexing)
 
                 if let error = viewModel.contextIndexingError {
-                    Text(error).font(.caption).foregroundStyle(.red)
+                    Text(error).font(VFFont.caption).foregroundStyle(VFColor.destructive)
                 }
             }
         }
@@ -609,24 +624,24 @@ private struct AccountSection: View {
                 LabeledContent("Ad Soyad") {
                     TextField("Opsiyonel", text: $userName)
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 320)
+                        .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userName) { viewModel.userName = userName }
                 }
                 LabeledContent("Departman") {
                     TextField("Opsiyonel", text: $userDepartment)
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 320)
+                        .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userDepartment) { viewModel.userDepartment = userDepartment }
                 }
                 LabeledContent("Kullanıcı ID") {
                     Text(viewModel.userID.isEmpty ? "—" : viewModel.userID)
-                        .font(.caption.monospaced())
+                        .font(VFFont.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
                 if let user = viewModel.currentUser {
                     LabeledContent("Rol") {
                         Text(user.role.capitalized)
-                            .foregroundStyle(user.role == "admin" || user.role == "superadmin" ? .blue : .secondary)
+                            .foregroundStyle(user.role == "admin" || user.role == "superadmin" ? VFColor.primary : .secondary)
                     }
                 }
             }
@@ -664,10 +679,10 @@ private struct AboutSection: View {
 
                 Button("Zorla Yeniden Başlat") { viewModel.hardReset() }
                     .buttonStyle(.bordered)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(VFColor.destructive)
 
                 Text("Zorla yeniden başlatma, arka plan servisini tamamen durdurur ve sıfırdan başlatır.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(VFFont.caption).foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)

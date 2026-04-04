@@ -16,6 +16,14 @@ final class AppViewModel {
     var currentAppMode: AppMode = .general
     var isCorrectionEnabled = false
 
+    // Appearance
+    var appearanceMode: AppearanceMode = .system {
+        didSet {
+            UserDefaults.standard.set(appearanceMode.rawValue, forKey: AppSettings.appearanceMode)
+            NSApp.appearance = appearanceMode.nsAppearance
+        }
+    }
+
     // Training Mode (Katman 4)
     var trainingModeEnabled: Bool = UserDefaults.standard.bool(forKey: AppSettings.trainingMode)
     var showTrainingPill = false
@@ -112,6 +120,11 @@ final class AppViewModel {
         } else {
             isCorrectionEnabled = UserDefaults.standard.bool(forKey: AppSettings.correctionEnabled)
         }
+
+        let savedAppearance = UserDefaults.standard.string(forKey: AppSettings.appearanceMode) ?? "system"
+        let mode = AppearanceMode(rawValue: savedAppearance) ?? .system
+        appearanceMode = mode
+        NSApp.appearance = mode.nsAppearance
     }
 
     // MARK: - Hotkey wiring

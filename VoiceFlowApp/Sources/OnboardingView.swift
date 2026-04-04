@@ -30,7 +30,7 @@ struct OnboardingView: View {
                     }
                 }
         }
-        .frame(width: 480, height: 360)
+        .frame(width: VFLayout.WindowSize.onboarding.width, height: VFLayout.WindowSize.onboarding.height)
     }
 
     private func finish() {
@@ -45,34 +45,34 @@ private struct WelcomeStep: View {
     @Binding var path: [OnboardingStep]
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: VFSpacing.huge) {
             Spacer()
-            Image(systemName: "waveform.circle.fill")
+            Image(systemName: VFIcon.appLogoFill)
                 .resizable()
-                .frame(width: 64, height: 64)
-                .foregroundStyle(.blue)
+                .frame(width: VFLayout.onboardingIconSize, height: VFLayout.onboardingIconSize)
+                .foregroundStyle(VFColor.primary)
 
-            VStack(spacing: 8) {
+            VStack(spacing: VFSpacing.md) {
                 Text("VoiceFlow'a Hoş Geldiniz")
-                    .font(.title.bold())
+                    .font(VFFont.title)
                 Text("Sesli dikte — tüm işlem cihazınızda, hiçbir veri dışarı çıkmaz.")
-                    .font(.subheadline)
+                    .font(VFFont.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
-            VStack(spacing: 6) {
-                HStack(spacing: 8) {
-                    Image(systemName: "lock.shield.fill").foregroundStyle(.green)
+            VStack(spacing: VFSpacing.sm) {
+                HStack(spacing: VFSpacing.md) {
+                    Image(systemName: VFIcon.secureFill).foregroundStyle(VFColor.success)
                     Text("100% Lokal · Açık Kaynak · Kurumsal Hazır")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(VFFont.caption).foregroundStyle(.secondary)
                 }
-                HStack(spacing: 16) {
-                    Label("Kişisel Sözlük", systemImage: "character.book.closed")
-                    Label("Sesli Şablonlar", systemImage: "text.badge.plus")
-                    Label("Bilgi Tabanı", systemImage: "books.vertical")
+                HStack(spacing: VFSpacing.xxl) {
+                    Label("Kişisel Sözlük", systemImage: VFIcon.dictionary)
+                    Label("Sesli Şablonlar", systemImage: VFIcon.snippets)
+                    Label("Bilgi Tabanı",   systemImage: VFIcon.knowledgeBase)
                 }
-                .font(.caption2)
+                .font(VFFont.caption2)
                 .foregroundStyle(.secondary)
             }
 
@@ -84,7 +84,7 @@ private struct WelcomeStep: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }
-        .padding(32)
+        .padding(VFSpacing.max)
         .navigationTitle("")
     }
 }
@@ -103,11 +103,11 @@ private struct ModeSelectionStep: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: VFSpacing.xxxl) {
             Text("Çalışma Modunuzu Seçin")
-                .font(.title2.bold())
+                .font(VFFont.title2)
 
-            VStack(spacing: 8) {
+            VStack(spacing: VFSpacing.md) {
                 ForEach(modes, id: \.id) { m in
                     ModeRow(
                         icon: m.icon,
@@ -151,7 +151,7 @@ private struct ModeSelectionStep: View {
                 .controlSize(.large)
             }
         }
-        .padding(32)
+        .padding(VFSpacing.max)
         .navigationTitle("")
     }
 }
@@ -165,24 +165,25 @@ private struct ModeRow: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: 12) {
+            HStack(spacing: VFSpacing.xl) {
                 Image(systemName: icon)
                     .frame(width: 28)
                     .foregroundStyle(isSelected ? .white : .secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.subheadline.bold())
-                    Text(description).font(.caption).foregroundStyle(isSelected ? .white.opacity(0.85) : .secondary)
+                VStack(alignment: .leading, spacing: VFSpacing.xxs) {
+                    Text(title).font(VFFont.subheadline.bold())
+                    Text(description).font(VFFont.caption)
+                        .foregroundStyle(isSelected ? .white.opacity(0.85) : .secondary)
                 }
                 Spacer()
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
+                    Image(systemName: VFIcon.checkFill)
                         .foregroundStyle(.white)
                 }
             }
             .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(isSelected ? Color.accentColor : Color(nsColor: .controlBackgroundColor))
-            .cornerRadius(8)
+            .padding(.vertical, VFSpacing.lg)
+            .background(isSelected ? VFColor.primary : Color(nsColor: .controlBackgroundColor))
+            .cornerRadius(VFRadius.md)
         }
         .buttonStyle(.plain)
     }
@@ -195,21 +196,21 @@ private struct AccessibilityStep: View {
     @State private var isGranted = AXIsProcessTrusted()
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: VFSpacing.huge) {
             Spacer()
             Image(systemName: isGranted ? "checkmark.shield.fill" : "hand.raised.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 56, height: 56)
-                .foregroundStyle(isGranted ? .green : .orange)
+                .foregroundStyle(isGranted ? VFColor.success : VFColor.warning)
 
-            VStack(spacing: 8) {
+            VStack(spacing: VFSpacing.md) {
                 Text("Erişilebilirlik İzni")
-                    .font(.title2.bold())
+                    .font(VFFont.title2)
                 Text(isGranted
                      ? "İzin verildi — otomatik yapıştırma aktif."
                      : "Otomatik yapıştırma için gerekli.\nSistem Ayarları → Gizlilik → Erişilebilirlik → VoiceFlow")
-                    .font(.subheadline)
+                    .font(VFFont.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -231,7 +232,7 @@ private struct AccessibilityStep: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }
-        .padding(32)
+        .padding(VFSpacing.max)
         .navigationTitle("")
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             isGranted = AXIsProcessTrusted()

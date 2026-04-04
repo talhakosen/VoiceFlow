@@ -9,44 +9,27 @@ import AppKit
 struct ModeIndicatorView: View {
     let mode: AppMode
 
-    private var modeColor: Color {
-        switch mode {
-        case .general:     return .blue
-        case .engineering: return .green
-        case .office:      return .orange
-        }
-    }
-
-    private var modeIcon: String {
-        switch mode {
-        case .general:     return "text.bubble.fill"
-        case .engineering: return "chevron.left.forwardslash.chevron.right"
-        case .office:      return "envelope.fill"
-        }
-    }
-
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: modeIcon)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(modeColor)
+        HStack(spacing: VFSpacing.lg) {
+            Image(systemName: mode.indicatorIcon)
+                .font(VFFont.pillIcon)
+                .foregroundStyle(mode.color)
 
             Text(mode.displayName)
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .font(VFFont.pillText)
                 .foregroundStyle(.white)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, VFSpacing.xxxl)
         .padding(.vertical, 14)
         .background(
             ZStack {
                 Capsule().fill(.ultraThinMaterial)
-                Capsule().fill(modeColor.opacity(0.18))
-                Capsule().strokeBorder(modeColor.opacity(0.45), lineWidth: 1.5)
+                Capsule().fill(VFColor.fill(mode.color))
+                Capsule().strokeBorder(VFColor.border(mode.color), lineWidth: 1.5)
             }
         )
-        .shadow(color: modeColor.opacity(0.35), radius: 16, x: 0, y: 4)
-        .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 2)
-        .padding(20)
+        .vfAccentShadow(accent: mode.color)
+        .padding(VFSpacing.xxxl)
     }
 }
 
@@ -97,7 +80,7 @@ final class ModeIndicatorWindowController: NSObject {
             }
 
             let p = NSPanel(
-                contentRect: NSRect(x: 0, y: 0, width: 220, height: 60),
+                contentRect: NSRect(origin: .zero, size: VFLayout.Overlay.modeIndicator),
                 styleMask: [.borderless, .nonactivatingPanel],
                 backing: .buffered,
                 defer: false

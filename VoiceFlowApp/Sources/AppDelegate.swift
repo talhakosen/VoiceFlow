@@ -130,7 +130,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showLoginWindow(viewModel: AppViewModel) {
         let hosting = NSHostingController(rootView: LoginView(viewModel: viewModel))
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 320),
+            contentRect: NSRect(origin: .zero, size: VFLayout.WindowSize.login),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -155,7 +155,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         })
         let hosting = NSHostingController(rootView: view)
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+            contentRect: NSRect(origin: .zero, size: VFLayout.WindowSize.onboarding),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false

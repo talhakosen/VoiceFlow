@@ -28,6 +28,7 @@
 		E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5187915534C878EB6507FF9A /* VoiceFlowApp.swift */; };
 		E525F85F34936AB92BF64280 /* PasteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D480057CB89B7229506A72 /* PasteService.swift */; };
 		E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD594B581F9EF788F046DF39 /* Models.swift */; };
+		CF3A1B2E8E4F5A6C7D8E9F0B /* VFDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */; };
 		F2080C60E275605DC45DE3F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E9D82935A7EAB8402805560 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,7 @@
 		85B6377D077B683525B53452 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
 		8FFB7AD6817577CB09BEA299 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		AD594B581F9EF788F046DF39 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFDesignSystem.swift; sourceTree = "<group>"; };
 		DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		E2021EE246F139A902BD82D3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E568131A7375839168682889 /* VoiceFlowApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceFlowApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +118,7 @@
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
 				DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */,
 				AD594B581F9EF788F046DF39 /* Models.swift */,
+				CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */,
 				52791314F78F9ECF007AF962 /* OnboardingView.swift */,
 				72D480057CB89B7229506A72 /* PasteService.swift */,
 				5E1BE6AA1C01BC867D23FC40 /* SettingsView.swift */,
@@ -210,6 +213,7 @@
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
 				E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */,
+				CF3A1B2E8E4F5A6C7D8E9F0B /* VFDesignSystem.swift in Sources */,
 				22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */,
 				E525F85F34936AB92BF64280 /* PasteService.swift in Sources */,
 				D27A26B4882DE2398DBCAC5F /* SettingsView.swift in Sources */,

@@ -12,7 +12,7 @@ struct TrainingPillView: View {
 
     private var displayText: String { viewModel.trainingPillResult?.text ?? "" }
 
-    private let accent = Color.blue
+    private var accent: Color { VFColor.primary }
 
     var body: some View {
         Button {
@@ -22,38 +22,37 @@ struct TrainingPillView: View {
             ZStack {
                 // Background
                 Circle().fill(.ultraThinMaterial)
-                Circle().fill(accent.opacity(0.18))
-                Circle().strokeBorder(accent.opacity(0.45), lineWidth: 1.5)
+                Circle().fill(VFColor.fill(accent))
+                Circle().strokeBorder(VFColor.border(accent), lineWidth: 1.5)
 
                 // Countdown arc track
                 Circle()
-                    .stroke(accent.opacity(0.2), lineWidth: 2.5)
-                    .padding(6)
+                    .stroke(VFColor.track(accent), lineWidth: 2.5)
+                    .padding(VFSpacing.sm)
 
                 // Countdown arc progress
                 Circle()
                     .trim(from: 0, to: CGFloat(countdown) / 10.0)
-                    .stroke(accent.opacity(0.7), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                    .padding(6)
+                    .stroke(VFColor.arc(accent), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                    .padding(VFSpacing.sm)
                     .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 1), value: countdown)
+                    .animation(VFAnimation.countdown, value: countdown)
 
-                VStack(spacing: 2) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(spacing: VFSpacing.xxs) {
+                    Image(systemName: VFIcon.edit)
+                        .font(VFFont.trainingIcon)
                         .foregroundStyle(.white)
                     Text("\(countdown)")
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .font(VFFont.countdown)
                         .foregroundStyle(.white.opacity(0.8))
                 }
             }
-            .frame(width: 60, height: 60)
+            .frame(width: VFLayout.trainingPillSize, height: VFLayout.trainingPillSize)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .shadow(color: accent.opacity(0.35), radius: 16, x: 0, y: 4)
-        .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 2)
-        .padding(20)
+        .vfAccentShadow(accent: accent)
+        .padding(VFSpacing.xxxl)
         .onAppear { startCountdown() }
         .onDisappear { countdownTask?.cancel() }
     }
@@ -139,7 +138,7 @@ final class TrainingPillWindowController: NSObject {
         hosting.sizingOptions = [.preferredContentSize]
 
         let p = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 88, height: 88),
+            contentRect: NSRect(origin: .zero, size: VFLayout.Overlay.trainingPill),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -154,7 +153,10 @@ final class TrainingPillWindowController: NSObject {
 
         if let screen = NSScreen.main {
             let sw = screen.visibleFrame
-            p.setFrameOrigin(NSPoint(x: sw.maxX - p.frame.width - 20, y: sw.minY + 20))
+            p.setFrameOrigin(NSPoint(
+                x: sw.maxX - p.frame.width  - VFLayout.overlayEdgeInset,
+                y: sw.minY + VFLayout.overlayEdgeInset
+            ))
         }
 
         p.orderFront(nil)

@@ -19,6 +19,8 @@
 - ChromaDB kaldırıldı — embedding/RAG yok, sıfır bağımlılık
 - Recording overlay floating pill + ses efektleri
 - 2-panel Settings (Genel/Kayıt/Sözlük/Şablonlar/Bilgi Tabanı/Hesap/Hakkında) — tam Türkçe
+- **Görünüm modu** — Sistem/Açık/Koyu; Settings → Genel → Tema picker; NSApp.appearance anında uygulanır
+- **VFDesignSystem** — merkezi tasarım token sistemi: VFColor, VFFont, VFSpacing, VFRadius, VFAnimation, VFIcon, VFLayout; uygulama genelinde hardcoded değer yok
 - App icon tüm boyutlar doğru (Xcode warning yok)
 - Versiyon 0.3.0
 - Backend kapalıyken kullanıcıya Türkçe hata mesajı
@@ -221,6 +223,8 @@
 - [DONE 2026-04-03] **Menü mod switcher + ⌥1/2/3 global kısayollar** — AppMode.allCases menü bölümü, aktif mod tik; NSEvent.addGlobalMonitorForEvents(.keyDown) keyCode 18/19/20 (1/2/3); "Zorla Yeniden Başlat" menüden kaldırıldı → Settings > Hakkında'ya taşındı
 - [DONE 2026-04-03] **Training pill yeniden tasarım** — büyük yuvarlak capsule → 60px circle float button, sağ alt köşe, 10s geri sayım arc, NSAlert dialog (NSScrollView+NSTextView) düzenleme; contentShape(Circle()) label içinde (tüm yuvarlık tıklanabilir); İptal → dismissFeedback()
 - [DONE 2026-04-03] **Tasarım tutarlılığı** — mod göstergesi + training pill: aynı ultraThinMaterial + renk + stroke dili; her ikisi 20px sağ kenar boşluğu
+- [DONE 2026-04-04] **VFDesignSystem** — merkezi tasarım token dosyası (VFColor/VFFont/VFSpacing/VFRadius/VFAnimation/VFIcon/VFLayout/VFShadow); tüm Swift dosyalarındaki hardcoded değerler token'lara taşındı
+- [DONE 2026-04-04] **Görünüm modu (Light/Dark/System)** — AppearanceMode enum; AppViewModel.appearanceMode didSet → NSApp.appearance; Settings → Genel → segmented picker
 - [DONE 2026-04-03] **Design system yeniden yapılandırma** — Sora display font (h1/h2/h3 global), JetBrains Mono (stats/labels), electric blue #4F7AFF, dark-first tüm section'lar (zebra pattern kaldırıldı), .section-label utility, .grid-lines pattern, Navbar her zaman dark
 - [ ] **Pricing section** — `PricingTier` tipi hazır; Starter/Pro/Enterprise tiers, yıllık/aylık toggle, CTA butonları
 - [ ] **Gerçek social linkler** — Twitter/LinkedIn/GitHub şirket hesapları `constants.ts`'e girilecek

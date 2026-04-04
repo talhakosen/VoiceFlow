@@ -16,17 +16,17 @@ struct HistoryView: View {
         VStack(spacing: 0) {
             HStack {
                 Text("Transcription History")
-                    .font(.headline)
+                    .font(VFFont.headline)
                 Spacer()
                 if !items.isEmpty {
                     Button("Clear All") { Task { await clearAll() } }
                         .buttonStyle(.plain)
-                        .foregroundColor(.red)
-                        .font(.caption)
+                        .foregroundColor(VFColor.destructive)
+                        .font(VFFont.caption)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, VFSpacing.xxl)
+            .padding(.vertical, VFSpacing.xl)
 
             Divider()
 
@@ -38,7 +38,7 @@ struct HistoryView: View {
                 Spacer()
                 Text("No transcriptions yet")
                     .foregroundColor(.secondary)
-                    .font(.subheadline)
+                    .font(VFFont.subheadline)
                 Spacer()
             } else {
                 ScrollView {
@@ -56,13 +56,13 @@ struct HistoryView: View {
                                     }
                                 }
                             )
-                            Divider().padding(.leading, 16)
+                            Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
                 }
             }
         }
-        .frame(width: 420, height: 480)
+        .frame(width: VFLayout.WindowSize.history.width, height: VFLayout.WindowSize.history.height)
         .task { await loadHistory() }
     }
 
@@ -86,50 +86,50 @@ struct HistoryRow: View {
     let onCopy: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: VFSpacing.xs) {
+            HStack(spacing: VFSpacing.sm) {
                 Text(item.corrected ? "LLM" : "Raw")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(VFFont.badge)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(item.corrected ? Color.green : Color.orange)
-                    .cornerRadius(4)
+                    .padding(.horizontal, VFSpacing.sm)
+                    .padding(.vertical, VFSpacing.xxs)
+                    .background(item.corrected ? VFColor.badgeLLM : VFColor.badgeRaw)
+                    .cornerRadius(VFRadius.sm)
 
                 if let mode = item.mode {
                     Text(mode)
-                        .font(.system(size: 9))
+                        .font(VFFont.badgeMode)
                         .foregroundStyle(.secondary)
                 }
 
                 Text(item.createdAt)
-                    .font(.caption)
+                    .font(VFFont.caption)
                     .foregroundColor(.secondary)
 
                 Spacer()
 
                 Button(action: { onCopy(item.text) }) {
                     Text(isCopied ? "Copied!" : "Copy")
-                        .font(.caption)
-                        .foregroundColor(isCopied ? .green : .accentColor)
+                        .font(VFFont.caption)
+                        .foregroundColor(isCopied ? VFColor.success : VFColor.primary)
                 }
                 .buttonStyle(.plain)
             }
 
             Text(item.text)
-                .font(.system(size: 13))
+                .font(VFFont.historyItem)
                 .lineLimit(3)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if item.corrected, let raw = item.rawText, raw != item.text {
                 Text("Raw: \(raw)")
-                    .font(.system(size: 11))
+                    .font(VFFont.historyRaw)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, VFSpacing.xxl)
+        .padding(.vertical, VFSpacing.lg)
         .contentShape(Rectangle())
         .onTapGesture { onCopy(item.text) }
     }

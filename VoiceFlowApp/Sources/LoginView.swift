@@ -8,19 +8,19 @@ struct LoginView: View {
     @State private var isLoading = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: VFSpacing.xxxl) {
             // Logo / icon
-            Image(systemName: "waveform.circle.fill")
-                .font(.system(size: 56))
-                .foregroundStyle(.blue)
-                .padding(.top, 24)
+            Image(systemName: VFIcon.appLogoFill)
+                .font(VFFont.largeIcon)
+                .foregroundStyle(VFColor.primary)
+                .padding(.top, VFSpacing.huge)
 
             Text("VoiceFlow")
-                .font(.title.bold())
+                .font(VFFont.title)
 
             Divider()
 
-            VStack(spacing: 12) {
+            VStack(spacing: VFSpacing.xl) {
                 TextField("E-posta", text: $email)
                     .textFieldStyle(.roundedBorder)
                     .textContentType(.emailAddress)
@@ -31,14 +31,14 @@ struct LoginView: View {
                     .textContentType(.password)
                     .onSubmit { submitLogin() }
             }
-            .padding(.horizontal, 32)
+            .padding(.horizontal, VFSpacing.max)
 
             if let error = viewModel.loginError {
                 Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .font(VFFont.caption)
+                    .foregroundStyle(VFColor.destructive)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, VFSpacing.max)
             }
 
             Button(action: submitLogin) {
@@ -55,15 +55,15 @@ struct LoginView: View {
                 .frame(height: 32)
             }
             .buttonStyle(.borderedProminent)
-            .padding(.horizontal, 32)
+            .padding(.horizontal, VFSpacing.max)
             .disabled(isLoading || email.isEmpty || password.isEmpty)
 
             Text("Hesabın yok mu? Yöneticinizle iletişime geçin.")
-                .font(.caption)
+                .font(VFFont.caption)
                 .foregroundStyle(.secondary)
-                .padding(.bottom, 24)
+                .padding(.bottom, VFSpacing.huge)
         }
-        .frame(width: 380, height: 320)
+        .frame(width: VFLayout.WindowSize.login.width, height: VFLayout.WindowSize.login.height)
     }
 
     private func submitLogin() {

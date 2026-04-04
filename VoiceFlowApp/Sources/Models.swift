@@ -17,6 +17,31 @@ enum AppSettings {
     static let llmEndpoint         = "llmEndpoint"  // cloud Ollama URL
     static let trainingMode        = "trainingMode"    // Bool — show feedback pill after paste
     static let correctionEnabled   = "correctionEnabled" // Bool — persisted per-mode preference
+    static let appearanceMode      = "appearanceMode"  // "system" | "light" | "dark"
+}
+
+// MARK: - AppearanceMode
+
+enum AppearanceMode: String, CaseIterable {
+    case system = "system"
+    case light  = "light"
+    case dark   = "dark"
+
+    var displayName: String {
+        switch self {
+        case .system: return "Sistem"
+        case .light:  return "Açık"
+        case .dark:   return "Koyu"
+        }
+    }
+
+    var nsAppearance: NSAppearance? {
+        switch self {
+        case .system: return nil
+        case .light:  return NSAppearance(named: .aqua)
+        case .dark:   return NSAppearance(named: .darkAqua)
+        }
+    }
 }
 
 // MARK: - LanguageMode
