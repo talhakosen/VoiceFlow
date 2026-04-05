@@ -11,10 +11,9 @@ import os
 import re
 from pathlib import Path
 
-import aiosqlite
 import jellyfish
 
-from ..core.config import DB_PATH
+from ..db.storage import get_symbol_index_file_paths, get_symbols_for_matching
 
 logger = logging.getLogger(__name__)
 
@@ -107,126 +106,113 @@ async def inject_symbol_refs(text: str, user_id: str) -> str:
     seen: set[str] = set()
     covered: set[int] = set()
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
+    # ── Pre-load all needed data from DB ─────────────────────────────────────
+    _SYMBOL_TYPES = ("class", "struct", "protocol", "enum", "interface", "object", "module")
+    file_rows_raw = await get_symbol_index_file_paths(user_id)
+    all_symbols_db = await get_symbols_for_matching(user_id, symbol_types=_SYMBOL_TYPES)
 
-        # ── Pass 0: directory name matching ───────────────────────────────────
-        dir_map: dict[str, list[str]] = {}
+    # ── Pass 0: directory name matching ───────────────────────────────────
+    dir_map: dict[str, list[str]] = {}
 
-        def _dir_map_add(key: str, rel: str) -> None:
-            lst = dir_map.setdefault(key, [])
-            if rel not in lst:
-                lst.append(rel)
+    def _dir_map_add(key: str, rel: str) -> None:
+        lst = dir_map.setdefault(key, [])
+        if rel not in lst:
+            lst.append(rel)
 
-        async with db.execute(
-            "SELECT DISTINCT project_path, file_path FROM symbol_index WHERE user_id = ?",
-            (user_id,),
-        ) as cursor:
-            file_rows = await cursor.fetchall()
+    project_roots: set[str] = set()
+    for row in file_rows_raw:
+        proj_path, file_path = row["project_path"], row["file_path"]
+        project_roots.add(proj_path)
+        parts = Path(file_path).parts
+        for depth in range(1, len(parts)):
+            dname = parts[depth - 1]
+            rel = "/".join(parts[:depth]) + "/"
+            _dir_map_add(dname.lower(), rel)
 
-        project_roots: set[str] = set()
-        for row in file_rows:
-            proj_path, file_path = row[0], row[1]
-            project_roots.add(proj_path)
-            parts = Path(file_path).parts
-            for depth in range(1, len(parts)):
-                dname = parts[depth - 1]
-                rel = "/".join(parts[:depth]) + "/"
+    _SCRIPT_EXTS = {".sh", ".js", ".ts", ".py", ".yaml", ".yml", ".json", ".toml"}
+    for root_str in project_roots:
+        root_p = Path(root_str)
+        if not root_p.exists():
+            continue
+        for dirpath_str, dirnames, filenames in os.walk(str(root_p)):
+            dirpath = Path(dirpath_str)
+            try:
+                rel_p = dirpath.relative_to(root_p)
+            except ValueError:
+                continue
+            depth_p = len(rel_p.parts)
+            if depth_p >= 4:
+                dirnames.clear()
+                continue
+            dirnames[:] = [d for d in dirnames
+                           if d.lower() not in _FS_NOISE_DIRS and not d.startswith('.')]
+            for dname in dirnames:
+                rel = (str(rel_p / dname) if str(rel_p) != "." else dname) + "/"
                 _dir_map_add(dname.lower(), rel)
+            for fname in filenames:
+                fp = Path(fname)
+                if fp.suffix.lower() in _SCRIPT_EXTS:
+                    stem = fp.stem.lower()
+                    if len(stem) >= 4 and not stem.startswith('.'):
+                        rel_file = str(rel_p / fname) if str(rel_p) != "." else fname
+                        _dir_map_add(stem, rel_file)
 
-        _SCRIPT_EXTS = {".sh", ".js", ".ts", ".py", ".yaml", ".yml", ".json", ".toml"}
-        for root_str in project_roots:
-            root_p = Path(root_str)
-            if not root_p.exists():
+    # Build exact-match lookup dict from pre-loaded symbols (Pass 1)
+    exact_lookup: dict[str, dict] = {}
+    for sym in all_symbols_db:
+        key = sym["symbol_name"].lower()
+        existing = exact_lookup.get(key)
+        if existing is None:
+            exact_lookup[key] = sym
+        else:
+            # Prefer class > struct > others
+            order = {"class": 0, "struct": 1}
+            if order.get(sym["symbol_type"], 2) < order.get(existing["symbol_type"], 2):
+                exact_lookup[key] = sym
+
+    # ── Pass 1: exact PascalCase match ────────────────────────────────────
+    for i, word in enumerate(words):
+        clean = _clean_word(word)
+        if not re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', clean):
+            continue
+        if clean in seen or i in covered:
+            continue
+        row = exact_lookup.get(clean.lower())
+        if row:
+            if row['symbol_type'] == 'module' and len(_split_pascal(row['symbol_name'])) < 2:
                 continue
-            for dirpath_str, dirnames, filenames in os.walk(str(root_p)):
-                dirpath = Path(dirpath_str)
-                try:
-                    rel_p = dirpath.relative_to(root_p)
-                except ValueError:
-                    continue
-                depth_p = len(rel_p.parts)
-                if depth_p >= 4:
-                    dirnames.clear()
-                    continue
-                dirnames[:] = [d for d in dirnames
-                               if d.lower() not in _FS_NOISE_DIRS and not d.startswith('.')]
-                for dname in dirnames:
-                    rel = (str(rel_p / dname) if str(rel_p) != "." else dname) + "/"
-                    _dir_map_add(dname.lower(), rel)
-                for fname in filenames:
-                    fp = Path(fname)
-                    if fp.suffix.lower() in _SCRIPT_EXTS:
-                        stem = fp.stem.lower()
-                        if len(stem) >= 4 and not stem.startswith('.'):
-                            rel_file = str(rel_p / fname) if str(rel_p) != "." else fname
-                            _dir_map_add(stem, rel_file)
+            replacements.append((i, i + 1, f"@{row['file_path']}:{row['line_number']} {row['symbol_name']}"))
+            seen.add(row['symbol_name'])
+            covered.add(i)
 
-        # ── Pass 1: exact PascalCase match ────────────────────────────────────
-        for i, word in enumerate(words):
-            clean = _clean_word(word)
-            if not re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', clean):
+    # ── Pass 2: JW fuzzy for unresolved PascalCase tokens ─────────────────
+    unresolved = [
+        (_clean_word(words[i]), i)
+        for i in range(len(words))
+        if i not in covered and re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', _clean_word(words[i]))
+        and _clean_word(words[i]) not in seen
+    ]
+    if unresolved:
+        candidates = all_symbols_db  # already loaded
+
+        for token, widx in unresolved:
+            if widx in covered:
                 continue
-            if clean in seen or i in covered:
-                continue
-            async with db.execute(
-                """SELECT symbol_name, file_path, line_number, symbol_type
-                   FROM symbol_index
-                   WHERE user_id = ? AND LOWER(symbol_name) = LOWER(?)
-                     AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')
-                   ORDER BY CASE symbol_type WHEN 'class' THEN 0 WHEN 'struct' THEN 1 ELSE 2 END
-                   LIMIT 1""",
-                (user_id, clean),
-            ) as cursor:
-                row = await cursor.fetchone()
-                if row:
-                    if row['symbol_type'] == 'module' and len(_split_pascal(row['symbol_name'])) < 2:
-                        continue
-                    replacements.append((i, i + 1, f"@{row['file_path']}:{row['line_number']} {row['symbol_name']}"))
-                    seen.add(row['symbol_name'])
-                    covered.add(i)
-
-        # ── Pass 2: JW fuzzy for unresolved PascalCase tokens ─────────────────
-        unresolved = [
-            (_clean_word(words[i]), i)
-            for i in range(len(words))
-            if i not in covered and re.match(r'^[A-Z][a-zA-Z0-9]{2,}$', _clean_word(words[i]))
-            and _clean_word(words[i]) not in seen
-        ]
-        if unresolved:
-            async with db.execute(
-                """SELECT symbol_name, file_path, line_number, symbol_type
-                   FROM symbol_index WHERE user_id = ?
-                   AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
-                (user_id,),
-            ) as cursor:
-                candidates = [dict(r) for r in await cursor.fetchall()]
-
-            for token, widx in unresolved:
-                if widx in covered:
+            best_score, best_sym = 0.0, None
+            for sym in candidates:
+                if sym['symbol_name'] in seen:
                     continue
-                best_score, best_sym = 0.0, None
-                for sym in candidates:
-                    if sym['symbol_name'] in seen:
-                        continue
-                    score = jellyfish.jaro_winkler_similarity(token.lower(), sym['symbol_name'].lower())
-                    if score > best_score:
-                        best_score, best_sym = score, sym
-                if best_score >= _JW_THRESHOLD and best_sym:
-                    if best_sym['symbol_type'] == 'module' and len(_split_pascal(best_sym['symbol_name'])) < 2:
-                        continue
-                    replacements.append((widx, widx + 1, f"@{best_sym['file_path']}:{best_sym['line_number']} {best_sym['symbol_name']}"))
-                    seen.add(best_sym['symbol_name'])
-                    covered.add(widx)
+                score = jellyfish.jaro_winkler_similarity(token.lower(), sym['symbol_name'].lower())
+                if score > best_score:
+                    best_score, best_sym = score, sym
+            if best_score >= _JW_THRESHOLD and best_sym:
+                if best_sym['symbol_type'] == 'module' and len(_split_pascal(best_sym['symbol_name'])) < 2:
+                    continue
+                replacements.append((widx, widx + 1, f"@{best_sym['file_path']}:{best_sym['line_number']} {best_sym['symbol_name']}"))
+                seen.add(best_sym['symbol_name'])
+                covered.add(widx)
 
-        # ── Pass 3: phonetic sliding window ───────────────────────────────────
-        async with db.execute(
-            """SELECT symbol_name, file_path, line_number FROM symbol_index
-               WHERE user_id = ?
-               AND symbol_type IN ('class','struct','protocol','enum','interface','object','module')""",
-            (user_id,),
-        ) as cursor:
-            all_symbols_db = [dict(r) for r in await cursor.fetchall()]
+    # ── Pass 3: phonetic sliding window ───────────────────────────────────
 
         sym_by_len: dict[int, list[tuple[list[str], dict]]] = {}
         for sym in all_symbols_db:

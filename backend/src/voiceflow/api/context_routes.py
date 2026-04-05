@@ -4,12 +4,10 @@ import asyncio
 import logging
 from pathlib import Path
 
-import aiosqlite
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
-from ..db.storage import DB_PATH as _db_path
 
 logger = logging.getLogger(__name__)
 
@@ -82,30 +80,17 @@ async def context_status(
     request: Request = None,
 ):
     """Return smart dictionary + symbol index status."""
+    from ..db.storage import get_context_status as _get_context_status
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    async with aiosqlite.connect(_db_path) as db:
-        async with db.execute(
-            "SELECT COUNT(*) FROM user_dictionary WHERE user_id = ? AND scope = 'smart'",
-            (user_id,),
-        ) as cursor:
-            row = await cursor.fetchone()
-            n = row[0] if row else 0
-        async with db.execute(
-            "SELECT COUNT(*), MAX(indexed_at) FROM symbol_index_v2 WHERE user_id = ?",
-            (user_id,),
-        ) as cursor:
-            row2 = await cursor.fetchone()
-            sym_count = row2[0] if row2 else 0
-            last_indexed_at = row2[1] if row2 else None
-
+    stats = await _get_context_status(user_id)
     last_paths = getattr(request.app.state, "last_index_paths", {}) if request else {}
     entry = last_paths.get(user_id) or last_paths.get("default")
     return {
-        "count": n,
+        "count": stats["smart_count"],
         "is_ready": True,
-        "is_empty": n == 0,
-        "symbol_count": sym_count,
-        "last_indexed_at": last_indexed_at,
+        "is_empty": stats["smart_count"] == 0,
+        "symbol_count": stats["symbol_count"],
+        "last_indexed_at": stats["last_indexed_at"],
         "last_index_path": entry["path"] if entry else None,
     }
 
@@ -116,21 +101,11 @@ async def context_projects(
     request: Request = None,
 ):
     """Return indexed projects with smart dictionary + symbol counts."""
+    from ..db.storage import get_context_projects as _get_context_projects
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    async with aiosqlite.connect(_db_path) as db:
-        async with db.execute(
-            "SELECT project_path, COUNT(*) FROM symbol_index WHERE user_id = ? GROUP BY project_path",
-            (user_id,),
-        ) as cursor:
-            symbol_rows = {row[0]: row[1] for row in await cursor.fetchall()}
-
-        async with db.execute(
-            "SELECT COUNT(*) FROM user_dictionary WHERE user_id = ? AND scope = 'smart'",
-            (user_id,),
-        ) as cursor:
-            row = await cursor.fetchone()
-            smart_total = row[0] if row else 0
-
+    data = await _get_context_projects(user_id)
+    symbol_rows = data["symbol_rows"]
+    smart_total = data["smart_total"]
     projects = [
         {"path": path, "name": Path(path).name, "symbol_count": sym_count}
         for path, sym_count in symbol_rows.items()
@@ -162,8 +137,7 @@ async def context_clear(
     request: Request = None,
 ):
     """Clear smart dictionary entries for this user."""
+    from ..db.storage import clear_smart_dictionary
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
-    async with aiosqlite.connect(_db_path) as db:
-        await db.execute("DELETE FROM user_dictionary WHERE user_id = ?", (user_id,))
-        await db.commit()
+    await clear_smart_dictionary(user_id=user_id)
     return {"status": "cleared"}

@@ -76,9 +76,7 @@ async def build_smart_dictionary(folder_path: str, user_id: str) -> int:
 
     Returns: eklenen entry sayısı
     """
-    import aiosqlite
     from pathlib import Path as P
-    from ..db.storage import DB_PATH
 
     root = P(folder_path).expanduser().resolve()
     if not root.exists():
@@ -103,24 +101,7 @@ async def build_smart_dictionary(folder_path: str, user_id: str) -> int:
     if not unique_pairs:
         return 0
 
-    added = 0
-    async with aiosqlite.connect(DB_PATH) as db:
-        # Mevcut trigger'ları al — üzerine yazma
-        async with db.execute(
-            "SELECT trigger FROM user_dictionary WHERE user_id = ?", (user_id,)
-        ) as cursor:
-            existing = {row[0] for row in await cursor.fetchall()}
-
-        for trigger, replacement in unique_pairs:
-            if trigger in existing:
-                continue
-            await db.execute(
-                "INSERT INTO user_dictionary (tenant_id, user_id, trigger, replacement, scope) VALUES (?, ?, ?, ?, ?)",
-                ("default", user_id, trigger, replacement, "smart"),
-            )
-            added += 1
-
-        await db.commit()
-
+    from ..db.storage import bulk_add_smart_entries
+    added = await bulk_add_smart_entries(user_id=user_id, tenant_id="default", pairs=unique_pairs)
     logger.info("Smart dictionary: added %d new entries for %s", added, user_id)
     return added

@@ -177,6 +177,19 @@
       extractor.py (SymbolInfo + TreeSitterExtractor) + indexer.py (build_symbol_index, generate_project_notes) +
       injector.py (inject_symbol_refs + phonetic helpers) + lookup.py (lookup_symbol)
       services/recording.py, api/context_routes.py, api/routes.py import'ları güncellendi
+- [DONE 2026-04-05] **services/recording.py → voiceflow/recording/ paketi**:
+      service.py (RecordingService) + segmenter.py (_mlx_executor, transcribe_segmented) özel paket olarak taşındı
+      services/engineering.py extract_symbols() → symbol/scanner.py (aynı domain)
+- [DONE 2026-04-05] **DB katman disiplini — raw aiosqlite bypass fix**:
+      10 fonksiyon 5 dosyada aiosqlite.connect() direkt çağırıyordu; hepsi storage.py'a taşındı
+      Yeni storage fonksiyonları: load_bundle_entries, clear_bundle_entries, get_context_status,
+      get_context_projects, clear_smart_dictionary, get_dictionary_triggers, bulk_add_smart_entries,
+      clear_symbol_indexes, save_symbol_batch, get_symbol_index_file_paths, get_symbols_for_matching,
+      lookup_symbol_exact, lookup_symbol_prefix, lookup_symbol_substring
+      Tenant isolation bug: clear_history/delete_snippet/delete_dictionary_entry/delete_training_recording → WHERE tenant_id eklendi
+      Callers güncellendi: api/routes.py, api/context_routes.py, symbol/lookup.py, symbol/indexer.py,
+      symbol/injector.py (pre-load pattern), services/smart_dictionary.py
+      db/__init__.py: tüm yeni fonksiyonlar export edildi
 - [DONE 2026-03-30] **Audit log** — login, config_changed, history_cleared, user_data_deleted events; append-only SQLite tablo
 - [DONE 2026-03-30] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği) — transkript+sözlük+snippet+hesap kalıcı silme
 

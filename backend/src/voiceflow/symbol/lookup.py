@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import aiosqlite
-
-from ..core.config import DB_PATH
+from ..db.storage import lookup_symbol_exact, lookup_symbol_prefix, lookup_symbol_substring
 
 
 async def lookup_symbol(query: str, user_id: str, limit: int = 5) -> list[dict]:
@@ -13,50 +11,12 @@ async def lookup_symbol(query: str, user_id: str, limit: int = 5) -> list[dict]:
     if not query:
         return []
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
+    rows = await lookup_symbol_exact(query=query, user_id=user_id, limit=limit)
+    if rows:
+        return rows
 
-        # Exact match (case-insensitive)
-        async with db.execute(
-            """SELECT symbol_name, symbol_type, file_path, line_number,
-                      end_line, signature, parent_symbol, parent_class,
-                      conformances, return_type
-               FROM symbol_index_v2
-               WHERE user_id = ? AND LOWER(symbol_name) = LOWER(?)
-               ORDER BY CASE symbol_type WHEN 'class' THEN 0 WHEN 'struct' THEN 1 WHEN 'protocol' THEN 2 ELSE 3 END
-               LIMIT ?""",
-            (user_id, query, limit),
-        ) as cursor:
-            rows = [dict(r) for r in await cursor.fetchall()]
+    rows = await lookup_symbol_prefix(query=query, user_id=user_id, limit=limit)
+    if rows:
+        return rows
 
-        if rows:
-            return rows
-
-        # Prefix match
-        async with db.execute(
-            """SELECT symbol_name, symbol_type, file_path, line_number,
-                      end_line, signature, parent_symbol, parent_class,
-                      conformances, return_type
-               FROM symbol_index_v2
-               WHERE user_id = ? AND LOWER(symbol_name) LIKE LOWER(?)
-               ORDER BY length(symbol_name)
-               LIMIT ?""",
-            (user_id, f"{query}%", limit),
-        ) as cursor:
-            rows = [dict(r) for r in await cursor.fetchall()]
-
-        if rows:
-            return rows
-
-        # Substring match
-        async with db.execute(
-            """SELECT symbol_name, symbol_type, file_path, line_number,
-                      end_line, signature, parent_symbol, parent_class,
-                      conformances, return_type
-               FROM symbol_index_v2
-               WHERE user_id = ? AND LOWER(symbol_name) LIKE LOWER(?)
-               ORDER BY length(symbol_name)
-               LIMIT ?""",
-            (user_id, f"%{query}%", limit),
-        ) as cursor:
-            return [dict(r) for r in await cursor.fetchall()]
+    return await lookup_symbol_substring(query=query, user_id=user_id, limit=limit)

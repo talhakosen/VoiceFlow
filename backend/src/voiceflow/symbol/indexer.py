@@ -11,9 +11,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-import aiosqlite
-
-from ..core.config import DB_PATH
+from ..db.storage import clear_symbol_indexes, save_symbol_batch, get_symbols_for_notes
 from .extractor import SymbolInfo, _LANGUAGE_MAP, _MAX_FILE_BYTES, _extractor
 
 logger = logging.getLogger(__name__)
@@ -30,16 +28,7 @@ async def build_symbol_index(folder_path: str, user_id: str) -> int:
 
     logger.info("Symbol index: scanning %s for user %s", root, user_id)
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute(
-            "DELETE FROM symbol_index_v2 WHERE user_id = ? AND project_path = ?",
-            (user_id, str(root)),
-        )
-        await db.execute(
-            "DELETE FROM symbol_index WHERE user_id = ? AND project_path = ?",
-            (user_id, str(root)),
-        )
-        await db.commit()
+    await clear_symbol_indexes(user_id=user_id, project_path=str(root))
 
     all_symbols: list[SymbolInfo] = []
 
@@ -59,33 +48,7 @@ async def build_symbol_index(folder_path: str, user_id: str) -> int:
     if not all_symbols:
         return 0
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        for sym in all_symbols:
-            await db.execute(
-                """INSERT INTO symbol_index_v2
-                   (user_id, project_path, file_path, symbol_type, symbol_name,
-                    line_number, end_line, signature, parent_symbol, parent_class,
-                    conformances, return_type, properties, imports, decorators,
-                    visibility, is_static)
-                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (
-                    user_id, str(root), sym.file_path, sym.symbol_type, sym.symbol_name,
-                    sym.line_number, sym.end_line, sym.signature, sym.parent_symbol,
-                    sym.parent_class, sym.conformances, sym.return_type,
-                    json.dumps(sym.properties, ensure_ascii=False) if sym.properties else None,
-                    json.dumps(sym.imports, ensure_ascii=False) if sym.imports else None,
-                    json.dumps(sym.decorators, ensure_ascii=False) if sym.decorators else None,
-                    sym.visibility, int(sym.is_static),
-                ),
-            )
-            await db.execute(
-                """INSERT OR IGNORE INTO symbol_index
-                   (user_id, project_path, file_path, symbol_type, symbol_name, line_number)
-                   VALUES (?,?,?,?,?,?)""",
-                (user_id, str(root), sym.file_path, sym.symbol_type, sym.symbol_name, sym.line_number),
-            )
-        await db.commit()
-
+    await save_symbol_batch(user_id=user_id, project_path=str(root), symbols=all_symbols)
     logger.info("symbol_index_v2: %d symbols indexed from %s", len(all_symbols), root)
     return len(all_symbols)
 
@@ -94,17 +57,7 @@ async def generate_project_notes(folder_path: str, user_id: str) -> str:
     """Generate .claude/project-notes.md from symbol_index_v2."""
     root = Path(folder_path).expanduser().resolve()
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cur = await db.execute(
-            """SELECT symbol_type, symbol_name, file_path, line_number,
-                      parent_class, conformances, signature, imports
-               FROM symbol_index_v2
-               WHERE user_id = ? AND project_path = ?
-               ORDER BY symbol_type, symbol_name""",
-            (user_id, str(root)),
-        )
-        rows = [dict(r) for r in await cur.fetchall()]
+    rows = await get_symbols_for_notes(user_id=user_id, project_path=str(root))
 
     if not rows:
         return ""

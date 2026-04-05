@@ -323,32 +323,22 @@ async def add_dict_entry(
 async def load_dict_bundle(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
     """Load the pre-built IT Turkish phonetics bundle into DB (scope=bundle, hidden from UI)."""
     import json as _json
-    import aiosqlite
     from pathlib import Path
-    from ..db.storage import DB_PATH as _db_path
+    from ..db.storage import load_bundle_entries
     bundle_path = Path(__file__).parents[4] / "ml" / "dictionary" / "it_bundle_full.json"
     if not bundle_path.exists():
         raise HTTPException(status_code=404, detail="Bundle file not found")
     with open(bundle_path, encoding="utf-8") as f:
         entries = _json.load(f)
-    async with aiosqlite.connect(_db_path) as db:
-        await db.execute("DELETE FROM user_dictionary WHERE tenant_id = ? AND scope = 'bundle'", ("default",))
-        await db.executemany(
-            "INSERT OR IGNORE INTO user_dictionary (tenant_id, user_id, trigger, replacement, scope) VALUES (?, ?, ?, ?, 'bundle')",
-            [("default", "", e["trigger"], e["replacement"]) for e in entries],
-        )
-        await db.commit()
-    return {"status": "loaded", "count": len(entries)}
+    count = await load_bundle_entries(tenant_id="default", entries=entries)
+    return {"status": "loaded", "count": count}
 
 
 @router.delete("/dictionary/bundle")
 async def clear_dict_bundle():
     """Remove all bundle entries."""
-    import aiosqlite
-    from ..db.storage import DB_PATH as _db_path
-    async with aiosqlite.connect(_db_path) as db:
-        await db.execute("DELETE FROM user_dictionary WHERE scope = 'bundle'")
-        await db.commit()
+    from ..db.storage import clear_bundle_entries
+    await clear_bundle_entries(tenant_id="default")
     return {"status": "cleared"}
 
 
