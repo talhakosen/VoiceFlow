@@ -9,7 +9,7 @@
 - Qwen 7B ile isteğe bağlı Türkçe düzeltme (3 mod: general/engineering/office)
 - Auto-paste (Cmd+V)
 - SQLite persistent history + tenant izolasyonu
-- Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets)
+- Kişisel Sözlük (user_dictionary) + Sesli Şablonlar (snippets) + Hazır Paketler (office/engineering pack yükle/kaldır)
 - Smart Dictionary (kod tabanı identifier tarama — class/method isimlerini otomatik user_dictionary'e ekler, Türkçe fonetik varyantlar, scope=smart)
 - Symbol Index (class/struct/func → file_path:line_number, fuzzy lookup, inline @dosya:satır enjeksiyonu)
 - @-trigger: "at/et/add/edd Symbol" → explicit sembol arama, 2-part kuralı bypass
