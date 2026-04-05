@@ -216,6 +216,18 @@ protocol BackendServiceProtocol: Actor {
 actor BackendService: BackendServiceProtocol {
     private let session: URLSession
 
+    static func debugLog(_ msg: String) {
+        let line = "\(Date()) \(msg)\n"
+        if let data = line.data(using: .utf8) {
+            let path = "/tmp/voiceflow-swift.log"
+            if let fh = FileHandle(forWritingAtPath: path) {
+                fh.seekToEndOfFile(); fh.write(data); fh.closeFile()
+            } else {
+                FileManager.default.createFile(atPath: path, contents: data)
+            }
+        }
+    }
+
     init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
@@ -335,9 +347,18 @@ actor BackendService: BackendServiceProtocol {
         }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            NSLog("VoiceFlow stopRecording: HTTP error %d", (response as? HTTPURLResponse)?.statusCode ?? -1)
             throw BackendError.requestFailed
         }
-        return try JSONDecoder().decode(TranscriptionResult.self, from: data)
+        do {
+            let result = try JSONDecoder().decode(TranscriptionResult.self, from: data)
+            Self.debugLog("stopRecording OK: text='\(result.text)'")
+            return result
+        } catch {
+            Self.debugLog("stopRecording DECODE ERROR: \(error)")
+            Self.debugLog("raw JSON: \(String(data: data, encoding: .utf8) ?? "nil")")
+            throw error
+        }
     }
 
     func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws {

@@ -104,9 +104,10 @@ struct AppFeature {
 ```
 
 **Cross-feature coordination (AppFeature.Reduce):**
-- `.recording(.transcriptReceived)` → `menuBar.hasLastResult = true`; training pill göster (trainingMode açıksa)
+- `.recording(.transcriptReceived)` → `menuBar.hasLastResult = true`; `state.recording.trainingModeEnabled` açıksa → `training(.pillShown)`
 - `.training(.wordCorrectionsApplied)` → `settings(.addWordCorrections)` — dictionary auto-add
-- `.recording(.startRecording)` → `menuBar.isRecording = true`
+- NOT: `menuBar.isRecording` mirror yok — view `store.recording.isRecording` okur
+- **Kritik:** `state.recording.trainingModeEnabled` okunur (raw UserDefaults değil) — Store UserDefaults'tan initialize edilir, ikisi sync kalır
 
 ### RecordingFeature
 
@@ -123,17 +124,17 @@ var currentLanguageMode: LanguageMode
 var isCorrectionEnabled: Bool
 var isLLMReady: Bool
 var whisperModelName: String
-var trainingModeEnabled: Bool
+var trainingModeEnabled: Bool   // UserDefaultsClient ile persist
 var appearanceMode: AppearanceMode
-var currentUser: AuthUser?   // Katman 2 auth state mirror
+// NOT: currentUser AuthFeature'da — RecordingFeature'da kopya yok
 ```
 
 **Actions:** `startRecording`, `stopRecording`, `forceStop`, `transcriptReceived`,
 `selectAppMode`, `selectLanguageMode`, `setCorrectionEnabled`, `pasteLastResult`,
-`setTrainingMode`, `setAppearanceMode`, `approveFeedback`, `editFeedback`, `dismissFeedback`
+`setTrainingMode`, `setAppearanceMode`, `backendStatusReceived`, `checkAccessibility`
 
 **Dependency injection:** `@Dependency(\.backendClient)`, `@Dependency(\.pasteClient)`,
-`@Dependency(\.soundClient)`
+`@Dependency(\.soundClient)`, `@Dependency(\.userDefaultsClient)`
 
 `selectAppMode(.engineering)` → `isCorrectionEnabled = false` (LLM correction otomatik kapatılır)
 
@@ -152,17 +153,18 @@ Dictionary, snippets, context (Knowledge Base), kullanıcı profili state'i:
 
 Menu görünüm state'ini tutar:
 
-**State:** `isRecording: Bool`, `hasLastResult: Bool`, `statusText: String`
+**State:** `hasLastResult: Bool`, `accessibilityGranted: Bool`, `currentAppMode`, `currentLanguageMode`, `userRole`
+**NOT:** `isRecording` yok — view direkt `store.recording.isRecording` okur (mirror kaldırıldı)
 
-**Actions:** `syncFromRecording`, `toggleRecording`, `pasteLastTranscript`
+**Actions:** `openAdminPanel`, `restartService`, `checkAccessibility`, `selectMode`, `selectLanguage`, `quit`
 
 ### TrainingFeature
 
 IT dataset kayıt + training pill feedback:
 
-**State:** `pillShown: Bool`, `originalText: String`, `countdownSeconds: Int`
+**State:** `isVisible: Bool`, `originalText: String`, `correctedText: String`, `countdown: Int`, `isShowingEditDialog: Bool`
 
-**Actions:** `pillShown(originalText:)`, `approveFeedback`, `editFeedback`, `dismissFeedback`,
+**Actions:** `pillShown(originalText:)`, `feedbackApproved`, `editTapped`, `editDialogResult`, `pillDismissed`, `countdownTicked`, `countdownExpired`,
 `wordCorrectionsApplied(original:corrected:)` — cross-feature trigger
 
 ---
@@ -171,8 +173,8 @@ IT dataset kayıt + training pill feedback:
 
 ```swift
 class AppDelegate: NSObject, NSApplicationDelegate {
-    // Single TCA store — tüm uygulamada paylaşılır
-    let store = Store(initialState: AppFeature.State()) { AppFeature() }
+    // Single TCA store — UserDefaults'tan initialize edilir (state/userDefaults sync)
+    let store = Store(initialState: { /* AppFeature.State + UserDefaults ilk değerleri */ }()) { AppFeature() }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureUserID()
@@ -213,11 +215,12 @@ Her dependency `DependencyKey` protokolünü implement eder:
 
 | Dependency | Protokol | Gerçek impl | Test impl |
 |---|---|---|---|
-| `BackendClient` | `BackendServiceProtocol` | `BackendService` (actor) | `MockBackendService` |
-| `PasteClient` | — | CGEvent Cmd+V | no-op |
+| `BackendClient` | `BackendServiceProtocol` | `BackendService` (actor) | no-op stubs |
+| `PasteClient` | — | CGEvent Cmd+V (MainActor) | no-op |
 | `SoundClient` | — | NSSound | no-op |
-| `DialogClient` | — | NSAlert | auto-confirm |
+| `DialogClient` | — | NSAlert + NSTextView | auto-cancel |
 | `AccessibilityClient` | — | `AXIsProcessTrusted()` | always-true |
+| `UserDefaultsClient` | — | `UserDefaults.standard` | in-memory defaults |
 
 Reducer'larda kullanım:
 ```swift
@@ -288,6 +291,7 @@ protocol BackendServiceProtocol: Actor {
 ## HotkeyManager
 
 **Fn double-tap:** start/stop toggle. Release eventi güvenilmez → double-tap + Force Stop yedek.
+- Start'tan 0.5s içindeki Fn UP yok sayılır (grace period) — double-tap'ın 2. tuşu bırakılınca anında STOP yapmasını önler
 
 **Cmd-interval tracking:**
 - `recordingDidStart()` → `cmdIntervals = []`

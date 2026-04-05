@@ -34,6 +34,7 @@ struct TrainingFeature {
         Reduce { state, action in
             switch action {
             case let .pillShown(text):
+                BackendService.debugLog("TrainingFeature: pillShown — text='\(text)' setting isVisible=true")
                 state.isVisible = true
                 state.countdown = 10
                 state.originalText = text
@@ -58,7 +59,9 @@ struct TrainingFeature {
                 return .none
 
             case .countdownExpired:
+                // Paste already done in RecordingFeature — just close the notification pill
                 state.isVisible = false
+                BackendService.debugLog("TrainingFeature: countdownExpired — pill closed, paste was already done")
                 return .cancel(id: CancelID.countdown)
 
             case .editTapped:
@@ -85,14 +88,9 @@ struct TrainingFeature {
                 return .none
 
             case .feedbackApproved:
+                // Paste already done — just close
                 state.isVisible = false
-                let text = state.originalText
-                return .cancel(id: CancelID.countdown).concatenate(with:
-                    .run { [paste, sound] _ in
-                        await paste.paste(text)
-                        sound.play("Pop")
-                    }
-                )
+                return .cancel(id: CancelID.countdown)
 
             case .wordCorrectionsApplied:
                 // Handled by parent (SettingsFeature.addWordCorrections)

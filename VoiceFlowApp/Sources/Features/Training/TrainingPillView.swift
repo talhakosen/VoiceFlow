@@ -61,6 +61,7 @@ final class TrainingPillWindowController: NSObject {
     private var panel: NSPanel?
 
     func show(store: StoreOf<AppFeature>) {
+        BackendService.debugLog("TrainingPillController.show() called — panel=\(panel == nil ? "nil (will show)" : "exists (guard skip)")")
         guard panel == nil else { return }
 
         let hosting = SafeHostingView(rootView: TrainingPillView(store: store))

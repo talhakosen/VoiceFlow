@@ -37,14 +37,20 @@ struct AppFeature {
             // RecordingFeature only sets statusText; AppFeature routes to TrainingFeature.
             case let .recording(.transcriptReceived(result)):
                 state.menuBar.hasLastResult = true
+                let trainingEnabled = state.recording.trainingModeEnabled
+                let snippetUsed = result.snippetUsed == true
+                BackendService.debugLog("AppFeature: transcriptReceived — trainingEnabled=\(trainingEnabled) snippetUsed=\(snippetUsed) text='\(result.text)'")
                 // Fix 3: menuBar.isRecording removed — isRecording lives only in RecordingFeature
-                if state.recording.trainingModeEnabled && result.snippetUsed != true {
+                if trainingEnabled && !snippetUsed {
+                    BackendService.debugLog("AppFeature: dispatching pillShown")
                     return .send(.training(.pillShown(originalText: result.text)))
                 }
+                BackendService.debugLog("AppFeature: no pill — dispatching paste via RecordingFeature (handled there)")
                 return .none
 
             // When training pill word corrections applied → update dictionary
             case let .training(.wordCorrectionsApplied(original, corrected)):
+                BackendService.debugLog("AppFeature: wordCorrectionsApplied — sending addWordCorrections")
                 return .send(.settings(.addWordCorrections(original: original, corrected: corrected)))
 
             default:

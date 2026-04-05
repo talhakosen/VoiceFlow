@@ -109,18 +109,16 @@ struct RecordingFeature {
                 // TODO: Replace "" with userID from authClient when Katman 2 auth dependency is added
                 let trainingMode = state.trainingModeEnabled
                 return .run { send in
+                    BackendService.debugLog("RecordingFeature: calling stopRecording...")
                     do {
                         let result = try await backend.stopRecording(
-                            nil,   // activeAppBundleID — captured by AppViewModel for now
-                            nil,   // windowTitle
-                            nil,   // selectedText
-                            nil,   // cmdIntervals
-                            nil,   // itDatasetIndex
-                            trainingMode
+                            nil, nil, nil, nil, nil, trainingMode
                         )
+                        BackendService.debugLog("RecordingFeature: got result='\(result.text)'")
                         await MainActor.run { NSSound(named: "Pop")?.play() }
                         await send(.transcriptReceived(result))
                     } catch {
+                        BackendService.debugLog("RecordingFeature: stopRecording ERROR: \(error)")
                         await send(.recordingFailed(error.localizedDescription))
                     }
                 }
@@ -140,23 +138,20 @@ struct RecordingFeature {
                 return .none
 
             case let .transcriptReceived(result):
+                BackendService.debugLog("transcriptReceived: text='\(result.text)'")
                 state.isProcessing = false
                 state.lastResult = result
                 guard !result.text.isEmpty else {
                     state.statusText = "Ready"
                     return .none
                 }
-                // Fix 2: No training pill logic here — AppFeature coordinator handles routing
-                // to TrainingFeature if training mode is on; otherwise paste directly.
-                let trainingMode = userDefaults.bool(AppSettings.trainingMode)
-                if trainingMode && result.snippetUsed != true {
-                    state.statusText = "Duzelt veya onayla"
-                    return .none
-                } else {
-                    state.statusText = result.text
-                    return .run { [text = result.text] _ in
-                        await paste.paste(text)
-                    }
+                let trainingMode = state.trainingModeEnabled
+                BackendService.debugLog("transcriptReceived: trainingMode=\(trainingMode) — pasting immediately")
+                state.statusText = result.text
+                return .run { [text = result.text] _ in
+                    BackendService.debugLog("transcriptReceived: calling paste with '\(text)'")
+                    await paste.paste(text)
+                    BackendService.debugLog("transcriptReceived: paste done")
                 }
 
             // MARK: Paste

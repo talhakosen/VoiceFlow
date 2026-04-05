@@ -49,6 +49,7 @@
 - [DONE 2026-04-05] **Menü Home** — Ayarlar yerine en üste Home eklendi; LLM prompt komut algılama fix (few-shot + CRITICAL kural)
 - [DONE 2026-04-05] **SettingsViewModel ayrıştırma** — dictionary/snippets/context/user profile state AppViewModel'den SettingsViewModel'e taşındı; MenuBarController + TrainingPillView güncellendi
 - [DONE 2026-04-05] **Settings feature klasörü** — Sources/Features/Settings/ altında SettingsView, SettingsViewModel, ContextView + Sections/ (7 ayrı dosya) feature mimarisine taşındı
+- [DONE 2026-04-05] **Training mode clipboard fix** — State/UserDefaults desync düzeltildi; Store artık UserDefaults'tan initialize edilir; RecordingFeature her zaman hemen paste eder; TrainingPill notification olarak çalışır (paste'i engellemez); countdown dolunca sadece pill kapanır
 
 - [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
       Sol nav: General | Recording | Knowledge Base | Account | About

@@ -15,7 +15,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let symbolPicker = SymbolPickerWindowController()
 
     // Single TCA store — created once, injected everywhere
-    let store = Store(initialState: AppFeature.State()) { AppFeature() }
+    // Initialize from UserDefaults so state matches persisted settings on first launch
+    let store = Store(
+        initialState: {
+            var s = AppFeature.State()
+            let ud = UserDefaults.standard
+            s.recording.trainingModeEnabled = ud.bool(forKey: AppSettings.trainingMode)
+            s.recording.isCorrectionEnabled = ud.bool(forKey: AppSettings.correctionEnabled)
+            if let raw = ud.string(forKey: AppSettings.appMode), let mode = AppMode(rawValue: raw) {
+                s.recording.currentAppMode = mode
+            }
+            if let raw = ud.string(forKey: AppSettings.defaultLanguage), let lang = LanguageMode(rawValue: raw) {
+                s.recording.currentLanguageMode = lang
+            }
+            if let raw = ud.string(forKey: AppSettings.appearanceMode), let ap = AppearanceMode(rawValue: raw) {
+                s.recording.appearanceMode = ap
+            }
+            return s
+        }()
+    ) { AppFeature() }
 
     private var storeObservation: Task<Void, Never>?
     private let hotkeyManager = HotkeyManager()
@@ -57,6 +75,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // Fix 2: Training pill visibility is owned by TrainingFeature, not RecordingFeature
                 let showPill = self.store.training.isVisible
                 let mode = recState.currentAppMode
+                // Detailed state log every time processing finishes
+                if prevProcessing && !isProcessing {
+                    BackendService.debugLog("AppDelegate poll: processing done — trainingEnabled=\(recState.trainingModeEnabled) showPill=\(showPill) training.isVisible=\(self.store.training.isVisible)")
+                }
 
                 if isRecording && !prevRecording {
                     overlay.showRecording()
@@ -74,8 +96,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
 
                 if showPill && !prevShowPill {
+                    BackendService.debugLog("AppDelegate: training.isVisible → TRUE, showing pill")
                     self.trainingPillController.show(store: self.store)
                 } else if !showPill && prevShowPill {
+                    BackendService.debugLog("AppDelegate: training.isVisible → FALSE, closing pill")
                     self.trainingPillController.close()
                 }
 
