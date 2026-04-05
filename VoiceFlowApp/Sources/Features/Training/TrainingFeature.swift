@@ -75,7 +75,7 @@ struct TrainingFeature {
                 state.correctedText = corrected
                 let original = state.originalText
                 return .run { [paste, sound] send in
-                    paste.paste(corrected)
+                    await paste.paste(corrected)
                     sound.play("Pop")
                     await send(.wordCorrectionsApplied(original: original, corrected: corrected))
                 }
@@ -89,7 +89,7 @@ struct TrainingFeature {
                 let text = state.originalText
                 return .cancel(id: CancelID.countdown).concatenate(with:
                     .run { [paste, sound] _ in
-                        paste.paste(text)
+                        await paste.paste(text)
                         sound.play("Pop")
                     }
                 )

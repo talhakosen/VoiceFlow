@@ -155,7 +155,7 @@ struct RecordingFeature {
                 } else {
                     state.statusText = result.text
                     return .run { [text = result.text] _ in
-                        paste.paste(text)
+                        await paste.paste(text)
                     }
                 }
 
@@ -164,7 +164,7 @@ struct RecordingFeature {
             case .pasteLastResult:
                 guard let result = state.lastResult, !result.text.isEmpty else { return .none }
                 return .run { [text = result.text] _ in
-                    paste.paste(text)
+                    await paste.paste(text)
                 }
 
             // MARK: Mode / config

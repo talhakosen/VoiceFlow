@@ -2,17 +2,17 @@ import Dependencies
 import Foundation
 
 struct PasteClient {
-    var paste: (String) -> Void
-    var copyToClipboard: (String) -> Void
+    var paste: @Sendable (String) async -> Void
+    var copyToClipboard: @Sendable (String) async -> Void
 }
 
 extension PasteClient: DependencyKey {
     static let liveValue = PasteClient(
         paste: { text in
-            PasteService().pasteText(text)
+            await MainActor.run { PasteService().pasteText(text) }
         },
         copyToClipboard: { text in
-            PasteService().copyToClipboard(text)
+            await MainActor.run { PasteService().copyToClipboard(text) }
         }
     )
     static let testValue = PasteClient(
