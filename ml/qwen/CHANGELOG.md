@@ -1,134 +1,37 @@
 # Qwen Adapter Changelog
 
 Aktif adapter → `config.yaml: llm.adapter_path`
-Adapter dosyaları gitignore'da — HuggingFace'te yedekli.
 
 ---
 
-## v4.0 — 2026-04-04 ✅ AKTİF
+## v3.0 — 2026-04-04 ✅ AKTİF
 
-**Dosya:** `adapters/v4.0/`
+**Dosya:** `adapters/v3.0/` | **HF:** `tkosen/voiceflow-qwen-adapter-v3`
 
-**Ne öğrendi:**
-- Türk developer fonetik bozuklukları: "depıloyment"→"Deployment", "kubernetis"→"Kubernetes"
-- 6 persona stili: Senior Backend, Flutter, DevOps, Frontend, Junior, PM
-- 8 senaryo: standup, code review, pair programming, debugging, toplantı, onboarding, günlük sohbet, Slack
-- Cümle başı filler + anlamsal ayrım + backtrack (v3'ten devralındı)
+- Filler temizleme: cümle başı (Yani,/Şey,/Hani,/Tamam,/İşte,), zincirleme, anlamsal ayrım
+- Backtrack: "hayır şunu" → son niyet
+- Noktalama + Türkçe karakter + büyük harf
 
-**Dataset:** `datasets/v4/` — 3096 pairs (v3 2155 + persona 941)
-- phonetic_corruptions.py: 160+ teknik terim fonetik sözlüğü
-- 6 persona × 8 senaryo × 5 varyant
-
-**Eğitim:**
-- Base: Qwen/Qwen2.5-7B-Instruct (sıfırdan LoRA)
-- Script: `mlx_lm.lora` (Mac M4 local, 48 dk)
-- iters=1000, batch=1, LR=1e-5, grad_checkpoint
-- **val_loss: 0.428** (best, iter 400) — v3: 0.513, **%17 iyileşme**
-- Final val: 0.463, train: 0.430
-- Peak mem: 5.26 GB
+**Eğitim:** RunPod H100, 800 step, 11 dk, eval_loss: **0.513**
+**Dataset:** 2155 pair (filler_initial 387 + complex 167 + semantic 400 + backtrack 105 + v2 1096)
 
 ---
 
-## v3.0 — 2026-04-04 (arşiv)
+## v2.0 — 2026-04-04
 
-**Dosya:** `adapters/v3.0/` (eğitim sonrası)
-**HF:** `tkosen/voiceflow-qwen-adapter-v3` (eğitim sonrası)
-
-**Ne öğrendi (hedef):**
-- Cümle başı filler temizleme: "Yani, ...", "Şey, ...", "Hani, ...", "Tamam, ..." (geçiş dolgu), "İşte, ..."
-- Zincirleme filler: "Yani şey,", "Hani yani,", "Ee yani," → tamamı sil
-- Anlamsal ayrım: "500 kişi, yani yarısı" → koru; "Yani, toplantı saat 3" → sil
-- Backtrack + filler combo: "Yani, şuna bak, hayır buna bak" → "Buna bak."
-- v2'de öğrendikleri koru
-
-**Dataset:** `datasets/v3/` — 2155 pairs (v2 1096 + yeni 1059)
-- `data/filler_initial.jsonl` — 387 cümle başı filler örnekleri
-- `data/filler_complex.jsonl` — 167 zincirleme/çok katmanlı filler
-- `data/filler_semantic.jsonl` — 400 anlamsal ayrım (KEEP vs REMOVE)
-- `data/filler_backtrack.jsonl` — 105 backtrack+filler combo
-
-**Eğitim:**
-- Base: Qwen/Qwen2.5-7B-Instruct (base model, v2 adapter yüklenemedi)
-- Script: `scripts/train_hf.py` (MAX_STEPS=800, LR=5e-6, batch=4, grad_accum=4)
-- GPU: H100 80GB, RunPod SECURE, ~11 dakika
-- eval_loss: **0.513** (v2: 0.71 — %28 iyileşme)
-
-**Eğitim komutu:**
-```bash
-# Dataset + script yükle
-scp -rP <PORT> ml/qwen/adapters/v2.0/raw root@<IP>:/workspace/adapters_v2
-scp -P <PORT> ml/qwen/datasets/v3/train.jsonl root@<IP>:/workspace/train_v3.jsonl
-scp -P <PORT> ml/qwen/datasets/v3/valid.jsonl root@<IP>:/workspace/valid_v3.jsonl
-scp -P <PORT> ml/qwen/scripts/train_hf.py root@<IP>:/workspace/
-# Deps + training
-pip install -q transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets
-nohup python /workspace/train_hf.py > /workspace/training.log 2>&1 &
-# İndir
-scp -rP <PORT> root@<IP>:/workspace/adapters_v3 ./ml/qwen/adapters/v3.0-hf
-python ml/qwen/scripts/convert_adapter.py --input adapters/v3.0-hf --output adapters/v3.0
-```
-
----
-
-## v2.0 — 2026-04-04 (arşiv)
-
-**Dosya:** `adapters/v2.0/`
-**HF:** `tkosen/voiceflow-qwen-adapter-v2`
-
-**Ne öğrendi:**
-- Filler temizleme: şey, yani (gereksiz), hani, işte, ee, aa → sil
-- Anlamsal yani (cümle içi bağlaç) → koru
-- Backtrack: "hayır şunu demek istiyorum X" → X
-- Stutter: "b-b-ben" → "ben"
-- Sayı normalizasyonu: "iki yüz elli bin" → "250.000"
-- Noktalama + Türkçe karakter (v1'den devralındı)
-
-**Eğitim:**
-- Dataset: `datasets/v2/` — 1096 pair (496 filler + 600 v1 mevcut)
-- Script: `scripts/train_hf.py`
-- GPU: H100 80GB, RunPod SECURE, ~3 dakika
-- LR: 8e-6, Steps: 400, eval_loss: 0.71
-
----
+- Filler (şey/yani/hani/işte/ee), backtrack, stutter, sayı normalizasyonu
+- RunPod H100, 400 step, 3 dk, eval_loss: 0.71
+- Dataset: 1096 pair
 
 ## v1.0 — 2026-04-02
 
-**HF:** `tkosen/voiceflow-qwen-adapter` (arşiv)
-
-**Ne öğrendi:**
-- Noktalama ekleme
-- Türkçe karakter düzeltme (ASCII → ş/ç/ğ/ı/ö/ü)
-- Backtracking düzeltme
-- Temel filler temizleme
-
-**Eğitim:**
-- Dataset: `datasets/v1/` — 71.437 pair (GECTurk 68K + corruption 3K)
-- Script: `scripts/train_runpod.py`
-- GPU: RTX 4090, ~7 saat, unsloth SFTTrainer
+- Noktalama, Türkçe karakter, temel filler
+- RTX 4090, 7 saat, unsloth, dataset: 71K pair (GECTurk)
 
 ---
 
-## Yeni versiyon eğitmek için
+## ❌ v4.0 — BAŞARISIZ (Mac mlx_lm.lora)
 
-```bash
-# 1. Dataset hazırla
-python scripts/prepare_dataset_v2.py   # veya yeni prepare_dataset_vN.py
+Mac M4'te `mlx_lm.lora` ile eğitildi. Val loss 0.428 görünüyor ama **gerçek testte base model'den kötü** — input'u aynen geri döndürüyor. Sebep: `num_layers=16` (28 değil) + `scale=20.0` (2.0 değil). **Kullanma.**
 
-# 2. RunPod H100 aç
-cd runpod && python create_pod.py qwen
-
-# 3. Dataset + script yükle
-scp -P <PORT> datasets/vN/train.jsonl root@<IP>:/workspace/train_v2.jsonl
-scp -P <PORT> datasets/vN/valid.jsonl root@<IP>:/workspace/valid_v2.jsonl
-scp -P <PORT> scripts/train_hf.py root@<IP>:/workspace/
-
-# 4. Deps + training
-ssh -p <PORT> root@<IP> "pip install -q transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets"
-ssh -p <PORT> root@<IP> "nohup python /workspace/train_hf.py > /workspace/training.log 2>&1 &"
-
-# 5. İndir + dönüştür
-scp -rP <PORT> root@<IP>:/workspace/adapters_v2 ./adapters/vN.0-hf
-python scripts/convert_adapter.py  # → adapters/vN.0/
-
-# 6. config.yaml güncelle + CHANGELOG'a ekle
-```
+v4.1–v4.10 overnight round'lar da aynı sorunlu. Tümü silindi.
