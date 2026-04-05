@@ -1,16 +1,18 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - General
 
 struct GeneralSection: View {
-    var viewModel: AppViewModel
+    let store: StoreOf<RecordingFeature>
     @AppStorage(AppSettings.deploymentMode) private var deploymentMode = "local"
     @AppStorage(AppSettings.serverURL)      private var serverURL      = "http://127.0.0.1:8765"
     @AppStorage(AppSettings.apiKey)         private var apiKey         = ""
     @State private var showRestartNotice = false
 
     var body: some View {
+        let state = store.state
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
             // Görünüm
@@ -18,8 +20,8 @@ struct GeneralSection: View {
             VFCard {
                 VFRow("Tema", divider: false) {
                     Picker("", selection: Binding(
-                        get: { viewModel.appearanceMode },
-                        set: { viewModel.appearanceMode = $0 }
+                        get: { state.appearanceMode },
+                        set: { store.send(.setAppearanceMode($0)) }
                     )) {
                         ForEach(AppearanceMode.allCases, id: \.self) { mode in
                             Text(mode.displayName).tag(mode)
@@ -55,13 +57,13 @@ struct GeneralSection: View {
                 if deploymentMode == "local" {
                     VFRow("", divider: false) {
                         HStack(spacing: 8) {
-                            if !viewModel.whisperModelName.isEmpty {
-                                Text("Whisper \(viewModel.whisperModelName)")
+                            if !state.whisperModelName.isEmpty {
+                                Text("Whisper \(state.whisperModelName)")
                                     .font(.caption).foregroundStyle(.tertiary)
                             }
-                            if !viewModel.llmAdapterVersion.isEmpty {
+                            if !state.llmAdapterVersion.isEmpty {
                                 Text("·").foregroundStyle(.tertiary).font(.caption)
-                                Text("Qwen \(viewModel.llmAdapterVersion)")
+                                Text("Qwen \(state.llmAdapterVersion)")
                                     .font(.caption).foregroundStyle(.tertiary)
                             }
                         }

@@ -1,16 +1,18 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - Recording
 
 struct RecordingSection: View {
-    var viewModel: AppViewModel
+    let store: StoreOf<RecordingFeature>
     @AppStorage(AppSettings.llmMode)       private var llmMode       = "local"
     @AppStorage(AppSettings.llmEndpoint)   private var llmEndpoint   = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
     @AppStorage(AppSettings.trainingMode)  private var trainingMode  = false
     @State private var showRestartNotice = false
 
     var body: some View {
+        let state = store.state
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
             // Dil
@@ -18,8 +20,8 @@ struct RecordingSection: View {
             VFCard {
                 VFRow("Dil", divider: false) {
                     Picker("", selection: Binding(
-                        get: { viewModel.currentLanguageMode },
-                        set: { viewModel.selectLanguageMode($0) }
+                        get: { state.currentLanguageMode },
+                        set: { store.send(.selectLanguageMode($0)) }
                     )) {
                         ForEach(LanguageMode.allCases, id: \.self) { mode in
                             Text(mode.rawValue).tag(mode)
@@ -37,14 +39,14 @@ struct RecordingSection: View {
                     ForEach(Array(AppMode.allCases.enumerated()), id: \.element) { idx, mode in
                         VFRow(mode.displayName,
                               divider: idx < AppMode.allCases.count - 1) {
-                            if viewModel.currentAppMode == mode {
+                            if state.currentAppMode == mode {
                                 Image(systemName: VFIcon.checkmark)
                                     .foregroundStyle(VFColor.primary)
                                     .fontWeight(.semibold)
                             }
                         }
                         .contentShape(Rectangle())
-                        .onTapGesture { viewModel.selectAppMode(mode) }
+                        .onTapGesture { store.send(.selectAppMode(mode)) }
                     }
                 }
             }
@@ -54,15 +56,15 @@ struct RecordingSection: View {
             VFSectionHeader("Akıllı Düzeltme")
             VFCard {
                 VFRow("Akıllı Düzeltme",
-                      divider: viewModel.currentAppMode != .engineering) {
+                      divider: state.currentAppMode != .engineering) {
                     Toggle("", isOn: Binding(
-                        get: { viewModel.isCorrectionEnabled },
-                        set: { _ in viewModel.toggleCorrection() }
+                        get: { state.isCorrectionEnabled },
+                        set: { store.send(.setCorrectionEnabled($0)) }
                     ))
                     .labelsHidden()
-                    .disabled(viewModel.currentAppMode == .engineering)
+                    .disabled(state.currentAppMode == .engineering)
                 }
-                if viewModel.currentAppMode != .engineering {
+                if state.currentAppMode != .engineering {
                     VFRow("Yapay Zeka Motoru", divider: llmMode != "cloud") {
                         Picker("", selection: $llmMode) {
                             Text("Yerel").tag("local")
@@ -83,7 +85,7 @@ struct RecordingSection: View {
                     }
                 }
             }
-            if viewModel.currentAppMode == .engineering {
+            if state.currentAppMode == .engineering {
                 VFInfoRow(icon: VFIcon.warning, text: "Engineering modda düzeltme kapalıdır — teknik terimler korunur.", color: VFColor.warning)
             }
             if llmMode == "alibaba" {
@@ -100,8 +102,7 @@ struct RecordingSection: View {
                     Toggle("", isOn: $trainingMode)
                         .labelsHidden()
                         .onChange(of: trainingMode) { _, val in
-                            UserDefaults.standard.set(val, forKey: AppSettings.trainingMode)
-                            viewModel.trainingModeEnabled = val
+                            store.send(.setTrainingMode(val))
                         }
                 }
             }

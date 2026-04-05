@@ -1,16 +1,9 @@
 import SwiftUI
 
 struct HistoryView: View {
-    var viewModel: AppViewModel
     @State private var items: [HistoryItem] = []
     @State private var isLoading = false
     @State private var copiedId: Int?
-
-    private let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f
-    }()
 
     var body: some View {
         VStack(spacing: 0) {

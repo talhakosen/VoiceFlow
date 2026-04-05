@@ -1,4 +1,5 @@
 import AppKit
+import ComposableArchitecture
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -10,83 +11,76 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var loginWindow: NSPanel?
     private let trainingPillController = TrainingPillWindowController()
-    private var trainingPillObserver: Task<Void, Never>? = nil
     private let modeIndicator = ModeIndicatorWindowController()
     private let symbolPicker = SymbolPickerWindowController()
 
-    // Shared app state — created once, injected into MenuBarController and SettingsView
-    var viewModel: AppViewModel?
-    private var settingsVM: SettingsViewModel?
+    // Single TCA store — created once, injected everywhere
+    let store = Store(initialState: AppFeature.State()) { AppFeature() }
+
+    private var storeObservation: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureUserID()
 
-        let vm = AppViewModel()
-        let svm = SettingsViewModel(backend: BackendService())
-        self.settingsVM = svm
-        vm.onRestartBackend = { [weak self] completion in self?.restartBackend(completion: completion) }
-        vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
         let overlay = RecordingOverlayWindow()
         self.recordingOverlay = overlay
-        vm.onShowRecordingOverlay = { [weak self] in
-            DispatchQueue.main.async {
-                overlay.showRecording()
-                self?.modeIndicator.showPersistent(mode: vm.currentAppMode)
-            }
-        }
-        vm.onShowProcessingOverlay = { [weak self] in
-            DispatchQueue.main.async {
-                overlay.showProcessing()
-                self?.modeIndicator.close()
-            }
-        }
-        vm.onHideRecordingOverlay = { [weak self] in
-            DispatchQueue.main.async {
-                overlay.hide()
-                self?.modeIndicator.close()
-            }
-        }
-        vm.onModeChanged = { [weak self] mode in
-            DispatchQueue.main.async {
-                self?.modeIndicator.showBriefly(mode: mode)
-            }
-        }
-        vm.onShowSymbolPicker = { [weak self] text, refs, completion in
-            DispatchQueue.main.async {
-                self?.symbolPicker.show(refs: refs, onConfirm: { items in
-                    completion(Self.applySymbolSelection(text: text, items: items))
-                }, onSkip: {
-                    // Atla → tüm @ref'leri metinden çıkar
-                    let allDeselected = refs.map { ref -> SymbolItem in
-                        var item = SymbolItem(ref: ref)
-                        item.selected = false
-                        return item
-                    }
-                    completion(Self.applySymbolSelection(text: text, items: allDeselected))
-                })
+
+        // Observe store state to drive overlay and mode indicator windows
+        storeObservation = Task { @MainActor [weak self] in
+            guard let self else { return }
+            // Polling loop — observe TCA state changes
+            var prevRecording = false
+            var prevProcessing = false
+            var prevShowPill = false
+            var prevMode: AppMode = .general
+
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                let recState = self.store.recording
+                let isRecording = recState.isRecording
+                let isProcessing = recState.isProcessing
+                let showPill = recState.showTrainingPill
+                let mode = recState.currentAppMode
+
+                if isRecording && !prevRecording {
+                    overlay.showRecording()
+                    self.modeIndicator.showPersistent(mode: mode)
+                } else if isProcessing && !prevProcessing {
+                    overlay.showProcessing()
+                    self.modeIndicator.close()
+                } else if !isRecording && !isProcessing && (prevRecording || prevProcessing) {
+                    overlay.hide()
+                    self.modeIndicator.close()
+                }
+
+                if mode != prevMode && !isRecording {
+                    self.modeIndicator.showBriefly(mode: mode)
+                }
+
+                if showPill && !prevShowPill {
+                    self.trainingPillController.show(store: self.store)
+                } else if !showPill && prevShowPill {
+                    self.trainingPillController.close()
+                }
+
+                prevRecording = isRecording
+                prevProcessing = isProcessing
+                prevShowPill = showPill
+                prevMode = mode
             }
         }
 
-        // Observe Training Mode pill state
-        trainingPillObserver = Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 200_000_000)
-                guard let self, let vm = self.viewModel else { continue }
-                if vm.showTrainingPill {
-                    self.trainingPillController.show(viewModel: vm, settingsVM: svm)
-                } else {
-                    self.trainingPillController.close()
-                }
-            }
-        }
-        self.viewModel = vm
+        // Wire backend restart callbacks into store effects via observation
+        // AppDelegate owns backend lifecycle — inject closures via environment or direct call
+        // We use notifications / callbacks stored on AppDelegate for restart
+        store.send(.recording(.restartBackend)) // no-op start; real restart wired below
 
         let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
 
         if mode == "server" {
             NSLog("VoiceFlow: Server mode — skipping local backend startup")
             DispatchQueue.main.async {
-                self.menuBarController = MenuBarController(viewModel: vm, settingsVM: svm)
+                self.menuBarController = MenuBarController(store: self.store)
             }
         } else {
             killExistingBackend()
@@ -95,9 +89,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 DispatchQueue.main.async {
                     NSLog("VoiceFlow: Backend %@", success ? "ready" : "may not be ready")
                     if !success {
-                        vm.statusText = "⚠ Servis başlatılamadı — Yeniden Başlat'a bas"
+                        self?.store.send(.recording(.recordingFailed("Servis başlatılamadı — Yeniden Başlat'a bas")))
                     }
-                    self?.menuBarController = MenuBarController(viewModel: vm, settingsVM: svm)
+                    guard let self else { return }
+                    self.menuBarController = MenuBarController(store: self.store)
                 }
             }
         }
@@ -106,29 +101,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let deployMode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
         if deployMode == "server" {
-            vm.checkLoginState()
-            // Observe login state: show login panel when not logged in
+            store.send(.auth(.tokenRefreshAttempted))
             Task { @MainActor [weak self] in
-                // Wait briefly for checkLoginState to complete
+                guard let self else { return }
                 try? await Task.sleep(nanoseconds: 300_000_000)
-                if !vm.isLoggedIn {
-                    self?.showLoginWindow(viewModel: vm)
+                if !self.store.auth.isLoggedIn {
+                    self.showLoginWindow()
                 }
-                // Watch for login success to close panel
-                while !vm.isLoggedIn {
+                while !self.store.auth.isLoggedIn {
                     try? await Task.sleep(nanoseconds: 200_000_000)
                 }
-                self?.loginWindow?.close()
-                self?.loginWindow = nil
-                self?.showOnboardingIfNeeded()
+                self.loginWindow?.close()
+                self.loginWindow = nil
+                self.showOnboardingIfNeeded()
             }
         } else {
             showOnboardingIfNeeded()
         }
     }
 
-    private func showLoginWindow(viewModel: AppViewModel) {
-        let hosting = NSHostingController(rootView: LoginView(viewModel: viewModel))
+    private func showLoginWindow() {
+        let authStore = store.scope(state: \.auth, action: \.auth)
+        let hosting = NSHostingController(rootView: LoginView(store: authStore))
         let panel = NSPanel(
             contentRect: NSRect(origin: .zero, size: VFLayout.WindowSize.login),
             styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
@@ -171,6 +165,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         healthCheckTimer?.invalidate()
+        storeObservation?.cancel()
         stopBackend()
     }
 

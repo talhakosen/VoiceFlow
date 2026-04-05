@@ -1,18 +1,20 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - Knowledge Base
 
 struct KnowledgeBaseSection: View {
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<SettingsFeature>
     @State private var selectedFolderPath = ""
 
     var body: some View {
+        let state = store.state
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
             VFSectionHeader("İndekslenen Projeler")
             VFCard {
-                if settingsVM.indexedProjects.isEmpty {
+                if state.indexedProjects.isEmpty {
                     HStack(spacing: VFSpacing.md) {
                         Image(systemName: VFIcon.circle).foregroundStyle(.secondary)
                         Text("Henüz eklenmedi").foregroundStyle(.secondary).font(VFFont.body)
@@ -21,7 +23,7 @@ struct KnowledgeBaseSection: View {
                     .padding(.horizontal, VFSpacing.xxl)
                     .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(Array(settingsVM.indexedProjects.enumerated()), id: \.element.id) { idx, project in
+                    ForEach(Array(state.indexedProjects.enumerated()), id: \.element.id) { idx, project in
                         HStack(spacing: VFSpacing.md) {
                             Image(systemName: VFIcon.checkFill).foregroundStyle(VFColor.success)
                             VStack(alignment: .leading, spacing: VFSpacing.xxs) {
@@ -33,16 +35,16 @@ struct KnowledgeBaseSection: View {
                         }
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
-                        if idx < settingsVM.indexedProjects.count - 1 {
+                        if idx < state.indexedProjects.count - 1 {
                             Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
                     Divider().padding(.leading, VFSpacing.xxl)
                     HStack {
-                        Text("\(settingsVM.contextChunkCount) sözcük · \(settingsVM.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
+                        Text("\(state.contextChunkCount) sözcük · \(state.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
                             .font(VFFont.caption).foregroundStyle(.secondary)
                         Spacer()
-                        Button("Temizle") { settingsVM.clearContext() }
+                        Button("Temizle") { store.send(.clearContext) }
                             .buttonStyle(.plain).foregroundStyle(VFColor.destructive)
                             .font(VFFont.caption)
                     }
@@ -65,9 +67,9 @@ struct KnowledgeBaseSection: View {
                 HStack(spacing: VFSpacing.md) {
                     Button {
                         guard !selectedFolderPath.isEmpty else { return }
-                        settingsVM.ingestContext(folderPath: selectedFolderPath)
+                        store.send(.ingestContext(folderPath: selectedFolderPath))
                     } label: {
-                        if settingsVM.isIndexing {
+                        if state.isIndexing {
                             HStack(spacing: VFSpacing.sm) {
                                 ProgressView().scaleEffect(0.7)
                                 Text("İndeksleniyor…")
@@ -77,9 +79,9 @@ struct KnowledgeBaseSection: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(selectedFolderPath.isEmpty || settingsVM.isIndexing)
+                    .disabled(selectedFolderPath.isEmpty || state.isIndexing)
 
-                    if let error = settingsVM.contextIndexingError {
+                    if let error = state.contextIndexingError {
                         Text(error).font(VFFont.caption).foregroundStyle(VFColor.destructive)
                     }
                     Spacer()
@@ -90,7 +92,7 @@ struct KnowledgeBaseSection: View {
             VFInfoRow(icon: "info.circle", text: "Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { settingsVM.loadContextStatus() }
+        .onAppear { store.send(.loadContextStatus) }
     }
 
     @MainActor

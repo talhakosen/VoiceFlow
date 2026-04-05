@@ -1,27 +1,26 @@
 import AppKit
+import ComposableArchitecture
 import SwiftUI
 
 // MARK: - MenuBarController
 // Responsibility: NSStatusItem + NSMenu setup and updates.
-// All business logic is in AppViewModel.
+// All business logic is in the TCA Store.
 
 @MainActor
 class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
-    private let viewModel: AppViewModel
-    private let settingsVM: SettingsViewModel
+    private let store: StoreOf<AppFeature>
     private var settingsWindow: NSWindow?
     private var itDatasetWindowController = ITDatasetWindowController()
     private var lastKnownRole: String = ""
     private var updateTimer: Timer?
 
-    init(viewModel: AppViewModel, settingsVM: SettingsViewModel) {
-        self.viewModel = viewModel
-        self.settingsVM = settingsVM
+    init(store: StoreOf<AppFeature>) {
+        self.store = store
         super.init()
         setupStatusItem()
         checkAccessibility()
-        observeViewModel()
+        observeStore()
     }
 
     // MARK: - Status Item
@@ -35,9 +34,9 @@ class MenuBarController: NSObject, NSMenuDelegate {
         rebuildMenu()
     }
 
-    // MARK: - ViewModel observation
+    // MARK: - Store observation
 
-    private func observeViewModel() {
+    private func observeStore() {
         updateTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.syncUI() }
         }
@@ -47,11 +46,13 @@ class MenuBarController: NSObject, NSMenuDelegate {
         updateTimer?.invalidate()
     }
 
+    private var recordingState: RecordingFeature.State { store.recording }
+
     private func syncUI() {
         guard let menu = statusItem?.menu else { return }
 
         // Rebuild if role changed
-        let currentRole = viewModel.currentUser?.role ?? ""
+        let currentRole = recordingState.currentUser?.role ?? ""
         if currentRole != lastKnownRole {
             lastKnownRole = currentRole
             rebuildMenu()
@@ -59,7 +60,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         }
 
         // Recording toggle (tag 101)
-        let recording = viewModel.isRecording
+        let recording = recordingState.isRecording
         if let recItem = menu.item(withTag: 101) {
             recItem.title = recording ? "Kaydı Durdur" : "Kaydı Başlat"
             if let img = NSImage(systemSymbolName: recording ? "stop.circle.fill" : "mic",
@@ -71,8 +72,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
         // Paste last transcript (tag 102) — enabled only when a result exists
         if let pasteItem = menu.item(withTag: 102) {
-            let hasResult = viewModel.lastResult != nil
-            pasteItem.isEnabled = hasResult
+            pasteItem.isEnabled = recordingState.lastResult != nil
         }
 
         // Mode checkmarks in submenu
@@ -81,7 +81,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
                 for subItem in sub.items {
                     if let raw = subItem.representedObject as? String,
                        let mode = AppMode(rawValue: raw) {
-                        subItem.state = viewModel.currentAppMode == mode ? .on : .off
+                        subItem.state = recordingState.currentAppMode == mode ? .on : .off
                     }
                 }
             }
@@ -89,7 +89,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
                 for subItem in sub.items {
                     if let raw = subItem.representedObject as? String,
                        let lang = LanguageMode(rawValue: raw) {
-                        subItem.state = viewModel.currentLanguageMode == lang ? .on : .off
+                        subItem.state = recordingState.currentLanguageMode == lang ? .on : .off
                     }
                 }
             }
@@ -116,7 +116,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         // ── Primary action ───────────────────────────────────────────────
-        let isRec = viewModel.isRecording
+        let isRec = recordingState.isRecording
         menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
                             sel: #selector(toggleRecording),
                             key: "", icon: isRec ? "stop.circle.fill" : "mic", tag: 101))
@@ -125,7 +125,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
                                sel: #selector(pasteLastTranscript),
                                key: "v", icon: "doc.on.clipboard", tag: 102)
         pasteItem.keyEquivalentModifierMask = [.control, .command]
-        pasteItem.isEnabled = viewModel.lastResult != nil
+        pasteItem.isEnabled = recordingState.lastResult != nil
         menu.addItem(pasteItem)
         menu.addItem(.separator())
 
@@ -138,7 +138,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         for lang in LanguageMode.allCases {
             let item = action(lang.rawValue, sel: #selector(switchLanguage(_:)), key: "")
             item.representedObject = lang.rawValue
-            item.state = viewModel.currentLanguageMode == lang ? .on : .off
+            item.state = recordingState.currentLanguageMode == lang ? .on : .off
             langMenu.addItem(item)
         }
         let langItem = NSMenuItem(title: "Dil", action: nil, keyEquivalent: "")
@@ -150,7 +150,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         for mode in AppMode.allCases {
             let item = action(mode.displayName, sel: #selector(switchMode(_:)), key: "")
             item.representedObject = mode.rawValue
-            item.state = viewModel.currentAppMode == mode ? .on : .off
+            item.state = recordingState.currentAppMode == mode ? .on : .off
             if let img = NSImage(systemSymbolName: mode.menuIcon, accessibilityDescription: nil) {
                 img.isTemplate = true
                 item.image = img
@@ -167,7 +167,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         // ── Tools ────────────────────────────────────────────────────────
         menu.addItem(action("Ses Eğitimi…",   sel: #selector(openITDataset),  key: "", icon: "waveform.badge.microphone"))
 
-        let role = viewModel.currentUser?.role ?? ""
+        let role = recordingState.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
             menu.addItem(action("Admin Panel…", sel: #selector(openAdminPanel),
                                 key: "", icon: "shield.lefthalf.filled"))
@@ -215,29 +215,31 @@ class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func statusBarButtonClicked() {}
 
     @objc private func toggleRecording() {
-        if viewModel.isRecording {
-            viewModel.forceStop()
+        if recordingState.isRecording {
+            store.send(.recording(.forceStop))
         } else {
-            viewModel.startRecording()
+            store.send(.recording(.startRecording))
         }
     }
 
-    @objc private func forceStop() { viewModel.forceStop() }
+    @objc private func pasteLastTranscript() {
+        store.send(.recording(.pasteLastResult))
+    }
 
-    @objc private func pasteLastTranscript() { viewModel.pasteLastResult() }
-
-    @objc private func restartService() { viewModel.restartBackend() }
+    @objc private func restartService() {
+        store.send(.recording(.restartBackend))
+    }
 
     @objc private func switchLanguage(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String,
               let lang = LanguageMode(rawValue: raw) else { return }
-        viewModel.selectLanguageMode(lang)
+        store.send(.recording(.selectLanguageMode(lang)))
     }
 
     @objc private func switchMode(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String,
               let mode = AppMode(rawValue: raw) else { return }
-        viewModel.selectAppMode(mode)
+        store.send(.recording(.selectAppMode(mode)))
     }
 
     @objc private func openSettings() {
@@ -250,12 +252,9 @@ class MenuBarController: NSObject, NSMenuDelegate {
         window.level = .floating
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
-        // Titlebar + SwiftUI arka planı birebir eşleşsin
         window.backgroundColor = NSColor.windowBackgroundColor
-        // contentView direkt set — fullSizeContentView ile frame tamamen dolar
-        let hosting = NSHostingController(rootView: SettingsView(viewModel: viewModel, settingsVM: settingsVM))
+        let hosting = NSHostingController(rootView: SettingsView(store: store))
         window.contentView = hosting.view
-        // Layout first, then center on the screen containing the mouse cursor
         window.makeKeyAndOrderFront(nil)
         DispatchQueue.main.async {
             let targetScreen = NSScreen.screens.first(where: {
@@ -273,7 +272,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func openITDataset() {
-        itDatasetWindowController.open(viewModel: viewModel)
+        itDatasetWindowController.open(store: store)
     }
 
     @objc private func openAdminPanel() {
@@ -289,12 +288,11 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     private func checkAccessibility() {
         if !AXIsProcessTrusted() {
-            viewModel.statusText = "⚠ Enable Accessibility!"
+            store.send(.recording(.recordingFailed("Enable Accessibility!")))
         }
     }
 
     // MARK: - Helpers
-
 
     private func action(_ title: String, sel: Selector, key: String,
                         icon: String? = nil, tag: Int = 0) -> NSMenuItem {
@@ -302,7 +300,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         item.target = self
         item.tag = tag
         if let icon, let img = NSImage(systemSymbolName: icon, accessibilityDescription: nil) {
-            img.isTemplate = true   // monochrome — menü rengine uyar, multicolor bozulmaz
+            img.isTemplate = true
             item.image = img
         }
         return item

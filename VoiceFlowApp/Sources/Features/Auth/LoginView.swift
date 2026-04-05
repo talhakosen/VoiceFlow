@@ -1,13 +1,11 @@
+import ComposableArchitecture
 import SwiftUI
 
 struct LoginView: View {
-    var viewModel: AppViewModel
-
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isLoading = false
+    let store: StoreOf<AuthFeature>
 
     var body: some View {
+        let state = store.state
         VStack(spacing: VFSpacing.xxxl) {
             // Logo / icon
             Image(systemName: VFIcon.appLogoFill)
@@ -21,19 +19,25 @@ struct LoginView: View {
             Divider()
 
             VStack(spacing: VFSpacing.xl) {
-                TextField("E-posta", text: $email)
-                    .textFieldStyle(.roundedBorder)
-                    .textContentType(.emailAddress)
-                    .disableAutocorrection(true)
+                TextField("E-posta", text: Binding(
+                    get: { state.email },
+                    set: { store.send(.emailChanged($0)) }
+                ))
+                .textFieldStyle(.roundedBorder)
+                .textContentType(.emailAddress)
+                .disableAutocorrection(true)
 
-                SecureField("Şifre", text: $password)
-                    .textFieldStyle(.roundedBorder)
-                    .textContentType(.password)
-                    .onSubmit { submitLogin() }
+                SecureField("Şifre", text: Binding(
+                    get: { state.password },
+                    set: { store.send(.passwordChanged($0)) }
+                ))
+                .textFieldStyle(.roundedBorder)
+                .textContentType(.password)
+                .onSubmit { store.send(.loginTapped) }
             }
             .padding(.horizontal, VFSpacing.max)
 
-            if let error = viewModel.loginError {
+            if let error = state.loginError {
                 Text(error)
                     .font(VFFont.caption)
                     .foregroundStyle(VFColor.destructive)
@@ -41,9 +45,9 @@ struct LoginView: View {
                     .padding(.horizontal, VFSpacing.max)
             }
 
-            Button(action: submitLogin) {
+            Button(action: { store.send(.loginTapped) }) {
                 ZStack {
-                    if isLoading {
+                    if state.isLoading {
                         ProgressView()
                             .scaleEffect(0.8)
                     } else {
@@ -56,7 +60,7 @@ struct LoginView: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.horizontal, VFSpacing.max)
-            .disabled(isLoading || email.isEmpty || password.isEmpty)
+            .disabled(state.isLoading || state.email.isEmpty || state.password.isEmpty)
 
             Text("Hesabın yok mu? Yöneticinizle iletişime geçin.")
                 .font(VFFont.caption)
@@ -64,14 +68,5 @@ struct LoginView: View {
                 .padding(.bottom, VFSpacing.huge)
         }
         .frame(width: VFLayout.WindowSize.login.width, height: VFLayout.WindowSize.login.height)
-    }
-
-    private func submitLogin() {
-        guard !isLoading, !email.isEmpty, !password.isEmpty else { return }
-        isLoading = true
-        Task {
-            await viewModel.login(email: email, password: password)
-            isLoading = false
-        }
     }
 }

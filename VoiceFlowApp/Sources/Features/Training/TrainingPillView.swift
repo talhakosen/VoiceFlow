@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
@@ -5,13 +6,12 @@ import AppKit
 // Floating "Düzelt" button — bottom-right corner, semi-transparent, 10s countdown.
 
 struct TrainingPillView: View {
-    var viewModel: AppViewModel
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<AppFeature>
 
     @State private var countdown = 10
     @State private var countdownTask: Task<Void, Never>?
 
-    private var displayText: String { viewModel.trainingPillResult?.text ?? "" }
+    private var displayText: String { store.recording.trainingPillResult?.text ?? "" }
 
     private var accent: Color { VFColor.primary }
 
@@ -66,7 +66,7 @@ struct TrainingPillView: View {
                 await MainActor.run { countdown = remaining }
             }
             guard !Task.isCancelled else { return }
-            viewModel.dismissFeedback()
+            store.send(.recording(.dismissFeedback))
         }
     }
 
@@ -101,7 +101,7 @@ struct TrainingPillView: View {
 
         let response = alert.runModal()
         guard response == .alertFirstButtonReturn else {
-            viewModel.dismissFeedback()
+            store.send(.recording(.dismissFeedback))
             return
         }
 
@@ -110,19 +110,10 @@ struct TrainingPillView: View {
         guard !corrected.isEmpty else { return }
 
         if corrected != original {
-            addWordCorrectionsToDictionary(original: original, corrected: corrected)
-            Task { await viewModel.editFeedback(corrected: corrected) }
+            store.send(.settings(.addWordCorrections(original: original, corrected: corrected)))
+            store.send(.recording(.editFeedback(corrected: corrected)))
         } else {
-            Task { await viewModel.approveFeedback() }
-        }
-    }
-
-    private func addWordCorrectionsToDictionary(original: String, corrected: String) {
-        let origWords = original.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
-        let corrWords = corrected.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
-        guard origWords.count == corrWords.count else { return }
-        for (orig, corr) in zip(origWords, corrWords) where orig != corr {
-            settingsVM.addDictionaryEntry(trigger: orig.lowercased(), replacement: corr, scope: "personal")
+            store.send(.recording(.approveFeedback))
         }
     }
 }
@@ -132,10 +123,10 @@ struct TrainingPillView: View {
 final class TrainingPillWindowController: NSObject {
     private var panel: NSPanel?
 
-    func show(viewModel: AppViewModel, settingsVM: SettingsViewModel) {
+    func show(store: StoreOf<AppFeature>) {
         guard panel == nil else { return }
 
-        let hosting = SafeHostingView(rootView: TrainingPillView(viewModel: viewModel, settingsVM: settingsVM))
+        let hosting = SafeHostingView(rootView: TrainingPillView(store: store))
         hosting.sizingOptions = [.preferredContentSize]
 
         let p = NSPanel(

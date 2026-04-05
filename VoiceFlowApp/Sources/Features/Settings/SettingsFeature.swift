@@ -8,6 +8,7 @@ struct SettingsFeature {
         var dictionaryEntries: [DictionaryEntry] = []
         var snippetEntries: [SnippetEntry] = []
         var contextChunkCount: Int = 0
+        var indexedProjects: [IndexedProject] = []
         var isIndexing: Bool = false
         var contextIndexingError: String? = nil
         var userName: String = ""
@@ -31,6 +32,7 @@ struct SettingsFeature {
 
         // Context
         case loadContextStatus
+        case contextProjectsLoaded(ContextProjects)
         case contextStatusLoaded(Int)
         case ingestContext(folderPath: String)
         case contextIngested(Int)
@@ -126,11 +128,16 @@ struct SettingsFeature {
             case .loadContextStatus:
                 return .run { send in
                     if let projects = try? await backend.getContextProjects() {
-                        await send(.contextStatusLoaded(projects.smartWordCount))
+                        await send(.contextProjectsLoaded(projects))
                     } else if let status = try? await backend.getContextStatus() {
                         await send(.contextStatusLoaded(status.count))
                     }
                 }
+
+            case let .contextProjectsLoaded(projects):
+                state.contextChunkCount = projects.smartWordCount
+                state.indexedProjects = projects.projects
+                return .none
 
             case let .contextStatusLoaded(count):
                 state.contextChunkCount = count
@@ -169,7 +176,7 @@ struct SettingsFeature {
             case let .contextIngested(count):
                 state.isIndexing = false
                 state.contextChunkCount = count
-                return .none
+                return .send(.loadContextStatus)
 
             case let .contextIngestFailed(error):
                 state.isIndexing = false
@@ -184,6 +191,7 @@ struct SettingsFeature {
 
             case .contextCleared:
                 state.contextChunkCount = 0
+                state.indexedProjects = []
                 return .none
 
             // MARK: - User profile

@@ -1,10 +1,11 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - Snippets
 
 struct SnippetsSection: View {
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<SettingsFeature>
 
     @State private var newTrigger = ""
     @State private var newExpansion = ""
@@ -15,14 +16,14 @@ struct SnippetsSection: View {
 
             VFSectionHeader("Şablon Listesi")
             VFCard {
-                if settingsVM.snippetEntries.isEmpty {
+                if store.snippetEntries.isEmpty {
                     Text("Henüz şablon yok. Ses kaydında tetikleyici söyleyince şablon yapıştırılır.")
                         .foregroundStyle(.secondary)
                         .font(VFFont.body)
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(Array(settingsVM.snippetEntries.enumerated()), id: \.element.id) { idx, entry in
+                    ForEach(Array(store.snippetEntries.enumerated()), id: \.element.id) { idx, entry in
                         HStack(spacing: VFSpacing.md) {
                             Text(entry.triggerPhrase)
                                 .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
@@ -38,7 +39,7 @@ struct SnippetsSection: View {
                                 .frame(width: 60)
                             if entry.scope == "personal" {
                                 Button {
-                                    settingsVM.deleteSnippet(id: entry.id)
+                                    store.send(.deleteSnippet(entry.id))
                                 } label: {
                                     Image(systemName: VFIcon.delete).foregroundStyle(VFColor.destructive)
                                 }
@@ -47,7 +48,7 @@ struct SnippetsSection: View {
                         }
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
-                        if idx < settingsVM.snippetEntries.count - 1 {
+                        if idx < store.snippetEntries.count - 1 {
                             Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
@@ -70,7 +71,7 @@ struct SnippetsSection: View {
                         .frame(width: 90)
                         Button("Ekle") {
                             guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
-                            settingsVM.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
+                            store.send(.addSnippet(trigger: newTrigger, expansion: newExpansion))
                             newTrigger = ""
                             newExpansion = ""
                         }
@@ -84,6 +85,6 @@ struct SnippetsSection: View {
             VFInfoRow(icon: "info.circle", text: "Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { settingsVM.loadSnippets() }
+        .onAppear { store.send(.loadSnippets) }
     }
 }

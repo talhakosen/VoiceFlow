@@ -1,21 +1,22 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - Dictionary
 
 struct DictionarySection: View {
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<SettingsFeature>
 
     @State private var selectedTab = 0
     @State private var newTrigger = ""
     @State private var newReplacement = ""
 
     private var personalEntries: [DictionaryEntry] {
-        settingsVM.dictionaryEntries.filter { $0.scope == "personal" }
+        store.dictionaryEntries.filter { $0.scope == "personal" }
     }
 
     private var teamEntries: [DictionaryEntry] {
-        settingsVM.dictionaryEntries.filter { $0.scope == "team" }
+        store.dictionaryEntries.filter { $0.scope == "team" }
     }
 
     private func isSharedWithTeam(_ entry: DictionaryEntry) -> Bool {
@@ -50,13 +51,15 @@ struct DictionarySection: View {
                         DictionaryRow(
                             entry: entry,
                             alreadyShared: selectedTab == 0 ? isSharedWithTeam(entry) : false,
-                            onDelete: { settingsVM.deleteDictionaryEntry(id: entry.id) },
+                            onDelete: {
+                                store.send(.deleteDictionaryEntry(entry.id))
+                            },
                             onShareToTeam: selectedTab == 0 ? {
-                                settingsVM.addDictionaryEntry(
+                                store.send(.addDictionaryEntry(
                                     trigger: entry.trigger,
                                     replacement: entry.replacement,
                                     scope: "team"
-                                )
+                                ))
                             } : nil
                         )
                         if idx < entries.count - 1 {
@@ -79,7 +82,7 @@ struct DictionarySection: View {
                         Button("Ekle") {
                             guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
                             let scope = selectedTab == 0 ? "personal" : "team"
-                            settingsVM.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: scope)
+                            store.send(.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: scope))
                             newTrigger = ""
                             newReplacement = ""
                         }
@@ -93,7 +96,7 @@ struct DictionarySection: View {
             VFInfoRow(icon: "info.circle", text: "Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { settingsVM.loadDictionary() }
+        .onAppear { store.send(.loadDictionary) }
     }
 }
 

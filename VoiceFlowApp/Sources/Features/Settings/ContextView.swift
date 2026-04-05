@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
@@ -6,11 +7,12 @@ import AppKit
 struct ContextView: View {
     @Environment(\.dismiss) private var dismiss
 
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<SettingsFeature>
 
     @State private var selectedFolderPath: String = ""
 
     var body: some View {
+        let state = store.state
         VStack(alignment: .leading, spacing: 20) {
             Text("Knowledge Base")
                 .font(.headline)
@@ -18,18 +20,18 @@ struct ContextView: View {
             // Status
             GroupBox("Index Status") {
                 HStack {
-                    Image(systemName: settingsVM.contextChunkCount > 0 ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(settingsVM.contextChunkCount > 0 ? .green : .secondary)
-                    if settingsVM.contextChunkCount > 0 {
-                        Text("\(settingsVM.contextChunkCount) chunks indexed")
+                    Image(systemName: state.contextChunkCount > 0 ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(state.contextChunkCount > 0 ? .green : .secondary)
+                    if state.contextChunkCount > 0 {
+                        Text("\(state.contextChunkCount) chunks indexed")
                     } else {
                         Text("Not indexed")
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    if settingsVM.contextChunkCount > 0 {
+                    if state.contextChunkCount > 0 {
                         Button("Clear") {
-                            settingsVM.clearContext()
+                            store.send(.clearContext)
                         }
                         .buttonStyle(.plain)
                         .foregroundColor(.red)
@@ -58,9 +60,9 @@ struct ContextView: View {
                     HStack {
                         Button(action: {
                             guard !selectedFolderPath.isEmpty else { return }
-                            settingsVM.ingestContext(folderPath: selectedFolderPath)
+                            store.send(.ingestContext(folderPath: selectedFolderPath))
                         }) {
-                            if settingsVM.isIndexing {
+                            if state.isIndexing {
                                 ProgressView()
                                     .scaleEffect(0.7)
                                     .padding(.trailing, 4)
@@ -69,13 +71,13 @@ struct ContextView: View {
                                 Text("Index Now")
                             }
                         }
-                        .disabled(selectedFolderPath.isEmpty || settingsVM.isIndexing)
+                        .disabled(selectedFolderPath.isEmpty || state.isIndexing)
                         .buttonStyle(.borderedProminent)
 
                         Spacer()
                     }
 
-                    if let error = settingsVM.contextIndexingError {
+                    if let error = state.contextIndexingError {
                         Text(error)
                             .font(.caption)
                             .foregroundColor(.red)
@@ -94,7 +96,7 @@ struct ContextView: View {
         }
         .padding(20)
         .frame(width: 460, height: 300)
-        .onAppear { settingsVM.loadContextStatus() }
+        .onAppear { store.send(.loadContextStatus) }
     }
 
     @MainActor

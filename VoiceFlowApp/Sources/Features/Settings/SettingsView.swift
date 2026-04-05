@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
@@ -48,8 +49,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
 // MARK: - SettingsView (custom 2-panel — icon strip on collapse)
 
 struct SettingsView: View {
-    var viewModel: AppViewModel
-    var settingsVM: SettingsViewModel
+    let store: StoreOf<AppFeature>
 
     @State private var selectedSection: SettingsSection = .general
     @State private var sidebarCollapsed = false
@@ -130,13 +130,23 @@ struct SettingsView: View {
                 ScrollView {
                     Group {
                         switch selectedSection {
-                        case .general:       GeneralSection(viewModel: viewModel)
-                        case .recording:     RecordingSection(viewModel: viewModel)
-                        case .dictionary:    DictionarySection(settingsVM: settingsVM)
-                        case .snippets:      SnippetsSection(settingsVM: settingsVM)
-                        case .knowledgeBase: KnowledgeBaseSection(settingsVM: settingsVM)
-                        case .account:       AccountSection(settingsVM: settingsVM, viewModel: viewModel)
-                        case .about:         AboutSection(viewModel: viewModel)
+                        case .general:
+                            GeneralSection(store: store.scope(state: \.recording, action: \.recording))
+                        case .recording:
+                            RecordingSection(store: store.scope(state: \.recording, action: \.recording))
+                        case .dictionary:
+                            DictionarySection(store: store.scope(state: \.settings, action: \.settings))
+                        case .snippets:
+                            SnippetsSection(store: store.scope(state: \.settings, action: \.settings))
+                        case .knowledgeBase:
+                            KnowledgeBaseSection(store: store.scope(state: \.settings, action: \.settings))
+                        case .account:
+                            AccountSection(
+                                settingsStore: store.scope(state: \.settings, action: \.settings),
+                                recordingStore: store.scope(state: \.recording, action: \.recording)
+                            )
+                        case .about:
+                            AboutSection(store: store.scope(state: \.recording, action: \.recording))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -153,10 +163,6 @@ struct SettingsView: View {
         .frame(width: VFLayout.WindowSize.settings.width, height: VFLayout.WindowSize.settings.height)
         .background(Color(nsColor: .windowBackgroundColor))
         .ignoresSafeArea(.all)
-        .onDisappear {
-            viewModel.itDatasetActive = false
-            viewModel.itDatasetCurrentIndex = -1
-        }
     }
 }
 

@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
@@ -28,19 +29,97 @@ private final class SoundDelegate: NSObject, NSSoundDelegate {
     }
 }
 
+// MARK: - ITDatasetState
+// Local state container for dataset operations — not suitable for TCA global state
+
+@Observable
+@MainActor
+final class ITDatasetState {
+    var itDatasetActive = false
+    var itDatasetCurrentIndex = -1
+    var itDatasetLastWhisper = ""
+    var itDatasetLastWavPath = ""
+    var itDatasetProcessing = false
+    var itDatasetCurrentModule: String = "it_dataset"
+    private var isDatasetRecordingActive = false
+
+    let backend: any BackendServiceProtocol
+
+    init(backend: any BackendServiceProtocol = BackendService()) {
+        self.backend = backend
+    }
+
+    func startRecordingForDataset(isRecording: Bool) {
+        guard !isRecording && !itDatasetProcessing else { return }
+        isDatasetRecordingActive = true
+        itDatasetProcessing = false
+        Task {
+            do {
+                try await backend.startRecording()
+            } catch {
+                isDatasetRecordingActive = false
+            }
+        }
+    }
+
+    func stopRecordingForDataset(isRecording: Bool) {
+        guard isRecording && isDatasetRecordingActive else { return }
+        isDatasetRecordingActive = false
+        itDatasetProcessing = true
+        Task {
+            do {
+                let result = try await backend.stopRecording(
+                    activeAppBundleID: nil,
+                    windowTitle: nil,
+                    selectedText: nil,
+                    cmdIntervals: nil,
+                    itDatasetIndex: itDatasetCurrentIndex >= 0 ? itDatasetCurrentIndex : nil,
+                    trainingMode: false
+                )
+                if itDatasetActive && itDatasetCurrentIndex >= 0 {
+                    itDatasetLastWhisper = result.rawText ?? result.text
+                    itDatasetLastWavPath = result.itWavPath ?? ""
+                }
+            } catch {}
+            itDatasetProcessing = false
+        }
+    }
+
+    func deleteITDatasetPair(wavPath: String) {
+        Task {
+            try? await backend.deleteITDatasetPair(wavPath: wavPath)
+        }
+    }
+
+    func getITDatasetRandom() async throws -> ITDatasetResponse {
+        try await backend.getITDatasetRandom(trainingSet: itDatasetCurrentModule)
+    }
+
+    func getITDatasetRecorded() async throws -> [ITDatasetResponse] {
+        try await backend.getITDatasetRecorded(trainingSet: itDatasetCurrentModule)
+    }
+}
+
 // MARK: - ITDatasetView
 // Standalone recording screen. Launched from menu bar.
 // Module picker at top: "IT Cümleleri" (sentences) / "IT Terimleri" (terms)
 
 struct ITDatasetView: View {
-    var viewModel: AppViewModel
+    let store: StoreOf<AppFeature>
+    @State private var datasetState: ITDatasetState
 
     @State private var selectedModule: TrainingModule = .itSentences
     @State private var selectedTab: Int = 0
     @State private var totalSentences: Int = 0
     @State private var recordedCount: Int = 0
 
+    init(store: StoreOf<AppFeature>) {
+        self.store = store
+        _datasetState = State(initialValue: ITDatasetState())
+    }
+
     var body: some View {
+        let recordingState = store.recording
         VStack(spacing: 0) {
             // Module picker
             modulePicker
@@ -66,10 +145,20 @@ struct ITDatasetView: View {
 
             // Content
             if selectedTab == 0 {
-                NewSentenceTab(viewModel: viewModel, module: selectedModule,
-                               totalSentences: $totalSentences, recordedCount: $recordedCount)
+                NewSentenceTab(
+                    datasetState: datasetState,
+                    store: store,
+                    module: selectedModule,
+                    totalSentences: $totalSentences,
+                    recordedCount: $recordedCount
+                )
             } else {
-                PracticedTab(viewModel: viewModel, module: selectedModule, recordedCount: $recordedCount)
+                PracticedTab(
+                    datasetState: datasetState,
+                    store: store,
+                    module: selectedModule,
+                    recordedCount: $recordedCount
+                )
             }
         }
         .frame(width: 520, height: 600)
@@ -78,10 +167,14 @@ struct ITDatasetView: View {
             // Reset per-module counts when switching
             totalSentences = 0
             recordedCount = 0
-            viewModel.itDatasetCurrentModule = newModule.rawValue
+            datasetState.itDatasetCurrentModule = newModule.rawValue
         }
         .onAppear {
-            viewModel.itDatasetCurrentModule = selectedModule.rawValue
+            datasetState.itDatasetCurrentModule = selectedModule.rawValue
+        }
+        .onDisappear {
+            datasetState.itDatasetActive = false
+            datasetState.itDatasetCurrentIndex = -1
         }
     }
 
@@ -131,7 +224,8 @@ struct ITDatasetView: View {
 // MARK: - New Sentence Tab
 
 private struct NewSentenceTab: View {
-    var viewModel: AppViewModel
+    let datasetState: ITDatasetState
+    let store: StoreOf<AppFeature>
     let module: TrainingModule
     @Binding var totalSentences: Int
     @Binding var recordedCount: Int
@@ -146,6 +240,7 @@ private struct NewSentenceTab: View {
     @State private var keyMonitor: Any? = nil
 
     var body: some View {
+        let recordingState = store.recording
         VStack(spacing: 0) {
             if isLoading {
                 Spacer()
@@ -164,36 +259,38 @@ private struct NewSentenceTab: View {
                         .padding(.top, 20)
                 }
 
-                recordingsList
+                recordingsList(isProcessing: datasetState.itDatasetProcessing)
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
 
                 Spacer()
 
-                micButton
+                micButton(isRecording: recordingState.isRecording,
+                          isProcessing: datasetState.itDatasetProcessing)
                     .padding(.bottom, 24)
             }
         }
         .onAppear {
-            viewModel.itDatasetActive = true
+            datasetState.itDatasetActive = true
             Task { await loadRandom() }
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 guard event.keyCode == 49,
                       event.modifierFlags.contains(.function),
                       !self.currentSentence.isEmpty else { return event }
                 Task { @MainActor in
-                    if self.viewModel.isRecording {
-                        self.viewModel.stopRecordingForDataset()
-                    } else if !self.viewModel.itDatasetProcessing {
-                        self.viewModel.startRecordingForDataset()
+                    if store.recording.isRecording {
+                        datasetState.stopRecordingForDataset(isRecording: store.recording.isRecording)
+                    } else if !datasetState.itDatasetProcessing {
+                        datasetState.startRecordingForDataset(isRecording: store.recording.isRecording)
+                        store.send(.recording(.startRecording))
                     }
                 }
                 return nil
             }
         }
         .onDisappear {
-            viewModel.itDatasetActive = false
-            viewModel.itDatasetCurrentIndex = -1
+            datasetState.itDatasetActive = false
+            datasetState.itDatasetCurrentIndex = -1
             currentSound?.stop()
             if let monitor = keyMonitor {
                 NSEvent.removeMonitor(monitor)
@@ -203,11 +300,11 @@ private struct NewSentenceTab: View {
         .onChange(of: module) { _, _ in
             Task { await loadRandom() }
         }
-        .onChange(of: viewModel.itDatasetLastWhisper) {
-            if !viewModel.itDatasetLastWhisper.isEmpty {
-                recordings.append((whisper: viewModel.itDatasetLastWhisper, wavPath: viewModel.itDatasetLastWavPath))
-                viewModel.itDatasetLastWhisper = ""
-                viewModel.itDatasetLastWavPath = ""
+        .onChange(of: datasetState.itDatasetLastWhisper) {
+            if !datasetState.itDatasetLastWhisper.isEmpty {
+                recordings.append((whisper: datasetState.itDatasetLastWhisper, wavPath: datasetState.itDatasetLastWavPath))
+                datasetState.itDatasetLastWhisper = ""
+                datasetState.itDatasetLastWavPath = ""
                 recordedCount += 1
             }
         }
@@ -296,8 +393,8 @@ private struct NewSentenceTab: View {
     }
 
     @ViewBuilder
-    private var recordingsList: some View {
-        if !recordings.isEmpty || viewModel.itDatasetProcessing {
+    private func recordingsList(isProcessing: Bool) -> some View {
+        if !recordings.isEmpty || isProcessing {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Kayitlar")
                     .font(.caption.weight(.semibold))
@@ -308,7 +405,7 @@ private struct NewSentenceTab: View {
                     recordingRow(index: i, rec: rec)
                 }
 
-                if viewModel.itDatasetProcessing {
+                if isProcessing {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
                         Text("Varyasyon \(recordings.count + 1) isleniyor...")
@@ -354,7 +451,7 @@ private struct NewSentenceTab: View {
 
             Button {
                 currentSound?.stop(); currentSound = nil; playingIndex = nil
-                viewModel.deleteITDatasetPair(wavPath: rec.wavPath)
+                datasetState.deleteITDatasetPair(wavPath: rec.wavPath)
                 recordings.remove(at: i)
                 if recordedCount > 0 { recordedCount -= 1 }
             } label: {
@@ -368,35 +465,37 @@ private struct NewSentenceTab: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    private var micButton: some View {
+    private func micButton(isRecording: Bool, isProcessing: Bool) -> some View {
         VStack(spacing: 8) {
             Button {
-                if viewModel.isRecording {
-                    viewModel.stopRecordingForDataset()
+                if isRecording {
+                    datasetState.stopRecordingForDataset(isRecording: isRecording)
+                    store.send(.recording(.forceStop))
                 } else {
-                    viewModel.startRecordingForDataset()
+                    datasetState.startRecordingForDataset(isRecording: isRecording)
+                    store.send(.recording(.startRecording))
                 }
             } label: {
                 ZStack {
                     Circle()
-                        .fill(viewModel.isRecording ? Color.red : viewModel.itDatasetProcessing ? Color.gray : Color.accentColor)
+                        .fill(isRecording ? Color.red : isProcessing ? Color.gray : Color.accentColor)
                         .frame(width: 64, height: 64)
-                        .shadow(color: (viewModel.isRecording ? Color.red : Color.accentColor).opacity(0.4), radius: 12)
-                    if viewModel.itDatasetProcessing {
+                        .shadow(color: (isRecording ? Color.red : Color.accentColor).opacity(0.4), radius: 12)
+                    if isProcessing {
                         ProgressView().controlSize(.small).tint(.white)
                     } else {
-                        Image(systemName: viewModel.isRecording ? "stop.fill" : "mic.fill")
+                        Image(systemName: isRecording ? "stop.fill" : "mic.fill")
                             .font(.system(size: 24, weight: .semibold))
                             .foregroundStyle(.white)
                     }
                 }
             }
             .buttonStyle(.plain)
-            .disabled(viewModel.itDatasetProcessing)
-            .scaleEffect(viewModel.isRecording ? 1.1 : 1.0)
-            .animation(.spring(response: 0.3), value: viewModel.isRecording)
+            .disabled(isProcessing)
+            .scaleEffect(isRecording ? 1.1 : 1.0)
+            .animation(.spring(response: 0.3), value: isRecording)
 
-            if viewModel.itDatasetProcessing {
+            if isProcessing {
                 Text("Isleniyor...")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -410,13 +509,13 @@ private struct NewSentenceTab: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let data = try await viewModel.getITDatasetRandom()
+            let data = try await datasetState.getITDatasetRandom()
             currentIndex = data.index
             if totalSentences == 0 { totalSentences = data.total }
             currentSentence = data.sentence
             recordings = (data.recordings ?? []).map { (whisper: $0.whisper, wavPath: $0.wavPath) }
-            viewModel.itDatasetCurrentIndex = data.index
-            viewModel.itDatasetLastWhisper = ""
+            datasetState.itDatasetCurrentIndex = data.index
+            datasetState.itDatasetLastWhisper = ""
         } catch {
             print("IT random load error: \(error)")
         }
@@ -426,7 +525,8 @@ private struct NewSentenceTab: View {
 // MARK: - Practiced Tab
 
 private struct PracticedTab: View {
-    var viewModel: AppViewModel
+    let datasetState: ITDatasetState
+    let store: StoreOf<AppFeature>
     let module: TrainingModule
     @Binding var recordedCount: Int
 
@@ -448,7 +548,7 @@ private struct PracticedTab: View {
                     Spacer()
                 }
             } else if let sel = selected {
-                PracticeDetailCard(item: sel, viewModel: viewModel) {
+                PracticeDetailCard(item: sel, datasetState: datasetState) {
                     selected = nil
                     Task { await loadRecorded() }
                 }
@@ -497,7 +597,7 @@ private struct PracticedTab: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            items = try await viewModel.getITDatasetRecorded()
+            items = try await datasetState.getITDatasetRecorded()
             recordedCount = items.count
         } catch {
             print("IT recorded load error: \(error)")
@@ -509,7 +609,7 @@ private struct PracticedTab: View {
 
 private struct PracticeDetailCard: View {
     let item: ITDatasetResponse
-    var viewModel: AppViewModel
+    let datasetState: ITDatasetState
     var onBack: () -> Void
 
     @State private var liveRecordings: [ITRecordingItem] = []
@@ -573,7 +673,7 @@ private struct PracticeDetailCard: View {
                     Spacer()
                     Button {
                         currentSound?.stop(); currentSound = nil; playingIndex = nil
-                        viewModel.deleteITDatasetPair(wavPath: rec.wavPath)
+                        datasetState.deleteITDatasetPair(wavPath: rec.wavPath)
                         liveRecordings.remove(at: i)
                     } label: {
                         Image(systemName: "trash").font(.caption).foregroundStyle(.red)
@@ -592,7 +692,7 @@ private struct PracticeDetailCard: View {
     }
 
     private func refreshRecordings() async {
-        guard let all = try? await viewModel.getITDatasetRecorded(),
+        guard let all = try? await datasetState.getITDatasetRecorded(),
               let match = all.first(where: { $0.index == item.index }) else { return }
         liveRecordings = match.recordings ?? []
     }
@@ -603,9 +703,9 @@ private struct PracticeDetailCard: View {
 final class ITDatasetWindowController: NSObject {
     private var window: NSWindow?
 
-    func open(viewModel: AppViewModel) {
+    func open(store: StoreOf<AppFeature>) {
         if let w = window, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
-        let hosting = NSHostingController(rootView: ITDatasetView(viewModel: viewModel))
+        let hosting = NSHostingController(rootView: ITDatasetView(store: store))
         let w = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 520, height: 600),
             styleMask: [.titled, .closable, .nonactivatingPanel],

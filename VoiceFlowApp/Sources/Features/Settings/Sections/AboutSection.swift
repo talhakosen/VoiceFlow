@@ -1,10 +1,11 @@
+import ComposableArchitecture
 import SwiftUI
 import AppKit
 
 // MARK: - About
 
 struct AboutSection: View {
-    var viewModel: AppViewModel
+    let store: StoreOf<RecordingFeature>
 
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.2"
@@ -13,6 +14,7 @@ struct AboutSection: View {
     }
 
     var body: some View {
+        let state = store.state
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
             // Uygulama bilgisi
@@ -22,7 +24,7 @@ struct AboutSection: View {
                     Text("v\(appVersion)").foregroundStyle(.secondary)
                 }
                 VFRow("Durum", divider: false) {
-                    Text(viewModel.statusText).foregroundStyle(.secondary)
+                    Text(state.statusText).foregroundStyle(.secondary)
                 }
             }
 
@@ -30,9 +32,9 @@ struct AboutSection: View {
             VFSectionHeader("Servis Yönetimi")
             VFCard {
                 HStack(spacing: VFSpacing.md) {
-                    Button("Servisi Yeniden Başlat") { viewModel.restartBackend() }
+                    Button("Servisi Yeniden Başlat") { store.send(.restartBackend) }
                         .buttonStyle(.bordered)
-                    Button("Zorla Yeniden Başlat") { viewModel.hardReset() }
+                    Button("Zorla Yeniden Başlat") { store.send(.hardReset) }
                         .buttonStyle(.bordered)
                         .foregroundStyle(VFColor.destructive)
                     Spacer()
