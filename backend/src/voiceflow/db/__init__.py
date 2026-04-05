@@ -19,6 +19,8 @@ from .storage import (
     clear_symbol_indexes, save_symbol_batch,
     get_symbol_index_file_paths, get_symbols_for_matching, get_symbols_for_notes,
     lookup_symbol_exact, lookup_symbol_prefix, lookup_symbol_substring,
+    # Config key/value store
+    get_config, set_config,
     # Token blacklist
     revoke_token, is_token_revoked, purge_expired_tokens,
 )
@@ -41,5 +43,6 @@ __all__ = [
     "clear_symbol_indexes", "save_symbol_batch",
     "get_symbol_index_file_paths", "get_symbols_for_matching", "get_symbols_for_notes",
     "lookup_symbol_exact", "lookup_symbol_prefix", "lookup_symbol_substring",
+    "get_config", "set_config",
     "revoke_token", "is_token_revoked", "purge_expired_tokens",
 ]
