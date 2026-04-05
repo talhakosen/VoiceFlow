@@ -18,12 +18,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let store = Store(initialState: AppFeature.State()) { AppFeature() }
 
     private var storeObservation: Task<Void, Never>?
+    private let hotkeyManager = HotkeyManager()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureUserID()
 
         let overlay = RecordingOverlayWindow()
         self.recordingOverlay = overlay
+
+        // Wire HotkeyManager → TCA store
+        hotkeyManager.onStartRecording = { [weak self] in
+            self?.store.send(.recording(.startRecording))
+        }
+        hotkeyManager.onStopRecording = { [weak self] in
+            self?.store.send(.recording(.stopRecording))
+        }
+        hotkeyManager.onSwitchMode = { [weak self] index in
+            let modes = AppMode.allCases
+            guard index < modes.count else { return }
+            self?.store.send(.recording(.selectAppMode(modes[index])))
+        }
+        hotkeyManager.start()
 
         // Observe store state to drive overlay and mode indicator windows
         storeObservation = Task { @MainActor [weak self] in
@@ -167,6 +182,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         healthCheckTimer?.invalidate()
         storeObservation?.cancel()
+        hotkeyManager.stop()
         stopBackend()
     }
 
