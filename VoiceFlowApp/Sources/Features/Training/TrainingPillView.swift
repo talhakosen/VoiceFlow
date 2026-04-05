@@ -8,17 +8,15 @@ import AppKit
 struct TrainingPillView: View {
     let store: StoreOf<AppFeature>
 
-    @State private var countdown = 10
-    @State private var countdownTask: Task<Void, Never>?
-
-    private var displayText: String { store.recording.trainingPillResult?.text ?? "" }
+    // Fix 2: TrainingFeature is sole owner of pill state; read from store.training
+    private var displayText: String { store.training.originalText }
+    private var countdown: Int { store.training.countdown }
 
     private var accent: Color { VFColor.primary }
 
     var body: some View {
         Button {
-            countdownTask?.cancel()
-            showEditDialog()
+            store.send(.training(.editTapped))
         } label: {
             ZStack {
                 // Background
@@ -54,67 +52,6 @@ struct TrainingPillView: View {
         .buttonStyle(.plain)
         .vfAccentShadow(accent: accent)
         .padding(VFSpacing.xxxl)
-        .onAppear { startCountdown() }
-        .onDisappear { countdownTask?.cancel() }
-    }
-
-    private func startCountdown() {
-        countdownTask = Task {
-            for remaining in stride(from: 9, through: 0, by: -1) {
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                guard !Task.isCancelled else { return }
-                await MainActor.run { countdown = remaining }
-            }
-            guard !Task.isCancelled else { return }
-            store.send(.recording(.dismissFeedback))
-        }
-    }
-
-    // MARK: - Edit dialog (NSAlert)
-
-    private func showEditDialog() {
-        let alert = NSAlert()
-        alert.messageText = "Metni Düzelt"
-        alert.informativeText = "Doğru metni yazın:"
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "Kaydet")
-        alert.addButton(withTitle: "İptal")
-
-        let scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: 420, height: 100))
-        scrollView.hasVerticalScroller = true
-        scrollView.hasHorizontalScroller = false
-        scrollView.autohidesScrollers = true
-
-        let textView = NSTextView(frame: scrollView.bounds)
-        textView.string = displayText
-        textView.isEditable = true
-        textView.isRichText = false
-        textView.font = NSFont.systemFont(ofSize: 13)
-        textView.autoresizingMask = [.width]
-        scrollView.documentView = textView
-
-        alert.accessoryView = scrollView
-
-        DispatchQueue.main.async {
-            textView.selectAll(nil)
-        }
-
-        let response = alert.runModal()
-        guard response == .alertFirstButtonReturn else {
-            store.send(.recording(.dismissFeedback))
-            return
-        }
-
-        let original = displayText
-        let corrected = textView.string.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !corrected.isEmpty else { return }
-
-        if corrected != original {
-            store.send(.settings(.addWordCorrections(original: original, corrected: corrected)))
-            store.send(.recording(.editFeedback(corrected: corrected)))
-        } else {
-            store.send(.recording(.approveFeedback))
-        }
     }
 }
 

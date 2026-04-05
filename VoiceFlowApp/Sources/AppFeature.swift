@@ -33,12 +33,12 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
 
-            // When transcript received → show training pill if training mode on
-            // Also sync menuBar state (merged from two duplicate cases)
+            // Fix 2: Training pill routing — AppFeature decides based on trainingMode flag.
+            // RecordingFeature only sets statusText; AppFeature routes to TrainingFeature.
             case let .recording(.transcriptReceived(result)):
-                state.menuBar.isRecording = false
                 state.menuBar.hasLastResult = true
-                if state.recording.trainingModeEnabled {
+                // Fix 3: menuBar.isRecording removed — isRecording lives only in RecordingFeature
+                if state.recording.trainingModeEnabled && result.snippetUsed != true {
                     return .send(.training(.pillShown(originalText: result.text)))
                 }
                 return .none
@@ -46,23 +46,6 @@ struct AppFeature {
             // When training pill word corrections applied → update dictionary
             case let .training(.wordCorrectionsApplied(original, corrected)):
                 return .send(.settings(.addWordCorrections(original: original, corrected: corrected)))
-
-            // Sync recording state to menuBar on start
-            case .recording(.startRecording):
-                state.menuBar.isRecording = true
-                return .none
-
-            // Sync recording state to menuBar on stop/failure
-            case .recording(.forceStop), .recording(.recordingFailed):
-                state.menuBar.isRecording = false
-                return .none
-
-            // Auth → sync user to recording feature
-            case let .auth(.loginResponse(.success(user))):
-                return .send(.recording(.userLoggedIn(user)))
-
-            case .auth(.logoutTapped):
-                return .send(.recording(.userLoggedOut))
 
             default:
                 return .none

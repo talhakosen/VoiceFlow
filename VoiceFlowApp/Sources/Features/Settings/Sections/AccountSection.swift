@@ -6,21 +6,22 @@ import AppKit
 
 struct AccountSection: View {
     let settingsStore: StoreOf<SettingsFeature>
-    let recordingStore: StoreOf<RecordingFeature>
+    // Fix 1: currentUser lives in AuthFeature, not RecordingFeature
+    let authStore: StoreOf<AuthFeature>
 
     @State private var userName: String
     @State private var userDepartment: String
 
-    init(settingsStore: StoreOf<SettingsFeature>, recordingStore: StoreOf<RecordingFeature>) {
+    init(settingsStore: StoreOf<SettingsFeature>, authStore: StoreOf<AuthFeature>) {
         self.settingsStore = settingsStore
-        self.recordingStore = recordingStore
+        self.authStore = authStore
         _userName       = State(initialValue: settingsStore.state.userName)
         _userDepartment = State(initialValue: settingsStore.state.userDepartment)
     }
 
     var body: some View {
         let settingsState = settingsStore.state
-        let recordingState = recordingStore.state
+        let authState = authStore.state
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
             VFSectionHeader("Profil")
@@ -38,12 +39,12 @@ struct AccountSection: View {
                         .onChange(of: userDepartment) { settingsStore.send(.setUserDepartment(userDepartment)) }
                 }
                 VFRow("Kullanıcı ID",
-                      divider: recordingState.currentUser == nil) {
+                      divider: authState.currentUser == nil) {
                     Text(settingsState.userID.isEmpty ? "—" : settingsState.userID)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
-                if let user = recordingState.currentUser {
+                if let user = authState.currentUser {
                     VFRow("Rol", divider: false) {
                         Text(user.role.capitalized)
                             .foregroundStyle(user.role == "admin" || user.role == "superadmin"

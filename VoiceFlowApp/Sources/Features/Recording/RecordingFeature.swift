@@ -23,14 +23,9 @@ struct RecordingFeature {
         var isLLMReady: Bool = false
         var whisperModelName: String = ""
         var llmAdapterVersion: String = ""
-        var trainingModeEnabled: Bool = false
-        var showTrainingPill: Bool = false
-        var trainingPillResult: TranscriptionResult? = nil
         var appearanceMode: AppearanceMode = .system
-
-        // Auth state — mirrors AppViewModel (Katman 2)
-        var currentUser: AuthUser? = nil
-        var isLoggedIn: Bool = false
+        // Fix 2: trainingModeEnabled kept for config persistence; training pill state removed
+        var trainingModeEnabled: Bool = false
     }
 
     // MARK: - Action
@@ -53,19 +48,10 @@ struct RecordingFeature {
         case setTrainingMode(Bool)
         case setAppearanceMode(AppearanceMode)
 
-        // Training pill feedback
-        case approveFeedback
-        case editFeedback(corrected: String)
-        case dismissFeedback
-
         // Backend lifecycle
         case restartBackend
         case hardReset
         case backendStatusReceived(isLLMReady: Bool, whisperModel: String, adapterVersion: String)
-
-        // Auth
-        case userLoggedIn(AuthUser)
-        case userLoggedOut
 
         // Accessibility (delegated to AppDelegate / MenuBarFeature)
         case checkAccessibility
@@ -76,6 +62,7 @@ struct RecordingFeature {
     @Dependency(\.backendClient) var backend
     @Dependency(\.soundClient) var sound
     @Dependency(\.pasteClient) var paste
+    @Dependency(\.userDefaultsClient) var userDefaults
 
     // MARK: - Reducer body
 
@@ -119,7 +106,7 @@ struct RecordingFeature {
                 state.statusText = state.isCorrectionEnabled
                     ? "Yaziya dokme + Duzeltme..."
                     : "Yaziya dokme..."
-                let userID = state.currentUser?.userId ?? ""
+                // TODO: Replace "" with userID from authClient when Katman 2 auth dependency is added
                 let trainingMode = state.trainingModeEnabled
                 return .run { send in
                     do {
@@ -159,9 +146,10 @@ struct RecordingFeature {
                     state.statusText = "Ready"
                     return .none
                 }
-                if state.trainingModeEnabled && result.snippetUsed != true {
-                    state.showTrainingPill = true
-                    state.trainingPillResult = result
+                // Fix 2: No training pill logic here — AppFeature coordinator handles routing
+                // to TrainingFeature if training mode is on; otherwise paste directly.
+                let trainingMode = userDefaults.bool(AppSettings.trainingMode)
+                if trainingMode && result.snippetUsed != true {
                     state.statusText = "Duzelt veya onayla"
                     return .none
                 } else {
@@ -192,8 +180,8 @@ struct RecordingFeature {
                 case .general:
                     state.isCorrectionEnabled = false
                 }
-                UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appMode)
-                UserDefaults.standard.set(state.isCorrectionEnabled, forKey: AppSettings.correctionEnabled)
+                userDefaults.setString(mode.rawValue, AppSettings.appMode)
+                userDefaults.setBool(state.isCorrectionEnabled, AppSettings.correctionEnabled)
                 let lang = state.currentLanguageMode
                 let correction = state.isCorrectionEnabled
                 return .run { _ in
@@ -207,7 +195,7 @@ struct RecordingFeature {
 
             case let .selectLanguageMode(lang):
                 state.currentLanguageMode = lang
-                UserDefaults.standard.set(lang.rawValue, forKey: AppSettings.defaultLanguage)
+                userDefaults.setString(lang.rawValue, AppSettings.defaultLanguage)
                 let mode = state.currentAppMode
                 return .run { _ in
                     try? await backend.updateConfig(
@@ -221,7 +209,7 @@ struct RecordingFeature {
             case let .setCorrectionEnabled(enabled):
                 guard state.currentAppMode != .engineering else { return .none }
                 state.isCorrectionEnabled = enabled
-                UserDefaults.standard.set(enabled, forKey: AppSettings.correctionEnabled)
+                userDefaults.setBool(enabled, AppSettings.correctionEnabled)
                 let lang = state.currentLanguageMode
                 let mode = state.currentAppMode
                 return .run { _ in
@@ -235,67 +223,14 @@ struct RecordingFeature {
 
             case let .setTrainingMode(enabled):
                 state.trainingModeEnabled = enabled
-                UserDefaults.standard.set(enabled, forKey: AppSettings.trainingMode)
+                userDefaults.setBool(enabled, AppSettings.trainingMode)
                 return .none
 
             case let .setAppearanceMode(mode):
                 state.appearanceMode = mode
-                UserDefaults.standard.set(mode.rawValue, forKey: AppSettings.appearanceMode)
+                userDefaults.setString(mode.rawValue, AppSettings.appearanceMode)
                 return .run { _ in
                     await MainActor.run { NSApp.appearance = mode.nsAppearance }
-                }
-
-            // MARK: Training pill feedback
-
-            case .approveFeedback:
-                guard let result = state.trainingPillResult else { return .none }
-                state.showTrainingPill = false
-                state.trainingPillResult = nil
-                state.statusText = result.text
-                let rawWhisper = result.rawText ?? result.text
-                let modelOutput = result.text
-                let wav = result.pendingWavPath
-                return .run { [text = result.text] _ in
-                    paste.paste(text)
-                    await MainActor.run { NSSound(named: "Pop")?.play() }
-                    try? await backend.submitFeedback(rawWhisper, modelOutput, "approved", nil)
-                    if let wav {
-                        try? await backend.deletePendingWav(wav)
-                    }
-                }
-
-            case let .editFeedback(corrected):
-                guard let result = state.trainingPillResult else { return .none }
-                state.showTrainingPill = false
-                state.trainingPillResult = nil
-                state.statusText = corrected
-                let rawWhisper = result.rawText ?? result.text
-                let modelOutput = result.text
-                let wav = result.pendingWavPath
-                return .run { _ in
-                    paste.paste(corrected)
-                    await MainActor.run { NSSound(named: "Pop")?.play() }
-                    try? await backend.submitFeedback(rawWhisper, modelOutput, "edited", corrected)
-                    if let wav {
-                        try? await backend.saveUserCorrection(wav, rawWhisper, corrected)
-                    }
-                }
-
-            case .dismissFeedback:
-                guard let result = state.trainingPillResult else {
-                    state.showTrainingPill = false
-                    return .none
-                }
-                state.showTrainingPill = false
-                state.trainingPillResult = nil
-                let rawWhisper = result.rawText ?? result.text
-                let modelOutput = result.text
-                let wav = result.pendingWavPath
-                return .run { _ in
-                    try? await backend.submitFeedback(rawWhisper, modelOutput, "dismissed", nil)
-                    if let wav {
-                        try? await backend.deletePendingWav(wav)
-                    }
                 }
 
             // MARK: Backend lifecycle
@@ -322,18 +257,6 @@ struct RecordingFeature {
                 state.isLLMReady = llmReady
                 if !whisper.isEmpty { state.whisperModelName = whisper }
                 if !adapter.isEmpty { state.llmAdapterVersion = adapter }
-                return .none
-
-            // MARK: Auth
-
-            case let .userLoggedIn(user):
-                state.currentUser = user
-                state.isLoggedIn = true
-                return .none
-
-            case .userLoggedOut:
-                state.currentUser = nil
-                state.isLoggedIn = false
                 return .none
 
             // MARK: Accessibility

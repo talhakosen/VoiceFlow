@@ -42,6 +42,7 @@
 		CCDEPBF000003 /* PasteClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000003 /* PasteClient.swift */; };
 		CCDEPBF000004 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000004 /* AccessibilityClient.swift */; };
 		CCDEPBF000005 /* BackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000005 /* BackendClient.swift */; };
+		CCUD021BF000001 /* UserDefaultsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCUD021FR000001 /* UserDefaultsClient.swift */; };
 		CCRE021BF000006 /* RecordingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCRE021FR000006 /* RecordingFeature.swift */; };
 		CCSF001BF000001 /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCSF001FR000001 /* SettingsFeature.swift */; };
 		CCMB021BF000001 /* MenuBarFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCMB021FR000001 /* MenuBarFeature.swift */; };
@@ -89,6 +90,7 @@
 		CCDEP000000003 /* PasteClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteClient.swift; sourceTree = "<group>"; };
 		CCDEP000000004 /* AccessibilityClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityClient.swift; sourceTree = "<group>"; };
 		CCDEP000000005 /* BackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendClient.swift; sourceTree = "<group>"; };
+		CCUD021FR000001 /* UserDefaultsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsClient.swift; sourceTree = "<group>"; };
 		CCSF001FR000001 /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		CCMB021FR000001 /* MenuBarFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarFeature.swift; sourceTree = "<group>"; };
 		CCAU021FR000001 /* AuthFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFeature.swift; sourceTree = "<group>"; };
@@ -253,6 +255,7 @@
 				CCDEP000000003 /* PasteClient.swift */,
 				CCDEP000000004 /* AccessibilityClient.swift */,
 				CCDEP000000005 /* BackendClient.swift */,
+				CCUD021FR000001 /* UserDefaultsClient.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -380,6 +383,7 @@
 				CCDEPBF000003 /* PasteClient.swift in Sources */,
 				CCDEPBF000004 /* AccessibilityClient.swift in Sources */,
 				CCDEPBF000005 /* BackendClient.swift in Sources */,
+				CCUD021BF000001 /* UserDefaultsClient.swift in Sources */,
 				CCRE021BF000006 /* RecordingFeature.swift in Sources */,
 				CCSF001BF000001 /* SettingsFeature.swift in Sources */,
 				CCMB021BF000001 /* MenuBarFeature.swift in Sources */,

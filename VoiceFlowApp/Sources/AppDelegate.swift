@@ -39,7 +39,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let recState = self.store.recording
                 let isRecording = recState.isRecording
                 let isProcessing = recState.isProcessing
-                let showPill = recState.showTrainingPill
+                // Fix 2: Training pill visibility is owned by TrainingFeature, not RecordingFeature
+                let showPill = self.store.training.isVisible
                 let mode = recState.currentAppMode
 
                 if isRecording && !prevRecording {

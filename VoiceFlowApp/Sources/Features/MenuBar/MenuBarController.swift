@@ -51,8 +51,8 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private func syncUI() {
         guard let menu = statusItem?.menu else { return }
 
-        // Rebuild if role changed
-        let currentRole = recordingState.currentUser?.role ?? ""
+        // Rebuild if role changed — read from AuthFeature (source of truth)
+        let currentRole = store.auth.currentUser?.role ?? ""
         if currentRole != lastKnownRole {
             lastKnownRole = currentRole
             rebuildMenu()
@@ -167,7 +167,8 @@ class MenuBarController: NSObject, NSMenuDelegate {
         // ── Tools ────────────────────────────────────────────────────────
         menu.addItem(action("Ses Eğitimi…",   sel: #selector(openITDataset),  key: "", icon: "waveform.badge.microphone"))
 
-        let role = recordingState.currentUser?.role ?? ""
+        // Fix 1: Read role from AuthFeature, not RecordingFeature
+        let role = store.auth.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
             menu.addItem(action("Admin Panel…", sel: #selector(openAdminPanel),
                                 key: "", icon: "shield.lefthalf.filled"))

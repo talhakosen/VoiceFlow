@@ -143,7 +143,7 @@ struct SettingsView: View {
                         case .account:
                             AccountSection(
                                 settingsStore: store.scope(state: \.settings, action: \.settings),
-                                recordingStore: store.scope(state: \.recording, action: \.recording)
+                                authStore: store.scope(state: \.auth, action: \.auth)
                             )
                         case .about:
                             AboutSection(store: store.scope(state: \.recording, action: \.recording))

@@ -46,6 +46,7 @@ struct SettingsFeature {
     }
 
     @Dependency(\.backendClient) var backend
+    @Dependency(\.userDefaultsClient) var userDefaults
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -198,12 +199,12 @@ struct SettingsFeature {
 
             case let .setUserName(name):
                 state.userName = name
-                UserDefaults.standard.set(name, forKey: AppSettings.userName)
+                userDefaults.setString(name, AppSettings.userName)
                 return .none
 
             case let .setUserDepartment(dept):
                 state.userDepartment = dept
-                UserDefaults.standard.set(dept, forKey: AppSettings.userDepartment)
+                userDefaults.setString(dept, AppSettings.userDepartment)
                 return .none
             }
         }

@@ -5,7 +5,7 @@ import AppKit
 struct MenuBarFeature {
     @ObservableState
     struct State {
-        var isRecording: Bool = false
+        // Fix 3: isRecording removed — read from store.recording.isRecording directly
         var currentAppMode: AppMode = .general
         var currentLanguageMode: LanguageMode = .turkish
         var userRole: String = ""
@@ -14,8 +14,7 @@ struct MenuBarFeature {
     }
 
     enum Action {
-        case toggleRecording
-        case recordingStopped
+        // Fix 3: toggleRecording/recordingStopped removed — routing handled by RecordingFeature
         case pasteLastTranscript
         case selectMode(AppMode)
         case selectLanguage(LanguageMode)
@@ -32,14 +31,6 @@ struct MenuBarFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .toggleRecording:
-                state.isRecording.toggle()
-                return .none
-
-            case .recordingStopped:
-                state.isRecording = false
-                return .none
-
             case .pasteLastTranscript:
                 return .none // delegated to RecordingFeature
 
