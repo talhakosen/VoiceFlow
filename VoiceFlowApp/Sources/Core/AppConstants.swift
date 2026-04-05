@@ -26,7 +26,10 @@ enum AppConstants {
     // MARK: Hotkey timing (seconds)
     static let doubleTapThreshold:   TimeInterval = 0.4
     static let hotkeyCooldown:        TimeInterval = 0.8
-    static let recordingGracePeriod:  TimeInterval = 0.5
+    // Grace period after double-tap start: Fn release within this window is ignored.
+    // 3s means normal double-tap + natural hold won't accidentally stop recording.
+    // Only an intentional long press (3s+) acts as push-to-talk fallback.
+    static let recordingGracePeriod:  TimeInterval = 3.0
 
     // MARK: History
     static let historyFetchLimit: Int = 50  // HistoryFeature + BackendService default
