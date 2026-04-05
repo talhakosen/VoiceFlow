@@ -45,6 +45,7 @@
 		CCDEPBF000004 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000004 /* AccessibilityClient.swift */; };
 		CCDEPBF000005 /* BackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000005 /* BackendClient.swift */; };
 		CCRE021BF000006 /* RecordingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCRE021FR000006 /* RecordingFeature.swift */; };
+		CCSF001BF000001 /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCSF001FR000001 /* SettingsFeature.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -86,6 +87,7 @@
 		CCDEP000000003 /* PasteClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteClient.swift; sourceTree = "<group>"; };
 		CCDEP000000004 /* AccessibilityClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityClient.swift; sourceTree = "<group>"; };
 		CCDEP000000005 /* BackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendClient.swift; sourceTree = "<group>"; };
+		CCSF001FR000001 /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -189,6 +191,7 @@
 			children = (
 				CCFE001000000001 /* SettingsView.swift */,
 				CCFE001000000002 /* SettingsViewModel.swift */,
+				CCSF001FR000001 /* SettingsFeature.swift */,
 				CCFE001000000003 /* ContextView.swift */,
 				CCFE023000000001 /* Sections */,
 			);
@@ -371,6 +374,7 @@
 				CCDEPBF000004 /* AccessibilityClient.swift in Sources */,
 				CCDEPBF000005 /* BackendClient.swift in Sources */,
 				CCRE021BF000006 /* RecordingFeature.swift in Sources */,
+				CCSF001BF000001 /* SettingsFeature.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
