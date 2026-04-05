@@ -9,12 +9,15 @@ import SwiftUI
 class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private let viewModel: AppViewModel
+    private let settingsVM: SettingsViewModel
     private var settingsWindow: NSWindow?
     private var itDatasetWindowController = ITDatasetWindowController()
     private var lastKnownRole: String = ""
+    private var updateTimer: Timer?
 
-    init(viewModel: AppViewModel) {
+    init(viewModel: AppViewModel, settingsVM: SettingsViewModel) {
         self.viewModel = viewModel
+        self.settingsVM = settingsVM
         super.init()
         setupStatusItem()
         checkAccessibility()
@@ -35,11 +38,13 @@ class MenuBarController: NSObject, NSMenuDelegate {
     // MARK: - ViewModel observation
 
     private func observeViewModel() {
-        // Poll via a timer — lightweight for a menu bar app.
-        // Replace with withObservationTracking if needed for complex UIs.
-        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.syncUI() }
         }
+    }
+
+    deinit {
+        updateTimer?.invalidate()
     }
 
     private func syncUI() {
@@ -248,7 +253,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
         // Titlebar + SwiftUI arka planı birebir eşleşsin
         window.backgroundColor = NSColor.windowBackgroundColor
         // contentView direkt set — fullSizeContentView ile frame tamamen dolar
-        let hosting = NSHostingController(rootView: SettingsView(viewModel: viewModel))
+        let hosting = NSHostingController(rootView: SettingsView(viewModel: viewModel, settingsVM: settingsVM))
         window.contentView = hosting.view
         // Layout first, then center on the screen containing the mouse cursor
         window.makeKeyAndOrderFront(nil)

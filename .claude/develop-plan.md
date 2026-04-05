@@ -17,7 +17,7 @@
 - Whisper hallucination loop guard (_strip_hallucination_loop: unigram/bigram/trigram repeat detect)
 - Tech Lexicon 2-katman (UNIVERSAL_SUFFIXES + COMMON_DOMAINS + project lexicon, cartesian product trigger generation)
 - ChromaDB kaldırıldı — embedding/RAG yok, sıfır bağımlılık
-- Recording overlay floating pill + ses efektleri
+- Recording overlay floating pill + ses efektleri (NSHostingController, Timer tabanlı animasyon — SafeHostingView animasyonu bozuyordu)
 - 2-panel Settings (Genel/Kayıt/Sözlük/Şablonlar/Bilgi Tabanı/Hesap/Hakkında) — tam Türkçe
 - **Görünüm modu** — Sistem/Açık/Koyu; Settings → Genel → Tema picker; NSApp.appearance anında uygulanır
 - **VFDesignSystem** — merkezi tasarım token sistemi: VFColor, VFFont, VFSpacing, VFRadius, VFAnimation, VFIcon, VFLayout; uygulama genelinde hardcoded değer yok
@@ -47,6 +47,7 @@
       Dil, mod, correction → Settings'e taşı
 - [DONE 2026-04-03] **Menü v2 polish** — SF Symbol ikonlar (isTemplate), Kaydı Başlat/Durdur toggle, kısayolsuz, Zorla Yeniden Başlat, status satırı mixed-font (Ready + küçük versiyon), NSMenuDelegate.menuWillOpen sync fix
 - [DONE 2026-04-05] **Menü Home** — Ayarlar yerine en üste Home eklendi; LLM prompt komut algılama fix (few-shot + CRITICAL kural)
+- [DONE 2026-04-05] **SettingsViewModel ayrıştırma** — dictionary/snippets/context/user profile state AppViewModel'den SettingsViewModel'e taşındı; MenuBarController + TrainingPillView güncellendi
 
 - [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
       Sol nav: General | Recording | Knowledge Base | Account | About

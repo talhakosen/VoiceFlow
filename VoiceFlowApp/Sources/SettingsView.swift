@@ -49,6 +49,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
 
 struct SettingsView: View {
     var viewModel: AppViewModel
+    var settingsVM: SettingsViewModel
 
     @State private var selectedSection: SettingsSection = .general
     @State private var sidebarCollapsed = false
@@ -131,10 +132,10 @@ struct SettingsView: View {
                         switch selectedSection {
                         case .general:       GeneralSection(viewModel: viewModel)
                         case .recording:     RecordingSection(viewModel: viewModel)
-                        case .dictionary:    DictionarySection(viewModel: viewModel)
-                        case .snippets:      SnippetsSection(viewModel: viewModel)
-                        case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
-                        case .account:       AccountSection(viewModel: viewModel)
+                        case .dictionary:    DictionarySection(settingsVM: settingsVM)
+                        case .snippets:      SnippetsSection(settingsVM: settingsVM)
+                        case .knowledgeBase: KnowledgeBaseSection(settingsVM: settingsVM)
+                        case .account:       AccountSection(settingsVM: settingsVM, viewModel: viewModel)
                         case .about:         AboutSection(viewModel: viewModel)
                         }
                     }
@@ -358,21 +359,20 @@ private struct GeneralSection: View {
 // MARK: - Dictionary
 
 private struct DictionarySection: View {
-    var viewModel: AppViewModel
+    var settingsVM: SettingsViewModel
 
     @State private var selectedTab = 0
     @State private var newTrigger = ""
     @State private var newReplacement = ""
 
     private var personalEntries: [DictionaryEntry] {
-        viewModel.dictionaryEntries.filter { $0.scope == "personal" }
+        settingsVM.dictionaryEntries.filter { $0.scope == "personal" }
     }
 
     private var teamEntries: [DictionaryEntry] {
-        viewModel.dictionaryEntries.filter { $0.scope == "team" }
+        settingsVM.dictionaryEntries.filter { $0.scope == "team" }
     }
 
-    // Check if a personal entry already exists in team
     private func isSharedWithTeam(_ entry: DictionaryEntry) -> Bool {
         teamEntries.contains { $0.trigger == entry.trigger && $0.replacement == entry.replacement }
     }
@@ -405,9 +405,9 @@ private struct DictionarySection: View {
                         DictionaryRow(
                             entry: entry,
                             alreadyShared: selectedTab == 0 ? isSharedWithTeam(entry) : false,
-                            onDelete: { viewModel.deleteDictionaryEntry(id: entry.id) },
+                            onDelete: { settingsVM.deleteDictionaryEntry(id: entry.id) },
                             onShareToTeam: selectedTab == 0 ? {
-                                viewModel.addDictionaryEntry(
+                                settingsVM.addDictionaryEntry(
                                     trigger: entry.trigger,
                                     replacement: entry.replacement,
                                     scope: "team"
@@ -434,7 +434,7 @@ private struct DictionarySection: View {
                         Button("Ekle") {
                             guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
                             let scope = selectedTab == 0 ? "personal" : "team"
-                            viewModel.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: scope)
+                            settingsVM.addDictionaryEntry(trigger: newTrigger, replacement: newReplacement, scope: scope)
                             newTrigger = ""
                             newReplacement = ""
                         }
@@ -448,7 +448,7 @@ private struct DictionarySection: View {
             VFInfoRow(icon: "info.circle", text: "Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { viewModel.loadDictionary() }
+        .onAppear { settingsVM.loadDictionary() }
     }
 }
 
@@ -500,7 +500,7 @@ private struct DictionaryRow: View {
 // MARK: - Snippets
 
 private struct SnippetsSection: View {
-    var viewModel: AppViewModel
+    var settingsVM: SettingsViewModel
 
     @State private var newTrigger = ""
     @State private var newExpansion = ""
@@ -509,17 +509,16 @@ private struct SnippetsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
-            // Liste
             VFSectionHeader("Şablon Listesi")
             VFCard {
-                if viewModel.snippetEntries.isEmpty {
+                if settingsVM.snippetEntries.isEmpty {
                     Text("Henüz şablon yok. Ses kaydında tetikleyici söyleyince şablon yapıştırılır.")
                         .foregroundStyle(.secondary)
                         .font(VFFont.body)
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(Array(viewModel.snippetEntries.enumerated()), id: \.element.id) { idx, entry in
+                    ForEach(Array(settingsVM.snippetEntries.enumerated()), id: \.element.id) { idx, entry in
                         HStack(spacing: VFSpacing.md) {
                             Text(entry.triggerPhrase)
                                 .frame(minWidth: VFLayout.fieldSmall, alignment: .leading)
@@ -535,7 +534,7 @@ private struct SnippetsSection: View {
                                 .frame(width: 60)
                             if entry.scope == "personal" {
                                 Button {
-                                    viewModel.deleteSnippet(id: entry.id)
+                                    settingsVM.deleteSnippet(id: entry.id)
                                 } label: {
                                     Image(systemName: VFIcon.delete).foregroundStyle(VFColor.destructive)
                                 }
@@ -544,14 +543,13 @@ private struct SnippetsSection: View {
                         }
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
-                        if idx < viewModel.snippetEntries.count - 1 {
+                        if idx < settingsVM.snippetEntries.count - 1 {
                             Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
                 }
             }
 
-            // Şablon Ekle
             VFSectionHeader("Şablon Ekle")
             VFCard {
                 VStack(spacing: 0) {
@@ -568,7 +566,7 @@ private struct SnippetsSection: View {
                         .frame(width: 90)
                         Button("Ekle") {
                             guard !newTrigger.isEmpty, !newExpansion.isEmpty else { return }
-                            viewModel.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
+                            settingsVM.addSnippet(triggerPhrase: newTrigger, expansion: newExpansion, scope: newScope)
                             newTrigger = ""
                             newExpansion = ""
                         }
@@ -582,7 +580,7 @@ private struct SnippetsSection: View {
             VFInfoRow(icon: "info.circle", text: "Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { viewModel.loadSnippets() }
+        .onAppear { settingsVM.loadSnippets() }
     }
 }
 
@@ -699,16 +697,15 @@ private struct RecordingSection: View {
 // MARK: - Knowledge Base
 
 private struct KnowledgeBaseSection: View {
-    var viewModel: AppViewModel
+    var settingsVM: SettingsViewModel
     @State private var selectedFolderPath = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: VFSpacing.xxl) {
 
-            // İndekslenen Projeler
             VFSectionHeader("İndekslenen Projeler")
             VFCard {
-                if viewModel.indexedProjects.isEmpty {
+                if settingsVM.indexedProjects.isEmpty {
                     HStack(spacing: VFSpacing.md) {
                         Image(systemName: VFIcon.circle).foregroundStyle(.secondary)
                         Text("Henüz eklenmedi").foregroundStyle(.secondary).font(VFFont.body)
@@ -717,7 +714,7 @@ private struct KnowledgeBaseSection: View {
                     .padding(.horizontal, VFSpacing.xxl)
                     .padding(.vertical, VFSpacing.xl)
                 } else {
-                    ForEach(Array(viewModel.indexedProjects.enumerated()), id: \.element.id) { idx, project in
+                    ForEach(Array(settingsVM.indexedProjects.enumerated()), id: \.element.id) { idx, project in
                         HStack(spacing: VFSpacing.md) {
                             Image(systemName: VFIcon.checkFill).foregroundStyle(VFColor.success)
                             VStack(alignment: .leading, spacing: VFSpacing.xxs) {
@@ -729,16 +726,16 @@ private struct KnowledgeBaseSection: View {
                         }
                         .padding(.horizontal, VFSpacing.xxl)
                         .padding(.vertical, VFSpacing.xl)
-                        if idx < viewModel.indexedProjects.count - 1 {
+                        if idx < settingsVM.indexedProjects.count - 1 {
                             Divider().padding(.leading, VFSpacing.xxl)
                         }
                     }
                     Divider().padding(.leading, VFSpacing.xxl)
                     HStack {
-                        Text("\(viewModel.contextChunkCount) sözcük · \(viewModel.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
+                        Text("\(settingsVM.contextChunkCount) sözcük · \(settingsVM.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
                             .font(VFFont.caption).foregroundStyle(.secondary)
                         Spacer()
-                        Button("Temizle") { viewModel.clearContext() }
+                        Button("Temizle") { settingsVM.clearContext() }
                             .buttonStyle(.plain).foregroundStyle(VFColor.destructive)
                             .font(VFFont.caption)
                     }
@@ -747,7 +744,6 @@ private struct KnowledgeBaseSection: View {
                 }
             }
 
-            // Klasör Ekle
             VFSectionHeader("Klasör Ekle")
             VFCard {
                 VFRow("Klasör", divider: true) {
@@ -762,9 +758,9 @@ private struct KnowledgeBaseSection: View {
                 HStack(spacing: VFSpacing.md) {
                     Button {
                         guard !selectedFolderPath.isEmpty else { return }
-                        viewModel.ingestContext(folderPath: selectedFolderPath)
+                        settingsVM.ingestContext(folderPath: selectedFolderPath)
                     } label: {
-                        if viewModel.isIndexing {
+                        if settingsVM.isIndexing {
                             HStack(spacing: VFSpacing.sm) {
                                 ProgressView().scaleEffect(0.7)
                                 Text("İndeksleniyor…")
@@ -774,9 +770,9 @@ private struct KnowledgeBaseSection: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(selectedFolderPath.isEmpty || viewModel.isIndexing)
+                    .disabled(selectedFolderPath.isEmpty || settingsVM.isIndexing)
 
-                    if let error = viewModel.contextIndexingError {
+                    if let error = settingsVM.contextIndexingError {
                         Text(error).font(VFFont.caption).foregroundStyle(VFColor.destructive)
                     }
                     Spacer()
@@ -787,7 +783,7 @@ private struct KnowledgeBaseSection: View {
             VFInfoRow(icon: "info.circle", text: "Kod tabanını tarar, class/method isimlerini otomatik sözlüğe ekler.", color: .secondary)
         }
         .padding(VFSpacing.xxxl)
-        .onAppear { viewModel.loadContextStatus() }
+        .onAppear { settingsVM.loadContextStatus() }
     }
 
     @MainActor
@@ -806,15 +802,17 @@ private struct KnowledgeBaseSection: View {
 // MARK: - Account
 
 private struct AccountSection: View {
+    var settingsVM: SettingsViewModel
     var viewModel: AppViewModel
 
     @State private var userName: String
     @State private var userDepartment: String
 
-    init(viewModel: AppViewModel) {
+    init(settingsVM: SettingsViewModel, viewModel: AppViewModel) {
+        self.settingsVM = settingsVM
         self.viewModel = viewModel
-        _userName       = State(initialValue: viewModel.userName)
-        _userDepartment = State(initialValue: viewModel.userDepartment)
+        _userName       = State(initialValue: settingsVM.userName)
+        _userDepartment = State(initialValue: settingsVM.userDepartment)
     }
 
     var body: some View {
@@ -826,17 +824,17 @@ private struct AccountSection: View {
                     TextField("Opsiyonel", text: $userName)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
-                        .onChange(of: userName) { viewModel.userName = userName }
+                        .onChange(of: userName) { settingsVM.userName = userName }
                 }
                 VFRow("Departman") {
                     TextField("Opsiyonel", text: $userDepartment)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
-                        .onChange(of: userDepartment) { viewModel.userDepartment = userDepartment }
+                        .onChange(of: userDepartment) { settingsVM.userDepartment = userDepartment }
                 }
                 VFRow("Kullanıcı ID",
                       divider: viewModel.currentUser == nil) {
-                    Text(viewModel.userID.isEmpty ? "—" : viewModel.userID)
+                    Text(settingsVM.userID.isEmpty ? "—" : settingsVM.userID)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }

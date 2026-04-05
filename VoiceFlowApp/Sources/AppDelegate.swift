@@ -16,11 +16,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Shared app state — created once, injected into MenuBarController and SettingsView
     var viewModel: AppViewModel?
+    private var settingsVM: SettingsViewModel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureUserID()
 
         let vm = AppViewModel()
+        let svm = SettingsViewModel(backend: BackendService())
+        self.settingsVM = svm
         vm.onRestartBackend = { [weak self] completion in self?.restartBackend(completion: completion) }
         vm.onHardReset = { [weak self] completion in self?.hardResetBackend(completion: completion) }
         let overlay = RecordingOverlayWindow()
@@ -70,7 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 guard let self, let vm = self.viewModel else { continue }
                 if vm.showTrainingPill {
-                    self.trainingPillController.show(viewModel: vm)
+                    self.trainingPillController.show(viewModel: vm, settingsVM: svm)
                 } else {
                     self.trainingPillController.close()
                 }
@@ -83,7 +86,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if mode == "server" {
             NSLog("VoiceFlow: Server mode — skipping local backend startup")
             DispatchQueue.main.async {
-                self.menuBarController = MenuBarController(viewModel: vm)
+                self.menuBarController = MenuBarController(viewModel: vm, settingsVM: svm)
             }
         } else {
             killExistingBackend()
@@ -94,7 +97,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     if !success {
                         vm.statusText = "⚠ Servis başlatılamadı — Yeniden Başlat'a bas"
                     }
-                    self?.menuBarController = MenuBarController(viewModel: vm)
+                    self?.menuBarController = MenuBarController(viewModel: vm, settingsVM: svm)
                 }
             }
         }

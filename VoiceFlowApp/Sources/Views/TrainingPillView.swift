@@ -6,6 +6,7 @@ import AppKit
 
 struct TrainingPillView: View {
     var viewModel: AppViewModel
+    var settingsVM: SettingsViewModel
 
     @State private var countdown = 10
     @State private var countdownTask: Task<Void, Never>?
@@ -121,7 +122,7 @@ struct TrainingPillView: View {
         let corrWords = corrected.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         guard origWords.count == corrWords.count else { return }
         for (orig, corr) in zip(origWords, corrWords) where orig != corr {
-            viewModel.addDictionaryEntry(trigger: orig.lowercased(), replacement: corr, scope: "personal")
+            settingsVM.addDictionaryEntry(trigger: orig.lowercased(), replacement: corr, scope: "personal")
         }
     }
 }
@@ -131,10 +132,10 @@ struct TrainingPillView: View {
 final class TrainingPillWindowController: NSObject {
     private var panel: NSPanel?
 
-    func show(viewModel: AppViewModel) {
+    func show(viewModel: AppViewModel, settingsVM: SettingsViewModel) {
         guard panel == nil else { return }
 
-        let hosting = SafeHostingView(rootView: TrainingPillView(viewModel: viewModel))
+        let hosting = SafeHostingView(rootView: TrainingPillView(viewModel: viewModel, settingsVM: settingsVM))
         hosting.sizingOptions = [.preferredContentSize]
 
         let p = NSPanel(

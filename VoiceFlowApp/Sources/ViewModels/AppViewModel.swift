@@ -453,40 +453,9 @@ final class AppViewModel {
         }
     }
 
-    // MARK: - Dictionary (Katman 1)
-
-    var dictionaryEntries: [DictionaryEntry] = []
-
-    func loadDictionary() {
-        Task {
-            dictionaryEntries = (try? await backend.getDictionary()) ?? []
-        }
-    }
-
-    func addDictionaryEntry(trigger: String, replacement: String, scope: String) {
-        Task {
-            if let entry = try? await backend.addDictionaryEntry(trigger: trigger, replacement: replacement, scope: scope) {
-                dictionaryEntries.append(entry)
-            }
-        }
-    }
-
-    func deleteDictionaryEntry(id: Int) {
-        Task {
-            try? await backend.deleteDictionaryEntry(id: id)
-            dictionaryEntries.removeAll { $0.id == id }
-        }
-    }
-
     // MARK: - Snippets (Katman 1)
+    // Dictionary ve Snippets → SettingsViewModel'e taşındı.
 
-    var snippetEntries: [SnippetEntry] = []
-
-    func loadSnippets() {
-        Task {
-            snippetEntries = (try? await backend.getSnippets()) ?? []
-        }
-    }
 
     // IT Dataset
     func getITDatasetNext(offset: Int) async throws -> ITDatasetResponse {
@@ -550,83 +519,7 @@ final class AppViewModel {
         }
     }
 
-    func addSnippet(triggerPhrase: String, expansion: String, scope: String) {
-        Task {
-            if let entry = try? await backend.addSnippet(triggerPhrase: triggerPhrase, expansion: expansion, scope: scope) {
-                snippetEntries.append(entry)
-            }
-        }
-    }
-
-    func deleteSnippet(id: Int) {
-        Task {
-            try? await backend.deleteSnippet(id: id)
-            snippetEntries.removeAll { $0.id == id }
-        }
-    }
-
-    // MARK: - Context Engine (Phase 2)
-
-    var contextChunkCount: Int = 0
-    var indexedProjects: [IndexedProject] = []
-    var isIndexing: Bool = false
-    var contextIndexingError: String? = nil
-
-    func loadContextStatus() {
-        Task {
-            if let status = try? await backend.getContextStatus() {
-                contextChunkCount = status.count
-            }
-            if let projects = try? await backend.getContextProjects() {
-                indexedProjects = projects.projects
-                contextChunkCount = projects.smartWordCount
-            }
-        }
-    }
-
-    func ingestContext(folderPath: String) {
-        isIndexing = true
-        contextIndexingError = nil
-        Task {
-            do {
-                try await backend.ingestContext(path: folderPath)
-                var previousCount = -1
-                for _ in 0..<30 {
-                    try? await Task.sleep(nanoseconds: 2_000_000_000)
-                    if let projects = try? await backend.getContextProjects() {
-                        indexedProjects = projects.projects
-                        contextChunkCount = projects.smartWordCount
-                        let total = projects.totalSymbols
-                        if total > 0 && total == previousCount { break }
-                        previousCount = total
-                    }
-                }
-            } catch {
-                contextIndexingError = error.localizedDescription
-            }
-            isIndexing = false
-        }
-    }
-
-    func clearContext() {
-        Task {
-            try? await backend.clearContext()
-            contextChunkCount = 0
-            indexedProjects = []
-        }
-    }
-
-    // MARK: - User profile (@Observable-tracked, persisted via didSet)
-
-    var userName: String = UserDefaults.standard.string(forKey: AppSettings.userName) ?? "" {
-        didSet { UserDefaults.standard.set(userName, forKey: AppSettings.userName) }
-    }
-
-    var userDepartment: String = UserDefaults.standard.string(forKey: AppSettings.userDepartment) ?? "" {
-        didSet { UserDefaults.standard.set(userDepartment, forKey: AppSettings.userDepartment) }
-    }
-
-    var userID: String = UserDefaults.standard.string(forKey: AppSettings.userID) ?? ""
+    // Snippets, Context Engine, User profile → SettingsViewModel'e taşındı.
 
     // MARK: - Backend management (injected closures — no AppDelegate dependency)
 
