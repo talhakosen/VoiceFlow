@@ -39,6 +39,11 @@
 		CCFE011000000009 /* AccountSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000009 /* AccountSection.swift */; };
 		CCFE011000000010 /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000010 /* AboutSection.swift */; };
 		TCAPKG0000000003 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = TCAPKG0000000002 /* ComposableArchitecture */; };
+		CCDEPBF000001 /* SoundClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000001 /* SoundClient.swift */; };
+		CCDEPBF000002 /* DialogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000002 /* DialogClient.swift */; };
+		CCDEPBF000003 /* PasteClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000003 /* PasteClient.swift */; };
+		CCDEPBF000004 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000004 /* AccessibilityClient.swift */; };
+		CCDEPBF000005 /* BackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000005 /* BackendClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +79,11 @@
 		CCFE001000000008 /* KnowledgeBaseSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeBaseSection.swift; sourceTree = "<group>"; };
 		CCFE001000000009 /* AccountSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSection.swift; sourceTree = "<group>"; };
 		CCFE001000000010 /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
+		CCDEP000000001 /* SoundClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundClient.swift; sourceTree = "<group>"; };
+		CCDEP000000002 /* DialogClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogClient.swift; sourceTree = "<group>"; };
+		CCDEP000000003 /* PasteClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteClient.swift; sourceTree = "<group>"; };
+		CCDEP000000004 /* AccessibilityClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityClient.swift; sourceTree = "<group>"; };
+		CCDEP000000005 /* BackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -215,8 +225,21 @@
 				AD594B581F9EF788F046DF39 /* Models.swift */,
 				CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */,
 				3A4B5C6D7E8F9A0B1C2D3E4F /* SafeHostingView.swift */,
+				CCDEPGRP00001 /* Dependencies */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		CCDEPGRP00001 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				CCDEP000000001 /* SoundClient.swift */,
+				CCDEP000000002 /* DialogClient.swift */,
+				CCDEP000000003 /* PasteClient.swift */,
+				CCDEP000000004 /* AccessibilityClient.swift */,
+				CCDEP000000005 /* BackendClient.swift */,
+			);
+			path = Dependencies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -339,6 +362,11 @@
 				CCFE011000000008 /* KnowledgeBaseSection.swift in Sources */,
 				CCFE011000000009 /* AccountSection.swift in Sources */,
 				CCFE011000000010 /* AboutSection.swift in Sources */,
+				CCDEPBF000001 /* SoundClient.swift in Sources */,
+				CCDEPBF000002 /* DialogClient.swift in Sources */,
+				CCDEPBF000003 /* PasteClient.swift in Sources */,
+				CCDEPBF000004 /* AccessibilityClient.swift in Sources */,
+				CCDEPBF000005 /* BackendClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

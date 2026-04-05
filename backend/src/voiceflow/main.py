@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
-from .api import router, engineering_router
+from .api import router, engineering_router, context_router, training_router
 from .api.auth_routes import router as auth_router
 from .api.admin_routes import router as admin_router
 from .core.config import BACKEND_MODE as _BACKEND_MODE, LLM_BACKEND, LLM_ENDPOINT, WHISPER_MODEL as _WHISPER_MODEL
@@ -73,6 +73,8 @@ app.state.templates = Jinja2Templates(directory=str(_templates_dir))
 
 app.include_router(router, prefix="/api")
 app.include_router(engineering_router, prefix="/api")
+app.include_router(context_router, prefix="/api")
+app.include_router(training_router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(admin_router)
 

@@ -7,7 +7,7 @@ POST /api/engineering/index-repo       → index git repo into ChromaDB (backgro
 import asyncio
 import logging
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
