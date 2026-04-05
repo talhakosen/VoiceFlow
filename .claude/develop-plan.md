@@ -138,6 +138,10 @@
 
 - [ ] **KVKK/BDDK hazırlık belgesi** — "Veriler nerede saklanır?" dokümanı
 - [ ] **Data at rest encryption** — SQLite şifreleme (SQLCipher)
+- [DONE 2026-04-05] **Backend architectural security fixes**:
+      Path traversal fix: /context/ingest body.path → _validate_ingest_path() (exists + is_dir kontrolü)
+      Audio upload size limit: /it-dataset/record → 50 MB cap (HTTP 413)
+      History tenant isolation: non-admin kullanıcılar sadece kendi history'lerini görebilir
 
 ### ISO 27001 Hazırlık (Nisan 2026 — Aktif)
 - [x] `.env` dosya izni 600 (owner-only) — 2026-04-04
@@ -159,6 +163,12 @@
 - [ ] İç tetkik (Haziran 2026)
 - [ ] Danışman GAP analizi (Temmuz 2026)
 - [ ] Dış denetim + sertifika (Ekim 2026)
+- [DONE 2026-04-05] **Backend architectural refactoring**:
+      routes.py split: context_routes.py (/context/*, /symbol/*) + training_routes.py (/it-dataset/*, /training/*)
+      RecordingService: stop() god method → _apply_text_pipeline() extracted (dict+snippets+fillers+symbols+LLM)
+      Config enum validation: mode + output_format → Pydantic Literal types
+      DB indexes: transcriptions(tenant_id, created_at), user_dictionary(trigger), snippets(user_id)
+      tenant_id: training_sentences/recordings + symbol_index/v2 tablolarına eklendi (ALTER TABLE migration)
 - [DONE 2026-03-30] **Audit log** — login, config_changed, history_cleared, user_data_deleted events; append-only SQLite tablo
 - [DONE 2026-03-30] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği) — transkript+sözlük+snippet+hesap kalıcı silme
 
