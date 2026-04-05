@@ -7,7 +7,7 @@ import AppKit
 struct GeneralSection: View {
     let store: StoreOf<RecordingFeature>
     @AppStorage(AppSettings.deploymentMode) private var deploymentMode = "local"
-    @AppStorage(AppSettings.serverURL)      private var serverURL      = "http://127.0.0.1:8765"
+    @AppStorage(AppSettings.serverURL)      private var serverURL      = AppConstants.defaultLocalURL
     @AppStorage(AppSettings.apiKey)         private var apiKey         = ""
     @State private var showRestartNotice = false
 

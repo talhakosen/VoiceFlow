@@ -6,7 +6,7 @@ struct TrainingFeature {
     @ObservableState
     struct State {
         var isVisible: Bool = false
-        var countdown: Int = 10
+        var countdown: Int = AppConstants.pillCountdownSeconds
         var originalText: String = ""
         var correctedText: String = ""
         var isShowingEditDialog: Bool = false
@@ -36,7 +36,7 @@ struct TrainingFeature {
             case let .pillShown(text):
                 BackendService.debugLog("TrainingFeature: pillShown — text='\(text)' setting isVisible=true")
                 state.isVisible = true
-                state.countdown = 10
+                state.countdown = AppConstants.pillCountdownSeconds
                 state.originalText = text
                 state.correctedText = text
                 return .run { send in
@@ -48,7 +48,7 @@ struct TrainingFeature {
 
             case .pillDismissed:
                 state.isVisible = false
-                state.countdown = 10
+                state.countdown = AppConstants.pillCountdownSeconds
                 return .cancel(id: CancelID.countdown)
 
             case .countdownTicked:

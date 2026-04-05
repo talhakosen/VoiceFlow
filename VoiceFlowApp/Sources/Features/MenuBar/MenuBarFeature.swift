@@ -44,7 +44,7 @@ struct MenuBarFeature {
 
             case .openAdminPanel:
                 return .run { _ in
-                    let baseURL = UserDefaults.standard.string(forKey: "serverURL") ?? "http://127.0.0.1:8765"
+                    let baseURL = UserDefaults.standard.string(forKey: AppSettings.serverURL) ?? AppConstants.defaultLocalURL
                     if let url = URL(string: "\(baseURL)/admin") {
                         await MainActor.run { NSWorkspace.shared.open(url) }
                     }

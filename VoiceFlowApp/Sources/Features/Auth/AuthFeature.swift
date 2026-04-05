@@ -15,7 +15,7 @@ struct AuthFeature {
         var currentUser: AuthUser? = nil
         var isLoading: Bool = false
         var loginError: String? = nil
-        var serverURL: String = "http://127.0.0.1:8765"
+        var serverURL: String = AppConstants.defaultLocalURL
         var email: String = ""
         var password: String = ""
     }

@@ -279,7 +279,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func openAdminPanel() {
-        let baseURL = UserDefaults.standard.string(forKey: AppSettings.serverURL) ?? "http://127.0.0.1:8765"
+        let baseURL = UserDefaults.standard.string(forKey: AppSettings.serverURL) ?? AppConstants.defaultLocalURL
         if let url = URL(string: "\(baseURL)/admin") {
             NSWorkspace.shared.open(url)
         }

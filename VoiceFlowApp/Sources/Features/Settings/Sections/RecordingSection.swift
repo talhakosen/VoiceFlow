@@ -7,7 +7,7 @@ import AppKit
 struct RecordingSection: View {
     let store: StoreOf<RecordingFeature>
     @AppStorage(AppSettings.llmMode)      private var llmMode      = "local"
-    @AppStorage(AppSettings.llmEndpoint)  private var llmEndpoint  = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
+    @AppStorage(AppSettings.llmEndpoint)  private var llmEndpoint  = ""
     @AppStorage(AppSettings.trainingMode) private var trainingMode = false
     @State private var showRestartNotice = false
 

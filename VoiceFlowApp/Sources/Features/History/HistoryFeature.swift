@@ -37,7 +37,7 @@ struct HistoryFeature {
                 state.isLoading = true
                 return .run { send in
                     do {
-                        let entries = try await backend.getHistory(50)
+                        let entries = try await backend.getHistory(AppConstants.historyFetchLimit)
                         await send(.entriesLoaded(entries))
                     } catch {
                         await send(.loadFailed(error.localizedDescription))

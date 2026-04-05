@@ -86,7 +86,7 @@ struct RecordingFeature {
                 return .run { send in
                     do {
                         try await backend.startRecording()
-                        await MainActor.run { NSSound(named: "Tink")?.play() }
+                        await MainActor.run { NSSound(named: AppConstants.soundStart)?.play() }
                     } catch {
                         await send(.recordingFailed(error.localizedDescription))
                     }
@@ -115,7 +115,7 @@ struct RecordingFeature {
                             nil, nil, nil, nil, nil, trainingMode
                         )
                         BackendService.debugLog("RecordingFeature: got result='\(result.text)'")
-                        await MainActor.run { NSSound(named: "Pop")?.play() }
+                        await MainActor.run { NSSound(named: AppConstants.soundStop)?.play() }
                         await send(.transcriptReceived(result))
                     } catch {
                         BackendService.debugLog("RecordingFeature: stopRecording ERROR: \(error)")

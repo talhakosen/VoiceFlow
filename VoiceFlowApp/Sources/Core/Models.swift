@@ -13,11 +13,26 @@ enum AppSettings {
     static let userID              = "userID"
     static let userName            = "userName"
     static let userDepartment      = "userDepartment"
-    static let llmMode             = "llmMode"      // "local" | "cloud" | "alibaba"
-    static let llmEndpoint         = "llmEndpoint"  // cloud Ollama URL
-    static let trainingMode        = "trainingMode"    // Bool — show feedback pill after paste
-    static let correctionEnabled   = "correctionEnabled" // Bool — persisted per-mode preference
-    static let appearanceMode      = "appearanceMode"  // "system" | "light" | "dark"
+    static let llmMode             = "llmMode"
+    static let llmEndpoint         = "llmEndpoint"
+    static let trainingMode        = "trainingMode"
+    static let correctionEnabled   = "correctionEnabled"
+    static let appearanceMode      = "appearanceMode"
+}
+
+// MARK: - DeploymentMode
+
+enum DeploymentMode: String {
+    case local  = "local"
+    case server = "server"
+}
+
+// MARK: - LLMMode
+
+enum LLMMode: String {
+    case local   = "local"
+    case cloud   = "cloud"
+    case alibaba = "alibaba"
 }
 
 // MARK: - AppearanceMode

@@ -25,6 +25,8 @@
 		E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5187915534C878EB6507FF9A /* VoiceFlowApp.swift */; };
 		E525F85F34936AB92BF64280 /* PasteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D480057CB89B7229506A72 /* PasteService.swift */; };
 		E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD594B581F9EF788F046DF39 /* Models.swift */; };
+		CCCO030000000001 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCO020000000001 /* AppConstants.swift */; };
+		CCCO030000000002 /* APIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCO020000000002 /* APIConstants.swift */; };
 		CF3A1B2E8E4F5A6C7D8E9F0B /* VFDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */; };
 		F2080C60E275605DC45DE3F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E9D82935A7EAB8402805560 /* Assets.xcassets */; };
 		CCFE011000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000001 /* SettingsView.swift */; };
@@ -96,6 +98,8 @@
 		CCAU021FR000001 /* AuthFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFeature.swift; sourceTree = "<group>"; };
 		CCHI021FR000001 /* HistoryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryFeature.swift; sourceTree = "<group>"; };
 		CCAP021FR000001 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
+		CCCO020000000001 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		CCCO020000000002 /* APIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -240,6 +244,8 @@
 				BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */,
 				85B6377D077B683525B53452 /* BackendService.swift */,
 				AD594B581F9EF788F046DF39 /* Models.swift */,
+				CCCO020000000001 /* AppConstants.swift */,
+				CCCO020000000002 /* APIConstants.swift */,
 				CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */,
 				3A4B5C6D7E8F9A0B1C2D3E4F /* SafeHostingView.swift */,
 				CCDEPGRP00001 /* Dependencies */,
@@ -360,6 +366,8 @@
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
 				E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */,
+				CCCO030000000001 /* AppConstants.swift in Sources */,
+				CCCO030000000002 /* APIConstants.swift in Sources */,
 				CF3A1B2E8E4F5A6C7D8E9F0B /* VFDesignSystem.swift in Sources */,
 				22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */,
 				E525F85F34936AB92BF64280 /* PasteService.swift in Sources */,

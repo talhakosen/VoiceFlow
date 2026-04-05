@@ -3,7 +3,7 @@ import Carbon
 
 class HotkeyManager {
     private static let logFile: FileHandle? = {
-        let path = "/tmp/voiceflow-hotkey.log"
+        let path = AppConstants.hotkeyLogPath
         FileManager.default.createFile(atPath: path, contents: nil)
         return FileHandle(forWritingAtPath: path)
     }()
@@ -31,8 +31,8 @@ class HotkeyManager {
     private var lastActionTime: Date?
     private var recordingStartedAt: Date?
 
-    private let doubleTapThreshold: TimeInterval = 0.4
-    private let cooldownAfterAction: TimeInterval = 0.8
+    private let doubleTapThreshold: TimeInterval = AppConstants.doubleTapThreshold
+    private let cooldownAfterAction: TimeInterval = AppConstants.hotkeyCooldown
 
     // Cmd-held intervals during recording: [(startOffset, endOffset)] in seconds since recordingStartTime
     private var recordingStartTime: Date?
@@ -169,7 +169,7 @@ class HotkeyManager {
         // If recording is active, stop on release — but ignore the immediate UP after double-tap start
         if isRecordingActive {
             if let startedAt = recordingStartedAt,
-               Date().timeIntervalSince(startedAt) < 0.5 {
+               Date().timeIntervalSince(startedAt) < AppConstants.recordingGracePeriod {
                 log(" Fn RELEASED → IGNORED (too soon after start, \(String(format: "%.2f", Date().timeIntervalSince(startedAt)))s)")
                 return
             }

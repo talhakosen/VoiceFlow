@@ -219,7 +219,7 @@ actor BackendService: BackendServiceProtocol {
     static func debugLog(_ msg: String) {
         let line = "\(Date()) \(msg)\n"
         if let data = line.data(using: .utf8) {
-            let path = "/tmp/voiceflow-swift.log"
+            let path = AppConstants.swiftLogPath
             if let fh = FileHandle(forWritingAtPath: path) {
                 fh.seekToEndOfFile(); fh.write(data); fh.closeFile()
             } else {
@@ -230,32 +230,32 @@ actor BackendService: BackendServiceProtocol {
 
     init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
-        config.timeoutIntervalForResource = 60
+        config.timeoutIntervalForRequest  = AppConstants.requestTimeout
+        config.timeoutIntervalForResource = AppConstants.resourceTimeout
         self.session = URLSession(configuration: config)
     }
 
     // MARK: - Computed config (reads UserDefaults on each call)
 
     private var baseURL: String {
-        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
-        if mode == "server",
+        let mode = DeploymentMode(rawValue: UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "") ?? .local
+        if mode == .server,
            let url = UserDefaults.standard.string(forKey: AppSettings.serverURL),
            !url.isEmpty {
             return "\(url)/api"
         }
-        return "http://127.0.0.1:8765/api"
+        return AppConstants.defaultLocalAPIURL
     }
 
     /// Root URL without /api suffix (for auth endpoints)
     private var rootURL: String {
-        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
-        if mode == "server",
+        let mode = DeploymentMode(rawValue: UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "") ?? .local
+        if mode == .server,
            let url = UserDefaults.standard.string(forKey: AppSettings.serverURL),
            !url.isEmpty {
             return url
         }
-        return "http://127.0.0.1:8765"
+        return AppConstants.defaultLocalURL
     }
 
     private var apiKey: String {
@@ -274,14 +274,14 @@ actor BackendService: BackendServiceProtocol {
         request.httpMethod = method
         let key = apiKey
         if !key.isEmpty {
-            request.setValue(key, forHTTPHeaderField: "X-API-Key")
+            request.setValue(key, forHTTPHeaderField: APIHeader.apiKey)
         }
         let uid = userID
         if !uid.isEmpty {
-            request.setValue(uid, forHTTPHeaderField: "X-User-ID")
+            request.setValue(uid, forHTTPHeaderField: APIHeader.userID)
         }
         if let token = KeychainHelper.accessToken {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("\(APIValue.bearer) \(token)", forHTTPHeaderField: APIHeader.authorization)
         }
         return request
     }
@@ -317,7 +317,7 @@ actor BackendService: BackendServiceProtocol {
     // MARK: - API
 
     func startRecording() async throws {
-        let request = makeRequest(path: "start", method: "POST")
+        let request = makeRequest(path: APIEndpoint.start, method: "POST")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -325,25 +325,25 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil, itDatasetIndex: Int? = nil, trainingMode: Bool = false) async throws -> TranscriptionResult {
-        var request = makeRequest(path: "stop", method: "POST")
+        var request = makeRequest(path: APIEndpoint.stop, method: "POST")
         if let bundleID = activeAppBundleID {
-            request.setValue(bundleID, forHTTPHeaderField: "X-Active-App")
+            request.setValue(bundleID, forHTTPHeaderField: APIHeader.activeApp)
         }
         if let title = windowTitle {
-            request.setValue(title, forHTTPHeaderField: "X-Window-Title")
+            request.setValue(title, forHTTPHeaderField: APIHeader.windowTitle)
         }
         if let selected = selectedText {
-            request.setValue(selected, forHTTPHeaderField: "X-Selected-Text")
+            request.setValue(selected, forHTTPHeaderField: APIHeader.selectedText)
         }
         if let intervals = cmdIntervals, !intervals.isEmpty {
             let header = intervals.map { "\(String(format: "%.2f", $0.0))-\(String(format: "%.2f", $0.1))" }.joined(separator: ",")
-            request.setValue(header, forHTTPHeaderField: "X-Cmd-Intervals")
+            request.setValue(header, forHTTPHeaderField: APIHeader.cmdIntervals)
         }
         if let idx = itDatasetIndex {
-            request.setValue(String(idx), forHTTPHeaderField: "X-IT-Dataset-Index")
+            request.setValue(String(idx), forHTTPHeaderField: APIHeader.itDatasetIndex)
         }
         if trainingMode {
-            request.setValue("1", forHTTPHeaderField: "X-Training-Mode")
+            request.setValue("1", forHTTPHeaderField: APIHeader.trainingMode)
         }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -362,10 +362,10 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws {
-        var request = makeRequest(path: "training/save-correction", method: "POST")
+        var request = makeRequest(path: APIEndpoint.savCorrection, method: "POST")
         let body = ["wav_path": wavPath, "whisper_text": whisperText, "corrected_text": correctedText]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -373,10 +373,10 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func deletePendingWav(wavPath: String) async throws {
-        var request = makeRequest(path: "training/pending-wav", method: "DELETE")
+        var request = makeRequest(path: APIEndpoint.pendingWav, method: "DELETE")
         let body = ["wav_path": wavPath]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -384,7 +384,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func forceStop() async throws {
-        let request = makeRequest(path: "force-stop", method: "POST")
+        let request = makeRequest(path: APIEndpoint.forceStop, method: "POST")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -403,7 +403,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getStatus() async throws -> StatusResponse {
-        let request = makeRequest(path: "status")
+        let request = makeRequest(path: APIEndpoint.status)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -417,8 +417,8 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func updateConfig(language: String?, task: String, correctionEnabled: Bool? = nil, mode: String? = nil) async throws {
-        var request = makeRequest(path: "config", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.config, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
 
         var body: [String: Any] = ["task": task]
         body["language"] = language ?? NSNull()
@@ -437,7 +437,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getHistory(limit: Int = 100) async throws -> [HistoryItem] {
-        let request = makeRequest(path: "history?limit=\(limit)")
+        let request = makeRequest(path: "\(APIEndpoint.history)?limit=\(limit)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -446,7 +446,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func clearHistory() async throws {
-        let request = makeRequest(path: "history", method: "DELETE")
+        let request = makeRequest(path: APIEndpoint.history, method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -454,7 +454,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getContextStatus() async throws -> ContextStatus {
-        let request = makeRequest(path: "context/status")
+        let request = makeRequest(path: APIEndpoint.contextStatus)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -463,7 +463,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getContextProjects() async throws -> ContextProjects {
-        let request = makeRequest(path: "context/projects")
+        let request = makeRequest(path: APIEndpoint.contextProjects)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -472,8 +472,8 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func ingestContext(path: String) async throws {
-        var request = makeRequest(path: "context/ingest", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.contextIngest, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["path": path])
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -482,7 +482,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func clearContext() async throws {
-        let request = makeRequest(path: "context", method: "DELETE")
+        let request = makeRequest(path: APIEndpoint.context, method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -490,7 +490,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getDictionary() async throws -> [DictionaryEntry] {
-        let request = makeRequest(path: "dictionary")
+        let request = makeRequest(path: APIEndpoint.dictionary)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -499,8 +499,8 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry {
-        var request = makeRequest(path: "dictionary", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.dictionary, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         request.httpBody = try JSONSerialization.data(withJSONObject: [
             "trigger": trigger, "replacement": replacement, "scope": scope
         ])
@@ -512,7 +512,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func deleteDictionaryEntry(id: Int) async throws {
-        let request = makeRequest(path: "dictionary/\(id)", method: "DELETE")
+        let request = makeRequest(path: "\(APIEndpoint.dictionary)/\(id)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -520,7 +520,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getSnippets() async throws -> [SnippetEntry] {
-        let request = makeRequest(path: "snippets")
+        let request = makeRequest(path: APIEndpoint.snippets)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -529,8 +529,8 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry {
-        var request = makeRequest(path: "snippets", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.snippets, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         request.httpBody = try JSONSerialization.data(withJSONObject: [
             "trigger_phrase": triggerPhrase, "expansion": expansion, "scope": scope
         ])
@@ -542,7 +542,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func deleteSnippet(id: Int) async throws {
-        let request = makeRequest(path: "snippets/\(id)", method: "DELETE")
+        let request = makeRequest(path: "\(APIEndpoint.snippets)/\(id)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -552,7 +552,7 @@ actor BackendService: BackendServiceProtocol {
     // MARK: - Auth
 
     func login(email: String, password: String) async throws -> AuthTokens {
-        var request = makeAuthRequest(path: "login")
+        var request = makeAuthRequest(path: APIEndpoint.authLogin)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["email": email, "password": password])
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -562,7 +562,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func register(email: String, password: String) async throws -> AuthUser {
-        var request = makeAuthRequest(path: "register")
+        var request = makeAuthRequest(path: APIEndpoint.authRegister)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["email": email, "password": password])
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -572,7 +572,7 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func refreshToken(_ refreshToken: String) async throws -> String {
-        var request = makeAuthRequest(path: "refresh")
+        var request = makeAuthRequest(path: APIEndpoint.authRefresh)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["refresh_token": refreshToken])
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -584,18 +584,18 @@ actor BackendService: BackendServiceProtocol {
     }
 
     func getMe() async throws -> AuthUser {
-        var req = URLRequest(url: URL(string: "\(rootURL)/auth/me")!)
+        var req = URLRequest(url: URL(string: "\(rootURL)/auth/\(APIEndpoint.authMe)")!)
         req.httpMethod = "GET"
         if let token = KeychainHelper.accessToken {
-            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            req.setValue("\(APIValue.bearer) \(token)", forHTTPHeaderField: APIHeader.authorization)
         }
         let (data, _) = try await dataWithRefreshRetry(for: req)
         return try JSONDecoder().decode(AuthUser.self, from: data)
     }
 
     func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String? = nil) async throws {
-        var request = makeRequest(path: "feedback", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.feedback, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         var body: [String: Any] = [
             "raw_whisper": rawWhisper,
             "model_output": modelOutput,
@@ -675,7 +675,7 @@ struct ITDatasetResponse: Decodable {
 
 extension BackendService {
     func getITDatasetNext(offset: Int = 0, trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "it-dataset/next?offset=\(offset)&training_set=\(trainingSet)")
+        let request = makeRequest(path: "\(APIEndpoint.itDatasetNext)?offset=\(offset)&training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -684,7 +684,7 @@ extension BackendService {
     }
 
     func getITDatasetRandom(trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "it-dataset/random?training_set=\(trainingSet)")
+        let request = makeRequest(path: "\(APIEndpoint.itDatasetRandom)?training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -693,7 +693,7 @@ extension BackendService {
     }
 
     func getITDatasetRecorded(trainingSet: String = "it_dataset") async throws -> [ITDatasetResponse] {
-        let request = makeRequest(path: "it-dataset/recorded?training_set=\(trainingSet)")
+        let request = makeRequest(path: "\(APIEndpoint.itDatasetRecorded)?training_set=\(trainingSet)")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -702,8 +702,8 @@ extension BackendService {
     }
 
     func saveITDatasetPair(index: Int, whisperOutput: String) async throws {
-        var request = makeRequest(path: "it-dataset/record", method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.itDatasetRecord, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         let body: [String: Any] = ["index": index, "whisper_output": whisperOutput]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         let (_, response) = try await session.data(for: request)
@@ -713,8 +713,8 @@ extension BackendService {
     }
 
     func deleteITDatasetPair(wavPath: String) async throws {
-        var request = makeRequest(path: "it-dataset/record", method: "DELETE")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = makeRequest(path: APIEndpoint.itDatasetRecord, method: "DELETE")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
         let body: [String: String] = ["wav_path": wavPath]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         let (_, response) = try await session.data(for: request)

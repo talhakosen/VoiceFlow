@@ -6,7 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var recordingOverlay: RecordingOverlayWindow?
     private var backendProcess: Process?
-    private let backendPort = 8765
+    private let backendPort = AppConstants.defaultLocalPort
     private var healthCheckTimer: Timer?
     private var onboardingWindow: NSWindow?
     private var loginWindow: NSPanel?
@@ -115,9 +115,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // We use notifications / callbacks stored on AppDelegate for restart
         store.send(.recording(.restartBackend)) // no-op start; real restart wired below
 
-        let mode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
+        let mode = DeploymentMode(rawValue: UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "") ?? .local
 
-        if mode == "server" {
+        if mode == .server {
             NSLog("VoiceFlow: Server mode — skipping local backend startup")
             DispatchQueue.main.async {
                 self.menuBarController = MenuBarController(store: self.store)
@@ -139,8 +139,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         requestAccessibilityPermission()
 
-        let deployMode = UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "local"
-        if deployMode == "server" {
+        let deployMode = DeploymentMode(rawValue: UserDefaults.standard.string(forKey: AppSettings.deploymentMode) ?? "") ?? .local
+        if deployMode == .server {
             store.send(.auth(.tokenRefreshAttempted))
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -284,7 +284,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         env["PYTHONPATH"] = "\(backendPath)/src"
         env["HF_TOKEN"] = env["HF_TOKEN"] ?? ""
 
-        let llmMode = UserDefaults.standard.string(forKey: AppSettings.llmMode) ?? "local"
+        let llmMode = LLMMode(rawValue: UserDefaults.standard.string(forKey: AppSettings.llmMode) ?? "") ?? .local
         // Parse .env file once
         let projectRoot = URL(fileURLWithPath: backendPath).deletingLastPathComponent().path
         var dotEnv: [String: String] = [:]
@@ -299,16 +299,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        if llmMode == "cloud" {
+        if llmMode == .cloud {
             env["LLM_BACKEND"] = "ollama"
             for key in ["LLM_ENDPOINT", "LLM_MODEL", "HF_TOKEN"] {
                 if let val = dotEnv[key] { env[key] = val }
             }
             NSLog("VoiceFlow: LLM_BACKEND=ollama (RunPod), LLM_ENDPOINT=%@", env["LLM_ENDPOINT"] ?? "nil")
-        } else if llmMode == "alibaba" {
+        } else if llmMode == .alibaba {
             env["LLM_BACKEND"] = "ollama"
-            env["LLM_ENDPOINT"] = "https://dashscope-intl.aliyuncs.com/compatible-mode"
-            env["LLM_MODEL"] = "qwen-max"
+            env["LLM_ENDPOINT"] = AppConstants.alibabaDashScopeURL
+            env["LLM_MODEL"] = AppConstants.alibabaScopeModel
             if let apiKey = dotEnv["ALIBABA_API_KEY"] { env["LLM_API_KEY"] = apiKey }
             NSLog("VoiceFlow: LLM_BACKEND=ollama (Alibaba DashScope), model=qwen-max")
         } else {
@@ -323,7 +323,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         backendProcess?.environment = env
 
         // Redirect stdout+stderr to log file
-        let logPath = "/tmp/voiceflow.log"
+        let logPath = AppConstants.backendLogPath
         FileManager.default.createFile(atPath: logPath, contents: nil)
         let logHandle = FileHandle(forWritingAtPath: logPath)!
         logHandle.seekToEndOfFile()
@@ -373,7 +373,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func checkBackendHealth(completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: "http://127.0.0.1:\(backendPort)/health") else {
+        guard let url = URL(string: "\(AppConstants.defaultLocalURL)/health") else {
             completion(false)
             return
         }
@@ -457,22 +457,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func findBackendPath() -> String {
-        // Try relative path first (for development)
         let bundlePath = Bundle.main.bundlePath
-        let devPath = URL(fileURLWithPath: bundlePath)
+        return URL(fileURLWithPath: bundlePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("backend")
             .path
-
-        if FileManager.default.fileExists(atPath: "\(devPath)/src/voiceflow") {
-            return devPath
-        }
-
-        // Fallback to hardcoded dev path
-        let fallbackPath = NSString(string: "~/Developer/utils/voiceflow/backend").expandingTildeInPath
-        return fallbackPath
     }
 
     private func findPythonPath() -> String? {
