@@ -29,6 +29,7 @@ class HotkeyManager {
     private var isFnPressed = false
     private var isRecordingActive = false
     private var lastActionTime: Date?
+    private var recordingStartedAt: Date?
 
     private let doubleTapThreshold: TimeInterval = 0.4
     private let cooldownAfterAction: TimeInterval = 0.8
@@ -149,11 +150,13 @@ class HotkeyManager {
             if isRecordingActive {
                 // Already recording → stop
                 isRecordingActive = false
+                recordingStartedAt = nil
                 log(" DOUBLE-TAP Fn → STOP recording")
                 onStopRecording?()
             } else {
                 // Not recording → start
                 isRecordingActive = true
+                recordingStartedAt = now
                 log(" DOUBLE-TAP Fn → START recording")
                 onStartRecording?()
             }
@@ -163,9 +166,15 @@ class HotkeyManager {
     }
 
     private func handleFnUp() {
-        // If recording is active, always stop on release — cooldown must not block a stop
+        // If recording is active, stop on release — but ignore the immediate UP after double-tap start
         if isRecordingActive {
+            if let startedAt = recordingStartedAt,
+               Date().timeIntervalSince(startedAt) < 0.5 {
+                log(" Fn RELEASED → IGNORED (too soon after start, \(String(format: "%.2f", Date().timeIntervalSince(startedAt)))s)")
+                return
+            }
             isRecordingActive = false
+            recordingStartedAt = nil
             lastActionTime = Date()
             lastFnDownTime = nil
             log(" Fn RELEASED → STOP recording")
@@ -186,6 +195,7 @@ class HotkeyManager {
         isFnPressed = false
         lastFnDownTime = nil
         lastActionTime = Date()   // cooldown korur — reset sonrası Fn anında tetiklenmez
+        recordingStartedAt = nil
         recordingStartTime = nil
         cmdPressTime = nil
         cmdIntervals = []
