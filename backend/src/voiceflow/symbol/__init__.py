@@ -7,6 +7,7 @@ from .extractor import SymbolInfo, TreeSitterExtractor
 from .indexer import build_symbol_index, generate_project_notes
 from .injector import inject_symbol_refs
 from .lookup import lookup_symbol
+from .scanner import extract_symbols
 
 __all__ = [
     "SymbolInfo",
@@ -15,4 +16,5 @@ __all__ = [
     "generate_project_notes",
     "inject_symbol_refs",
     "lookup_symbol",
+    "extract_symbols",
 ]

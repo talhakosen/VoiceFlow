@@ -1,4 +1,10 @@
-"""Engineering package: symbol extraction for developer workflows."""
+"""symbol/scanner.py — Regex-based symbol name extraction for dictionary seeding.
+
+Lighter than tree-sitter: scans class/function/variable declarations line by line.
+Used by /api/engineering/extract-symbols to bulk-add identifiers to user_dictionary.
+"""
+
+from __future__ import annotations
 
 import logging
 import re
@@ -6,18 +12,17 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# Regex patterns per language
 _SYMBOL_PATTERNS = [
-    # Python: class Foo, def foo_bar
+    # Python
     re.compile(r"^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)"),
     re.compile(r"^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)"),
-    # Swift / Go / TS: func fooBar, interface Foo, struct Foo
+    # Swift / Go / TS
     re.compile(r"^\s*func\s+([A-Za-z_][A-Za-z0-9_]*)"),
     re.compile(r"^\s*interface\s+([A-Za-z_][A-Za-z0-9_]*)"),
     re.compile(r"^\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)"),
-    # TypeScript / JS: const FOO / const fooBar
+    # TypeScript / JS
     re.compile(r"^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)"),
-    # Go: type Foo struct|interface
+    # Go
     re.compile(r"^\s*type\s+([A-Za-z_][A-Za-z0-9_]*)\s+(?:struct|interface)"),
 ]
 
@@ -26,7 +31,7 @@ _MAX_FILE_SIZE = 512 * 1024  # 512 KB
 
 
 def extract_symbols(repo_path: str) -> list[str]:
-    """Extract class/function/variable names from code files in a git repo.
+    """Extract class/function/variable names from code files in a directory.
 
     Scans Python, Swift, TypeScript, Go files using regex.
     Returns a deduplicated, sorted list of symbol names.
@@ -39,7 +44,6 @@ def extract_symbols(repo_path: str) -> list[str]:
     symbols: set[str] = set()
 
     for file_path in root.rglob("*"):
-        # Skip hidden, __pycache__, node_modules, .git
         parts = file_path.parts
         if any(
             p.startswith(".") or p in {"__pycache__", "node_modules", "dist", "build"}
@@ -60,7 +64,6 @@ def extract_symbols(repo_path: str) -> list[str]:
                     m = pattern.match(line)
                     if m:
                         name = m.group(1)
-                        # Filter out single-char and very generic names
                         if len(name) > 1:
                             symbols.add(name)
                         break

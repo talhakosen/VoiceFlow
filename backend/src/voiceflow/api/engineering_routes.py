@@ -45,7 +45,7 @@ async def extract_symbols_endpoint(
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Extract code symbols from repo and add them to the team dictionary."""
-    from ..services.engineering import extract_symbols
+    from ..symbol import extract_symbols
 
     loop = asyncio.get_running_loop()
     symbols = await loop.run_in_executor(None, extract_symbols, body.repo_path)
