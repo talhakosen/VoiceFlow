@@ -1,3 +1,3 @@
-from .recording import RecordingService
+from ..recording import RecordingService
 
 __all__ = ["RecordingService"]

@@ -1,14 +1,16 @@
-"""RecordingService — orchestrates audio capture, transcription, and correction.
+"""recording/service.py — RecordingService: pipeline orchestrator.
 
-Single responsibility: coordinate the start→stop→transcribe→correct→persist pipeline.
+Coordinates: audio capture → transcription → text pipeline → persist.
 Routes delegate to this service; they only handle HTTP concerns.
 """
+
+from __future__ import annotations
 
 import asyncio
 import functools
 import logging
+import re
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 from ..audio import AudioCapture, AudioConfig
 from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
@@ -16,71 +18,9 @@ from ..db import save_transcription, get_dictionary, get_snippets
 from ..services.dictionary import _apply_aho_corasick, _apply_regex_fallback, _build_automaton, _HAS_AC
 from ..services.snippets import apply_snippets
 from ..services.filler_cleaner import clean_fillers
+from .segmenter import _mlx_executor, _SAMPLE_RATE, transcribe_segmented
 
 logger = logging.getLogger(__name__)
-
-# Single-thread executor for MLX operations (Metal GPU is not thread-safe)
-_mlx_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mlx")
-
-
-_SAMPLE_RATE = 16000
-_MIN_CHUNK_SECONDS = 0.3  # daha kısa parçaları atla (gürültü)
-
-
-async def _transcribe_segmented(
-    audio_data,
-    cmd_intervals: list[tuple[float, float]],
-    transcriber: "AbstractTranscriber",
-    user_id: str,
-    loop,
-) -> tuple[str, str | None, float]:
-    """Sesi cmd aralıklarına göre böl, her parçayı ayrı transcribe et.
-
-    Cmd-held parçalar → transcribe → inject_symbol_refs
-    Normal parçalar   → transcribe → olduğu gibi bırak
-
-    word_timestamps kullanılmaz — Whisper'a ekstra yük yok.
-
-    Returns: (merged_text, language, total_duration_seconds)
-    """
-    from ..symbol import inject_symbol_refs
-
-    total_samples = len(audio_data)
-    total_duration = total_samples / _SAMPLE_RATE
-
-    # Tüm segmentleri (start, end, is_cmd) olarak listele
-    segments: list[tuple[float, float, bool]] = []
-    prev = 0.0
-    for s, e in sorted(cmd_intervals):
-        s = max(0.0, min(s, total_duration))
-        e = max(0.0, min(e, total_duration))
-        if s > prev + _MIN_CHUNK_SECONDS:
-            segments.append((prev, s, False))
-        if e > s + _MIN_CHUNK_SECONDS:
-            segments.append((s, e, True))
-        prev = e
-    if prev + _MIN_CHUNK_SECONDS < total_duration:
-        segments.append((prev, total_duration, False))
-
-    parts: list[str] = []
-    detected_language: str | None = None
-
-    for start, end, is_cmd in segments:
-        chunk = audio_data[int(start * _SAMPLE_RATE): int(end * _SAMPLE_RATE)]
-        if len(chunk) < int(_MIN_CHUNK_SECONDS * _SAMPLE_RATE):
-            continue
-        seg_result = await loop.run_in_executor(_mlx_executor, transcriber.transcribe, chunk)
-        if not seg_result.text.strip():
-            continue
-        if detected_language is None and seg_result.language:
-            detected_language = seg_result.language
-        text = seg_result.text.strip()
-        if is_cmd and user_id:
-            text = await inject_symbol_refs(text, user_id)
-            logger.info("Cmd segment injected: '%s'", text[:80])
-        parts.append(text)
-
-    return " ".join(parts), detected_language, total_duration
 
 
 class RecordingService:
@@ -156,8 +96,7 @@ class RecordingService:
 
         t_whisper = time.perf_counter()
         if cmd_intervals:
-            # Sesi böl: cmd parçaları ayrı transcribe → inject, diğerleri düz
-            merged_text, language, duration = await _transcribe_segmented(
+            merged_text, language, duration = await transcribe_segmented(
                 audio_data, cmd_intervals, self._transcriber, user_id, loop
             )
             result = TranscriptionResult(text=merged_text, language=language, duration=duration)
@@ -184,7 +123,6 @@ class RecordingService:
                 logger.info("IT dataset WAV saved: %s", wav_path)
 
                 if not raw_text.strip():
-                    # Boş veya hallüsinasyon sonrası temizlenmiş — kaydetme
                     wav_path.unlink(missing_ok=True)
                     _it_wav_path = None
                     logger.warning("IT recording skipped: empty/hallucination text for sentence_id=%d", it_dataset_index)
@@ -200,6 +138,7 @@ class RecordingService:
                     logger.info("IT recording saved: id=%d whisper='%s'", it_dataset_index, raw_text[:60])
             except Exception as e:
                 logger.warning("IT dataset save failed: %s", e)
+
         active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
 
         # IT Dataset mode: skip all post-processing, return raw Whisper output
@@ -226,7 +165,6 @@ class RecordingService:
         processing_ms = int((time.perf_counter() - t_start) * 1000)
         logger.info("Total stop→result: %dms", processing_ms)
 
-        # Persist
         row_id = await save_transcription(
             text=result.text,
             raw_text=raw_text if was_corrected else None,
@@ -240,7 +178,6 @@ class RecordingService:
             whisper_model=self._transcriber.config.model_name,
         )
 
-        # Pending WAV for user correction training (only when training mode is on)
         _pending_wav_path: str | None = None
         if save_pending_wav and len(audio_data) > 0 and raw_text.strip():
             try:
@@ -274,14 +211,14 @@ class RecordingService:
 
     async def _apply_text_pipeline(
         self,
-        result: "TranscriptionResult",
+        result: TranscriptionResult,
         active_mode: str,
         user_id: str | None,
         active_app: str | None,
         window_title: str | None,
         selected_text: str | None,
         loop,
-    ) -> "tuple[str, bool, bool, list[str]]":
+    ) -> tuple[str, bool, bool, list[str]]:
         """Apply the full text post-processing pipeline.
 
         Returns: (final_text, was_corrected, snippet_used, symbol_refs)
@@ -322,18 +259,17 @@ class RecordingService:
 
         # 3. Engineering symbol injection
         if active_mode == "engineering" and result.text and user_id:
-            import re as _re
             from ..symbol import inject_symbol_refs as _inject
             injected = await _inject(result.text, user_id)
             if injected != result.text:
-                def _fmt_sym(m: "_re.Match") -> str:
+                def _fmt_sym(m: re.Match) -> str:
                     full_path, name = m.group(1), m.group(2)
                     path_only = full_path.rsplit(":", 1)[0]
                     symbol_refs.append(f"{name} → {full_path}")
                     return f"@{path_only}"
-                result.text = _re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
+                result.text = re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
                 _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
-                for _m in _re.finditer(r'@([\w/.]+)', result.text):
+                for _m in re.finditer(r'@([\w/.]+)', result.text):
                     _path = _m.group(1)
                     if _path not in _seen_paths:
                         _seen_paths.add(_path)

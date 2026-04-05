@@ -181,7 +181,7 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
         if config.mode == "engineering" and corrector.config.enabled:
             logger.info("Engineering mode: auto-disabling LLM correction")
             corrector.config.enabled = False
-            from ..services.recording import _mlx_executor
+            from ..recording import _mlx_executor
             if hasattr(corrector, "correct_async"):
                 await loop.run_in_executor(None, corrector.unload)
             else:
