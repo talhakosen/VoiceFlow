@@ -50,6 +50,7 @@
 		CCTR021BF000001 /* TrainingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCTR021FR000001 /* TrainingFeature.swift */; };
 		CCAU021BF000001 /* AuthFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAU021FR000001 /* AuthFeature.swift */; };
 		CCHI021BF000001 /* HistoryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCHI021FR000001 /* HistoryFeature.swift */; };
+		CCAP021BF000001 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAP021FR000001 /* AppFeature.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -96,6 +97,7 @@
 		CCMB021FR000001 /* MenuBarFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarFeature.swift; sourceTree = "<group>"; };
 		CCAU021FR000001 /* AuthFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFeature.swift; sourceTree = "<group>"; };
 		CCHI021FR000001 /* HistoryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryFeature.swift; sourceTree = "<group>"; };
+		CCAP021FR000001 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -229,6 +231,7 @@
 			children = (
 				E2021EE246F139A902BD82D3 /* AppDelegate.swift */,
 				5187915534C878EB6507FF9A /* VoiceFlowApp.swift */,
+				CCAP021FR000001 /* AppFeature.swift */,
 				CCCO021000000001 /* Core */,
 				CCFE021000000001 /* Features */,
 			);
@@ -391,6 +394,7 @@
 				CCTR021BF000001 /* TrainingFeature.swift in Sources */,
 				CCAU021BF000001 /* AuthFeature.swift in Sources */,
 				CCHI021BF000001 /* HistoryFeature.swift in Sources */,
+				CCAP021BF000001 /* AppFeature.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
