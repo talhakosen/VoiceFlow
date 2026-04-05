@@ -139,8 +139,8 @@
 
 ### 2.3 Güvenlik & Uyumluluk
 
-- [ ] **KVKK/BDDK hazırlık belgesi** — "Veriler nerede saklanır?" dokümanı
-- [ ] **Data at rest encryption** — SQLite şifreleme (SQLCipher)
+- [DONE 2026-04-05] **KVKK/BDDK hazırlık belgesi** — docs/enterprise/veri-saklama-belgesi.md: veri akış diyagramı, SQLite tablo listesi, KVKK md. uyum tablosu, BDDK kontrol listesi, teknik güvenlik kontrolleri — müşteriye gönderilebilir
+- [DONE 2026-04-05] **Data at rest encryption** — SQLite şifreleme (SQLCipher) → cipher_connection.py
 - [DONE 2026-04-05] **Backend architectural security fixes**:
       Path traversal fix: /context/ingest body.path → _validate_ingest_path() (exists + is_dir kontrolü)
       Audio upload size limit: /it-dataset/record → 50 MB cap (HTTP 413)
