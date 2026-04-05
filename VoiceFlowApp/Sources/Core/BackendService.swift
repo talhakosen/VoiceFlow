@@ -609,7 +609,7 @@ struct AuthTokens: Decodable {
     }
 }
 
-struct AuthUser: Decodable {
+struct AuthUser: Decodable, Equatable {
     let userId: String
     let email: String
     let tenantId: String
