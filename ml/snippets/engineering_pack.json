@@ -1,0 +1,14 @@
+[
+  {"trigger_phrase": "todo yorum", "expansion": "// TODO: ", "scope": "pack_engineering"},
+  {"trigger_phrase": "fixme yorum", "expansion": "// FIXME: ", "scope": "pack_engineering"},
+  {"trigger_phrase": "hata ayıklama", "expansion": "print(\"DEBUG [\(#function):\(#line)]:\", ", "scope": "pack_engineering"},
+  {"trigger_phrase": "pr açıklaması", "expansion": "## Özet\n\n[Değişikliğin kısa açıklaması]\n\n## Neden?\n\n[Motivasyon ve bağlam]\n\n## Ne Değişti?\n\n- \n- \n\n## Test Planı\n\n- [ ] \n- [ ] \n\n## Ekran Görüntüleri\n\n<!-- varsa -->\n\n## İlgili Kartlar\n\n<!-- Trello/Jira/Linear -->\n", "scope": "pack_engineering"},
+  {"trigger_phrase": "commit mesajı", "expansion": "feat(): \n\n- \n- ", "scope": "pack_engineering"},
+  {"trigger_phrase": "api endpoint", "expansion": "@router.get(\"/{id}\")\nasync def get_(id: int):\n    \"\"\"Get by ID.\"\"\"\n    pass", "scope": "pack_engineering"},
+  {"trigger_phrase": "unit test", "expansion": "def test_():\n    # Arrange\n    \n    # Act\n    \n    # Assert\n    ", "scope": "pack_engineering"},
+  {"trigger_phrase": "dokümantasyon", "expansion": "\"\"\"Kısa açıklama.\n\nArgs:\n    param: Açıklama.\n\nReturns:\n    Açıklama.\n\nRaises:\n    ValueError: Açıklama.\n\"\"\"", "scope": "pack_engineering"},
+  {"trigger_phrase": "hata kodu", "expansion": "try:\n    \nexcept Exception as e:\n    logger.error(\"İşlem başarısız: %s\", e)\n    raise", "scope": "pack_engineering"},
+  {"trigger_phrase": "daily standup", "expansion": "**Dün:** \n**Bugün:** \n**Engel:** ", "scope": "pack_engineering"},
+  {"trigger_phrase": "teknik borç", "expansion": "// TECH DEBT: [açıklama]\n// Etki: [düşük/orta/yüksek]\n// Çözüm: [önerilen yaklaşım]\n// Kart: ", "scope": "pack_engineering"},
+  {"trigger_phrase": "sql sorgusu", "expansion": "SELECT \nFROM \nWHERE \nORDER BY \nLIMIT 100;", "scope": "pack_engineering"}
+]

@@ -1,0 +1,12 @@
+[
+  {"trigger_phrase": "toplantı notu", "expansion": "Toplantı Notu\nTarih: \nKatılımcılar: \nGündem:\n1. \n2. \n\nAlınan Kararlar:\n- \n\nAksiyon Maddeleri:\n- [ ] ", "scope": "pack_office"},
+  {"trigger_phrase": "eylem maddeleri", "expansion": "Aksiyon Maddeleri:\n- [ ] Sorumlu: | Tarih: \n- [ ] Sorumlu: | Tarih: \n- [ ] Sorumlu: | Tarih: ", "scope": "pack_office"},
+  {"trigger_phrase": "resmi mail", "expansion": "Sayın İlgili,\n\nUmarım bu e-posta sizi iyi bulur.\n\n[Mesajınız]\n\nBilgilerinize sunarım.\nSaygılarımla,\n", "scope": "pack_office"},
+  {"trigger_phrase": "takip maili", "expansion": "Sayın [İsim],\n\nGeçen [tarih] tarihinde gerçekleştirdiğimiz görüşmeye ilişkin bir takip mesajı iletmek istedim.\n\nGörüşmemizde [konu] üzerinde mutabakata vardık. Bu doğrultuda [aksiyon] için sizden [talep] bekliyoruz.\n\nSorularınız için her zaman ulaşabilirsiniz.\n\nSaygılarımla,\n", "scope": "pack_office"},
+  {"trigger_phrase": "sunum başlığı", "expansion": "# [Sunum Başlığı]\n\n**Tarih:** \n**Hazırlayan:** \n**Hedef Kitle:** \n\n---\n\n## Giriş\n\n## Ana Noktalar\n1. \n2. \n3. \n\n## Sonuç ve Öneriler\n\n## Sorular", "scope": "pack_office"},
+  {"trigger_phrase": "haftalık rapor", "expansion": "## Haftalık Durum Raporu\n**Hafta:** \n**Hazırlayan:** \n\n### Bu Hafta Tamamlananlar\n- \n\n### Devam Eden İşler\n- \n\n### Önümüzdeki Hafta Planı\n- \n\n### Engeller / Riskler\n- ", "scope": "pack_office"},
+  {"trigger_phrase": "proje özeti", "expansion": "**Proje:** \n**Durum:** 🟢 Yolunda / 🟡 Dikkat / 🔴 Kritik\n**Başlangıç:** \n**Bitiş:** \n**Bütçe Kullanımı:** %\n\n**Son Güncelleme:** \n**Notlar:** ", "scope": "pack_office"},
+  {"trigger_phrase": "onay talebi", "expansion": "Sayın [Yönetici İsmi],\n\n[Proje/Konu] için onayınızı talep ediyorum.\n\n**Özet:** \n**Gerekçe:** \n**Bütçe:** \n**Süre:** \n\nEkler: [Belge listesi]\n\nSaygılarımla,\n", "scope": "pack_office"},
+  {"trigger_phrase": "gündem maddesi", "expansion": "**Gündem:** \n**Süre:** dk\n**Sorumlu:** \n**Beklenen Çıktı:** ", "scope": "pack_office"},
+  {"trigger_phrase": "kararlar özeti", "expansion": "**Toplantı Kararları**\n\n| # | Karar | Sorumlu | Tarih |\n|---|---|---|---|\n| 1 | | | |\n| 2 | | | |\n| 3 | | | |", "scope": "pack_office"}
+]

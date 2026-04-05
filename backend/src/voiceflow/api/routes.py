@@ -404,6 +404,75 @@ async def delete_snippet_route(
     return {"status": "deleted", "id": snippet_id}
 
 
+_SNIPPET_PACKS: dict[str, str] = {
+    "office": "office_pack.json",
+    "engineering": "engineering_pack.json",
+}
+
+
+@router.post("/snippets/pack/{pack_name}")
+async def load_snippet_pack(
+    pack_name: str,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    """Load a pre-built snippet pack (office / engineering). Idempotent."""
+    import json as _json
+    from pathlib import Path
+    from ..db import add_snippet as _add_snippet, get_snippets as _get_snippets
+
+    if pack_name not in _SNIPPET_PACKS:
+        raise HTTPException(status_code=404, detail=f"Unknown pack: {pack_name}. Available: {list(_SNIPPET_PACKS)}")
+
+    scope = f"pack_{pack_name}"
+    pack_path = Path(__file__).parents[5] / "ml" / "snippets" / _SNIPPET_PACKS[pack_name]
+    if not pack_path.exists():
+        raise HTTPException(status_code=404, detail="Pack file not found")
+
+    with open(pack_path, encoding="utf-8") as f:
+        items = _json.load(f)
+
+    user_id = x_user_id or ""
+    existing = await _get_snippets(user_id=user_id)
+    existing_triggers = {s["trigger_phrase"] for s in existing if s.get("scope") == scope}
+
+    added = 0
+    for item in items:
+        trigger = item["trigger_phrase"]
+        if trigger not in existing_triggers:
+            await _add_snippet(
+                trigger_phrase=trigger,
+                expansion=item["expansion"],
+                user_id=user_id,
+                scope=scope,
+            )
+            added += 1
+
+    return {"status": "loaded", "pack": pack_name, "added": added, "total": len(items)}
+
+
+@router.delete("/snippets/pack/{pack_name}")
+async def clear_snippet_pack(
+    pack_name: str,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    """Remove all entries from a snippet pack."""
+    import aiosqlite
+    from ..db.storage import DB_PATH as _db_path
+
+    if pack_name not in _SNIPPET_PACKS:
+        raise HTTPException(status_code=404, detail=f"Unknown pack: {pack_name}")
+
+    scope = f"pack_{pack_name}"
+    user_id = x_user_id or ""
+    async with aiosqlite.connect(_db_path) as db:
+        cur = await db.execute(
+            "DELETE FROM snippets WHERE scope = ? AND (user_id = ? OR user_id = '')",
+            (scope, user_id),
+        )
+        await db.commit()
+    return {"status": "cleared", "pack": pack_name, "deleted": cur.rowcount}
+
+
 # ------------------------------------------------------------------
 # Feedback (training signal)
 # ------------------------------------------------------------------
