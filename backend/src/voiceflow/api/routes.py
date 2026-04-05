@@ -195,7 +195,7 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
             if entry and (_time.time() - entry["indexed_at"]) > 300:
                 async def _reindex(path: str, uid: str, app_state) -> None:
                     try:
-                        from ..services.symbol_indexer import build_symbol_index, generate_project_notes
+                        from ..symbol import build_symbol_index, generate_project_notes
                         sym_count = await build_symbol_index(path, uid)
                         logger.info("Auto re-index (engineering mode): %d symbols", sym_count)
                         if sym_count > 0:

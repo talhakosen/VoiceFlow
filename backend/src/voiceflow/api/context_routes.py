@@ -56,7 +56,7 @@ async def context_ingest(
         except Exception as e:
             logger.warning("Smart dictionary failed: %s", e)
         try:
-            from ..services.symbol_indexer import build_symbol_index, generate_project_notes
+            from ..symbol import build_symbol_index, generate_project_notes
             sym_count = await build_symbol_index(path_str, user_id)
             logger.info("Symbol index: %d symbols for user %s", sym_count, user_id)
             if sym_count > 0:
@@ -150,7 +150,7 @@ async def symbol_lookup(
     limit: int = 5,
 ):
     """Fuzzy symbol lookup. Returns file_path:line_number matches."""
-    from ..services.symbol_indexer import lookup_symbol
+    from ..symbol import lookup_symbol
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
     results = await lookup_symbol(query=q, user_id=user_id, limit=limit)
     return {"query": q, "results": results}

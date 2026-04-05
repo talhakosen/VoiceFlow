@@ -43,7 +43,7 @@ async def _transcribe_segmented(
 
     Returns: (merged_text, language, total_duration_seconds)
     """
-    from .symbol_indexer import inject_symbol_refs
+    from ..symbol import inject_symbol_refs
 
     total_samples = len(audio_data)
     total_duration = total_samples / _SAMPLE_RATE
@@ -323,7 +323,7 @@ class RecordingService:
         # 3. Engineering symbol injection
         if active_mode == "engineering" and result.text and user_id:
             import re as _re
-            from .symbol_indexer import inject_symbol_refs as _inject
+            from ..symbol import inject_symbol_refs as _inject
             injected = await _inject(result.text, user_id)
             if injected != result.text:
                 def _fmt_sym(m: "_re.Match") -> str:

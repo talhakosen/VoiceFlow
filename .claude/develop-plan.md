@@ -169,6 +169,11 @@
       Config enum validation: mode + output_format → Pydantic Literal types
       DB indexes: transcriptions(tenant_id, created_at), user_dictionary(trigger), snippets(user_id)
       tenant_id: training_sentences/recordings + symbol_index/v2 tablolarına eklendi (ALTER TABLE migration)
+- [DONE 2026-04-05] **symbol_indexer.py → voiceflow/symbol/ paketi**:
+      1447 satırlık services/symbol_indexer.py, correction/ ve transcription/ ile aynı seviyede voiceflow/symbol/ paketine taşındı
+      extractor.py (SymbolInfo + TreeSitterExtractor) + indexer.py (build_symbol_index, generate_project_notes) +
+      injector.py (inject_symbol_refs + phonetic helpers) + lookup.py (lookup_symbol)
+      services/recording.py, api/context_routes.py, api/routes.py import'ları güncellendi
 - [DONE 2026-03-30] **Audit log** — login, config_changed, history_cleared, user_data_deleted events; append-only SQLite tablo
 - [DONE 2026-03-30] **Veri silme API** — `DELETE /admin/users/:id/data` (KVKK gereği) — transkript+sözlük+snippet+hesap kalıcı silme
 
