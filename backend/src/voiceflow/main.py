@@ -7,7 +7,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -55,6 +54,19 @@ def _build_corrector():
     return LLMCorrector(config=CorrectorConfig())
 
 
+async def _purge_tokens_loop() -> None:
+    """Purge expired JWT blacklist entries once per hour."""
+    from .db import purge_expired_tokens
+    while True:
+        await asyncio.sleep(3600)
+        try:
+            removed = await purge_expired_tokens()
+            if removed:
+                logger.info("JWT blacklist: purged %d expired token(s)", removed)
+        except Exception:
+            pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -67,6 +79,7 @@ async def lifespan(app: FastAPI):
     app.state.recording_service = service
 
     asyncio.create_task(service.preload_models())
+    asyncio.create_task(_purge_tokens_loop())
     yield
 
 
@@ -92,7 +105,7 @@ app.add_middleware(
 
 # Jinja2 templates — backend/templates/
 # __file__ = backend/src/voiceflow/main.py → .parent.parent.parent = backend/
-import pathlib as _pathlib
+import pathlib as _pathlib  # noqa: E402
 _templates_dir = _pathlib.Path(__file__).parent.parent.parent / "templates"
 app.state.templates = Jinja2Templates(directory=str(_templates_dir))
 
