@@ -9,8 +9,8 @@ llm:
   backend: mlx         # mlx | ollama
   endpoint: ""         # Ollama endpoint; empty = local MLX
   model: qwen2.5:7b    # Ollama model name
-  adapter_path: ml/qwen/adapters/v4.0  # LoRA adapter; empty = no adapter. Versiyon geçmişi: ml/qwen/CHANGELOG.md
-  adapter_version: "4.0"
+  adapter_path: ml/qwen/adapters/v3.0  # LoRA adapter; empty = no adapter. Versiyon geçmişi: ml/qwen/CHANGELOG.md
+  adapter_version: "3.0"
   adapter_trained_at: "2026-04-04"
 
 whisper:

@@ -1,70 +1,63 @@
-# VoiceFlow — Qwen Fine-Tuning (ASR Correction)
+# Qwen ASR Correction — Fine-Tuning
 
-Qwen2.5-7B'yi Türkçe ASR düzeltme için fine-tune eder.
+Qwen2.5-7B-Instruct LoRA adapter — Whisper çıktısını düzeltir (filler, noktalama, büyük harf).
+
+## Aktif Adapter
+
+`config.yaml` → `llm.adapter_path` — versiyon geçmişi: `CHANGELOG.md`
 
 ## Klasör Yapısı
 
 ```
 ml/qwen/
+├── adapters/v3.0/          ← Aktif MLX adapter (RunPod H100)
+├── datasets/v1..v4/        ← Eğitim verileri (gitignore)
+├── data/*.jsonl             ← Ham çiftler (filler, persona, office)
+├── generators/              ← Veri üretici scriptler (API yok, hardcoded)
 ├── scripts/
-│   ├── train_runpod.py        ← RunPod NVIDIA training (unsloth)
-│   ├── prepare_dataset.py     ← veri kaynaklarını birleştir → datasets/
-│   ├── convert_adapter.py     ← HF PEFT → MLX format dönüşümü
-│   ├── evaluate.py            ← WER/CER/exact-match raporu
-│   └── lora_config.yaml       ← MLX local training config
-├── datasets/
-│   ├── train.jsonl            ← 244K pair (Qwen chat format)
-│   ├── valid.jsonl            ← 30K pair
-│   └── test.jsonl             ← 30K pair
-└── adapters_mlx/              ← Production adapter (canlıda, .env ile yüklenir)
+│   ├── train_hf.py          ← RunPod eğitim (transformers + peft + trl)
+│   ├── convert_adapter.py   ← HF PEFT → MLX dönüşümü
+│   ├── build_v3_dataset.py  ← v3 dataset birleştirici
+│   ├── build_v4_dataset.py  ← v4 dataset birleştirici
+│   └── overnight_train.py   ← Mac local döngüsel eğitim
+└── CHANGELOG.md             ← Tüm versiyonlar + eğitim detayları
 ```
 
-## 1. Dataset Hazırla
+## Eğitim (RunPod H100 — ÖNERİLEN)
 
 ```bash
-cd ml/qwen/scripts
-python prepare_dataset.py \
-    --sources ../data/corruption_pairs.jsonl \
-              ../data/asr_training_data.jsonl \
-              ../data/gecturk_pairs.jsonl \
-              ../data/oneri_pairs.jsonl \
-              ../data/word_order_pairs.jsonl \
-    --output-dir ../datasets/
+# 1. Pod aç
+cd runpod && python create_pod.py qwen
+
+# 2. Yükle
+scp -P <PORT> datasets/vN/train.jsonl root@<IP>:/workspace/
+scp -P <PORT> datasets/vN/valid.jsonl root@<IP>:/workspace/
+scp -P <PORT> scripts/train_hf.py root@<IP>:/workspace/
+
+# 3. Deps + eğitim
+pip install transformers==4.47.0 peft==0.13.0 trl==0.13.0 accelerate datasets
+nohup python /workspace/train_hf.py > training.log 2>&1 &
+
+# 4. İndir + MLX dönüştür
+scp -rP <PORT> root@<IP>:/workspace/adapters_vN ./adapters/vN.0-hf
+python scripts/convert_adapter.py --input adapters/vN.0-hf --output adapters/vN.0
 ```
 
-## 2a. MLX ile Local Training (Mac)
+## ⚠️ Kritik Bulgular
 
-```bash
-cd ml/qwen/scripts
-mlx_lm.lora --config lora_config.yaml
-```
+**RunPod HF eğitim KULLAN, Mac mlx_lm.lora KULLANMA:**
 
-## 2b. RunPod ile Cloud Training (NVIDIA)
+| | RunPod (HF) | Mac (mlx_lm.lora) |
+|---|---|---|
+| Layers | 28 (tümü) | 16 (default) |
+| Scale | 2.0 (alpha=16, rank=8) | **20.0** (default) |
+| Sonuç | Filler siler, noktalama düzeltir | **Base model'den kötü** |
 
-```bash
-# RunPod'a kopyala ve çalıştır
-python train_runpod.py
-# Adapter çıktısı: /workspace/adapters/ (HF PEFT format)
-```
+Mac `mlx_lm.lora` default'ları (`num_layers=16`, `scale=20.0`) Qwen 7B'ye zarar veriyor. Adapter eğitimden sonra input'u aynen geri döndürüyor — base model bile daha iyi.
 
-## 3. HF Adapter → MLX Format Dönüşümü (RunPod sonrası)
+**Stack (doğrulanmış, hata vermez):**
+- `transformers==4.47.0` + `peft==0.13.0` + `trl==0.13.0`
+- unsloth KULLANMA (torch version hell)
+- Image: `runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04`
 
-```bash
-cd ml/qwen/scripts
-python convert_adapter.py
-# Çıktı: ../adapters_mlx/
-```
-
-## 4. Değerlendirme
-
-```bash
-cd ml/qwen/scripts
-python evaluate.py --combined eval_results.jsonl --output report.json
-```
-
-## 5. Aktif Etme
-
-`.env` dosyasında:
-```bash
-LLM_ADAPTER_PATH=../ml/qwen/adapters_mlx
-```
+**7B minimum** — 1.5B/3B Türkçe'de hallüsinasyon yapıyor.
