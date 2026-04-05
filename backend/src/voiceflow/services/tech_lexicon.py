@@ -155,21 +155,6 @@ COMMON_DOMAINS: dict[str, list[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Layer 2 hook — Project-specific domain lexicon (passed at runtime)
-# ---------------------------------------------------------------------------
-
-# Default empty; populated by project scanning or manual config.
-# Format: {"SymbolWord": ["variant1", "variant2"]}
-_project_lexicon: dict[str, list[str]] = {}
-
-
-def set_project_lexicon(lexicon: dict[str, list[str]]) -> None:
-    """Register project-specific domain terms (called during indexing)."""
-    global _project_lexicon
-    _project_lexicon = lexicon
-
-
-# ---------------------------------------------------------------------------
 # Core: split PascalCase → parts
 # ---------------------------------------------------------------------------
 
@@ -186,17 +171,11 @@ def _variants_for_word(word: str) -> list[str]:
     """Return all known variants for a single word (suffix + domain lookup)."""
     variants: list[str] = [word.lower()]  # always include lowercase original
 
-    # Check suffix lexicon
     if word in UNIVERSAL_SUFFIXES:
         variants.extend(UNIVERSAL_SUFFIXES[word])
 
-    # Check domain lexicon
     if word in COMMON_DOMAINS:
         variants.extend(COMMON_DOMAINS[word])
-
-    # Check project lexicon (Layer 2)
-    if word in _project_lexicon:
-        variants.extend(_project_lexicon[word])
 
     return list(dict.fromkeys(variants))  # deduplicate, preserve order
 

@@ -12,7 +12,6 @@ Phonetic dictionary format (K4-P1):
 """
 
 import re
-from functools import lru_cache
 
 try:
     import ahocorasick
