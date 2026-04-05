@@ -21,9 +21,9 @@ class PasteService {
         let success = pasteboard.setString(text, forType: .string)
         NSLog("VoiceFlow PasteService: Clipboard set: %@", success ? "YES" : "NO")
 
-        // Simulate Cmd+V using CGEvent
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.simulatePasteWithCGEvent()
+        // Simulate Cmd+V using CGEvent — strong capture keeps instance alive until block fires
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [self] in
+            simulatePasteWithCGEvent()
         }
     }
 
