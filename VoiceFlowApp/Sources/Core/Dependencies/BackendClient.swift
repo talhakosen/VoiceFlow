@@ -54,6 +54,8 @@ struct BackendClient {
         _ scope: String
     ) async throws -> SnippetEntry
     var deleteSnippet: (_ id: Int) async throws -> Void
+    var loadSnippetPack: (_ packName: String) async throws -> Void
+    var clearSnippetPack: (_ packName: String) async throws -> Void
 
     // MARK: - Auth
     var login: (_ email: String, _ password: String) async throws -> AuthTokens
@@ -156,6 +158,12 @@ extension BackendClient: DependencyKey {
             deleteSnippet: { id in
                 try await service.deleteSnippet(id: id)
             },
+            loadSnippetPack: { packName in
+                try await service.loadSnippetPack(packName: packName)
+            },
+            clearSnippetPack: { packName in
+                try await service.clearSnippetPack(packName: packName)
+            },
             login: { email, password in
                 try await service.login(email: email, password: password)
             },
@@ -256,6 +264,8 @@ extension BackendClient: DependencyKey {
             SnippetEntry(id: 0, triggerPhrase: triggerPhrase, expansion: expansion, scope: scope, userId: nil, tenantId: nil)
         },
         deleteSnippet: { _ in },
+        loadSnippetPack: { _ in },
+        clearSnippetPack: { _ in },
         login: { _, _ in
             AuthTokens(accessToken: "", refreshToken: "", tokenType: "bearer")
         },

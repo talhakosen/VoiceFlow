@@ -17,6 +17,7 @@ whisper:
   #model: mlx-community/whisper-large-v3-turbo  # base
   model: ml/whisper/models/v2.0  # Versiyon geçmişi: ml/whisper/CHANGELOG.md
   server_model: large-v3  # faster-whisper (server mode) — NVIDIA GPU, kurumsal merkezi sunucu için. Mac local modunda kullanılmaz.
+  it_model: ""  # IT/mühendislik modu fine-tuned model; boş = base model kullan. Örn: ml/whisper/models/voiceflow-whisper-it
 
 auth:
   jwt_access_ttl_minutes: 60

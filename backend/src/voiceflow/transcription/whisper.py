@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass, field
-from ..core.config import WHISPER_MODEL as _WHISPER_MODEL
+from ..core.config import WHISPER_MODEL as _WHISPER_MODEL, WHISPER_IT_MODEL as _WHISPER_IT_MODEL
 from typing import Any
 
 import mlx.core as mx
@@ -83,6 +83,7 @@ class WhisperConfig:
     model_name: str = field(default_factory=lambda: _WHISPER_MODEL)
     language: str | None = "tr"  # Default Turkish, None for auto-detect
     task: str = "transcribe"  # "transcribe" = same language, "translate" = to English
+    it_model_name: str | None = field(default_factory=lambda: _WHISPER_IT_MODEL or None)
 
 
 @dataclass
@@ -111,12 +112,14 @@ class WhisperTranscriber:
         mx.metal.clear_cache()
         logger.info("Whisper model cache cleared")
 
-    def transcribe(self, audio: np.ndarray, sample_rate: int = 16000) -> TranscriptionResult:
+    def transcribe(self, audio: np.ndarray, sample_rate: int = 16000, mode: str | None = None) -> TranscriptionResult:
         """Transcribe audio data.
 
         Args:
             audio: Audio data as numpy array (float32, mono)
             sample_rate: Sample rate of audio (default 16000)
+            mode: Active mode ("general" | "engineering" | "office"). Engineering mode
+                  uses the IT-specific fine-tuned model when configured.
 
         Returns:
             TranscriptionResult with text and metadata
@@ -136,9 +139,15 @@ class WhisperTranscriber:
         if np.abs(audio).max() > 1.0:
             audio = audio / np.abs(audio).max()
 
+        # Select model: use IT-specific model for engineering mode when available
+        model_path = self.config.model_name
+        if mode == "engineering" and self.config.it_model_name:
+            model_path = self.config.it_model_name
+            logger.debug("Engineering mode: using IT model %s", model_path)
+
         # Build transcription options
         options = {
-            "path_or_hf_repo": self.config.model_name,
+            "path_or_hf_repo": model_path,
             "task": self.config.task,
             "temperature": 0.0,               # greedy decoding — beam_size=1 equivalent, ~2x hız
             "condition_on_previous_text": False,  # her segment bağımsız, daha hızlı

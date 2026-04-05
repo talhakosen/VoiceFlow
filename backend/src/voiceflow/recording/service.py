@@ -94,6 +94,9 @@ class RecordingService:
 
         loop = asyncio.get_running_loop()
 
+        # Capture active_mode before transcription so engineering mode can select IT model
+        active_mode = self._corrector.config.mode
+
         t_whisper = time.perf_counter()
         if cmd_intervals:
             merged_text, language, duration = await transcribe_segmented(
@@ -101,7 +104,8 @@ class RecordingService:
             )
             result = TranscriptionResult(text=merged_text, language=language, duration=duration)
         else:
-            result = await loop.run_in_executor(_mlx_executor, self._transcriber.transcribe, audio_data)
+            transcribe_fn = functools.partial(self._transcriber.transcribe, audio_data, mode=active_mode)
+            result = await loop.run_in_executor(_mlx_executor, transcribe_fn)
         logger.info("Whisper: %.3fs → '%s'", time.perf_counter() - t_whisper, result.text[:80])
 
         raw_text = result.text
@@ -138,8 +142,6 @@ class RecordingService:
                     logger.info("IT recording saved: id=%d whisper='%s'", it_dataset_index, raw_text[:60])
             except Exception as e:
                 logger.warning("IT dataset save failed: %s", e)
-
-        active_mode = self._corrector.config.mode  # capture before concurrent /config can mutate
 
         # IT Dataset mode: skip all post-processing, return raw Whisper output
         if it_dataset_index is not None:

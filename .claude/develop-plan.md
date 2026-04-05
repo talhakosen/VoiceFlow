@@ -232,15 +232,15 @@
 - [ ] Mail.app + Outlook entegrasyonu (AppleScript / URL scheme)
 - [ ] Toplantı notu formatı (otomatik madde işaretleri, action item çıkarma)
 
-- [ ] **Office Snippet Paketi** — hazır kurumsal şablon seti (Settings'ten tek tıkla aktif):
+- [DONE 2026-04-05] **Office Snippet Paketi** — hazır kurumsal şablon seti (Settings'ten tek tıkla aktif):
       "durum güncelleme", "haftalık rapor", "toplantı notu", "OKR güncelleme",
       "izin talebi", "iş teklifi özeti", "karar kaydı", "teşekkür maili",
       "sözleşme özeti", "masraf raporu", "geri bildirim", "incident raporu"
-      Admin paketi ekip geneline açabilir / kapatabilir
+      Backend: POST/DELETE /api/snippets/pack/{name}; Swift: SnippetsSection PackRow bileşeni (yükle/kaldır)
 
 ### 3.2.1 Engineering Snippet Paketi
 
-- [ ] **Engineering Snippet Paketi** — developer için akıllı lokal tetikleyiciler:
+- [DONE 2026-04-05] **Engineering Snippet Paketi** — developer için akıllı lokal tetikleyiciler:
       "yorum ekle" → aktif fonksiyon için docstring şablonu (Symbol Index'ten sınıf adı inject)
       "TODO ekle" → `// TODO(kullanıcı adı): ` + söylenen metin
       "commit mesajı" → Symbol Index'teki değişen dosya isimlerini LLM'e inject et, mesaj üret
@@ -371,6 +371,7 @@
 - [DONE 2026-04-04] **config.yaml güncelle** → `whisper.model: ml/whisper/models/voiceflow-whisper-tr-v2-mlx`
 
 #### Katman 2 — voiceflow-whisper-it (IT layer)
+- [DONE 2026-04-05] **Backend IT model entegrasyonu** — `WHISPER_IT_MODEL` config + env var; `WhisperConfig.it_model_name`; `WhisperTranscriber.transcribe(mode=)` engineering mode'da IT modelini seçer; `RecordingService` active_mode'u transcription öncesi yakalar; AppDelegate `WHISPER_IT_MODEL` .env'den okur; config.yaml `whisper.it_model: ""` hazır — model eğitilince doldurulacak
 - [ ] **`audio_augment.py`** — hız (0.9×/1.0×/1.2×/1.5×) + gürültü (SNR 5/10/20dB) → ~24K WAV
 - [ ] **`build_whisper_dataset.py`** — 70% ISSAI + 30% IT gerçek kayıt → HF dataset format
 - [ ] **`whisper_it_finetune.py`** — voiceflow-whisper-tr-v2 üzerine IT kayıtlarıyla LoRA, merge → voiceflow-whisper-it

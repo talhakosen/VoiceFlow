@@ -29,6 +29,8 @@ struct SettingsFeature {
         case snippetsLoaded([SnippetEntry])
         case addSnippet(trigger: String, expansion: String)
         case deleteSnippet(Int) // id
+        case loadSnippetPack(String)   // "office" or "engineering"
+        case clearSnippetPack(String)
 
         // Context
         case loadContextStatus
@@ -119,6 +121,22 @@ struct SettingsFeature {
             case let .deleteSnippet(id):
                 return .run { send in
                     try? await backend.deleteSnippet(id)
+                    if let entries = try? await backend.getSnippets() {
+                        await send(.snippetsLoaded(entries))
+                    }
+                }
+
+            case let .loadSnippetPack(packName):
+                return .run { send in
+                    try? await backend.loadSnippetPack(packName)
+                    if let entries = try? await backend.getSnippets() {
+                        await send(.snippetsLoaded(entries))
+                    }
+                }
+
+            case let .clearSnippetPack(packName):
+                return .run { send in
+                    try? await backend.clearSnippetPack(packName)
                     if let entries = try? await backend.getSnippets() {
                         await send(.snippetsLoaded(entries))
                     }

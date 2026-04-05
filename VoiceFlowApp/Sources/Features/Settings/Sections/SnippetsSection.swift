@@ -86,11 +86,82 @@ struct SnippetsSection: View {
                 .padding(.vertical, 14)
             }
 
+            // Hazır Paketler
+            SettingsCardSection(title: "Hazır Paketler") {
+                VStack(spacing: 0) {
+                    PackRow(
+                        icon: "briefcase.fill",
+                        title: "Office Paketi",
+                        subtitle: "Toplantı notu, resmi mail, rapor şablonları",
+                        packName: "office",
+                        store: store
+                    )
+                    Divider().padding(.leading, 16)
+                    PackRow(
+                        icon: "chevron.left.forwardslash.chevron.right",
+                        title: "Engineering Paketi",
+                        subtitle: "PR açıklaması, commit mesajı, standup şablonları",
+                        packName: "engineering",
+                        store: store
+                    )
+                }
+            }
+
             InfoNote(icon: "info.circle", text: "Tetikleyici kelime sesi tam eşleştiğinde şablon metnini yapıştırır. Sözlükten sonra, düzeltmeden önce uygulanır.", color: .secondary)
 
             Spacer()
         }
         .padding(VFSpacing.xxxl)
         .onAppear { store.send(.loadSnippets) }
+    }
+}
+
+// MARK: - PackRow
+
+private struct PackRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let packName: String
+    let store: StoreOf<SettingsFeature>
+
+    private var isLoaded: Bool {
+        store.snippetEntries.contains { $0.scope == "pack_\(packName)" }
+    }
+
+    var body: some View {
+        HStack(spacing: VFSpacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if isLoaded {
+                Button("Kaldır") {
+                    store.send(.clearSnippetPack(packName))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .foregroundStyle(VFColor.destructive)
+            } else {
+                Button("Yükle") {
+                    store.send(.loadSnippetPack(packName))
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }

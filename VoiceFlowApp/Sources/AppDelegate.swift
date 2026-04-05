@@ -320,6 +320,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        // Whisper IT model for engineering mode (optional — falls back to base model if not set)
+        if let itModel = dotEnv["WHISPER_IT_MODEL"], !itModel.isEmpty {
+            env["WHISPER_IT_MODEL"] = itModel
+            NSLog("VoiceFlow: Whisper IT model: %@", itModel)
+        }
+
         backendProcess?.environment = env
 
         // Redirect stdout+stderr to log file

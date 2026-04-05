@@ -16,6 +16,7 @@ enum APIEndpoint {
     static let context         = "context"
     static let dictionary      = "dictionary"
     static let snippets        = "snippets"
+    static let snippetPack     = "snippets/pack"
     static let itDataset         = "it-dataset"
     static let itDatasetNext     = "it-dataset/next"
     static let itDatasetRandom   = "it-dataset/random"

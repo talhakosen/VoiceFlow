@@ -193,6 +193,8 @@ protocol BackendServiceProtocol: Actor {
     func getSnippets() async throws -> [SnippetEntry]
     func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry
     func deleteSnippet(id: Int) async throws
+    func loadSnippetPack(packName: String) async throws
+    func clearSnippetPack(packName: String) async throws
 
     // Auth
     func login(email: String, password: String) async throws -> AuthTokens
@@ -543,6 +545,22 @@ actor BackendService: BackendServiceProtocol {
 
     func deleteSnippet(id: Int) async throws {
         let request = makeRequest(path: "\(APIEndpoint.snippets)/\(id)", method: "DELETE")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func loadSnippetPack(packName: String) async throws {
+        let request = makeRequest(path: "\(APIEndpoint.snippetPack)/\(packName)", method: "POST")
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func clearSnippetPack(packName: String) async throws {
+        let request = makeRequest(path: "\(APIEndpoint.snippetPack)/\(packName)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

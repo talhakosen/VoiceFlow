@@ -55,6 +55,11 @@ _whisper_model_path = _resolve_path(_whisper_model_raw)
 WHISPER_MODEL: str = str(_whisper_model_path) if (_whisper_model_path and _whisper_model_path.exists()) else _whisper_model_raw
 WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
 
+# IT-specific fine-tuned model for engineering mode (empty = use base model)
+_whisper_it_raw = _get("whisper", "it_model", "")
+_whisper_it_path = _resolve_path(_whisper_it_raw) if _whisper_it_raw else None
+WHISPER_IT_MODEL: str = str(_whisper_it_path) if (_whisper_it_path and _whisper_it_path.exists()) else _whisper_it_raw
+
 JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))
 
 # DB encryption key — empty = plaintext (local dev); set in .env for production

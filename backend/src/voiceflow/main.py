@@ -18,6 +18,7 @@ from .core.config import (
     BACKEND_MODE as _BACKEND_MODE,
     LLM_BACKEND, LLM_ENDPOINT,
     WHISPER_MODEL as _WHISPER_MODEL,
+    WHISPER_IT_MODEL as _WHISPER_IT_MODEL,
     CORS_ORIGINS,
     LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT,
 )
@@ -36,7 +37,7 @@ def _build_transcriber():
         from .transcription import WhisperConfig
         return FasterWhisperTranscriber(config=WhisperConfig())
     from .transcription import WhisperTranscriber, WhisperConfig
-    return WhisperTranscriber(config=WhisperConfig())
+    return WhisperTranscriber(config=WhisperConfig(it_model_name=_WHISPER_IT_MODEL or None))
 
 
 def _build_corrector():
