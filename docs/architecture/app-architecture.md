@@ -326,9 +326,14 @@ Sağ alt köşe 60×60px float buton. Paste sonrası 10s geri sayım arc.
 
 ### SettingsView
 `NavigationSplitView` **kullanmaz** — custom `HStack` layout:
-- **Genişletilmiş** (200px): ikon + metin
-- **Daraltılmış** (56px): sadece ikonlar, tooltip ile section adı
-- `VFLayout.sidebarCollapsedWidth = 56`, `VFLayout.sidebarWidth = 200`
+- **Genişletilmiş** (220px): ikon + metin | **Daraltılmış** (56px): sadece ikonlar
+- Sidebar **iki grup**: `SettingsSection.mainNav` (Genel/Sözlük/Şablonlar/Bilgi Tabanı/Kayıt) + `SettingsSection.bottomNav` (Hesap/Hakkında), aralarında `Divider`
+- Toolbar row (yerleşik HStack): sol = sidebar toggle, sağ = `person.circle.fill` 22pt profil ikonu
+- `VFLayout.sidebarCollapsedWidth = 56`, `VFLayout.sidebarWidth = 220`
+
+**Settings içerik bileşenleri (GeneralSection.swift'te tanımlı, tüm sectionlar kullanabilir):**
+- `SettingsCardSection(title:)` — başlıklı kart grubu: caps/tracked section label + `controlBackgroundColor` rounded card + ince border
+- `SettingsRow(title:subtitle:isLast:)` — kart içi satır: 13pt bold başlık + 11pt tertiary açıklama + sağda arbitrary kontrol; `isLast: false` → alt divider
 
 ---
 

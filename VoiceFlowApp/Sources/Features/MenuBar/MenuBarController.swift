@@ -246,14 +246,16 @@ class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
         let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
-                             styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
+                             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                              backing: .buffered, defer: false)
         window.title = ""
-        window.isFloatingPanel = true
-        window.level = .floating
+        window.isFloatingPanel = false
+        window.level = .normal
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
+        window.toolbarStyle = .unified
         window.backgroundColor = NSColor.windowBackgroundColor
+        window.minSize = NSSize(width: 700, height: 500)
         let hosting = NSHostingController(rootView: SettingsView(store: store))
         window.contentView = hosting.view
         window.makeKeyAndOrderFront(nil)

@@ -22,12 +22,14 @@ extension View {
 
 // MARK: - Settings Section
 
-enum SettingsSection: String, CaseIterable, Identifiable {
+enum SettingsSection: String, Identifiable {
+    // Main nav
     case general       = "Genel"
-    case recording     = "Kayıt"
     case dictionary    = "Sözlük"
     case snippets      = "Şablonlar"
     case knowledgeBase = "Bilgi Tabanı"
+    case recording     = "Kayıt"
+    // Bottom utility
     case account       = "Hesap"
     case about         = "Hakkında"
 
@@ -35,18 +37,21 @@ enum SettingsSection: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .general:       return VFIcon.settings
-        case .recording:     return VFIcon.recording
+        case .general:       return "square.grid.2x2"
         case .dictionary:    return VFIcon.dictionary
         case .snippets:      return VFIcon.snippets
         case .knowledgeBase: return VFIcon.knowledgeBase
+        case .recording:     return VFIcon.recording
         case .account:       return VFIcon.account
         case .about:         return VFIcon.about
         }
     }
+
+    static let mainNav: [SettingsSection]    = [.general, .dictionary, .snippets, .knowledgeBase, .recording]
+    static let bottomNav: [SettingsSection]  = [.account, .about]
 }
 
-// MARK: - SettingsView (custom 2-panel — icon strip on collapse)
+// MARK: - SettingsView
 
 struct SettingsView: View {
     let store: StoreOf<AppFeature>
@@ -54,16 +59,13 @@ struct SettingsView: View {
     @State private var selectedSection: SettingsSection = .general
     @State private var sidebarCollapsed = false
 
-    // Traffic lights macOS'ta ~x:12, genişlik ~52pt. Collapse butonu hemen sağında.
-    private let trafficLightsWidth: CGFloat = 72
-    private let toolbarHeight: CGFloat = 44
-
     var body: some View {
         VStack(spacing: 0) {
 
-            // MARK: Toolbar row — tüm genişlik, sidebar ile aynı arka plan
-            HStack(alignment: .center, spacing: 0) {
-                Spacer().frame(width: trafficLightsWidth)
+            // ── Titlebar row (traffic lights alanı + toolbar butonları) ──
+            HStack(spacing: 0) {
+                // Traffic lights alanı (~72pt) + sidebar toggle
+                Spacer().frame(width: 76)
                 Button {
                     withAnimation(VFAnimation.standard) { sidebarCollapsed.toggle() }
                 } label: {
@@ -76,57 +78,75 @@ struct SettingsView: View {
 
                 Spacer()
 
+                // Profil ikonu — büyütüldü
                 Button { selectedSection = .account } label: {
-                    Image(systemName: "person.circle")
-                        .font(.system(size: 15))
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 22))
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
                 .help("Hesap")
-                .padding(.trailing, 16)
+                .padding(.trailing, 18)
             }
-            .padding(.top, 8)
-            .padding(.bottom, 8)
+            .frame(height: 44)
             .background(Color(nsColor: .windowBackgroundColor))
 
-            // MARK: Ana alan
+            // ── Ana alan ──────────────────────────────────────────
             HStack(spacing: 0) {
 
                 // Sidebar
                 VStack(alignment: .leading, spacing: 0) {
-                    // Logo header — toolbar'ın hemen altında
+
+                    // Logo
                     HStack(spacing: 8) {
                         Image(systemName: VFIcon.appLogo)
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(.primary)
                         if !sidebarCollapsed {
                             Text("VoiceFlow")
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.system(size: 17, weight: .bold))
                                 .transition(.opacity.combined(with: .move(edge: .leading)))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
                     .padding(.horizontal, sidebarCollapsed ? 0 : 20)
-                    .padding(.vertical, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, 16)
 
-                    // Nav items
+                    // Ana nav
                     VStack(spacing: 2) {
-                        ForEach(SettingsSection.allCases) { section in
-                            SidebarNavItem(
-                                section: section,
-                                isSelected: selectedSection == section,
-                                collapsed: sidebarCollapsed
-                            ) { selectedSection = section }
+                        ForEach(SettingsSection.mainNav) { section in
+                            SidebarNavItem(section: section,
+                                           isSelected: selectedSection == section,
+                                           collapsed: sidebarCollapsed) {
+                                selectedSection = section
+                            }
                         }
                     }
                     .padding(.horizontal, 10)
 
                     Spacer()
+
+                    Divider().padding(.horizontal, 12).padding(.bottom, 6)
+
+                    // Alt utility nav
+                    VStack(spacing: 2) {
+                        ForEach(SettingsSection.bottomNav) { section in
+                            SidebarNavItem(section: section,
+                                           isSelected: selectedSection == section,
+                                           collapsed: sidebarCollapsed) {
+                                selectedSection = section
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 14)
                 }
                 .frame(width: sidebarCollapsed ? VFLayout.sidebarCollapsedWidth : VFLayout.sidebarWidth)
                 .background(Color(nsColor: .windowBackgroundColor))
                 .animation(VFAnimation.standard, value: sidebarCollapsed)
 
-                // Content card
+                // Content
                 ScrollView {
                     Group {
                         switch selectedSection {
@@ -160,7 +180,7 @@ struct SettingsView: View {
             }
             .background(Color(nsColor: .windowBackgroundColor))
         }
-        .frame(width: VFLayout.WindowSize.settings.width, height: VFLayout.WindowSize.settings.height)
+        .frame(minWidth: 700, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
         .background(Color(nsColor: .windowBackgroundColor))
         .ignoresSafeArea(.all)
     }
@@ -180,25 +200,25 @@ struct SidebarNavItem: View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 Image(systemName: section.icon)
-                    .font(.system(size: 18, weight: .regular))
+                    .font(.system(size: 17, weight: .regular))
                     .frame(width: 22, height: 22)
                     .foregroundStyle(isSelected ? Color.primary : Color.secondary)
 
                 if !collapsed {
                     Text(section.rawValue)
-                        .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
+                        .font(.system(size: 15, weight: isSelected ? .medium : .regular))
                         .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                         .transition(.opacity.combined(with: .move(edge: .leading)))
                 }
             }
             .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
-            .padding(.horizontal, collapsed ? 8 : 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, collapsed ? 8 : 14)
+            .padding(.vertical, 9)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(isSelected
-                          ? Color.primary.opacity(0.10)
-                          : isHovered ? Color.primary.opacity(0.05) : Color.clear)
+                          ? Color.primary.opacity(0.08)
+                          : isHovered ? Color.primary.opacity(0.04) : Color.clear)
             )
         }
         .buttonStyle(.plain)
@@ -259,16 +279,31 @@ struct VFRow<Trailing: View>: View {
     }
 }
 
-/// Info satırı — icon + caption metin.
+/// Info satırı — icon + caption metin. (Eski: VFInfoRow — artık InfoNote kullan)
 struct VFInfoRow: View {
     let icon: String
     let text: String
     let color: Color
     var body: some View {
-        HStack(spacing: VFSpacing.sm) {
-            Image(systemName: icon).foregroundStyle(color)
-            Text(text).font(VFFont.caption).foregroundStyle(.secondary)
+        InfoNote(icon: icon, text: text, color: color)
+    }
+}
+
+/// Yeni settings info satırı — icon + açıklama.
+struct InfoNote: View {
+    let icon: String
+    let text: String
+    let color: Color
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .font(.system(size: 12))
+                .padding(.top, 1)
+            Text(text)
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, VFSpacing.xs)
+        .padding(.horizontal, 4)
     }
 }

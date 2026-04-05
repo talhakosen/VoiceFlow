@@ -6,7 +6,6 @@ import AppKit
 
 struct AccountSection: View {
     let settingsStore: StoreOf<SettingsFeature>
-    // Fix 1: currentUser lives in AuthFeature, not RecordingFeature
     let authStore: StoreOf<AuthFeature>
 
     @State private var userName: String
@@ -22,36 +21,55 @@ struct AccountSection: View {
     var body: some View {
         let settingsState = settingsStore.state
         let authState = authStore.state
-        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+        VStack(alignment: .leading, spacing: 28) {
 
-            VFSectionHeader("Profil")
-            VFCard {
-                VFRow("Ad Soyad") {
+            Text("Hesap")
+                .font(.system(size: 22, weight: .bold))
+                .padding(.bottom, 4)
+
+            // Profil
+            SettingsCardSection(title: "Profil") {
+                SettingsRow(title: "Ad Soyad", subtitle: "Transkripsiyon geçmişinde görünür", isLast: false) {
                     TextField("Opsiyonel", text: $userName)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userName) { settingsStore.send(.setUserName(userName)) }
                 }
-                VFRow("Departman") {
+                SettingsRow(title: "Departman", subtitle: "Raporlama ve istatistiklerde kullanılır", isLast: true) {
                     TextField("Opsiyonel", text: $userDepartment)
                         .textFieldStyle(.roundedBorder)
                         .frame(minWidth: VFLayout.fieldMedium)
                         .onChange(of: userDepartment) { settingsStore.send(.setUserDepartment(userDepartment)) }
                 }
-                VFRow("Kullanıcı ID",
-                      divider: authState.currentUser == nil) {
+            }
+
+            // Kimlik
+            SettingsCardSection(title: "Kimlik") {
+                SettingsRow(
+                    title: "Kullanıcı ID",
+                    subtitle: "Bu cihaza özgü benzersiz tanımlayıcı",
+                    isLast: authState.currentUser == nil
+                ) {
                     Text(settingsState.userID.isEmpty ? "—" : settingsState.userID)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
                 if let user = authState.currentUser {
-                    VFRow("Rol", divider: false) {
+                    SettingsRow(title: "E-posta", subtitle: "Sunucu hesabınız", isLast: false) {
+                        Text(user.email).foregroundStyle(.secondary).font(.system(size: 13))
+                    }
+                    SettingsRow(title: "Rol", subtitle: "Sistem yöneticisi tarafından atanır", isLast: true) {
                         Text(user.role.capitalized)
-                            .foregroundStyle(user.role == "admin" || user.role == "superadmin"
-                                             ? VFColor.primary : .secondary)
+                            .foregroundStyle(
+                                user.role == "admin" || user.role == "superadmin"
+                                    ? VFColor.primary : .secondary
+                            )
+                            .font(.system(size: 13, weight: .medium))
                     }
                 }
             }
+
+            Spacer()
         }
         .padding(VFSpacing.xxxl)
     }

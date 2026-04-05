@@ -6,21 +6,28 @@ import AppKit
 
 struct RecordingSection: View {
     let store: StoreOf<RecordingFeature>
-    @AppStorage(AppSettings.llmMode)       private var llmMode       = "local"
-    @AppStorage(AppSettings.llmEndpoint)   private var llmEndpoint   = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
-    @AppStorage(AppSettings.trainingMode)  private var trainingMode  = false
+    @AppStorage(AppSettings.llmMode)      private var llmMode      = "local"
+    @AppStorage(AppSettings.llmEndpoint)  private var llmEndpoint  = "https://1xb43rk1btwc5p-11434.proxy.runpod.net"
+    @AppStorage(AppSettings.trainingMode) private var trainingMode = false
     @State private var showRestartNotice = false
 
     var body: some View {
         let state = store.state
-        VStack(alignment: .leading, spacing: VFSpacing.xxl) {
+        VStack(alignment: .leading, spacing: 28) {
 
-            // Dil
-            VFSectionHeader("Dil")
-            VFCard {
-                VFRow("Dil", divider: false) {
+            Text("Kayıt")
+                .font(.system(size: 22, weight: .bold))
+                .padding(.bottom, 4)
+
+            // MARK: Dil
+            SettingsCardSection(title: "Dil") {
+                SettingsRow(
+                    title: "Transkripsiyon Dili",
+                    subtitle: "Konuşacağınız dili seçin; otomatik modda Whisper algılar",
+                    isLast: true
+                ) {
                     Picker("", selection: Binding(
-                        get: { state.currentLanguageMode },
+                        get: { store.state.currentLanguageMode },
                         set: { store.send(.selectLanguageMode($0)) }
                     )) {
                         ForEach(LanguageMode.allCases, id: \.self) { mode in
@@ -32,51 +39,63 @@ struct RecordingSection: View {
                 }
             }
 
-            // Bağlam
-            VFSectionHeader("Bağlam")
-            VFCard {
-                VStack(spacing: 0) {
-                    ForEach(Array(AppMode.allCases.enumerated()), id: \.element) { idx, mode in
-                        VFRow(mode.displayName,
-                              divider: idx < AppMode.allCases.count - 1) {
-                            if state.currentAppMode == mode {
-                                Image(systemName: VFIcon.checkmark)
-                                    .foregroundStyle(VFColor.primary)
-                                    .fontWeight(.semibold)
-                            }
+            // MARK: Mod
+            SettingsCardSection(title: "Mod") {
+                ForEach(Array(AppMode.allCases.enumerated()), id: \.element) { idx, mode in
+                    let isLast = idx == AppMode.allCases.count - 1
+                    SettingsRow(
+                        title: mode.displayName,
+                        subtitle: modeSubtitle(mode),
+                        isLast: isLast
+                    ) {
+                        if store.state.currentAppMode == mode {
+                            Image(systemName: VFIcon.checkmark)
+                                .foregroundStyle(VFColor.primary)
+                                .fontWeight(.semibold)
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture { store.send(.selectAppMode(mode)) }
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture { store.send(.selectAppMode(mode)) }
                 }
             }
-            VFInfoRow(icon: "info.circle", text: "Seçilen alan, düzeltme kalitesini artırmak için bağlamı ayarlar.", color: .secondary)
 
-            // Akıllı Düzeltme
-            VFSectionHeader("Akıllı Düzeltme")
-            VFCard {
-                VFRow("Akıllı Düzeltme",
-                      divider: state.currentAppMode != .engineering) {
+            // MARK: Akıllı Düzeltme
+            SettingsCardSection(title: "Akıllı Düzeltme") {
+                SettingsRow(
+                    title: "Akıllı Düzeltme",
+                    subtitle: store.state.currentAppMode == .engineering
+                        ? "Engineering modda kapalıdır — teknik terimler korunur"
+                        : "Whisper çıktısını LLM ile düzeltir, noktalama ve büyük harf ekler",
+                    isLast: store.state.currentAppMode == .engineering
+                ) {
                     Toggle("", isOn: Binding(
-                        get: { state.isCorrectionEnabled },
+                        get: { store.state.isCorrectionEnabled },
                         set: { store.send(.setCorrectionEnabled($0)) }
                     ))
                     .labelsHidden()
-                    .disabled(state.currentAppMode == .engineering)
+                    .disabled(store.state.currentAppMode == .engineering)
                 }
-                if state.currentAppMode != .engineering {
-                    VFRow("Yapay Zeka Motoru", divider: llmMode != "cloud") {
+                if store.state.currentAppMode != .engineering {
+                    SettingsRow(
+                        title: "Yapay Zeka Motoru",
+                        subtitle: llmModeSubtitle(llmMode),
+                        isLast: llmMode != "cloud"
+                    ) {
                         Picker("", selection: $llmMode) {
                             Text("Yerel").tag("local")
                             Text("Bulut").tag("cloud")
                             Text("Alibaba").tag("alibaba")
                         }
                         .pickerStyle(.menu)
-                        .frame(width: 160)
+                        .frame(width: 130)
                         .onChange(of: llmMode) { showRestartNotice = true }
                     }
                     if llmMode == "cloud" {
-                        VFRow("Ollama URL", divider: false) {
+                        SettingsRow(
+                            title: "Ollama URL",
+                            subtitle: "RunPod veya şirket içi Ollama sunucu adresi",
+                            isLast: true
+                        ) {
                             TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(minWidth: VFLayout.fieldLarge)
@@ -85,20 +104,14 @@ struct RecordingSection: View {
                     }
                 }
             }
-            if state.currentAppMode == .engineering {
-                VFInfoRow(icon: VFIcon.warning, text: "Engineering modda düzeltme kapalıdır — teknik terimler korunur.", color: VFColor.warning)
-            }
-            if llmMode == "alibaba" {
-                VFInfoRow(icon: VFIcon.bolt, text: "Alibaba — Hızlı, yüksek kalite. İnternet gerektirir.", color: VFColor.warning)
-            }
-            if showRestartNotice {
-                VFInfoRow(icon: VFIcon.restartCircle, text: "Değişikliği uygulamak için servisi yeniden başlatın.", color: VFColor.warning)
-            }
 
-            // Kişisel Ses Tanıma
-            VFSectionHeader("Kişisel Ses Tanıma")
-            VFCard {
-                VFRow("Ses Tanıma Eğitimi", divider: false) {
+            // MARK: Kişisel Ses Tanıma
+            SettingsCardSection(title: "Kişisel Ses Tanıma") {
+                SettingsRow(
+                    title: "Ses Tanıma Eğitimi",
+                    subtitle: "Her transkripsiyondan sonra düzeltme ekranı görünür; geri bildirimleriniz doğruluğu artırır",
+                    isLast: true
+                ) {
                     Toggle("", isOn: $trainingMode)
                         .labelsHidden()
                         .onChange(of: trainingMode) { _, val in
@@ -106,8 +119,34 @@ struct RecordingSection: View {
                         }
                 }
             }
-            VFInfoRow(icon: "info.circle", text: "Her transkripsiyondan sonra geri bildirim ekranı görünür. Düzeltmeleriniz doğruluğu artırır.", color: .secondary)
+
+            // Bilgi satırları
+            if showRestartNotice {
+                InfoNote(icon: VFIcon.restartCircle, text: "Değişikliği uygulamak için servisi yeniden başlatın.", color: VFColor.warning)
+            }
+            if llmMode == "alibaba" {
+                InfoNote(icon: VFIcon.bolt, text: "Alibaba — Hızlı, yüksek kalite. İnternet bağlantısı gerektirir.", color: VFColor.warning)
+            }
+
+            Spacer()
         }
         .padding(VFSpacing.xxxl)
+    }
+
+    private func modeSubtitle(_ mode: AppMode) -> String {
+        switch mode {
+        case .general:     return "Genel amaçlı; günlük yazışmalar ve notlar için"
+        case .engineering: return "Teknik terimler korunur, LLM düzeltme kapalı"
+        case .office:      return "Resmi yazışmalar; düzeltme varsayılan olarak açık"
+        }
+    }
+
+    private func llmModeSubtitle(_ mode: String) -> String {
+        switch mode {
+        case "local":   return "Qwen 7B bu Mac'te çalışır, internet gerekmez"
+        case "cloud":   return "RunPod Ollama — daha hızlı, internet gerektirir"
+        case "alibaba": return "Alibaba DashScope API — en hızlı, internet gerektirir"
+        default:        return ""
+        }
     }
 }
