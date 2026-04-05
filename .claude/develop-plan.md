@@ -156,8 +156,9 @@
 - [x] Varlık Envanteri — `docs/enterprise/asset-inventory.md`
 - [x] Risk Kaydı — `docs/enterprise/risk-register.md`
 - [ ] **SQLCipher entegrasyonu** — Data at rest encryption (R-001, hedef: 2026-04-30)
-- [ ] **Rate limiting** — FastAPI slowapi (R-004, hedef: 2026-04-30)
-- [ ] **Log rotation** — RotatingFileHandler (R-008, hedef: 2026-04-20)
+- [DONE 2026-04-05] **Rate limiting** — slowapi: default 60/min, /api/stop 30/min, /auth/login+register 10/min; config.yaml security.rate_limit_* ile override edilebilir (R-004)
+- [DONE 2026-04-05] **Log rotation** — RotatingFileHandler: 10MB × 5 backup; config.yaml logging.* ile override (R-008)
+- [DONE 2026-04-05] **Production CORS** — CORSMiddleware: config.yaml security.cors_origins (local="*", server="https://app.firma.com,...") (R-004 ek)
 - [ ] **JWT token revocation** — logout blacklist (hedef: 2026-04-30)
 - [ ] Veri Sınıflandırma Politikası — `docs/enterprise/policies/data-classification-policy.md`
 - [ ] İş Sürekliliği Planı (BCP) — `docs/enterprise/policies/business-continuity-plan.md`

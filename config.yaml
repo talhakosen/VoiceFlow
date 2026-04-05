@@ -20,3 +20,17 @@ whisper:
 
 auth:
   jwt_access_ttl_minutes: 60
+
+security:
+  # Rate limiting — "N/period" (minute | hour | day)
+  rate_limit_default: "60/minute"   # genel API endpoint'leri
+  rate_limit_stop:    "30/minute"   # POST /api/stop — transkripsiyon tetikler
+  rate_limit_auth:    "10/minute"   # POST /auth/login — brute-force koruması
+  # CORS — virgülle ayrılmış origin'ler; "*" = herkese açık (local dev)
+  # Server modunda değiştir: "https://app.firma.com,https://admin.firma.com"
+  cors_origins: "*"
+
+logging:
+  file: /tmp/voiceflow.log
+  max_bytes: 10485760   # 10 MB
+  backup_count: 5       # voiceflow.log, voiceflow.log.1, ..., voiceflow.log.5

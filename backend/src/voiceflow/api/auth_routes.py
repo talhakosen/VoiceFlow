@@ -3,11 +3,12 @@
 import asyncio
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from pydantic import BaseModel, field_validator
 from jose import JWTError
 
 from ..db import create_user, get_user_by_email, get_user_by_id, append_audit_log
+from ..core.rate_limit import limiter, RATE_LIMIT_AUTH
 from ..services.auth_service import (
     hash_password,
     verify_password,
@@ -78,7 +79,8 @@ async def get_current_user(authorization: str = Header(default=None)) -> dict:
 # --- Endpoints ---
 
 @router.post("/register", status_code=201)
-async def register(body: RegisterRequest):
+@limiter.limit(RATE_LIMIT_AUTH)
+async def register(request: Request, body: RegisterRequest):
     existing = await get_user_by_email(body.email)
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -95,7 +97,8 @@ async def register(body: RegisterRequest):
 
 
 @router.post("/login")
-async def login(body: LoginRequest):
+@limiter.limit(RATE_LIMIT_AUTH)
+async def login(request: Request, body: LoginRequest):
     user = await get_user_by_email(body.email)
     loop = asyncio.get_running_loop()
     is_valid = user and await loop.run_in_executor(

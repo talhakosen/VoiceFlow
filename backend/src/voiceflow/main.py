@@ -2,21 +2,33 @@
 
 import asyncio
 import logging
+import logging.handlers
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
-from starlette.requests import Request
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from .api import router, engineering_router, context_router, training_router
 from .api.auth_routes import router as auth_router
 from .api.admin_routes import router as admin_router
-from .core.config import BACKEND_MODE as _BACKEND_MODE, LLM_BACKEND, LLM_ENDPOINT, WHISPER_MODEL as _WHISPER_MODEL
+from .core.config import (
+    BACKEND_MODE as _BACKEND_MODE,
+    LLM_BACKEND, LLM_ENDPOINT,
+    WHISPER_MODEL as _WHISPER_MODEL,
+    CORS_ORIGINS,
+    LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT,
+)
+from .core.rate_limit import limiter
 from .db import init_db
 
 _HOST = "0.0.0.0" if _BACKEND_MODE == "server" else "127.0.0.1"
 
 logger = logging.getLogger(__name__)
+
 
 
 def _build_transcriber():
@@ -65,6 +77,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["*"],
+)
+
 # Jinja2 templates — backend/templates/
 # __file__ = backend/src/voiceflow/main.py → .parent.parent.parent = backend/
 import pathlib as _pathlib
@@ -101,9 +126,31 @@ async def health(request: Request):
     }
 
 
+def _setup_logging() -> None:
+    """Configure root logger with rotating file handler + stderr stream."""
+    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+    # Rotating file: 10 MB × 5 backups (configurable via config.yaml/env)
+    file_handler = logging.handlers.RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=LOG_MAX_BYTES,
+        backupCount=LOG_BACKUP_COUNT,
+        encoding="utf-8",
+    )
+    file_handler.setFormatter(fmt)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(fmt)
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.addHandler(file_handler)
+    root.addHandler(stream_handler)
+
+
 def main():
     import uvicorn
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    _setup_logging()
     logger.info("Starting VoiceFlow in %s mode on %s:8765", _BACKEND_MODE.upper(), _HOST)
     uvicorn.run(app, host=_HOST, port=8765)
 

@@ -56,3 +56,19 @@ WHISPER_MODEL: str = str(_whisper_model_path) if (_whisper_model_path and _whisp
 WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
 
 JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))
+
+# ── Security ──────────────────────────────────────────────────────────────────
+
+# Rate limiting: "N/period" — e.g. "60/minute", "1000/hour"
+RATE_LIMIT_DEFAULT:   str = _get("security", "rate_limit_default",   "60/minute")
+RATE_LIMIT_STOP:      str = _get("security", "rate_limit_stop",      "30/minute")
+RATE_LIMIT_AUTH:      str = _get("security", "rate_limit_auth",      "10/minute")
+
+# CORS: comma-separated origins; "*" = allow all (local mode default)
+_cors_raw = _get("security", "cors_origins", "*")
+CORS_ORIGINS: list[str] = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+
+# Log rotation
+LOG_FILE:         str = _get("logging", "file",          "/tmp/voiceflow.log")
+LOG_MAX_BYTES:    int = int(_get("logging", "max_bytes",  str(10 * 1024 * 1024)))  # 10 MB
+LOG_BACKUP_COUNT: int = int(_get("logging", "backup_count", "5"))

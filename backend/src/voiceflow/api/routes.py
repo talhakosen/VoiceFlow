@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
+from ..core.rate_limit import limiter, RATE_LIMIT_STOP
 from ..db import (
     get_history, clear_history,
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
@@ -85,6 +86,7 @@ async def start_recording(svc=Depends(get_service)):
 
 
 @router.post("/stop", response_model=TranscriptionResponse)
+@limiter.limit(RATE_LIMIT_STOP)
 async def stop_recording(
     request: Request,
     svc=Depends(get_service),
