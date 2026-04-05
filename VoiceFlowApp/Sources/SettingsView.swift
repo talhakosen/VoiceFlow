@@ -53,79 +53,105 @@ struct SettingsView: View {
     @State private var selectedSection: SettingsSection = .general
     @State private var sidebarCollapsed = false
 
+    // Traffic lights macOS'ta ~x:12, genişlik ~52pt. Collapse butonu hemen sağında.
+    private let trafficLightsWidth: CGFloat = 72
+    private let toolbarHeight: CGFloat = 44
+
     var body: some View {
-        HStack(spacing: 0) {
+        VStack(spacing: 0) {
 
-            // MARK: Sidebar
-            VStack(alignment: .leading, spacing: 0) {
-
-                // Logo header
-                HStack(spacing: VFSpacing.sm) {
-                    Image(systemName: VFIcon.appLogo)
-                        .fontWeight(.semibold)
-                    if !sidebarCollapsed {
-                        Text("VoiceFlow")
-                            .fontWeight(.semibold)
-                            .transition(.opacity.combined(with: .move(edge: .leading)))
-                    }
-                }
-                .font(VFFont.sidebarLogo)
-                .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
-                .padding(.horizontal, sidebarCollapsed ? 0 : VFSpacing.xxl)
-                .padding(.vertical, VFSpacing.xl)
-
-                // Nav items
-                VStack(spacing: VFSpacing.xxs) {
-                    ForEach(SettingsSection.allCases) { section in
-                        SidebarNavItem(
-                            section: section,
-                            isSelected: selectedSection == section,
-                            collapsed: sidebarCollapsed
-                        ) { selectedSection = section }
-                    }
-                }
-                .padding(.horizontal, VFSpacing.md)
-
-                Spacer()
-
-                // Toggle button bottom-left
+            // MARK: Toolbar row — tüm genişlik, sidebar ile aynı arka plan
+            HStack(alignment: .center, spacing: 0) {
+                Spacer().frame(width: trafficLightsWidth)
                 Button {
-                    withAnimation(VFAnimation.standard) {
-                        sidebarCollapsed.toggle()
-                    }
+                    withAnimation(VFAnimation.standard) { sidebarCollapsed.toggle() }
                 } label: {
                     Image(systemName: sidebarCollapsed ? "sidebar.right" : "sidebar.left")
+                        .font(.system(size: 13))
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
-                .padding(.horizontal, sidebarCollapsed ? 0 : VFSpacing.xxl)
-                .padding(.vertical, VFSpacing.xl)
-            }
-            .frame(width: sidebarCollapsed ? VFLayout.sidebarCollapsedWidth : VFLayout.sidebarWidth)
-            .background(Color(nsColor: .controlBackgroundColor))
-            .animation(VFAnimation.standard, value: sidebarCollapsed)
+                .help(sidebarCollapsed ? "Navigasyonu Genişlet" : "Navigasyonu Daralt")
 
-            Divider()
+                Spacer()
 
-            // MARK: Content
-            ScrollView {
-                Group {
-                    switch selectedSection {
-                    case .general:       GeneralSection(viewModel: viewModel)
-                    case .recording:     RecordingSection(viewModel: viewModel)
-                    case .dictionary:    DictionarySection(viewModel: viewModel)
-                    case .snippets:      SnippetsSection(viewModel: viewModel)
-                    case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
-                    case .account:       AccountSection(viewModel: viewModel)
-                    case .about:         AboutSection(viewModel: viewModel)
-                    }
+                Button { selectedSection = .account } label: {
+                    Image(systemName: "person.circle")
+                        .font(.system(size: 15))
+                        .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .buttonStyle(.plain)
+                .help("Hesap")
+                .padding(.trailing, 16)
+            }
+            .padding(.top, 8)
+            .padding(.bottom, 8)
+            .background(Color(nsColor: .windowBackgroundColor))
+
+            // MARK: Ana alan
+            HStack(spacing: 0) {
+
+                // Sidebar
+                VStack(alignment: .leading, spacing: 0) {
+                    // Logo header — toolbar'ın hemen altında
+                    HStack(spacing: 8) {
+                        Image(systemName: VFIcon.appLogo)
+                            .font(.system(size: 18, weight: .semibold))
+                        if !sidebarCollapsed {
+                            Text("VoiceFlow")
+                                .font(.system(size: 16, weight: .bold))
+                                .transition(.opacity.combined(with: .move(edge: .leading)))
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: sidebarCollapsed ? .center : .leading)
+                    .padding(.horizontal, sidebarCollapsed ? 0 : 20)
+                    .padding(.vertical, 16)
+
+                    // Nav items
+                    VStack(spacing: 2) {
+                        ForEach(SettingsSection.allCases) { section in
+                            SidebarNavItem(
+                                section: section,
+                                isSelected: selectedSection == section,
+                                collapsed: sidebarCollapsed
+                            ) { selectedSection = section }
+                        }
+                    }
+                    .padding(.horizontal, 10)
+
+                    Spacer()
+                }
+                .frame(width: sidebarCollapsed ? VFLayout.sidebarCollapsedWidth : VFLayout.sidebarWidth)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .animation(VFAnimation.standard, value: sidebarCollapsed)
+
+                // Content card
+                ScrollView {
+                    Group {
+                        switch selectedSection {
+                        case .general:       GeneralSection(viewModel: viewModel)
+                        case .recording:     RecordingSection(viewModel: viewModel)
+                        case .dictionary:    DictionarySection(viewModel: viewModel)
+                        case .snippets:      SnippetsSection(viewModel: viewModel)
+                        case .knowledgeBase: KnowledgeBaseSection(viewModel: viewModel)
+                        case .account:       AccountSection(viewModel: viewModel)
+                        case .about:         AboutSection(viewModel: viewModel)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
+                .padding(.trailing, 8)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .background(Color(nsColor: .windowBackgroundColor))
         }
         .frame(width: VFLayout.WindowSize.settings.width, height: VFLayout.WindowSize.settings.height)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .ignoresSafeArea(.all)
         .onDisappear {
             viewModel.itDatasetActive = false
             viewModel.itDatasetCurrentIndex = -1
@@ -141,30 +167,36 @@ private struct SidebarNavItem: View {
     let collapsed: Bool
     let onTap: () -> Void
 
+    @State private var isHovered = false
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: VFSpacing.md) {
+            HStack(spacing: 12) {
                 Image(systemName: section.icon)
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(isSelected ? VFColor.primary : .secondary)
+                    .font(.system(size: 18, weight: .regular))
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
 
                 if !collapsed {
                     Text(section.rawValue)
-                        .foregroundStyle(isSelected ? .primary : .secondary)
+                        .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                         .transition(.opacity.combined(with: .move(edge: .leading)))
                 }
             }
-            .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
             .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
-            .padding(.horizontal, collapsed ? VFSpacing.sm : VFSpacing.md)
-            .padding(.vertical, VFSpacing.lg)
+            .padding(.horizontal, collapsed ? 8 : 12)
+            .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: VFRadius.md)
-                    .fill(isSelected ? Color.primary.opacity(0.08) : Color.clear)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected
+                          ? Color.primary.opacity(0.10)
+                          : isHovered ? Color.primary.opacity(0.05) : Color.clear)
             )
         }
         .buttonStyle(.plain)
-        .help(collapsed ? section.rawValue : "")  // tooltip when collapsed
+        .onHover { isHovered = $0 }
+        .help(collapsed ? section.rawValue : "")
     }
 }
 

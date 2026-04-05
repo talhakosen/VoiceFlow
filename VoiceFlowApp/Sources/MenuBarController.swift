@@ -106,6 +106,10 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(brandHeader())
         menu.addItem(.separator())
 
+        // ── Home ─────────────────────────────────────────────────────────
+        menu.addItem(action("Ana Ekran", sel: #selector(openSettings), key: ",", icon: "house"))
+        menu.addItem(.separator())
+
         // ── Primary action ───────────────────────────────────────────────
         let isRec = viewModel.isRecording
         menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
@@ -155,8 +159,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // ── Settings / Tools ─────────────────────────────────────────────
-        menu.addItem(action("Ayarlar…",       sel: #selector(openSettings),   key: ",", icon: "gearshape"))
+        // ── Tools ────────────────────────────────────────────────────────
         menu.addItem(action("Ses Eğitimi…",   sel: #selector(openITDataset),  key: "", icon: "waveform.badge.microphone"))
 
         let role = viewModel.currentUser?.role ?? ""
@@ -235,16 +238,31 @@ class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
         let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
-                             styleMask: [.titled, .closable, .nonactivatingPanel],
+                             styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
                              backing: .buffered, defer: false)
-        window.contentViewController = NSHostingController(rootView: SettingsView(viewModel: viewModel))
         window.title = ""
         window.isFloatingPanel = true
         window.level = .floating
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
-        window.center()
+        // Titlebar + SwiftUI arka planı birebir eşleşsin
+        window.backgroundColor = NSColor.windowBackgroundColor
+        // contentView direkt set — fullSizeContentView ile frame tamamen dolar
+        let hosting = NSHostingController(rootView: SettingsView(viewModel: viewModel))
+        window.contentView = hosting.view
+        // Layout first, then center on the screen containing the mouse cursor
         window.makeKeyAndOrderFront(nil)
+        DispatchQueue.main.async {
+            let targetScreen = NSScreen.screens.first(where: {
+                NSMouseInRect(NSEvent.mouseLocation, $0.frame, false)
+            }) ?? NSScreen.main ?? NSScreen.screens[0]
+            let sf = targetScreen.visibleFrame
+            let ww = window.frame.width
+            let wh = window.frame.height
+            let ox = sf.minX + (sf.width - ww) / 2
+            let oy = sf.minY + (sf.height - wh) / 2
+            window.setFrameOrigin(NSPoint(x: ox, y: oy))
+        }
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow = window
     }

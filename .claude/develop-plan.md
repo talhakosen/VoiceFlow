@@ -46,6 +46,7 @@
       Sadece: Status | Toggle Recording | Force Stop | ─ | Settings | Quit
       Dil, mod, correction → Settings'e taşı
 - [DONE 2026-04-03] **Menü v2 polish** — SF Symbol ikonlar (isTemplate), Kaydı Başlat/Durdur toggle, kısayolsuz, Zorla Yeniden Başlat, status satırı mixed-font (Ready + küçük versiyon), NSMenuDelegate.menuWillOpen sync fix
+- [DONE 2026-04-05] **Menü Home** — Ayarlar yerine en üste Home eklendi; LLM prompt komut algılama fix (few-shot + CRITICAL kural)
 
 - [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
       Sol nav: General | Recording | Knowledge Base | Account | About
