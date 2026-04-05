@@ -456,7 +456,7 @@ async def clear_snippet_pack(
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Remove all entries from a snippet pack."""
-    import aiosqlite
+    from ..db.cipher_connection import connect as _connect
     from ..db.storage import DB_PATH as _db_path
 
     if pack_name not in _SNIPPET_PACKS:
@@ -464,7 +464,7 @@ async def clear_snippet_pack(
 
     scope = f"pack_{pack_name}"
     user_id = x_user_id or ""
-    async with aiosqlite.connect(_db_path) as db:
+    async with _connect(_db_path) as db:
         cur = await db.execute(
             "DELETE FROM snippets WHERE scope = ? AND (user_id = ? OR user_id = '')",
             (scope, user_id),
