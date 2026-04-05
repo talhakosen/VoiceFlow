@@ -35,28 +35,28 @@ final class RecordingOverlayWindow: NSPanel {
         level = .floating
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         hasShadow = false
-        alphaValue = 0  // başlangıçta gizli — view canlı, task çalışır
+        animationBehavior = .none
 
         let hostingView = SafeHostingView(rootView: RecordingPillView(state: pillState))
         hostingView.frame = NSRect(origin: .zero, size: VFLayout.Overlay.pill)
         contentView = hostingView
         reposition()
-        orderFrontRegardless()  // her zaman window listesinde — orderOut yok
     }
 
     func showRecording() {
         pillState.isProcessing = false
-        alphaValue = 1
+        reposition()
+        orderFrontRegardless()
     }
 
     func showProcessing() {
         pillState.isProcessing = true
-        alphaValue = 1
+        orderFrontRegardless()
     }
 
     func hide() {
-        alphaValue = 0
         pillState.isProcessing = false
+        orderOut(nil)
     }
 
     func reposition() {
@@ -73,13 +73,15 @@ final class RecordingOverlayWindow: NSPanel {
 
 private struct RecordingPillView: View {
     @ObservedObject var state: PillState
+    @State private var amplitudes: [CGFloat] = Array(repeating: 0.3, count: 6)
+    @State private var waveTimer: Timer?
 
     var body: some View {
         ZStack {
             if state.isProcessing {
-                DotsCharacter()
+                processingView
             } else {
-                WaveformView()
+                waveformView
             }
         }
         .frame(width: VFLayout.Overlay.pill.width, height: VFLayout.Overlay.pill.height)
@@ -87,48 +89,68 @@ private struct RecordingPillView: View {
             RoundedRectangle(cornerRadius: VFRadius.pill)
                 .fill(VFColor.pillBackground)
         )
+        .onChange(of: state.isProcessing) { _, processing in
+            if processing { waveTimer?.invalidate(); waveTimer = nil }
+            else { startWaveTimer() }
+        }
+        .onAppear { startWaveTimer() }
+        .onDisappear { waveTimer?.invalidate(); waveTimer = nil }
     }
-}
 
-// MARK: - WaveformView — TimelineView driven, no Timer/Task
-
-private struct WaveformView: View {
-    // Her bar için sabit faz ofseti — her render'da farklı amplitüd verir
-    private let phases: [Double] = (0..<VFLayout.waveBarCount).map { Double($0) * 0.9 + 0.3 }
-    private let speeds: [Double] = (0..<VFLayout.waveBarCount).map { Double($0) * 0.4 + 1.1 }
-
-    var body: some View {
-        TimelineView(.animation) { tl in
-            let t = tl.date.timeIntervalSinceReferenceDate
-            HStack(spacing: VFSpacing.xs) {
-                ForEach(0..<VFLayout.waveBarCount, id: \.self) { i in
-                    let amp = (sin(t * speeds[i] + phases[i]) + 1) / 2  // 0…1
-                    let h = VFLayout.waveBarMinHeight + amp * (VFLayout.waveBarMaxHeight - VFLayout.waveBarMinHeight)
-                    RoundedRectangle(cornerRadius: VFRadius.xs)
-                        .fill(VFColor.pillForeground)
-                        .frame(width: VFLayout.waveBarWidth, height: h)
-                }
+    private var waveformView: some View {
+        HStack(spacing: VFSpacing.xs) {
+            ForEach(0..<VFLayout.waveBarCount, id: \.self) { i in
+                RoundedRectangle(cornerRadius: VFRadius.xs)
+                    .fill(VFColor.pillForeground)
+                    .frame(width: VFLayout.waveBarWidth,
+                           height: max(VFLayout.waveBarMinHeight, amplitudes[i] * VFLayout.waveBarMaxHeight))
+                    .animation(VFAnimation.wave, value: amplitudes[i])
             }
-            .padding(.horizontal, VFSpacing.xxxl)
+        }
+        .padding(.horizontal, VFSpacing.xxxl)
+    }
+
+    @ViewBuilder
+    private var processingView: some View {
+        switch PillCharacter.active {
+        case .dots: DotsCharacter()
+        case .face: FaceCharacter()
+        }
+    }
+
+    private func startWaveTimer() {
+        waveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            amplitudes = (0..<VFLayout.waveBarCount).map { _ in CGFloat.random(in: 0.2...1.0) }
         }
     }
 }
 
-// MARK: - DotsCharacter — TimelineView driven
+// MARK: - DotsCharacter
 
 struct DotsCharacter: View {
+    @State private var scales: [CGFloat] = Array(repeating: 1, count: VFLayout.dotCount)
+    @State private var timer: Timer?
+
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 0.28)) { tl in
-            let step = Int(tl.date.timeIntervalSinceReferenceDate / 0.28) % VFLayout.dotCount
-            HStack(spacing: VFSpacing.md) {
-                ForEach(0..<VFLayout.dotCount, id: \.self) { i in
-                    Circle()
-                        .fill(VFColor.pillForeground)
-                        .frame(width: VFLayout.dotSize, height: VFLayout.dotSize)
-                        .scaleEffect(i == step ? VFLayout.dotScale : 1)
-                        .animation(VFAnimation.bounce, value: step)
-                }
+        HStack(spacing: VFSpacing.md) {
+            ForEach(0..<VFLayout.dotCount, id: \.self) { i in
+                Circle()
+                    .fill(VFColor.pillForeground)
+                    .frame(width: VFLayout.dotSize, height: VFLayout.dotSize)
+                    .scaleEffect(scales[i])
+                    .animation(VFAnimation.bounce, value: scales[i])
             }
+        }
+        .onAppear { start() }
+        .onDisappear { timer?.invalidate(); timer = nil }
+    }
+
+    private func start() {
+        var step = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
+            scales = Array(repeating: 1, count: VFLayout.dotCount)
+            scales[step % VFLayout.dotCount] = VFLayout.dotScale
+            step += 1
         }
     }
 }
