@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from pydantic import BaseModel, field_validator
 from jose import JWTError
 
-from ..db import create_user, get_user_by_email, get_user_by_id, append_audit_log
+from ..db import create_user, get_user_by_email, get_user_by_id, append_audit_log, revoke_token, is_token_revoked
 from ..core.rate_limit import limiter, RATE_LIMIT_AUTH
 from ..services.auth_service import (
     hash_password,
@@ -69,6 +69,9 @@ async def get_current_user(authorization: str = Header(default=None)) -> dict:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     if payload.get("type") != "access":
         raise HTTPException(status_code=401, detail="Not an access token")
+    jti = payload.get("jti")
+    if jti and await is_token_revoked(jti):
+        raise HTTPException(status_code=401, detail="Token has been revoked")
     user_id = payload.get("sub")
     user = await get_user_by_id(user_id)
     if not user:
@@ -159,3 +162,29 @@ async def me(current_user: dict = Depends(get_current_user)):
         "tenant_id": current_user["tenant_id"],
         "role": current_user["role"],
     }
+
+
+@router.post("/logout")
+@limiter.limit(RATE_LIMIT_AUTH)
+async def logout(
+    request: Request,
+    authorization: str = Header(default=None),
+):
+    """Revoke the current access token. Client should also discard the refresh token."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        payload = decode_token(token)
+    except JWTError:
+        # Already expired — treat as success
+        return {"detail": "logged out"}
+
+    jti = payload.get("jti")
+    exp = payload.get("exp")
+    if jti and exp:
+        from datetime import datetime, timezone
+        expires_at = datetime.fromtimestamp(exp, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        await revoke_token(jti, expires_at)
+
+    return {"detail": "logged out"}

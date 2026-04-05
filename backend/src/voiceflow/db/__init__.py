@@ -19,6 +19,8 @@ from .storage import (
     clear_symbol_indexes, save_symbol_batch,
     get_symbol_index_file_paths, get_symbols_for_matching, get_symbols_for_notes,
     lookup_symbol_exact, lookup_symbol_prefix, lookup_symbol_substring,
+    # Token blacklist
+    revoke_token, is_token_revoked, purge_expired_tokens,
 )
 
 __all__ = [
@@ -39,4 +41,5 @@ __all__ = [
     "clear_symbol_indexes", "save_symbol_batch",
     "get_symbol_index_file_paths", "get_symbols_for_matching", "get_symbols_for_notes",
     "lookup_symbol_exact", "lookup_symbol_prefix", "lookup_symbol_substring",
+    "revoke_token", "is_token_revoked", "purge_expired_tokens",
 ]

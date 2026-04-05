@@ -155,11 +155,11 @@
 - [x] Olay Yönetimi Prosedürü — `docs/enterprise/policies/incident-response-plan.md`
 - [x] Varlık Envanteri — `docs/enterprise/asset-inventory.md`
 - [x] Risk Kaydı — `docs/enterprise/risk-register.md`
-- [ ] **SQLCipher entegrasyonu** — Data at rest encryption (R-001, hedef: 2026-04-30)
+- [DONE 2026-04-05] **SQLCipher entegrasyonu** — Data at rest encryption (R-001): cipher_connection.py aiosqlite-compat async wrapper; DB_ENCRYPTION_KEY env ile şifreleme; plaintext→encrypted migration scripti (scripts/migrate_db_encrypt.py); sqlcipher3 pyproject.toml'a eklendi
 - [DONE 2026-04-05] **Rate limiting** — slowapi: default 60/min, /api/stop 30/min, /auth/login+register 10/min; config.yaml security.rate_limit_* ile override edilebilir (R-004)
 - [DONE 2026-04-05] **Log rotation** — RotatingFileHandler: 10MB × 5 backup; config.yaml logging.* ile override (R-008)
 - [DONE 2026-04-05] **Production CORS** — CORSMiddleware: config.yaml security.cors_origins (local="*", server="https://app.firma.com,...") (R-004 ek)
-- [ ] **JWT token revocation** — logout blacklist (hedef: 2026-04-30)
+- [DONE 2026-04-05] **JWT token revocation** — logout blacklist: POST /auth/logout JTI revoke; get_current_user blacklist kontrolü; jti claim create_access/refresh_token'a eklendi; purge_expired_tokens cleanup fonksiyonu
 - [ ] Veri Sınıflandırma Politikası — `docs/enterprise/policies/data-classification-policy.md`
 - [ ] İş Sürekliliği Planı (BCP) — `docs/enterprise/policies/business-continuity-plan.md`
 - [ ] Tedarikçi Güvenlik Politikası — `docs/enterprise/policies/vendor-security-policy.md`

@@ -2,19 +2,21 @@
 
 import logging
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from fastapi import Depends, HTTPException, Request
 from jose import JWTError, jwt  # noqa: F401 (re-exported for callers)
 
+from ..core.config import JWT_ACCESS_TTL_MINUTES as ACCESS_TOKEN_EXPIRE_MINUTES
+from ..core.config import BACKEND_MODE as _BACKEND_MODE
+
 logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.getenv("JWT_SECRET", "voiceflow-dev-secret-change-in-prod")
 ALGORITHM = "HS256"
-from ..core.config import JWT_ACCESS_TTL_MINUTES as ACCESS_TOKEN_EXPIRE_MINUTES
 
-from ..core.config import BACKEND_MODE as _BACKEND_MODE
 if _BACKEND_MODE == "server" and SECRET_KEY == "voiceflow-dev-secret-change-in-prod":
     import logging as _logging
     _logging.getLogger(__name__).warning("JWT_SECRET not set in server mode — using insecure default. Set JWT_SECRET in production.")
@@ -37,6 +39,7 @@ def create_access_token(user_id: str, tenant_id: str, role: str) -> str:
         "role": role,
         "type": "access",
         "exp": expire,
+        "jti": str(uuid.uuid4()),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -47,6 +50,7 @@ def create_refresh_token(user_id: str) -> str:
         "sub": user_id,
         "type": "refresh",
         "exp": expire,
+        "jti": str(uuid.uuid4()),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

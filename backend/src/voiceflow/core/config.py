@@ -57,6 +57,10 @@ WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
 
 JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))
 
+# DB encryption key — empty = plaintext (local dev); set in .env for production
+# Example: DB_ENCRYPTION_KEY=<openssl rand -hex 32>
+DB_ENCRYPTION_KEY: str = os.getenv("DB_ENCRYPTION_KEY", "")
+
 # ── Security ──────────────────────────────────────────────────────────────────
 
 # Rate limiting: "N/period" — e.g. "60/minute", "1000/hour"

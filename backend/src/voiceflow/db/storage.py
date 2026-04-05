@@ -3,8 +3,17 @@
 import logging
 import uuid
 
-import aiosqlite
+from .cipher_connection import connect as _sqlcipher_connect
 from ..core.config import DB_PATH
+
+
+class _AiosqliteCompat:
+    """Drop-in shim: `aiosqlite.connect(path)` → cipher_connection.connect(path)."""
+    def connect(self, path):
+        return _sqlcipher_connect(path)
+
+
+aiosqlite = _AiosqliteCompat()
 
 logger = logging.getLogger(__name__)
 
@@ -216,6 +225,17 @@ async def init_db() -> None:
             if "tenant_id" not in cols:
                 await db.execute(f"ALTER TABLE {table} ADD COLUMN tenant_id TEXT NOT NULL DEFAULT 'default'")  # noqa: S608
                 logger.info("Migration: added tenant_id to %s", table)
+
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS token_blacklist (
+                jti        TEXT PRIMARY KEY,
+                expires_at TEXT NOT NULL,
+                revoked_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_blacklist_exp ON token_blacklist(expires_at)"
+        )
 
         await db.commit()
     logger.info("Database initialized at %s", DB_PATH)
@@ -1003,3 +1023,36 @@ async def clear_symbol_index_v2(user_id: str, project_path: str) -> None:
             (user_id, project_path),
         )
         await db.commit()
+
+
+# ------------------------------------------------------------------
+# Token Blacklist (JWT revocation)
+# ------------------------------------------------------------------
+
+async def revoke_token(jti: str, expires_at: str) -> None:
+    """Add token JTI to blacklist. expires_at is ISO 8601 UTC string."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "INSERT OR IGNORE INTO token_blacklist (jti, expires_at) VALUES (?, ?)",
+            (jti, expires_at),
+        )
+        await db.commit()
+
+
+async def is_token_revoked(jti: str) -> bool:
+    """Return True if token JTI is in the blacklist."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT 1 FROM token_blacklist WHERE jti = ?", (jti,)
+        ) as cursor:
+            return (await cursor.fetchone()) is not None
+
+
+async def purge_expired_tokens() -> int:
+    """Delete blacklist entries whose JWT has already expired. Returns count."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "DELETE FROM token_blacklist WHERE expires_at < datetime('now')"
+        )
+        await db.commit()
+        return cursor.rowcount
