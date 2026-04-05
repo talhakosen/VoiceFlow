@@ -35,11 +35,7 @@ final class RecordingOverlayWindow: NSPanel {
         level = .floating
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         hasShadow = false
-        animationBehavior = .none
-
-        let hostingView = SafeHostingView(rootView: RecordingPillView(state: pillState))
-        hostingView.frame = NSRect(origin: .zero, size: VFLayout.Overlay.pill)
-        contentView = hostingView
+        contentViewController = NSHostingController(rootView: RecordingPillView(state: pillState))
         reposition()
     }
 
@@ -61,11 +57,12 @@ final class RecordingOverlayWindow: NSPanel {
 
     func reposition() {
         guard let screen = NSScreen.main else { return }
-        let size = VFLayout.Overlay.pill
+        let pillWidth: CGFloat = 140
+        let pillHeight: CGFloat = 48
         let screenFrame = screen.visibleFrame
-        let x = screenFrame.midX - size.width / 2
-        let y = screenFrame.minY + VFLayout.overlayBottomInset
-        setFrame(NSRect(x: x, y: y, width: size.width, height: size.height), display: false)
+        let x = screenFrame.midX - pillWidth / 2
+        let y = screenFrame.minY + 60
+        setFrame(NSRect(x: x, y: y, width: pillWidth, height: pillHeight), display: false)
     }
 }
 
@@ -84,32 +81,36 @@ private struct RecordingPillView: View {
                 waveformView
             }
         }
-        .frame(width: VFLayout.Overlay.pill.width, height: VFLayout.Overlay.pill.height)
+        .frame(width: 140, height: 48)
         .background(
-            RoundedRectangle(cornerRadius: VFRadius.pill)
-                .fill(VFColor.pillBackground)
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.black.opacity(0.85))
         )
         .onChange(of: state.isProcessing) { _, processing in
-            if processing { waveTimer?.invalidate(); waveTimer = nil }
-            else { startWaveTimer() }
+            if processing {
+                waveTimer?.invalidate(); waveTimer = nil
+            } else {
+                startWaveTimer()
+            }
         }
         .onAppear { startWaveTimer() }
         .onDisappear { waveTimer?.invalidate(); waveTimer = nil }
     }
 
+    // Waveform bars (recording state)
     private var waveformView: some View {
-        HStack(spacing: VFSpacing.xs) {
-            ForEach(0..<VFLayout.waveBarCount, id: \.self) { i in
-                RoundedRectangle(cornerRadius: VFRadius.xs)
-                    .fill(VFColor.pillForeground)
-                    .frame(width: VFLayout.waveBarWidth,
-                           height: max(VFLayout.waveBarMinHeight, amplitudes[i] * VFLayout.waveBarMaxHeight))
-                    .animation(VFAnimation.wave, value: amplitudes[i])
+        HStack(spacing: 4) {
+            ForEach(0..<6, id: \.self) { i in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color.white)
+                    .frame(width: 4, height: max(8, amplitudes[i] * 32))
+                    .animation(.easeInOut(duration: 0.1), value: amplitudes[i])
             }
         }
-        .padding(.horizontal, VFSpacing.xxxl)
+        .padding(.horizontal, 20)
     }
 
+    // Processing character — PillCharacter.active ile seçilir
     @ViewBuilder
     private var processingView: some View {
         switch PillCharacter.active {
@@ -120,25 +121,26 @@ private struct RecordingPillView: View {
 
     private func startWaveTimer() {
         waveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            amplitudes = (0..<VFLayout.waveBarCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+            amplitudes = (0..<6).map { _ in CGFloat.random(in: 0.2...1.0) }
         }
     }
 }
 
 // MARK: - DotsCharacter
+// 3 nokta, sırayla büyüyüp küçülür (bounce)
 
 struct DotsCharacter: View {
-    @State private var scales: [CGFloat] = Array(repeating: 1, count: VFLayout.dotCount)
+    @State private var scales: [CGFloat] = [1, 1, 1]
     @State private var timer: Timer?
 
     var body: some View {
-        HStack(spacing: VFSpacing.md) {
-            ForEach(0..<VFLayout.dotCount, id: \.self) { i in
+        HStack(spacing: 8) {
+            ForEach(0..<3, id: \.self) { i in
                 Circle()
-                    .fill(VFColor.pillForeground)
-                    .frame(width: VFLayout.dotSize, height: VFLayout.dotSize)
+                    .fill(Color.white)
+                    .frame(width: 8, height: 8)
                     .scaleEffect(scales[i])
-                    .animation(VFAnimation.bounce, value: scales[i])
+                    .animation(.easeInOut(duration: 0.25), value: scales[i])
             }
         }
         .onAppear { start() }
@@ -148,8 +150,8 @@ struct DotsCharacter: View {
     private func start() {
         var step = 0
         timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
-            scales = Array(repeating: 1, count: VFLayout.dotCount)
-            scales[step % VFLayout.dotCount] = VFLayout.dotScale
+            scales = [1, 1, 1]
+            scales[step % 3] = 1.7
             step += 1
         }
     }
@@ -159,25 +161,51 @@ struct DotsCharacter: View {
 // Gözler kırpıyor, ağız 3 ifade döngüsü: düz → gülümseme → dalgalı
 
 struct FaceCharacter: View {
+    @State private var isBlinking: Bool = false
+    @State private var dotCount: Int = 0
+    @State private var dotTimer: Timer?
+    @State private var blinkTimer: Timer?
+
     var body: some View {
-        TimelineView(.animation) { tl in
-            let t = tl.date.timeIntervalSinceReferenceDate
-            let blinking = fmod(t, 2.5) < 0.1
-            let mouthPhase = Int(t / 1.2) % 3
-            ZStack {
-                HStack(spacing: VFSpacing.lg) {
-                    Capsule().fill(VFColor.pillEye)
-                        .frame(width: VFLayout.eyeWidth, height: blinking ? 1 : VFLayout.eyeHeight)
-                    Capsule().fill(VFColor.pillEye)
-                        .frame(width: VFLayout.eyeWidth, height: blinking ? 1 : VFLayout.eyeHeight)
-                }
-                .offset(y: -6)
-                MouthShape(phase: mouthPhase)
-                    .stroke(VFColor.pillMouth, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                    .frame(width: VFLayout.mouthWidth, height: VFLayout.mouthHeight)
-                    .offset(y: 6)
+        ZStack {
+            // Eyes
+            HStack(spacing: 10) {
+                Capsule()
+                    .fill(Color.white.opacity(0.95))
+                    .frame(width: 5, height: isBlinking ? 1 : 6)
+                    .animation(.easeInOut(duration: 0.07), value: isBlinking)
+                Capsule()
+                    .fill(Color.white.opacity(0.95))
+                    .frame(width: 5, height: isBlinking ? 1 : 6)
+                    .animation(.easeInOut(duration: 0.07), value: isBlinking)
             }
-            .frame(width: VFLayout.Overlay.pill.width, height: VFLayout.Overlay.pill.height)
+            .offset(y: -6)
+
+            // Mouth — 3 expression cycle
+            MouthShape(phase: dotCount % 3)
+                .stroke(Color.white.opacity(0.9), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                .frame(width: 18, height: 10)
+                .offset(y: 6)
+        }
+        .frame(width: 140, height: 48)
+        .onAppear { start() }
+        .onDisappear {
+            dotTimer?.invalidate(); dotTimer = nil
+            blinkTimer?.invalidate(); blinkTimer = nil
+        }
+    }
+
+    private func start() {
+        dotCount = 0
+        isBlinking = false
+        dotTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { _ in
+            dotCount += 1
+        }
+        blinkTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
+            isBlinking = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isBlinking = false
+            }
         }
     }
 }
