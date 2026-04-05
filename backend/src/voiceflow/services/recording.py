@@ -43,7 +43,6 @@ async def _transcribe_segmented(
 
     Returns: (merged_text, language, total_duration_seconds)
     """
-    import numpy as np
     from .symbol_indexer import inject_symbol_refs
 
     total_samples = len(audio_data)
@@ -167,8 +166,6 @@ class RecordingService:
         logger.info("Whisper: %.3fs → '%s'", time.perf_counter() - t_whisper, result.text[:80])
 
         raw_text = result.text
-        was_corrected = False
-        snippet_used = False
 
         # IT Dataset: save WAV + recording to SQLite
         _it_wav_path: str | None = None
@@ -222,81 +219,9 @@ class RecordingService:
                 "id": row_id, "it_wav_path": _it_wav_path,
             }
 
-        # Dictionary substitution (Whisper → Dictionary → Snippets → LLM)
-        if result.text and user_id:
-            entries = await get_dictionary(user_id=user_id, include_smart=True)
-            if entries:
-                if _HAS_AC:
-                    # Rebuild automaton only when entry count changes (bundle load/edit)
-                    if self._dict_automaton is None or len(entries) != self._dict_entry_count:
-                        self._dict_automaton = _build_automaton(entries)
-                        self._dict_entry_count = len(entries)
-                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
-                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
-                else:
-                    result.text = _apply_regex_fallback(result.text, entries)
-            snippets = await get_snippets(user_id=user_id)
-            if snippets:
-                expanded = apply_snippets(result.text, snippets)
-                if expanded != result.text:
-                    snippet_used = True
-                result.text = expanded
-
-        # Filler word removal — deterministic, general/office only
-        if result.text and active_mode != "engineering":
-            result.text = clean_fillers(result.text)
-
-        # Engineering mode: auto symbol detection (no Cmd required)
-        # Symbol refs replace phonetic text with "SymbolName (file.swift:line)"
-        # Directory refs (@path/) are stripped — only file:line symbols kept.
-        symbol_refs: list[str] = []
-        if active_mode == "engineering" and result.text and user_id:
-            import re as _re
-            from .symbol_indexer import inject_symbol_refs as _inject
-            injected = await _inject(result.text, user_id)
-            if injected != result.text:
-                # Symbol refs: @some/path/File.ext:line SymbolName
-                # → paste as "SymbolName (File.ext:line)"  e.g. "BackendService (BackendService.swift:212)"
-                def _fmt_sym(m: "_re.Match") -> str:
-                    full_path, name = m.group(1), m.group(2)
-                    # Strip line number: "VoiceFlowApp/Sources/BackendService.swift:212" → path only
-                    path_only = full_path.rsplit(":", 1)[0]
-                    symbol_refs.append(f"{name} → {full_path}")
-                    return f"@{path_only}"
-                result.text = _re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
-
-                # Also collect plain @path refs (dir refs and files without line numbers)
-                # Format: "basename → path" so SymbolItem.pathKey = path, removes @path from text
-                _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
-                for _m in _re.finditer(r'@([\w/.]+)', result.text):
-                    _path = _m.group(1)
-                    if _path not in _seen_paths:
-                        _seen_paths.add(_path)
-                        _basename = _path.rstrip("/").rsplit("/", 1)[-1] or _path
-                        symbol_refs.append(f"{_basename} → {_path}")
-
-                logger.info("Engineering symbols detected: %s", symbol_refs)
-
-        # Correct (if enabled)
-        if self._corrector.config.enabled and result.text:
-            t_llm = time.perf_counter()
-            if hasattr(self._corrector, "correct_async"):
-                corrected = await self._corrector.correct_async(
-                    result.text, result.language, None, active_app,
-                    window_title=window_title, selected_text=selected_text,
-                )
-            else:
-                _correct_fn = functools.partial(
-                    self._corrector.correct,
-                    result.text, result.language, None, active_app,
-                    window_title=window_title, selected_text=selected_text,
-                )
-                corrected = await loop.run_in_executor(_mlx_executor, _correct_fn)
-            logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
-            if corrected != result.text:
-                was_corrected = True
-                logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
-            result.text = corrected
+        result.text, was_corrected, snippet_used, symbol_refs = await self._apply_text_pipeline(
+            result, active_mode, user_id, active_app, window_title, selected_text, loop,
+        )
 
         processing_ms = int((time.perf_counter() - t_start) * 1000)
         logger.info("Total stop→result: %dms", processing_ms)
@@ -346,6 +271,98 @@ class RecordingService:
             "pending_wav_path": _pending_wav_path,
             "symbol_refs": symbol_refs or None,
         }
+
+    async def _apply_text_pipeline(
+        self,
+        result: "TranscriptionResult",
+        active_mode: str,
+        user_id: str | None,
+        active_app: str | None,
+        window_title: str | None,
+        selected_text: str | None,
+        loop,
+    ) -> "tuple[str, bool, bool, list[str]]":
+        """Apply the full text post-processing pipeline.
+
+        Returns: (final_text, was_corrected, snippet_used, symbol_refs)
+
+        Pipeline order:
+          1. Dictionary substitution (Aho-Corasick / regex fallback)
+          2. Snippet expansion
+          3. Filler word removal (general/office only)
+          4. Engineering symbol injection (engineering only)
+          5. LLM correction (if enabled)
+        """
+        was_corrected = False
+        snippet_used = False
+        symbol_refs: list[str] = []
+
+        # 1. Dictionary + snippets
+        if result.text and user_id:
+            entries = await get_dictionary(user_id=user_id, include_smart=True)
+            if entries:
+                if _HAS_AC:
+                    if self._dict_automaton is None or len(entries) != self._dict_entry_count:
+                        self._dict_automaton = _build_automaton(entries)
+                        self._dict_entry_count = len(entries)
+                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
+                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
+                else:
+                    result.text = _apply_regex_fallback(result.text, entries)
+            snippets = await get_snippets(user_id=user_id)
+            if snippets:
+                expanded = apply_snippets(result.text, snippets)
+                if expanded != result.text:
+                    snippet_used = True
+                result.text = expanded
+
+        # 2. Filler word removal — deterministic, general/office only
+        if result.text and active_mode != "engineering":
+            result.text = clean_fillers(result.text)
+
+        # 3. Engineering symbol injection
+        if active_mode == "engineering" and result.text and user_id:
+            import re as _re
+            from .symbol_indexer import inject_symbol_refs as _inject
+            injected = await _inject(result.text, user_id)
+            if injected != result.text:
+                def _fmt_sym(m: "_re.Match") -> str:
+                    full_path, name = m.group(1), m.group(2)
+                    path_only = full_path.rsplit(":", 1)[0]
+                    symbol_refs.append(f"{name} → {full_path}")
+                    return f"@{path_only}"
+                result.text = _re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
+                _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
+                for _m in _re.finditer(r'@([\w/.]+)', result.text):
+                    _path = _m.group(1)
+                    if _path not in _seen_paths:
+                        _seen_paths.add(_path)
+                        _basename = _path.rstrip("/").rsplit("/", 1)[-1] or _path
+                        symbol_refs.append(f"{_basename} → {_path}")
+                logger.info("Engineering symbols detected: %s", symbol_refs)
+
+        # 4. LLM correction
+        if self._corrector.config.enabled and result.text:
+            t_llm = time.perf_counter()
+            if hasattr(self._corrector, "correct_async"):
+                corrected = await self._corrector.correct_async(
+                    result.text, result.language, None, active_app,
+                    window_title=window_title, selected_text=selected_text,
+                )
+            else:
+                _correct_fn = functools.partial(
+                    self._corrector.correct,
+                    result.text, result.language, None, active_app,
+                    window_title=window_title, selected_text=selected_text,
+                )
+                corrected = await loop.run_in_executor(_mlx_executor, _correct_fn)
+            logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
+            if corrected != result.text:
+                was_corrected = True
+                logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
+            result.text = corrected
+
+        return result.text, was_corrected, snippet_used, symbol_refs
 
     def force_stop(self) -> bool:
         """Force-stop regardless of state. Returns True if was recording."""

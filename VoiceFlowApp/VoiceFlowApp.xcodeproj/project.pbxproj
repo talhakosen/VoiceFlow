@@ -44,12 +44,14 @@
 		CCDEPBF000003 /* PasteClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000003 /* PasteClient.swift */; };
 		CCDEPBF000004 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000004 /* AccessibilityClient.swift */; };
 		CCDEPBF000005 /* BackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000005 /* BackendClient.swift */; };
+		CCRE021BF000006 /* RecordingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCRE021FR000006 /* RecordingFeature.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		DD4444DD4444DD4444DD4444 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		CCRE021000000004 /* RecordingOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingOverlayWindow.swift; sourceTree = "<group>"; };
+		CCRE021FR000006 /* RecordingFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingFeature.swift; sourceTree = "<group>"; };
 		0450FCA0C0301B340112E74B /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* TrainingPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingPillView.swift; sourceTree = "<group>"; };
 		C4D5E6F7A8B9C0D1E2F3A4B5 /* ITDatasetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITDatasetView.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				338849DA661EBF7008B2FC66 /* AppViewModel.swift */,
+				CCRE021FR000006 /* RecordingFeature.swift */,
 				D5E6F7A8B9C0D1E2F3A4B5C6 /* ModeIndicatorView.swift */,
 				BB22CC33DD44EE55FF6600AA /* SymbolPickerView.swift */,
 				CCRE021000000004 /* RecordingOverlayWindow.swift */,
@@ -367,6 +370,7 @@
 				CCDEPBF000003 /* PasteClient.swift in Sources */,
 				CCDEPBF000004 /* AccessibilityClient.swift in Sources */,
 				CCDEPBF000005 /* BackendClient.swift in Sources */,
+				CCRE021BF000006 /* RecordingFeature.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

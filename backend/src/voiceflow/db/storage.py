@@ -2,7 +2,6 @@
 
 import logging
 import uuid
-from pathlib import Path
 
 import aiosqlite
 from ..core.config import DB_PATH
@@ -68,6 +67,15 @@ async def init_db() -> None:
         await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id)"
         )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_transcriptions_tenant_date ON transcriptions(tenant_id, created_at)"
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_dict_trigger ON user_dictionary(trigger)"
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_snippets_user ON snippets(user_id)"
+        )
         await db.execute("""
             CREATE TABLE IF NOT EXISTS audit_log (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,13 +110,14 @@ async def init_db() -> None:
         )
         await db.execute("""
             CREATE TABLE IF NOT EXISTS symbol_index (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id     TEXT NOT NULL DEFAULT '',
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id    TEXT NOT NULL DEFAULT 'default',
+                user_id      TEXT NOT NULL DEFAULT '',
                 project_path TEXT NOT NULL DEFAULT '',
-                file_path   TEXT NOT NULL,
-                symbol_type TEXT NOT NULL,
-                symbol_name TEXT NOT NULL,
-                line_number INTEGER NOT NULL
+                file_path    TEXT NOT NULL,
+                symbol_type  TEXT NOT NULL,
+                symbol_name  TEXT NOT NULL,
+                line_number  INTEGER NOT NULL
             )
         """)
         await db.execute(
@@ -117,6 +126,7 @@ async def init_db() -> None:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS symbol_index_v2 (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id     TEXT NOT NULL DEFAULT 'default',
                 user_id       TEXT NOT NULL DEFAULT '',
                 project_path  TEXT NOT NULL DEFAULT '',
                 file_path     TEXT NOT NULL,
@@ -152,6 +162,7 @@ async def init_db() -> None:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS training_sentences (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id    TEXT NOT NULL DEFAULT 'default',
                 training_set TEXT NOT NULL DEFAULT 'it_dataset',
                 persona      TEXT,
                 scenario     TEXT,
@@ -164,6 +175,7 @@ async def init_db() -> None:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS training_recordings (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                tenant_id    TEXT NOT NULL DEFAULT 'default',
                 sentence_id  INTEGER NOT NULL REFERENCES training_sentences(id),
                 training_set TEXT NOT NULL DEFAULT 'it_dataset',
                 wav_path     TEXT NOT NULL,
@@ -196,6 +208,15 @@ async def init_db() -> None:
         if "is_active" not in user_columns:
             await db.execute("ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1")
             logger.info("Migration: added is_active column to users")
+
+        # Migration: add tenant_id to training and symbol tables
+        for table in ("training_sentences", "training_recordings", "symbol_index", "symbol_index_v2"):
+            async with db.execute(f"PRAGMA table_info({table})") as cursor:  # noqa: S608
+                cols = {row[1] async for row in cursor}
+            if "tenant_id" not in cols:
+                await db.execute(f"ALTER TABLE {table} ADD COLUMN tenant_id TEXT NOT NULL DEFAULT 'default'")  # noqa: S608
+                logger.info("Migration: added tenant_id to %s", table)
+
         await db.commit()
     logger.info("Database initialized at %s", DB_PATH)
 
