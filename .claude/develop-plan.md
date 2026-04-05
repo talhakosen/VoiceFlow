@@ -160,10 +160,10 @@
 - [DONE 2026-04-05] **Log rotation** — RotatingFileHandler: 10MB × 5 backup; config.yaml logging.* ile override (R-008)
 - [DONE 2026-04-05] **Production CORS** — CORSMiddleware: config.yaml security.cors_origins (local="*", server="https://app.firma.com,...") (R-004 ek)
 - [DONE 2026-04-05] **JWT token revocation** — logout blacklist: POST /auth/logout JTI revoke; get_current_user blacklist kontrolü; jti claim create_access/refresh_token'a eklendi; purge_expired_tokens cleanup fonksiyonu
-- [ ] Veri Sınıflandırma Politikası — `docs/enterprise/policies/data-classification-policy.md`
-- [ ] İş Sürekliliği Planı (BCP) — `docs/enterprise/policies/business-continuity-plan.md`
-- [ ] Tedarikçi Güvenlik Politikası — `docs/enterprise/policies/vendor-security-policy.md`
-- [ ] Statement of Applicability (SoA) — kontrol matrisi
+- [DONE 2026-04-05] Veri Sınıflandırma Politikası — `docs/enterprise/policies/data-classification-policy.md`
+- [DONE 2026-04-05] İş Sürekliliği Planı (BCP) — `docs/enterprise/policies/business-continuity-plan.md`
+- [DONE 2026-04-05] Tedarikçi Güvenlik Politikası — `docs/enterprise/policies/vendor-security-policy.md`
+- [DONE 2026-04-05] Statement of Applicability (SoA) — policies/statement-of-applicability.md; 58 kontrol, %93 uyum
 - [ ] İç tetkik (Haziran 2026)
 - [ ] Danışman GAP analizi (Temmuz 2026)
 - [ ] Dış denetim + sertifika (Ekim 2026)
