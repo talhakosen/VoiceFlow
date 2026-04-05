@@ -9,6 +9,9 @@ from ..core.config import DB_PATH
 
 class _AiosqliteCompat:
     """Drop-in shim: `aiosqlite.connect(path)` → cipher_connection.connect(path)."""
+    import sqlite3 as _sqlite3
+    Row = _sqlite3.Row  # used as db.row_factory = aiosqlite.Row
+
     def connect(self, path):
         return _sqlcipher_connect(path)
 
