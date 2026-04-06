@@ -22,11 +22,18 @@ struct DictionarySection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 0) {
 
-            Text("Sözlük")
-                .font(.system(size: 22, weight: .bold))
-                .padding(.bottom, 4)
+            // Banner
+            SectionBanner(
+                gradient: VFColor.bannerDictFull,
+                title: "VoiceFlow, sizin gibi konuşur",
+                subtitle: "Kişisel ve teknik terimlerinizi ekleyin; doğruluk otomatik artar.",
+                iconName: "character.book.closed"
+            )
+
+        VStack(alignment: .leading, spacing: 28) {
+            Spacer().frame(height: 4)
 
             // Tab seçici
             Picker("", selection: $selectedTab) {
@@ -96,6 +103,8 @@ struct DictionarySection: View {
             Spacer()
         }
         .padding(VFSpacing.xxxl)
+
+        } // end outer VStack
         .onAppear { store.send(.loadDictionary) }
     }
 }

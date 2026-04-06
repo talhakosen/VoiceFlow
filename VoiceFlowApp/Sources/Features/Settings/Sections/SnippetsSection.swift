@@ -12,11 +12,18 @@ struct SnippetsSection: View {
     @State private var newScope = "personal"
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 0) {
 
-            Text("Şablonlar")
-                .font(.system(size: 22, weight: .bold))
-                .padding(.bottom, 4)
+            // Banner
+            SectionBanner(
+                gradient: VFColor.bannerSnipFull,
+                title: "Tekrar yazmana gerek yok",
+                subtitle: "Tetikleyici söyle, VoiceFlow şablonu anında yapıştırır.",
+                iconName: "text.badge.plus"
+            )
+
+        VStack(alignment: .leading, spacing: 28) {
+            Spacer().frame(height: 4)
 
             // Liste
             SettingsCardSection(title: "Şablon Listesi") {
@@ -112,6 +119,8 @@ struct SnippetsSection: View {
             Spacer()
         }
         .padding(VFSpacing.xxxl)
+
+        } // end outer VStack
         .onAppear { store.send(.loadSnippets) }
     }
 }

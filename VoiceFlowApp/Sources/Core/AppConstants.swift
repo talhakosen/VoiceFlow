@@ -24,14 +24,16 @@ enum AppConstants {
     static let menuBarSyncInterval:    Double = 0.3            // MenuBarController UI sync
 
     // MARK: Hotkey timing (seconds)
-    static let doubleTapThreshold:   TimeInterval = 0.4
-    static let hotkeyCooldown:        TimeInterval = 0.8
+    static let hotkeyCooldown:        TimeInterval = 0.3   // cooldown between Fn DOWN toggles
 
     // MARK: History
     static let historyFetchLimit: Int = 50  // HistoryFeature + BackendService default
 
     // MARK: Training Pill
     static let pillCountdownSeconds: Int = 10
+
+    // MARK: Paths
+    static let projectBackendPath: String = "\(NSHomeDirectory())/Developer/utils/voiceflow/backend"
 
     // MARK: Log paths
     static let swiftLogPath:   String = "/tmp/voiceflow-swift.log"

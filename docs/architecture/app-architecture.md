@@ -52,9 +52,10 @@ VoiceFlowApp/Sources/
     │   └── SymbolPickerView.swift   # Engineering mode sembol seçim diyaloğu
     ├── Settings/
     │   ├── SettingsFeature.swift    # @Reducer — dictionary/snippets/context/profile state
-    │   ├── SettingsView.swift       # 2-panel settings penceresi
+    │   ├── SettingsView.swift       # MainContentView (ana içerik) + SettingsDialogView (ayar dialog'u) + SectionBanner + ProfileAvatarView
     │   ├── ContextView.swift        # Knowledge Base panel
     │   └── Sections/
+    │       ├── HomeSection.swift    # Ana ekran: son transkripsiyonlar + istatistikler
     │       ├── GeneralSection.swift
     │       ├── RecordingSection.swift
     │       ├── DictionarySection.swift
@@ -272,7 +273,7 @@ protocol BackendServiceProtocol: Actor {
 ──────────────────────────────────
 🎤 Kaydı Başlat / Kaydı Durdur   ← toggle
    Son Transkripsiyonu Yapıştır   ← ⌃⌘V, lastResult yoksa disabled
-   Kısayol: Fn × 2               ← disabled, bilgi satırı
+   Kısayol: Fn basılı tut        ← disabled, bilgi satırı
    Dil ▶                          ← language submenu
    Mod ▶                          ← mode submenu
 ⚙  Ayarlar…                       ⌘,
@@ -290,13 +291,22 @@ protocol BackendServiceProtocol: Actor {
 
 ## HotkeyManager
 
-**Fn double-tap:** start/stop toggle. Release eventi güvenilmez → double-tap + Force Stop yedek.
-- Start'tan 0.5s içindeki Fn UP yok sayılır (grace period) — double-tap'ın 2. tuşu bırakılınca anında STOP yapmasını önler
+`HotkeyManager` (NSEvent wrapper) + `HotkeyStateMachine` (pure Swift struct, AppKit-free, testable) ikili mimarisi.
 
-**Cmd-interval tracking:**
-- `recordingDidStart()` → `cmdIntervals = []`
-- Kayıt süresince `NSEvent.flagsChanged` ile Cmd basma/bırakma zamanları kaydedilir
-- `cmdIntervals: [(Double, Double)]` → `/api/stop` isteğine `X-Cmd-Intervals` header
+**HotkeyStateMachine (push-to-talk):**
+- `fnDown()` → START (IDLE→RECORDING); `cooldown 0.3s` — macOS DOWN burst absorbe eder; zaten recording ise no-op
+- `fnUp()` → STOP (RECORDING→IDLE); `lastStopAt` set edilir
+- `sync(tcaIsRecording:)` — AppDelegate polling loop'u her 100ms çağırır; TCA state ile drift'i kapatır; `startedAt`/`lastStopAt` sonrası 2s grace period — async pipeline race condition önler
+- `reset()` — Force Stop senaryosu
+
+**HotkeyManager:**
+- `NSEvent.addGlobalMonitorForEvents(.flagsChanged)` + local monitor
+- Fn basımı (`.function` flag): `sm.fnDown()` → kayıt başlar
+- Fn bırakımı: 250ms debounce → `sm.fnUp()` → kayıt durur (macOS spurious UP burst'leri filtreler)
+- `monitorStartedAt` guard: monitor re-registration'dan sonraki 300ms içindeki stale fn=true eventi yok sayılır
+- `start()` her seferinde önce `stop()` çağırır (orphaned monitor önleme)
+- AppDelegate: her kayıt bitiminden 0.5s sonra `hotkeyManager.start()` — macOS bazen fn=true eventi durdurur, yeniden register düzeltir
+- `onStartRecording` / `onStopRecording` closure'ları `HotkeyStateMachine.onStart/onStop`'a iletilir
 
 **⌥1/2/3 global mod kısayolları:**
 - keyCode 18→Genel, 19→Mühendislik, 20→Ofis
@@ -317,23 +327,33 @@ Sağ üst köşe kayan kapsül (`ultraThinMaterial` + mod rengi).
 - `showBriefly(mode:)` — mod değişiminde 2 sn
 
 ### TrainingPillView + TrainingPillWindowController
-Sağ alt köşe 60×60px float buton. Paste sonrası 10s geri sayım arc.
+Sağ alt köşe 60×60px float buton. Paste sonrası 10s geri sayım arc + edit ikonu (sayı gösterilmez).
 - Tıkla → NSAlert + NSTextView edit dialog
 - **Kaydet** → token diff → dictionary auto-add (aynı kelime sayısı şartıyla her farklı çift)
 - **WAV pipeline:** `trainingMode: true` → backend pending WAV → `saveUserCorrection()` veya `deletePendingWav()`
 
 **Tasarım tutarlılığı:** Overlay + mod göstergesi + training pill → aynı `ultraThinMaterial + renk dili`, 20px sağ kenar boşluğu.
 
-### SettingsView
-`NavigationSplitView` **kullanmaz** — custom `HStack` layout:
-- **Genişletilmiş** (220px): ikon + metin | **Daraltılmış** (56px): sadece ikonlar
-- Sidebar **iki grup**: `SettingsSection.mainNav` (Genel/Sözlük/Şablonlar/Bilgi Tabanı/Kayıt) + `SettingsSection.bottomNav` (Hesap/Hakkında), aralarında `Divider`
-- Toolbar row (yerleşik HStack): sol = sidebar toggle, sağ = `person.circle.fill` 22pt profil ikonu
-- `VFLayout.sidebarCollapsedWidth = 56`, `VFLayout.sidebarWidth = 220`
+### MainContentView (eski: SettingsView)
 
-**Settings içerik bileşenleri (GeneralSection.swift'te tanımlı, tüm sectionlar kullanabilir):**
-- `SettingsCardSection(title:)` — başlıklı kart grubu: caps/tracked section label + `controlBackgroundColor` rounded card + ince border
-- `SettingsRow(title:subtitle:isLast:)` — kart içi satır: 13pt bold başlık + 11pt tertiary açıklama + sağda arbitrary kontrol; `isLast: false` → alt divider
+Ana uygulama penceresi — **ekranın %92'si** (dinamik, `NSScreen.visibleFrame * 0.92`), min **960×640**. `NavigationSplitView` kullanmaz, custom `HStack` layout:
+- **Genişletilmiş** (220px): ikon + metin | **Daraltılmış** (56px): sadece ikonlar
+- Sidebar **içerik grubu**: `MainContentSection` (Ana Ekran / Sözlük / Şablonlar / Bilgi Tabanı / Kayıt) + alt kısımda `Ayarlar` gear butonu
+- Toolbar row: sol = sidebar toggle, **sağ = `person.circle` 20pt profil ikonu** → tıklanınca Settings dialog açılır
+- `typealias SettingsView = MainContentView` — geriye dönük uyumluluk
+
+**SettingsDialogView** — ayrı 750×550 NSPanel:
+- `openSettingsDialog()` ile açılır (MenuBarController)
+- Sidebar: General / Account / About
+- Tetikleyici: Ana penceredeki profil ikonu veya sol alt Ayarlar butonu
+
+**SectionBanner** — her section'ın başındaki gradient hero:
+- `gradient: LinearGradient` + `title` + `subtitle` + opsiyonel `iconName`
+- Yükseklik 110pt, tam genişlik, radius 12
+
+**Settings içerik bileşenleri (GeneralSection.swift'te tanımlı):**
+- `SettingsCardSection(title:)` — caps section label + bordered card
+- `SettingsRow(title:subtitle:isLast:)` — 13pt başlık + 11pt açıklama + trailing kontrol
 
 ---
 
@@ -443,6 +463,17 @@ DerivedData temizlenmezse eski build kullanılır. Her build sonrası Accessibil
 - **Debug build:** Geliştirici kullanımı (şu an)
 - **Phase 5:** Developer ID imzalama + notarization → DMG → şirket web sitesi
 - **Enterprise IT:** MDM (Jamf/Mosyle) ile dağıtım, Accessibility izni MDM profili ile otomatik
+
+---
+
+## Backend Pipeline Notları
+
+**Sessizlik / kısa ses filtresi (RecordingService):**
+- `duration < 0.5s` VEYA `rms < 0.005` → Whisper çağrılmaz, `{"text": "", "duration": 0.0}` döner
+- Amaç: yanlışlıkla Fn tuşuna basıldığında Whisper'ın sessizlikten metin üretmesini (halüsinasyon) önler
+
+**HomeSection otomatik yenileme:**
+- `.task(id: store.recording.whisperModelName)` — backend bağlandığında `whisperModelName` değişir, `loadHistory()` otomatik tetiklenir
 
 ---
 

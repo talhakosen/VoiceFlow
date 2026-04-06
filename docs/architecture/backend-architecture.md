@@ -24,8 +24,10 @@ backend/src/voiceflow/
 │   ├── auth_service.py        # JWT create/decode, bcrypt, require_role() dependency
 │   ├── dictionary.py          # apply_dictionary() — 2-pass word-boundary substitution
 │   ├── snippets.py            # apply_snippets() — exact-match expansion
-│   ├── smart_dictionary.py    # build_smart_dictionary() — kod tabanından identifier çıkar, Türkçe fonetik varyantları user_dictionary'e ekler (scope='smart')
 │   └── symbol_indexer.py      # build_symbol_index() — class/func/struct sembollerini file_path+line_number ile SQLite'a yazar; lookup_symbol() fuzzy arama
+├── indexing/
+│   ├── smart_dictionary.py    # services/'dan taşındı — build_smart_dictionary(); kod tabanı identifier → Türkçe fonetik varyant → user_dictionary (scope='smart')
+│   └── tech_lexicon.py        # services/'dan taşındı — teknik terim sözlüğü
 ├── db/
 │   └── storage.py             # aiosqlite CRUD (voiceflow.db — DB_PATH via config.yaml)
 ├── audio/
@@ -34,8 +36,9 @@ backend/src/voiceflow/
 │   ├── whisper.py             # MLX Whisper (local mode)
 │   └── faster_whisper.py      # NVIDIA faster-whisper (server mode)
 ├── correction/
-│   ├── llm_corrector.py       # mlx-lm Qwen 7B (local mode)
-│   └── ollama_corrector.py    # Ollama HTTP client (server mode)
+│   ├── mlx_corrector.py       # mlx-lm Qwen 7B (local mode) — eski adı: llm_corrector.py
+│   ├── api_corrector.py       # OpenAI-compat HTTP client (Ollama/RunPod/DashScope) — eski adı: ollama_corrector.py
+│   └── prompts.py             # Unified: BASE_PROMPT, MODE_SUFFIXES, BaseCorrectorConfig, build_messages(), pre_process(), guard_output()
 └── context/
     ├── chroma_retriever.py    # ChromaDB retrieval (RAG)
     └── ingestion.py           # Klasör indexleme → ChromaDB
@@ -62,7 +65,9 @@ class RecordingService:
     def force_stop() → bool
     async def preload_models() → None
 ```
-Pipeline sırası: **Whisper → Dictionary → Snippets → Filler clean → Symbol Injection → LLM correction → SQLite**
+Pipeline sırası: **Silence check → Whisper → Dictionary → Snippets → Filler clean (general/office) → Symbol injection (engineering) → pre_process() → LLM correction → SQLite**
+
+**Silence / short-audio guard** (`recording/service.py`): `audio_data` var ama kayıt < 0.5s veya RMS < 0.005 ise Whisper'a hiç gönderilmez, `{"text": "", "duration": 0.0}` döner. Whisper'ın sessiz seste halüsinasyon üretmesini önler.
 
 Her adımın yaptığı substitutionlar `corrections` dict'ine ayrı key altında kaydedilir: `dict`, `snippet`, `symbol`, `llm`. `raw_text` her zaman Whisper ham çıktısıdır (correction açık/kapalı fark etmez). Eval için `json_extract(corrections, '$.dict')` gibi SQLite sorguları atılabilir.
 
@@ -71,7 +76,7 @@ Her adımın yaptığı substitutionlar `corrections` dict'ine ayrı key altınd
 **Cmd-interval injection** (`cmd_intervals` doluysa, `_transcribe_segmented()`):
 Ses numpy array olarak cmd sınırlarında bölünür. Her segment ayrı Whisper → cmd-held segmentlere `inject_symbol_refs()` uygulanır. `word_timestamps` kullanılmaz.
 
-**Smart Dictionary** (`services/smart_dictionary.py`): `POST /api/context/ingest` tetiklenince çalışır. Klasördeki `.swift/.dart/.py/.ts` dosyalarını tarar, PascalCase/camelCase identifier'ları regex ile çıkarır, `_TURKISH_VARIANTS` ile Türkçe fonetik varyantlar üretir (örn. `SupabaseSavedOutfitRepository` → `"superbase saved outfit reposteri"`) ve `user_dictionary` tablosuna `scope='smart'` ile ekler. Tekrar indexlemede var olan trigger'lar üzerine yazılmaz.
+**Smart Dictionary** (`indexing/smart_dictionary.py`): `POST /api/context/ingest` tetiklenince çalışır. Klasördeki `.swift/.dart/.py/.ts` dosyalarını tarar, PascalCase/camelCase identifier'ları regex ile çıkarır, `_TURKISH_VARIANTS` ile Türkçe fonetik varyantlar üretir (örn. `SupabaseSavedOutfitRepository` → `"superbase saved outfit reposteri"`) ve `user_dictionary` tablosuna `scope='smart'` ile ekler. Tekrar indexlemede var olan trigger'lar üzerine yazılmaz.
 
 **Aho-Corasick Dictionary** (`services/dictionary.py`): `pyahocorasick` ile tek geçişte O(|metin|) eşleşme. 70K+ bundle entry için naif regex döngüsüne kıyasla ~275.000× daha hızlı (0.012ms/kayıt). Automaton `RecordingService` içinde cache'lenir — sadece `len(entries)` değiştiğinde (bundle yükle/sil, yeni entry) rebuild edilir (36ms). 2 pass yapılır: ilk geçiş kısa trigger'ları dönüştürür, ikinci geçiş zincirleme eşleşmeleri yakalar. Bkz. `docs/architecture/it-dictionary-bundle.md`.
 
@@ -124,10 +129,10 @@ async def lifespan(app):
 ```
 
 **Corrector seçim mantığı** (`_build_corrector()`):
-- `LLM_BACKEND=ollama` → OllamaCorrector
-- `LLM_ENDPOINT` set edilmişse → OllamaCorrector (URL doğrudan kullanılır)
-- `BACKEND_MODE=server` → OllamaCorrector
-- Hiçbiri yoksa → MLX LLMCorrector
+- `LLM_BACKEND=ollama` → APICorrector (`correction/api_corrector.py`)
+- `LLM_ENDPOINT` set edilmişse → APICorrector (URL doğrudan kullanılır)
+- `BACKEND_MODE=server` → APICorrector
+- Hiçbiri yoksa → MLXCorrector (`correction/mlx_corrector.py`)
 
 **LLMCorrector LoRA adapter**: `config.yaml` `llm.adapter_path` set ise fine-tuned adapter yüklenir (`ml/qwen/adapters_mlx`). Yoksa vanilla Qwen2.5-7B çalışır.
 
@@ -406,9 +411,15 @@ CREATE TABLE training_recordings (
 | `engineering` | Teknik terimler, API/değişken isimleri değişmez |
 | `office` | Resmi dil, kısaltma açma, iş yazışması tonu |
 
-**Dolgu kelime temizleme** (tüm modlarda aktif): "gibi", "şey", "yani", "işte", "falan", "filan", "sanki", "hani" — anlamsız dolgu olarak kullanıldığında silinir, anlamlı kullanımlarda korunur.
+**Dolgu kelime temizleme** (`services/filler_cleaner.py`, general/office modda aktif, engineering'de atlanır): "gibi", "şey", "yani", "işte", "falan", "filan", "sanki", "hani" — anlamsız dolgu olarak kullanıldığında silinir, anlamlı kullanımlarda korunur. Pipeline'da LLM'den **önce** çalışır.
 
-Tüm modlar aynı few-shot örnekleri kullanır (7 örnek). Sadece system prompt suffix değişir.
+**pre_process()** (`correction/prompts.py`): Deterministic, LLM'den hemen önce, tüm modlarda:
+1. Sözel noktalama: "virgül" → `,`, "nokta" → `.` gibi → literal karakter
+2. Geri alma (backtracking): "hayır yok yok" / "scratch that" → retract edilen kısım silinir
+
+Filler temizleme burada **değil** — `filler_cleaner` zaten engineering'de atladığından ayrı adımda kalır.
+
+Tüm modlar `BASE_PROMPT` + mode suffix kullanır (`prompts.py` tek kaynak). Sadece system prompt suffix değişir.
 
 ---
 
@@ -468,7 +479,7 @@ ChromaDB kaldırıldı. Embedding/RAG yok. İki hafif SQLite tabanlı sistem:
 | `cloud` | `config.yaml llm.backend=ollama` + `llm.endpoint` (RunPod), `LLM_MODEL=qwen2.5:7b` | OllamaCorrector |
 | `alibaba` | `llm.backend=ollama`, `llm.endpoint=dashscope-intl...`, `llm.model=qwen-max`, `LLM_API_KEY` (.env secret) | OllamaCorrector |
 
-**OllamaCorrector** OpenAI-compatible endpoint kullanan her servisle çalışır (Ollama, vLLM, mlx-lm server, DashScope).
+**APICorrector** (`api_corrector.py`) OpenAI-compatible endpoint kullanan her servisle çalışır (Ollama, vLLM, mlx-lm server, DashScope). `APICorrectorConfig` + `BaseCorrectorConfig` (shared `prompts.py`'den).
 
 ---
 

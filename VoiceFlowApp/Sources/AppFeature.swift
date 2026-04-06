@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct AppFeature {
@@ -10,6 +11,24 @@ struct AppFeature {
         var training = TrainingFeature.State()
         var auth = AuthFeature.State()
         var history = HistoryFeature.State()
+
+        /// Restore persisted settings from UserDefaults into initial state.
+        static func fromUserDefaults() -> State {
+            var s = State()
+            let ud = UserDefaults.standard
+            s.recording.trainingModeEnabled = ud.bool(forKey: AppSettings.trainingMode)
+            s.recording.isCorrectionEnabled = ud.bool(forKey: AppSettings.correctionEnabled)
+            if let raw = ud.string(forKey: AppSettings.appMode), let mode = AppMode(rawValue: raw) {
+                s.recording.currentAppMode = mode
+            }
+            if let raw = ud.string(forKey: AppSettings.defaultLanguage), let lang = LanguageMode(rawValue: raw) {
+                s.recording.currentLanguageMode = lang
+            }
+            if let raw = ud.string(forKey: AppSettings.appearanceMode), let ap = AppearanceMode(rawValue: raw) {
+                s.recording.appearanceMode = ap
+            }
+            return s
+        }
     }
 
     enum Action {

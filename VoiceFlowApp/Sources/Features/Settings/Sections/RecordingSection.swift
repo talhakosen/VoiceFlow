@@ -13,11 +13,18 @@ struct RecordingSection: View {
 
     var body: some View {
         let state = store.state
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 0) {
 
-            Text("Kayıt")
-                .font(.system(size: 22, weight: .bold))
-                .padding(.bottom, 4)
+            // Banner
+            SectionBanner(
+                gradient: VFColor.bannerRecFull,
+                title: "Kayıt ve Mod Ayarları",
+                subtitle: "Genel, Mühendislik veya Ofis modunu seçin; her mod farklı optimize edilir.",
+                iconName: "mic"
+            )
+
+        VStack(alignment: .leading, spacing: 28) {
+            Spacer().frame(height: 4)
 
             // MARK: Dil
             SettingsCardSection(title: "Dil") {
@@ -131,6 +138,8 @@ struct RecordingSection: View {
             Spacer()
         }
         .padding(VFSpacing.xxxl)
+
+        } // end outer VStack
     }
 
     private func modeSubtitle(_ mode: AppMode) -> String {

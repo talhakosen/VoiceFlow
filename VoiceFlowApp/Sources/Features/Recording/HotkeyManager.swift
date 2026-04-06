@@ -1,75 +1,45 @@
 import AppKit
-import Carbon
 
+/// Thin NSEvent wrapper around HotkeyStateMachine.
+/// macOS fires spurious DOWN→UP→DOWN bursts while Fn is held.
+/// We debounce the UP: only mark key as released if no DOWN arrives within 250ms.
 class HotkeyManager {
-    private static let logFile: FileHandle? = {
-        let path = AppConstants.hotkeyLogPath
-        FileManager.default.createFile(atPath: path, contents: nil)
-        return FileHandle(forWritingAtPath: path)
-    }()
+    var onStartRecording: (() -> Void)? { didSet { sm.onStart = onStartRecording } }
+    var onStopRecording: (() -> Void)?  { didSet { sm.onStop  = onStopRecording  } }
+    var onSwitchMode: ((Int) -> Void)?
+
+    private var sm = HotkeyStateMachine()
+    private var monitors: [Any] = []
+    private var fnUpWork: DispatchWorkItem?
+    private var monitorStartedAt: Date = .distantPast
 
     private func log(_ msg: String) {
         let ts = ISO8601DateFormatter().string(from: Date())
-        let line = "\(ts) \(msg)\n"
-        Self.logFile?.seekToEndOfFile()
-        Self.logFile?.write(line.data(using: .utf8)!)
-    }
-    /// Called when recording should start
-    var onStartRecording: (() -> Void)?
-    /// Called when recording should stop
-    var onStopRecording: (() -> Void)?
-    /// Called when ⌥1/2/3 pressed — index 0=Genel, 1=Mühendislik, 2=Ofis
-    var onSwitchMode: ((Int) -> Void)?
-
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
-    private var keyMonitor: Any?
-
-    private var lastFnDownTime: Date?
-    private var isFnPressed = false
-    private var isRecordingActive = false
-    private var lastActionTime: Date?
-    private var recordingStartedAt: Date?
-    // Ignore the single Fn-UP that immediately follows the double-tap that started recording
-    private var ignoreNextFnUp = false
-
-    private let doubleTapThreshold: TimeInterval = AppConstants.doubleTapThreshold
-    private let cooldownAfterAction: TimeInterval = AppConstants.hotkeyCooldown
-
-    // Cmd-held intervals during recording: [(startOffset, endOffset)] in seconds since recordingStartTime
-    private var recordingStartTime: Date?
-    private var cmdPressTime: Date?
-    private(set) var cmdIntervals: [(Double, Double)] = []
-
-    /// Call when recording starts — resets cmd tracking
-    func recordingDidStart() {
-        recordingStartTime = Date()
-        cmdIntervals = []
-        cmdPressTime = nil
-    }
-
-    /// Call when recording stops — closes any open interval
-    func recordingDidStop() {
-        if let pressTime = cmdPressTime, let start = recordingStartTime {
-            let end = Date().timeIntervalSince(start)
-            let s = pressTime.timeIntervalSince(start)
-            cmdIntervals.append((s, end))
-            cmdPressTime = nil
+        let line = "\(ts) [HotkeyManager] \(msg)\n"
+        print(line, terminator: "")
+        if let data = line.data(using: .utf8) {
+            if let fh = FileHandle(forWritingAtPath: "/tmp/voiceflow-hotkey.log") {
+                fh.seekToEndOfFile(); fh.write(data); fh.closeFile()
+            } else {
+                // Log file doesn't exist yet, create it
+                try? data.write(to: URL(fileURLWithPath: "/tmp/voiceflow-hotkey.log"))
+            }
         }
     }
 
     func start() {
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
-            self?.handleFlagsChanged(event)
-        }
+        stop()  // clear any orphaned monitors from previous calls
+        monitorStartedAt = Date()
+        log("start() called — registering monitors")
 
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
-            self?.handleFlagsChanged(event)
+        let flags = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] in
+            self?.handle($0, source: "global")
+        }
+        let local = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
+            self?.handle(event, source: "local")
             return event
         }
-
-        // ⌥1/2/3 global mode switch — keyCode 18/19/20 = 1/2/3
-        keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+        let keys = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard event.modifierFlags.intersection([.option, .command, .control, .shift]) == .option else { return }
             switch event.keyCode {
             case 18: self?.onSwitchMode?(0)
@@ -79,135 +49,63 @@ class HotkeyManager {
             }
         }
 
-        log(" started - Double-tap Fn to toggle recording")
+        monitors = [flags, local, keys].compactMap { $0 }
+        log("monitors registered: \(monitors.count) (flags=\(flags != nil), local=\(local != nil), keys=\(keys != nil))")
+
+        if flags == nil {
+            log("⚠️ GLOBAL MONITOR IS NIL — Accessibility permission missing!")
+        }
     }
 
     func stop() {
-        if let monitor = globalMonitor {
-            NSEvent.removeMonitor(monitor)
-            globalMonitor = nil
-        }
-        if let monitor = localMonitor {
-            NSEvent.removeMonitor(monitor)
-            localMonitor = nil
-        }
-        if let monitor = keyMonitor {
-            NSEvent.removeMonitor(monitor)
-            keyMonitor = nil
-        }
-    }
-
-    private func handleFlagsChanged(_ event: NSEvent) {
-        let fnPressed = event.modifierFlags.contains(.function)
-        let cmdPressed = event.modifierFlags.contains(.command)
-        let rawFlags = event.modifierFlags.rawValue
-
-        log("flags fn=\(fnPressed ? "Y":"N") cmd=\(cmdPressed ? "Y":"N") wasFn=\(isFnPressed ? "Y":"N") raw=0x\(String(rawFlags, radix:16)) rec=\(isRecordingActive ? "Y":"N")")
-
-        // Track Cmd press/release during active recording for segment-aware injection
-        if isRecordingActive, let start = recordingStartTime {
-            let offset = Date().timeIntervalSince(start)
-            if cmdPressed && cmdPressTime == nil {
-                cmdPressTime = Date()
-                log("Cmd DOWN at offset \(String(format: "%.2f", offset))s")
-            } else if !cmdPressed, let pressTime = cmdPressTime {
-                let s = pressTime.timeIntervalSince(start)
-                cmdIntervals.append((s, offset))
-                cmdPressTime = nil
-                log("Cmd UP → interval (\(String(format: "%.2f", s))s, \(String(format: "%.2f", offset))s)")
-            }
-        }
-
-        if fnPressed && !isFnPressed {
-            handleFnDown()
-        } else if fnPressed && isFnPressed {
-            // Fn down again while we think it's already down = we missed the release (macOS swallowed it)
-            log(" Fn DOWN but isFnPressed=true → missed release, treating as new press")
-            isFnPressed = false
-            handleFnDown()
-        } else if !fnPressed && isFnPressed {
-            handleFnUp()
-        }
-
-        isFnPressed = fnPressed
-    }
-
-    private func handleFnDown() {
-        let now = Date()
-
-        // Cooldown after start/stop to prevent accidental re-trigger
-        if let lastAction = lastActionTime,
-           now.timeIntervalSince(lastAction) < cooldownAfterAction {
-            log(" Fn DOWN → IGNORED (cooldown)")
-            lastFnDownTime = nil
-            return
-        }
-
-        if let last = lastFnDownTime,
-           now.timeIntervalSince(last) < doubleTapThreshold {
-            // Double-tap detected
-            lastFnDownTime = nil
-            lastActionTime = now
-
-            if isRecordingActive {
-                // Already recording → stop
-                isRecordingActive = false
-                recordingStartedAt = nil
-                ignoreNextFnUp = false
-                log(" DOUBLE-TAP Fn → STOP recording")
-                onStopRecording?()
-            } else {
-                // Not recording → start; ignore the UP of this very press
-                isRecordingActive = true
-                recordingStartedAt = now
-                ignoreNextFnUp = true
-                log(" DOUBLE-TAP Fn → START recording")
-                onStartRecording?()
-            }
-        } else {
-            lastFnDownTime = now
-        }
-    }
-
-    private func handleFnUp() {
-        // If recording is active, stop on release — but ignore the UP of the double-tap that started recording
-        if isRecordingActive {
-            if ignoreNextFnUp {
-                ignoreNextFnUp = false
-                let elapsed = recordingStartedAt.map { Date().timeIntervalSince($0) } ?? 0
-                log(" Fn RELEASED → IGNORED (double-tap UP, \(String(format: "%.2f", elapsed))s)")
-                return
-            }
-            isRecordingActive = false
-            recordingStartedAt = nil
-            lastActionTime = Date()
-            lastFnDownTime = nil
-            log(" Fn RELEASED → STOP recording")
-            onStopRecording?()
-            return
-        }
-
-        // Not recording: ignore releases during cooldown or double-tap window
-        if let lastAction = lastActionTime,
-           Date().timeIntervalSince(lastAction) < cooldownAfterAction {
-            log(" Fn RELEASED → IGNORED (cooldown, not recording)")
-            return
-        }
+        log("stop() called — removing \(monitors.count) monitors")
+        fnUpWork?.cancel()
+        fnUpWork = nil
+        monitors.forEach { NSEvent.removeMonitor($0) }
+        monitors = []
     }
 
     func resetState() {
-        isRecordingActive = false
-        isFnPressed = false
-        lastFnDownTime = nil
-        lastActionTime = Date()   // cooldown korur — reset sonrası Fn anında tetiklenmez
-        recordingStartedAt = nil
-        ignoreNextFnUp = false
-        recordingStartTime = nil
-        cmdPressTime = nil
-        cmdIntervals = []
+        log("resetState() called")
+        sm.reset()
     }
 
-    deinit {
-        stop()
+    func syncRecordingState(_ tcaIsRecording: Bool) {
+        sm.sync(tcaIsRecording: tcaIsRecording)
     }
+
+    func setProcessing(_ processing: Bool) {
+        sm.setProcessing(processing)
+    }
+
+    private func handle(_ event: NSEvent, source: String) {
+        let fn = event.modifierFlags.contains(.function)
+        log("flagsChanged [\(source)] fn=\(fn) smRecording=\(sm.isRecording) raw=0x\(String(event.modifierFlags.rawValue, radix: 16))")
+
+        if fn {
+            // Ignore stale fn=true events delivered right after monitor re-registration
+            guard Date().timeIntervalSince(monitorStartedAt) > 0.3 else {
+                log("  → ignoring stale fn=true within 300ms of start()")
+                return
+            }
+            // Cancel any pending UP — key is still held
+            fnUpWork?.cancel()
+            fnUpWork = nil
+            // SM ignores if already recording — no isFnPressed guard needed
+            sm.fnDown()
+        } else {
+            // Debounce: macOS fires spurious UPs while Fn is held.
+            // Only call fnUp if no DOWN arrives within 250ms.
+            fnUpWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                self.log("  → debounce fired, calling sm.fnUp()")
+                self.sm.fnUp()
+            }
+            fnUpWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+        }
+    }
+
+    deinit { stop() }
 }

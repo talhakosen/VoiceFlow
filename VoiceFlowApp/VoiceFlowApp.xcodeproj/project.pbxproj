@@ -12,7 +12,9 @@
 		7B5D7FE561D342C8AE14BC52 /* RecordingOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCRE021000000004 /* RecordingOverlayWindow.swift */; };
 		22E8BCBAB30BC448AE8394B4 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52791314F78F9ECF007AF962 /* OnboardingView.swift */; };
 		26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B6377D077B683525B53452 /* BackendService.swift */; };
+		A1B2C3D4E5F60001BPMGR01 /* BackendProcessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60002BPMGR02 /* BackendProcessManager.swift */; };
 		7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */; };
+		B2D4E83C8F15A967E3201D4F /* HotkeyStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F3C92B7E04D856F2190C3E /* HotkeyStateMachine.swift */; };
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
 		A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450FCA0C0301B340112E74B /* HistoryView.swift */; };
 		F0A1B2C3D4E5F6A7B8C9D0E1 /* TrainingPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* TrainingPillView.swift */; };
@@ -38,6 +40,7 @@
 		CCFE011000000008 /* KnowledgeBaseSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000008 /* KnowledgeBaseSection.swift */; };
 		CCFE011000000009 /* AccountSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000009 /* AccountSection.swift */; };
 		CCFE011000000010 /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000010 /* AboutSection.swift */; };
+		CCFE011000000011 /* HomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000011 /* HomeSection.swift */; };
 		TCAPKG0000000003 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = TCAPKG0000000002 /* ComposableArchitecture */; };
 		CCDEPBF000001 /* SoundClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000001 /* SoundClient.swift */; };
 		CCDEPBF000002 /* DialogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDEP000000002 /* DialogClient.swift */; };
@@ -68,10 +71,12 @@
 		3A4B5C6D7E8F9A0B1C2D3E4F /* SafeHostingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeHostingView.swift; sourceTree = "<group>"; };
 		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		A1F3C92B7E04D856F2190C3E /* HotkeyStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyStateMachine.swift; sourceTree = "<group>"; };
 		5187915534C878EB6507FF9A /* VoiceFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFlowApp.swift; sourceTree = "<group>"; };
 		52791314F78F9ECF007AF962 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		72D480057CB89B7229506A72 /* PasteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteService.swift; sourceTree = "<group>"; };
 		85B6377D077B683525B53452 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60002BPMGR02 /* BackendProcessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendProcessManager.swift; sourceTree = "<group>"; };
 		8FFB7AD6817577CB09BEA299 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		AD594B581F9EF788F046DF39 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFDesignSystem.swift; sourceTree = "<group>"; };
@@ -87,6 +92,7 @@
 		CCFE001000000008 /* KnowledgeBaseSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeBaseSection.swift; sourceTree = "<group>"; };
 		CCFE001000000009 /* AccountSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSection.swift; sourceTree = "<group>"; };
 		CCFE001000000010 /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
+		CCFE001000000011 /* HomeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSection.swift; sourceTree = "<group>"; };
 		CCDEP000000001 /* SoundClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundClient.swift; sourceTree = "<group>"; };
 		CCDEP000000002 /* DialogClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogClient.swift; sourceTree = "<group>"; };
 		CCDEP000000003 /* PasteClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteClient.swift; sourceTree = "<group>"; };
@@ -160,6 +166,7 @@
 				BB22CC33DD44EE55FF6600AA /* SymbolPickerView.swift */,
 				CCRE021000000004 /* RecordingOverlayWindow.swift */,
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
+				A1F3C92B7E04D856F2190C3E /* HotkeyStateMachine.swift */,
 				72D480057CB89B7229506A72 /* PasteService.swift */,
 			);
 			path = Recording;
@@ -222,6 +229,7 @@
 				CCFE001000000008 /* KnowledgeBaseSection.swift */,
 				CCFE001000000009 /* AccountSection.swift */,
 				CCFE001000000010 /* AboutSection.swift */,
+				CCFE001000000011 /* HomeSection.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -243,6 +251,7 @@
 			children = (
 				BB2222BB2222BB2222BB2222 /* KeychainHelper.swift */,
 				85B6377D077B683525B53452 /* BackendService.swift */,
+				A1B2C3D4E5F60002BPMGR02 /* BackendProcessManager.swift */,
 				AD594B581F9EF788F046DF39 /* Models.swift */,
 				CCCO020000000001 /* AppConstants.swift */,
 				CCCO020000000002 /* APIConstants.swift */,
@@ -361,9 +370,11 @@
 				AA1111AA1111AA1111AA1111 /* KeychainHelper.swift in Sources */,
 				CC3333CC3333CC3333CC3333 /* LoginView.swift in Sources */,
 				26CB296776B1098E9CF686B7 /* BackendService.swift in Sources */,
+				A1B2C3D4E5F60001BPMGR01 /* BackendProcessManager.swift in Sources */,
 				7B5D7FE561D342C8AE14BC52 /* RecordingOverlayWindow.swift in Sources */,
 				A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */,
 				7859C266C62D0F85B128C96D /* HotkeyManager.swift in Sources */,
+				B2D4E83C8F15A967E3201D4F /* HotkeyStateMachine.swift in Sources */,
 				D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */,
 				E6ECEC3EF90916A382FA1B09 /* Models.swift in Sources */,
 				CCCO030000000001 /* AppConstants.swift in Sources */,
@@ -386,6 +397,7 @@
 				CCFE011000000008 /* KnowledgeBaseSection.swift in Sources */,
 				CCFE011000000009 /* AccountSection.swift in Sources */,
 				CCFE011000000010 /* AboutSection.swift in Sources */,
+				CCFE011000000011 /* HomeSection.swift in Sources */,
 				CCDEPBF000001 /* SoundClient.swift in Sources */,
 				CCDEPBF000002 /* DialogClient.swift in Sources */,
 				CCDEPBF000003 /* PasteClient.swift in Sources */,

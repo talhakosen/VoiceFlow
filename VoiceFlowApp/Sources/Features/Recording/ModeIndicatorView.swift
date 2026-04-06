@@ -96,6 +96,19 @@ final class ModeIndicatorWindowController: NSObject {
 
             p.orderFront(nil)
             self.panel = p
+
+            // Re-position after SwiftUI layout resolves actual content size
+            DispatchQueue.main.async {
+                let size = hosting.fittingSize
+                p.setContentSize(size)
+                if let screen = NSScreen.main {
+                    let sw = screen.visibleFrame
+                    p.setFrameOrigin(NSPoint(
+                        x: sw.maxX - size.width - 20,
+                        y: sw.maxY - size.height - 20
+                    ))
+                }
+            }
         }
     }
 }

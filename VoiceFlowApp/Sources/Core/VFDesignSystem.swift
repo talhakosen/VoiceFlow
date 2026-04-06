@@ -48,6 +48,28 @@ enum VFColor {
     // MARK: History badges
     static let badgeLLM: Color = .green
     static let badgeRaw: Color = .orange
+
+    // MARK: Section banners (full-width gradient heroes)
+    static let bannerHomeFull = LinearGradient(
+        colors: [Color(red: 0.27, green: 0.33, blue: 0.93), Color(red: 0.55, green: 0.28, blue: 0.90)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let bannerDictFull = LinearGradient(
+        colors: [Color(red: 0.09, green: 0.63, blue: 0.62), Color(red: 0.13, green: 0.76, blue: 0.55)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let bannerSnipFull = LinearGradient(
+        colors: [Color(red: 0.18, green: 0.16, blue: 0.35), Color(red: 0.28, green: 0.18, blue: 0.50)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let bannerKBFull = LinearGradient(
+        colors: [Color(red: 0.11, green: 0.46, blue: 0.82), Color(red: 0.09, green: 0.63, blue: 0.62)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let bannerRecFull = LinearGradient(
+        colors: [Color(red: 0.92, green: 0.46, blue: 0.12), Color(red: 0.97, green: 0.72, blue: 0.06)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
 }
 
 // MARK: - VFFont
@@ -187,8 +209,11 @@ enum VFIcon {
 
 enum VFLayout {
 
+    static let sectionBannerHeight: CGFloat = 110
+
     enum WindowSize {
-        static let settings:   CGSize = CGSize(width: 900, height: 620)
+        static let settings:       CGSize = CGSize(width: 1100, height: 720)
+        static let settingsDialog: CGSize = CGSize(width: 750, height: 550)
         static let history:    CGSize = CGSize(width: 420, height: 480)
         static let context:    CGSize = CGSize(width: 460, height: 300)
         static let login:      CGSize = CGSize(width: 380, height: 320)

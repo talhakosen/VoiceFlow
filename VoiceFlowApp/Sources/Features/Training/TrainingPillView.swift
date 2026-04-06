@@ -37,14 +37,9 @@ struct TrainingPillView: View {
                     .rotationEffect(.degrees(-90))
                     .animation(VFAnimation.countdown, value: countdown)
 
-                VStack(spacing: VFSpacing.xxs) {
-                    Image(systemName: VFIcon.edit)
-                        .font(VFFont.trainingIcon)
-                        .foregroundStyle(.white)
-                    Text("\(countdown)")
-                        .font(VFFont.countdown)
-                        .foregroundStyle(.white.opacity(0.8))
-                }
+                Image(systemName: VFIcon.edit)
+                    .font(VFFont.trainingIcon)
+                    .foregroundStyle(.white)
             }
             .frame(width: VFLayout.trainingPillSize, height: VFLayout.trainingPillSize)
             .contentShape(Circle())

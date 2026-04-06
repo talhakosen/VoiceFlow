@@ -20,16 +20,58 @@ extension View {
     }
 }
 
-// MARK: - Settings Section
+// MARK: - Main Content Section (Ana pencere nav — Home + feature sections)
+
+enum MainContentSection: String, Identifiable {
+    case home        = "Ana Ekran"
+    case dictionary  = "Sözlük"
+    case snippets    = "Şablonlar"
+    case knowledge   = "Bilgi Tabanı"
+    case recording   = "Kayıt"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .home:       return "house"
+        case .dictionary: return VFIcon.dictionary
+        case .snippets:   return VFIcon.snippets
+        case .knowledge:  return VFIcon.knowledgeBase
+        case .recording:  return VFIcon.recording
+        }
+    }
+
+    static let allCases: [MainContentSection] = [.home, .dictionary, .snippets, .knowledge, .recording]
+}
+
+// MARK: - Settings Dialog Section (Ayrı dialog nav)
+
+enum SettingsDialogSection: String, Identifiable {
+    case general = "Genel"
+    case account = "Hesap"
+    case about   = "Hakkında"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .general: return "square.grid.2x2"
+        case .account: return VFIcon.account
+        case .about:   return VFIcon.about
+        }
+    }
+
+    static let allCases: [SettingsDialogSection] = [.general, .account, .about]
+}
+
+// MARK: - SettingsSection (backward compat — eski kod için)
 
 enum SettingsSection: String, Identifiable {
-    // Main nav
     case general       = "Genel"
     case dictionary    = "Sözlük"
     case snippets      = "Şablonlar"
     case knowledgeBase = "Bilgi Tabanı"
     case recording     = "Kayıt"
-    // Bottom utility
     case account       = "Hesap"
     case about         = "Hakkında"
 
@@ -47,24 +89,66 @@ enum SettingsSection: String, Identifiable {
         }
     }
 
-    static let mainNav: [SettingsSection]    = [.general, .dictionary, .snippets, .knowledgeBase, .recording]
-    static let bottomNav: [SettingsSection]  = [.account, .about]
+    static let mainNav: [SettingsSection]   = [.general, .dictionary, .snippets, .knowledgeBase, .recording]
+    static let bottomNav: [SettingsSection] = [.account, .about]
 }
 
-// MARK: - SettingsView
+// MARK: - SectionBanner
 
-struct SettingsView: View {
+struct SectionBanner: View {
+    let gradient: LinearGradient
+    let title: String
+    let subtitle: String
+    var iconName: String? = nil
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            gradient
+
+            // Subtle noise/texture overlay
+            Color.white.opacity(0.04)
+
+            VStack(alignment: .leading, spacing: 4) {
+                if let icon = iconName {
+                    Image(systemName: icon)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.85))
+                        .padding(.bottom, 2)
+                }
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 22)
+            .padding(.vertical, 18)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: VFLayout.sectionBannerHeight)
+        .clipShape(RoundedRectangle(cornerRadius: VFRadius.lg))
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+    }
+}
+
+// MARK: - MainContentView (Ana pencere — Home + Feature sections)
+
+struct MainContentView: View {
     let store: StoreOf<AppFeature>
+    var onOpenSettings: (() -> Void)? = nil
 
-    @State private var selectedSection: SettingsSection = .general
+    @State private var selectedSection: MainContentSection = .home
     @State private var sidebarCollapsed = false
+    @AppStorage(AppSettings.userName) private var userName = ""
 
     var body: some View {
         VStack(spacing: 0) {
 
-            // ── Titlebar row (traffic lights alanı + toolbar butonları) ──
+            // ── Titlebar row ──────────────────────────────────────────────
             HStack(spacing: 0) {
-                // Traffic lights alanı (~72pt) + sidebar toggle
                 Spacer().frame(width: 76)
                 Button {
                     withAnimation(VFAnimation.standard) { sidebarCollapsed.toggle() }
@@ -78,20 +162,20 @@ struct SettingsView: View {
 
                 Spacer()
 
-                // Profil ikonu — büyütüldü
-                Button { selectedSection = .account } label: {
-                    Image(systemName: "person.circle.fill")
-                        .font(.system(size: 22))
-                        .foregroundStyle(.secondary)
+                // Profile avatar butonu (sağ üst)
+                Button {
+                    onOpenSettings?()
+                } label: {
+                    ProfileAvatarView(name: userName)
                 }
                 .buttonStyle(.plain)
-                .help("Hesap")
-                .padding(.trailing, 18)
+                .help("Profil & Ayarlar")
+                .padding(.trailing, 16)
             }
             .frame(height: 44)
             .background(Color(nsColor: .windowBackgroundColor))
 
-            // ── Ana alan ──────────────────────────────────────────
+            // ── Ana alan ─────────────────────────────────────────────────
             HStack(spacing: 0) {
 
                 // Sidebar
@@ -113,12 +197,15 @@ struct SettingsView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 16)
 
-                    // Ana nav
+                    // Nav items
                     VStack(spacing: 2) {
-                        ForEach(SettingsSection.mainNav) { section in
-                            SidebarNavItem(section: section,
-                                           isSelected: selectedSection == section,
-                                           collapsed: sidebarCollapsed) {
+                        ForEach(MainContentSection.allCases) { section in
+                            MainSidebarItem(
+                                label: section.rawValue,
+                                icon: section.icon,
+                                isSelected: selectedSection == section,
+                                collapsed: sidebarCollapsed
+                            ) {
                                 selectedSection = section
                             }
                         }
@@ -129,15 +216,14 @@ struct SettingsView: View {
 
                     Divider().padding(.horizontal, 12).padding(.bottom, 6)
 
-                    // Alt utility nav
-                    VStack(spacing: 2) {
-                        ForEach(SettingsSection.bottomNav) { section in
-                            SidebarNavItem(section: section,
-                                           isSelected: selectedSection == section,
-                                           collapsed: sidebarCollapsed) {
-                                selectedSection = section
-                            }
-                        }
+                    // Settings butonu sol altta
+                    MainSidebarItem(
+                        label: "Ayarlar",
+                        icon: "gearshape",
+                        isSelected: false,
+                        collapsed: sidebarCollapsed
+                    ) {
+                        onOpenSettings?()
                     }
                     .padding(.horizontal, 10)
                     .padding(.bottom, 14)
@@ -150,23 +236,16 @@ struct SettingsView: View {
                 ScrollView {
                     Group {
                         switch selectedSection {
-                        case .general:
-                            GeneralSection(store: store.scope(state: \.recording, action: \.recording))
-                        case .recording:
-                            RecordingSection(store: store.scope(state: \.recording, action: \.recording))
+                        case .home:
+                            HomeSection(store: store)
                         case .dictionary:
                             DictionarySection(store: store.scope(state: \.settings, action: \.settings))
                         case .snippets:
                             SnippetsSection(store: store.scope(state: \.settings, action: \.settings))
-                        case .knowledgeBase:
+                        case .knowledge:
                             KnowledgeBaseSection(store: store.scope(state: \.settings, action: \.settings))
-                        case .account:
-                            AccountSection(
-                                settingsStore: store.scope(state: \.settings, action: \.settings),
-                                authStore: store.scope(state: \.auth, action: \.auth)
-                            )
-                        case .about:
-                            AboutSection(store: store.scope(state: \.recording, action: \.recording))
+                        case .recording:
+                            RecordingSection(store: store.scope(state: \.recording, action: \.recording))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -186,10 +265,78 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - SidebarNavItem
+// MARK: - SettingsView (backward compat alias — MenuBarController eski çağrılar için)
 
-struct SidebarNavItem: View {
-    let section: SettingsSection
+typealias SettingsView = MainContentView
+
+// MARK: - SettingsDialogView (Ayrı dialog penceresi — Genel, Hesap, Hakkında)
+
+struct SettingsDialogView: View {
+    let store: StoreOf<AppFeature>
+
+    @State private var selectedSection: SettingsDialogSection = .general
+
+    var body: some View {
+        HStack(spacing: 0) {
+
+            // Sidebar
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Ayarlar")
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 20)
+                    .padding(.bottom, 12)
+
+                VStack(spacing: 2) {
+                    ForEach(SettingsDialogSection.allCases) { section in
+                        DialogSidebarItem(
+                            label: section.rawValue,
+                            icon: section.icon,
+                            isSelected: selectedSection == section
+                        ) {
+                            selectedSection = section
+                        }
+                    }
+                }
+                .padding(.horizontal, 8)
+
+                Spacer()
+            }
+            .frame(width: 190)
+            .background(Color(nsColor: .windowBackgroundColor))
+
+            Divider()
+
+            // Content
+            ScrollView {
+                Group {
+                    switch selectedSection {
+                    case .general:
+                        GeneralSection(store: store.scope(state: \.recording, action: \.recording))
+                    case .account:
+                        AccountSection(
+                            settingsStore: store.scope(state: \.settings, action: \.settings),
+                            authStore: store.scope(state: \.auth, action: \.auth)
+                        )
+                    case .about:
+                        AboutSection(store: store.scope(state: \.recording, action: \.recording))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            }
+            .background(Color(nsColor: .controlBackgroundColor))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(width: 750, height: 550)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+}
+
+// MARK: - MainSidebarItem (MainContentView için)
+
+struct MainSidebarItem: View {
+    let label: String
+    let icon: String
     let isSelected: Bool
     let collapsed: Bool
     let onTap: () -> Void
@@ -199,13 +346,13 @@ struct SidebarNavItem: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
-                Image(systemName: section.icon)
+                Image(systemName: icon)
                     .font(.system(size: 17, weight: .regular))
                     .frame(width: 22, height: 22)
                     .foregroundStyle(isSelected ? Color.primary : Color.secondary)
 
                 if !collapsed {
-                    Text(section.rawValue)
+                    Text(label)
                         .font(.system(size: 15, weight: isSelected ? .medium : .regular))
                         .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                         .transition(.opacity.combined(with: .move(edge: .leading)))
@@ -223,7 +370,62 @@ struct SidebarNavItem: View {
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
-        .help(collapsed ? section.rawValue : "")
+        .help(collapsed ? label : "")
+    }
+}
+
+// MARK: - DialogSidebarItem (SettingsDialogView için)
+
+struct DialogSidebarItem: View {
+    let label: String
+    let icon: String
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .regular))
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                Text(label)
+                    .font(.system(size: 13, weight: isSelected ? .medium : .regular))
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                Spacer()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(isSelected
+                          ? Color.primary.opacity(0.08)
+                          : isHovered ? Color.primary.opacity(0.04) : Color.clear)
+            )
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
+}
+
+// MARK: - SidebarNavItem (backward compat — eski kodlar için)
+
+struct SidebarNavItem: View {
+    let section: SettingsSection
+    let isSelected: Bool
+    let collapsed: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        MainSidebarItem(
+            label: section.rawValue,
+            icon: section.icon,
+            isSelected: isSelected,
+            collapsed: collapsed,
+            onTap: onTap
+        )
     }
 }
 
@@ -286,6 +488,17 @@ struct VFInfoRow: View {
     let color: Color
     var body: some View {
         InfoNote(icon: icon, text: text, color: color)
+    }
+}
+
+/// Sağ üst köşe — profile ikonu.
+struct ProfileAvatarView: View {
+    let name: String
+
+    var body: some View {
+        Image(systemName: "person.circle")
+            .font(.system(size: 20))
+            .foregroundStyle(.secondary)
     }
 }
 

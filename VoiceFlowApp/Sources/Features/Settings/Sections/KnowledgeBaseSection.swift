@@ -10,11 +10,18 @@ struct KnowledgeBaseSection: View {
 
     var body: some View {
         let state = store.state
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 0) {
 
-            Text("Bilgi Tabanı")
-                .font(.system(size: 22, weight: .bold))
-                .padding(.bottom, 4)
+            // Banner
+            SectionBanner(
+                gradient: VFColor.bannerKBFull,
+                title: "Kod tabanınızı tanısın",
+                subtitle: "Klasör ekleyin; class/method isimleri otomatik sözlüğe eklenir.",
+                iconName: "books.vertical"
+            )
+
+        VStack(alignment: .leading, spacing: 28) {
+            Spacer().frame(height: 4)
 
             // İndekslenen projeler
             SettingsCardSection(title: "İndekslenen Projeler") {
@@ -98,6 +105,8 @@ struct KnowledgeBaseSection: View {
             Spacer()
         }
         .padding(VFSpacing.xxxl)
+
+        } // end outer VStack
         .onAppear { store.send(.loadContextStatus) }
     }
 

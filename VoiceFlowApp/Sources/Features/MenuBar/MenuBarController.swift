@@ -11,6 +11,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private let store: StoreOf<AppFeature>
     private var settingsWindow: NSWindow?
+    private var settingsDialogWindow: NSWindow?
     private var itDatasetWindowController = ITDatasetWindowController()
     private var lastKnownRole: String = ""
     private var updateTimer: Timer?
@@ -28,7 +29,12 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
-        button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "VoiceFlow")
+        if let img = NSImage(named: "MenuBarIcon") {
+            img.isTemplate = true
+            button.image = img
+        } else {
+            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "VoiceFlow")
+        }
         button.action = #selector(statusBarButtonClicked)
         button.target = self
         rebuildMenu()
@@ -97,9 +103,18 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
         // Status bar icon
         let button = statusItem?.button
-        button?.image = NSImage(systemSymbolName: recording ? "waveform.circle.fill" : "waveform",
-                                accessibilityDescription: "VoiceFlow")
-        button?.contentTintColor = recording ? .systemRed : nil
+        if recording {
+            button?.image = NSImage(systemSymbolName: "waveform.circle.fill", accessibilityDescription: "VoiceFlow")
+            button?.contentTintColor = .systemRed
+        } else {
+            if let img = NSImage(named: "MenuBarIcon") {
+                img.isTemplate = true
+                button?.image = img
+            } else {
+                button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "VoiceFlow")
+            }
+            button?.contentTintColor = nil
+        }
     }
 
     // MARK: - Menu construction
@@ -245,7 +260,18 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func openSettings() {
         if let w = settingsWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
-        let window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
+
+        // Ekran boyutunun %85'i — Wispr Flow gibi geniş açılır
+        let screen = NSScreen.screens.first(where: {
+            NSMouseInRect(NSEvent.mouseLocation, $0.frame, false)
+        }) ?? NSScreen.main ?? NSScreen.screens[0]
+        let sf = screen.visibleFrame
+        let winW = (sf.width  * 0.92).rounded()
+        let winH = (sf.height * 0.92).rounded()
+        let ox   = (sf.minX + (sf.width  - winW) / 2).rounded()
+        let oy   = (sf.minY + (sf.height - winH) / 2).rounded()
+
+        let window = NSPanel(contentRect: NSRect(x: ox, y: oy, width: winW, height: winH),
                              styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                              backing: .buffered, defer: false)
         window.title = ""
@@ -255,8 +281,39 @@ class MenuBarController: NSObject, NSMenuDelegate {
         window.titlebarAppearsTransparent = true
         window.toolbarStyle = .unified
         window.backgroundColor = NSColor.windowBackgroundColor
-        window.minSize = NSSize(width: 700, height: 500)
-        let hosting = NSHostingController(rootView: SettingsView(store: store))
+        window.minSize = NSSize(width: 960, height: 640)
+
+        let rootView = MainContentView(store: store, onOpenSettings: { [weak self] in
+            self?.openSettingsDialog()
+        })
+        let hosting = NSHostingController(rootView: rootView)
+        hosting.view.frame = NSRect(x: 0, y: 0, width: winW, height: winH)
+        window.contentView = hosting.view
+
+        // setFrame zorla — SwiftUI intrinsic size'ın ezilmesini önler
+        window.setFrame(NSRect(x: ox, y: oy, width: winW, height: winH), display: false)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow = window
+    }
+
+    @objc func openSettingsDialog() {
+        if let w = settingsDialogWindow, w.isVisible { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let size = VFLayout.WindowSize.settingsDialog
+        let window = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: size.width, height: size.height),
+            styleMask: [.titled, .closable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Ayarlar"
+        window.isFloatingPanel = false
+        window.level = .normal
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.backgroundColor = NSColor.windowBackgroundColor
+        window.isMovableByWindowBackground = true
+        let hosting = NSHostingController(rootView: SettingsDialogView(store: store))
         window.contentView = hosting.view
         window.makeKeyAndOrderFront(nil)
         DispatchQueue.main.async {
@@ -264,14 +321,12 @@ class MenuBarController: NSObject, NSMenuDelegate {
                 NSMouseInRect(NSEvent.mouseLocation, $0.frame, false)
             }) ?? NSScreen.main ?? NSScreen.screens[0]
             let sf = targetScreen.visibleFrame
-            let ww = window.frame.width
-            let wh = window.frame.height
-            let ox = sf.minX + (sf.width - ww) / 2
-            let oy = sf.minY + (sf.height - wh) / 2
+            let ox = sf.minX + (sf.width - size.width) / 2
+            let oy = sf.minY + (sf.height - size.height) / 2
             window.setFrameOrigin(NSPoint(x: ox, y: oy))
         }
         NSApp.activate(ignoringOtherApps: true)
-        settingsWindow = window
+        settingsDialogWindow = window
     }
 
     @objc private func openITDataset() {

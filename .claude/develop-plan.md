@@ -4,7 +4,7 @@
 
 ## Şu An Çalışan (v0.3.0 — Production Polish Sprint)
 
-- Fn double-tap hotkey ile ses kaydı
+- Fn push-to-talk hotkey (bas-tut=kayıt, bırak=durdur) + isProcessing guard
 - mlx-whisper ile Türkçe/İngilizce transkripsiyon
 - Qwen 7B ile isteğe bağlı Türkçe düzeltme (3 mod: general/engineering/office)
 - Auto-paste (Cmd+V)
@@ -51,6 +51,12 @@
 - [DONE 2026-04-05] **Settings feature klasörü** — Sources/Features/Settings/ altında SettingsView, SettingsViewModel, ContextView + Sections/ (7 ayrı dosya) feature mimarisine taşındı
 - [DONE 2026-04-05] **Training mode clipboard fix** — State/UserDefaults desync düzeltildi; Store artık UserDefaults'tan initialize edilir; RecordingFeature her zaman hemen paste eder; TrainingPill notification olarak çalışır (paste'i engellemez); countdown dolunca sadece pill kapanır
 - [DONE 2026-04-05] **Settings UI — Wispr Flow stili** — Sidebar: mainNav/bottomNav ayrımı, profil ikonu 22pt; tüm 6 section: 22pt sayfa başlığı + SettingsCardSection (caps label + bordered card) + SettingsRow (title+subtitle+trailing); Binding stale-state bug fix (store.state.xxx); trafik ışıkları üçü de aktif (.miniaturizable+.resizable); pencere resize edilebilir (min 700×500)
+- [DONE 2026-04-06] **Wispr Flow kalite UI yeniden tasarım** — MainContentView (ana pencere) + SettingsDialogView (ayrı dialog); SectionBanner gradient hero her section'da; profil ikonu `person.circle` sağ üst; pencere %92 ekran boyutu dinamik, min 960×640; HotkeyStateMachine refaktörü (pure Swift struct, AppKit-free)
+- [DONE 2026-04-06] **AppDelegate refactor** — BackendProcessManager extract (250 satır, 11 metod); AppDelegate 542→215 satır; AppFeature.State.fromUserDefaults() factory; findBackendPath() fallback (/Applications desteği)
+- [DONE 2026-04-06] **Fn push-to-talk fix** — isProcessing guard (processing sırasında fnDown engeli); monitor refresh processing bittikten sonra; HotkeyStateMachineTests genişletildi
+- [DONE 2026-04-06] **Silence/short-audio guard** — duration<0.5s || rms<0.005 → Whisper çağrılmaz; hallüsinasyon önlenir
+- [DONE 2026-04-06] **HomeSection** — Ana ekran: son transkripsiyonlar + istatistikler; .task(id: whisperModelName) otomatik yenileme
+- [DONE 2026-04-06] **App ikonu** — Wispr Flow kalitesinde koyu charcoal arkaplan + 5 beyaz bar; tüm macOS boyutları (16→1024px) + .icns üretildi
 - [DONE 2026-04-05] **Swift hardcode audit** — Tüm magic string/sayı `AppConstants`/`APIConstants`/`Models.swift` enum'larına taşındı: URL/port sabitleri (AppConstants.defaultLocalURL/Port), API endpoint path'leri (APIEndpoint.*), HTTP header isimleri (APIHeader.*), timeout/limit/ses/log path sabitleri; LLMMode+DeploymentMode enum'ları string karşılaştırmaları yerine; AppConstants+APIConstants Xcode projesine eklendi
 
 - [DONE 2026-03-30] **Settings penceresi — 2-panel yeniden tasarım** (Wispr Flow mimarisi):
@@ -353,6 +359,9 @@
 - [DONE 2026-04-04] **Qwen v3 RunPod training** — H100, 800 step, eval_loss=0.513; adapters/v3.0 MLX
 - [DONE 2026-04-04] **Qwen v4 persona dataset + Mac local training** — 6 Türk dev persona × 8 senaryo, phonetic_corruptions engine (160+ terim), 3096 pair; Mac M4 mlx_lm.lora 1000 iter 48dk; val_loss=0.428 (%17↑); adapters/v4.0 aktif
 - [DONE 2026-04-04] **Qwen RunPod setup dökümante edildi** — unsloth KULLANMA kuralı, H100 pod config, tüm bilinen sorunlar runpod/README.md'e eklendi
+- [DONE 2026-04-06] **Corrector refactor** — `LLMCorrector`/`OllamaCorrector` rename + `BaseCorrectorConfig` ortak base; `correction/prompts.py` unified prompt modülü; `ollama_corrector` review fix'leri
+- [DONE 2026-04-06] **`pre_process()` deterministic pipeline** — LLM öncesi kural tabanlı düzeltme adımı (Türkçe karakter, büyük harf, noktalama); filler temizleme `pre_process()`'ten çıkarıldı → `filler_cleaner`'a delege edildi
+- [DONE 2026-04-06] **`smart_dictionary` + `tech_lexicon` taşındı** — `services/` → `indexing/` altında yeniden organize edildi
 - [ ] **A/B test** — fine-tuned vs prompt-only, 200 örnek karşılaştırma
 - [ ] **Evaluation WAV test seti** — 100 cümle, gerçek konuşma, farklı hız/ton; Whisper ham + beklenen çiftleri
 - [ ] **Fuse + GGUF export** — production deploy (MLX) + Ollama server (NVIDIA)
