@@ -14,10 +14,9 @@ from pydantic import BaseModel
 from .auth import verify_api_key
 from ..core.rate_limit import limiter, RATE_LIMIT_STOP
 from ..db import (
-    get_history, clear_history,
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,
     get_snippets, add_snippet, delete_snippet,
-    append_audit_log, save_feedback,
+    save_feedback,
 )
 
 from ..core.config import BACKEND_MODE as _BACKEND_MODE
@@ -184,29 +183,29 @@ async def history(
     offset: int = 0,
     user_id: str | None = None,
 ):
+    from ..services.history_service import fetch_history
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     role = getattr(request.state, "role", "member")
     caller_user_id = getattr(request.state, "user_id", None)
-
-    # Tenant isolation: only admin/superadmin can query other users' history
-    if user_id is not None and user_id != caller_user_id:
-        if role not in ("admin", "superadmin"):
-            raise HTTPException(status_code=403, detail="Cannot access other users' history")
-
-    # Non-admin without explicit user_id: scope to self
-    if user_id is None and role not in ("admin", "superadmin") and caller_user_id:
-        user_id = caller_user_id
-
-    rows = await get_history(limit=limit, offset=offset, user_id=user_id, tenant_id=tenant_id)
-    return {"items": rows, "count": len(rows)}
+    try:
+        return await fetch_history(
+            limit=limit,
+            offset=offset,
+            requested_user_id=user_id,
+            caller_user_id=caller_user_id,
+            role=role,
+            tenant_id=tenant_id,
+        )
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
 
 
 @router.delete("/history")
 async def delete_history(request: Request):
+    from ..services.history_service import wipe_history
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     user_id = getattr(request.state, "user_id", "") or ""
-    await clear_history()
-    await append_audit_log(tenant_id=tenant_id, action="history_cleared", user_id=user_id)
+    await wipe_history(tenant_id=tenant_id, user_id=user_id)
     return {"status": "cleared"}
 
 
