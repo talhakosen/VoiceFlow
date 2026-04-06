@@ -1,13 +1,15 @@
 """Audio capture module using sounddevice."""
 
+import logging
 import queue
 import threading
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable
 
 import numpy as np
 import sounddevice as sd
+
+logger = logging.getLogger(__name__)
 
 
 class RecordingState(Enum):
@@ -33,7 +35,7 @@ class AudioCapture:
     config: AudioConfig = field(default_factory=AudioConfig)
     _state: RecordingState = field(default=RecordingState.IDLE, init=False)
     _audio_queue: queue.Queue = field(default_factory=queue.Queue, init=False)
-    _recorded_chunks: list = field(default_factory=list, init=False)
+    _recorded_chunks: list[np.ndarray] = field(default_factory=list, init=False)
     _stream: sd.InputStream | None = field(default=None, init=False)
     _lock: threading.Lock = field(default_factory=threading.Lock, init=False)
 
@@ -48,13 +50,13 @@ class AudioCapture:
     def _audio_callback(
         self,
         indata: np.ndarray,
-        frames: int,
-        time_info: dict,
-        status: sd.CallbackFlags
+        frames: int,  # noqa: ARG002
+        time_info: dict,  # noqa: ARG002
+        status: sd.CallbackFlags,
     ) -> None:
-        """Callback for audio stream."""
+        """Callback for audio stream — runs in sounddevice thread."""
         if status:
-            print(f"Audio callback status: {status}")
+            logger.warning("Audio callback status: %s", status)
         if self._state == RecordingState.RECORDING:
             self._audio_queue.put(indata.copy())
 
@@ -66,7 +68,7 @@ class AudioCapture:
 
             self._recorded_chunks = []
             while not self._audio_queue.empty():
-                self._audio_queue.get()
+                self._audio_queue.get_nowait()
 
             self._stream = sd.InputStream(
                 samplerate=self.config.sample_rate,
@@ -77,9 +79,10 @@ class AudioCapture:
             )
             self._stream.start()
             self._state = RecordingState.RECORDING
+            logger.debug("Audio capture started")
 
     def stop(self) -> np.ndarray:
-        """Stop recording and return audio data."""
+        """Stop recording and return audio data as float32 mono array."""
         with self._lock:
             if self._state != RecordingState.RECORDING:
                 return np.array([], dtype=np.float32)
@@ -93,31 +96,28 @@ class AudioCapture:
 
             self._state = RecordingState.STOPPED
 
-            # Collect all queued audio with timeout to prevent blocking
+            # Drain queue non-blocking — no busy-wait needed after stream.stop()
             while True:
                 try:
-                    chunk = self._audio_queue.get(timeout=0.1)
-                    self._recorded_chunks.append(chunk)
+                    self._recorded_chunks.append(self._audio_queue.get_nowait())
                 except queue.Empty:
                     break
 
             if not self._recorded_chunks:
+                self._state = RecordingState.IDLE
                 return np.array([], dtype=np.float32)
 
-            # Concatenate all chunks
             audio_data = np.concatenate(self._recorded_chunks, axis=0)
-            # Flatten to 1D if needed
             if audio_data.ndim > 1:
                 audio_data = audio_data.flatten()
 
-            # Clear chunks to prevent memory leak
             self._recorded_chunks = []
-
             self._state = RecordingState.IDLE
+            logger.debug("Audio capture stopped: %.2fs", len(audio_data) / self.config.sample_rate)
             return audio_data
 
     def force_reset(self) -> None:
-        """Force-reset state and close stream without requiring RECORDING state."""
+        """Force-reset state and close stream (safe to call from any state)."""
         with self._lock:
             if self._stream is not None:
                 try:
@@ -126,24 +126,30 @@ class AudioCapture:
                 except Exception:
                     pass
                 self._stream = None
+            self._recorded_chunks = []
             self._state = RecordingState.IDLE
+            logger.debug("Audio capture force-reset")
 
     def get_devices(self) -> list[dict]:
-        """Get list of available input devices."""
+        """Return available audio input devices."""
         devices = sd.query_devices()
-        input_devices = []
-        for i, device in enumerate(devices):
-            if device["max_input_channels"] > 0:
-                input_devices.append({
-                    "id": i,
-                    "name": device["name"],
-                    "channels": device["max_input_channels"],
-                    "sample_rate": device["default_samplerate"],
-                })
-        return input_devices
+        return [
+            {
+                "id": i,
+                "name": device["name"],
+                "channels": device["max_input_channels"],
+                "sample_rate": device["default_samplerate"],
+            }
+            for i, device in enumerate(devices)
+            if device["max_input_channels"] > 0
+        ]
 
-    def __del__(self):
-        """Cleanup on deletion."""
-        if self._stream:
-            self._stream.stop()
-            self._stream.close()
+    def __del__(self) -> None:
+        """Best-effort cleanup on GC — swallow all errors."""
+        try:
+            stream = getattr(self, "_stream", None)
+            if stream is not None:
+                stream.stop()
+                stream.close()
+        except Exception:
+            pass

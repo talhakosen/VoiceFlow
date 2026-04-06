@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import logging.handlers
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -20,8 +19,8 @@ from .core.config import (
     WHISPER_MODEL as _WHISPER_MODEL,
     WHISPER_IT_MODEL as _WHISPER_IT_MODEL,
     CORS_ORIGINS,
-    LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT,
 )
+from .core.logging import setup_logging
 from .core.rate_limit import limiter
 from .db import init_db
 
@@ -140,31 +139,9 @@ async def health(request: Request):
     }
 
 
-def _setup_logging() -> None:
-    """Configure root logger with rotating file handler + stderr stream."""
-    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
-
-    # Rotating file: 10 MB × 5 backups (configurable via config.yaml/env)
-    file_handler = logging.handlers.RotatingFileHandler(
-        LOG_FILE,
-        maxBytes=LOG_MAX_BYTES,
-        backupCount=LOG_BACKUP_COUNT,
-        encoding="utf-8",
-    )
-    file_handler.setFormatter(fmt)
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(fmt)
-
-    root = logging.getLogger()
-    root.setLevel(logging.INFO)
-    root.addHandler(file_handler)
-    root.addHandler(stream_handler)
-
-
 def main():
     import uvicorn
-    _setup_logging()
+    setup_logging()
     logger.info("Starting VoiceFlow in %s mode on %s:8765", _BACKEND_MODE.upper(), _HOST)
     uvicorn.run(app, host=_HOST, port=8765)
 
