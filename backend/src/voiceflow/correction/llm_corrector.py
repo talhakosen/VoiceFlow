@@ -164,6 +164,21 @@ class CorrectorConfig:
     output_format: str = "prose"  # "prose" | "code_comment" | "pr_description" | "jira_ticket"
     adapter_path: str | None = field(default_factory=lambda: str(_cfg.LLM_ADAPTER_PATH) if _cfg.LLM_ADAPTER_PATH else None)  # LoRA adapter; None → full prompt fallback
 
+    def update(
+        self,
+        *,
+        enabled: bool | None = None,
+        mode: str | None = None,
+        output_format: str | None = None,
+    ) -> None:
+        """Apply config changes atomically."""
+        if enabled is not None:
+            self.enabled = enabled
+        if mode is not None:
+            self.mode = mode
+        if output_format is not None:
+            self.output_format = output_format
+
 
 @dataclass
 class LLMCorrector:

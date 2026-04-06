@@ -119,6 +119,22 @@ class OllamaCorrectorConfig:
     max_tokens: int = 512
     enabled: bool = False
     mode: str = "general"  # "general" | "engineering" | "office"
+    output_format: str = "prose"
+
+    def update(
+        self,
+        *,
+        enabled: bool | None = None,
+        mode: str | None = None,
+        output_format: str | None = None,
+    ) -> None:
+        """Apply config changes atomically."""
+        if enabled is not None:
+            self.enabled = enabled
+        if mode is not None:
+            self.mode = mode
+        if output_format is not None:
+            self.output_format = output_format
 
 
 @dataclass

@@ -72,27 +72,27 @@ async def apply_config(
 
     # ── Mode update ─────────────────────────────────────────────────
     if config.mode is not None:
-        corrector.config.mode = config.mode
-
         if config.mode == "engineering" and corrector.config.enabled:
             logger.info("Engineering mode: auto-disabling LLM correction")
-            corrector.config.enabled = False
+            corrector.config.update(mode=config.mode, enabled=False)
             if hasattr(corrector, "correct_async"):
                 await loop.run_in_executor(None, corrector.unload)
             else:
                 await loop.run_in_executor(_mlx_executor, corrector.unload)
+        else:
+            corrector.config.update(mode=config.mode)
 
         if config.mode == "engineering":
             await _maybe_reindex(app_state, user_id)
 
     # ── Output format ───────────────────────────────────────────────
     if config.output_format is not None:
-        corrector.config.output_format = config.output_format
+        corrector.config.update(output_format=config.output_format)
 
     # ── Correction enable/disable ───────────────────────────────────
     if config.correction_enabled is not None:
         was_enabled = corrector.config.enabled
-        corrector.config.enabled = config.correction_enabled
+        corrector.config.update(enabled=config.correction_enabled)
 
         if config.correction_enabled and not was_enabled:
             logger.info("Correction enabled, loading LLM model...")
