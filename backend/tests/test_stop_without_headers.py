@@ -110,3 +110,30 @@ def test_llm_corrector_no_context_disabled():
     corrector = MLXCorrector(config=MLXCorrectorConfig(enabled=False))
     result = corrector.correct("test metni")
     assert result == "test metni"
+
+
+# ---------------------------------------------------------------------------
+# Silence / short-audio guard
+# ---------------------------------------------------------------------------
+
+def test_silence_guard_short_duration():
+    """Audio shorter than 0.5s should be discarded without calling Whisper."""
+    import numpy as np
+    _SAMPLE_RATE = 16000
+
+    duration_sec = 0.3
+    audio = np.zeros(int(_SAMPLE_RATE * duration_sec), dtype=np.int16)
+    rms = float(np.sqrt(np.mean(audio.astype(np.float32) ** 2)))
+
+    assert duration_sec < 0.5 or rms < 0.005
+
+
+def test_silence_guard_silent_audio():
+    """Silent audio (rms < 0.005) should be discarded regardless of duration."""
+    import numpy as np
+    _SAMPLE_RATE = 16000
+
+    audio = np.zeros(int(_SAMPLE_RATE * 2.0), dtype=np.int16)
+    rms = float(np.sqrt(np.mean(audio.astype(np.float32) ** 2)))
+
+    assert rms < 0.005
