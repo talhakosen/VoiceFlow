@@ -1,20 +1,14 @@
 """Auth endpoints: register, login, refresh, me."""
 
-import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
-from pydantic import BaseModel, field_validator
 from jose import JWTError
+from pydantic import BaseModel, field_validator
 
-from ..db import create_user, get_user_by_email, get_user_by_id, append_audit_log, revoke_token, is_token_revoked
 from ..core.rate_limit import limiter, RATE_LIMIT_AUTH
-from ..services.auth_service import (
-    hash_password,
-    verify_password,
-    create_access_token,
-    create_refresh_token,
-    decode_token,
+from ..services.user_service import (
+    register_user, authenticate, refresh_access, logout_token, get_authenticated_user,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,19 +58,9 @@ async def get_current_user(authorization: str = Header(default=None)) -> dict:
         raise HTTPException(status_code=401, detail="Missing Bearer token")
     token = authorization.removeprefix("Bearer ").strip()
     try:
-        payload = decode_token(token)
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    if payload.get("type") != "access":
-        raise HTTPException(status_code=401, detail="Not an access token")
-    jti = payload.get("jti")
-    if jti and await is_token_revoked(jti):
-        raise HTTPException(status_code=401, detail="Token has been revoked")
-    user_id = payload.get("sub")
-    user = await get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
+        return await get_authenticated_user(token)
+    except PermissionError as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 # --- Endpoints ---
@@ -84,74 +68,29 @@ async def get_current_user(authorization: str = Header(default=None)) -> dict:
 @router.post("/register", status_code=201)
 @limiter.limit(RATE_LIMIT_AUTH)
 async def register(request: Request, body: RegisterRequest):
-    existing = await get_user_by_email(body.email)
-    if existing:
-        raise HTTPException(status_code=409, detail="Email already registered")
-
-    loop = asyncio.get_running_loop()
-    password_hash = await loop.run_in_executor(None, hash_password, body.password)
-    tenant_id = "default"
-    user_id = await create_user(
-        email=body.email,
-        password_hash=password_hash,
-        tenant_id=tenant_id,
-    )
-    return {"user_id": user_id, "email": body.email, "tenant_id": tenant_id}
+    try:
+        return await register_user(email=body.email, password=body.password)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
 @router.post("/login")
 @limiter.limit(RATE_LIMIT_AUTH)
 async def login(request: Request, body: LoginRequest):
-    user = await get_user_by_email(body.email)
-    loop = asyncio.get_running_loop()
-    is_valid = user and await loop.run_in_executor(
-        None, verify_password, body.password, user["password_hash"]
-    )
-    if not is_valid:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-
-    access_token = create_access_token(
-        user_id=user["id"],
-        tenant_id=user["tenant_id"],
-        role=user["role"],
-    )
-    refresh_token = create_refresh_token(user_id=user["id"])
-    await append_audit_log(
-        tenant_id=user["tenant_id"],
-        action="login",
-        user_id=user["id"],
-        target=body.email,
-    )
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer",
-    }
+    try:
+        return await authenticate(email=body.email, password=body.password)
+    except PermissionError as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 @router.post("/refresh")
 async def refresh(body: RefreshRequest):
     try:
-        payload = decode_token(body.refresh_token)
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
-
-    if payload.get("type") != "refresh":
-        raise HTTPException(status_code=401, detail="Not a refresh token")
-
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    user = await get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-
-    access_token = create_access_token(
-        user_id=user["id"],
-        tenant_id=user["tenant_id"],
-        role=user["role"],
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+        return await refresh_access(body.refresh_token)
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=str(e) or "Invalid or expired refresh token")
+    except LookupError as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 @router.get("/me")
@@ -174,17 +113,5 @@ async def logout(
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing Bearer token")
     token = authorization.removeprefix("Bearer ").strip()
-    try:
-        payload = decode_token(token)
-    except JWTError:
-        # Already expired — treat as success
-        return {"detail": "logged out"}
-
-    jti = payload.get("jti")
-    exp = payload.get("exp")
-    if jti and exp:
-        from datetime import datetime, timezone
-        expires_at = datetime.fromtimestamp(exp, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        await revoke_token(jti, expires_at)
-
+    await logout_token(token)
     return {"detail": "logged out"}
