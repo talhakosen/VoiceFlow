@@ -13,11 +13,7 @@ from pydantic import BaseModel
 
 from .auth import verify_api_key
 from ..core.rate_limit import limiter, RATE_LIMIT_STOP
-from ..db import (
-    get_dictionary, add_dictionary_entry, delete_dictionary_entry,
-    get_snippets, add_snippet, delete_snippet,
-    save_feedback,
-)
+from ..db import save_feedback
 
 from ..core.config import BACKEND_MODE as _BACKEND_MODE
 logger = logging.getLogger(__name__)
@@ -221,9 +217,8 @@ class DictionaryEntryRequest(BaseModel):
 
 @router.get("/dictionary")
 async def get_dict(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
-    user_id = x_user_id or ""
-    entries = await get_dictionary(user_id=user_id)
-    return {"items": entries, "count": len(entries)}
+    from ..services.dictionary_service import list_dictionary
+    return await list_dictionary(user_id=x_user_id or "")
 
 
 @router.post("/dictionary")
@@ -231,41 +226,33 @@ async def add_dict_entry(
     body: DictionaryEntryRequest,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    if not body.trigger.strip() or not body.replacement.strip():
-        raise HTTPException(status_code=400, detail="trigger and replacement must not be empty")
-    if body.scope not in ("personal", "team"):
-        raise HTTPException(status_code=400, detail="scope must be 'personal' or 'team'")
-    user_id = x_user_id or ""
-    entry_id = await add_dictionary_entry(
-        trigger=body.trigger,
-        replacement=body.replacement,
-        user_id=user_id,
-        scope=body.scope,
-    )
-    return {"id": entry_id, "trigger": body.trigger, "replacement": body.replacement, "scope": body.scope}
+    from ..services.dictionary_service import create_dictionary_entry
+    try:
+        return await create_dictionary_entry(
+            trigger=body.trigger,
+            replacement=body.replacement,
+            user_id=x_user_id or "",
+            scope=body.scope,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/dictionary/bundle")
 async def load_dict_bundle(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
     """Load the pre-built IT Turkish phonetics bundle into DB (scope=bundle, hidden from UI)."""
-    import json as _json
-    from pathlib import Path
-    from ..db.storage import load_bundle_entries
-    bundle_path = Path(__file__).parents[4] / "ml" / "dictionary" / "it_bundle_full.json"
-    if not bundle_path.exists():
-        raise HTTPException(status_code=404, detail="Bundle file not found")
-    with open(bundle_path, encoding="utf-8") as f:
-        entries = _json.load(f)
-    count = await load_bundle_entries(tenant_id="default", entries=entries)
-    return {"status": "loaded", "count": count}
+    from ..services.dictionary_service import load_dict_bundle as _load
+    try:
+        return await _load()
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.delete("/dictionary/bundle")
 async def clear_dict_bundle():
     """Remove all bundle entries."""
-    from ..db.storage import clear_bundle_entries
-    await clear_bundle_entries(tenant_id="default")
-    return {"status": "cleared"}
+    from ..services.dictionary_service import wipe_dict_bundle
+    return await wipe_dict_bundle()
 
 
 @router.delete("/dictionary/{entry_id}")
@@ -273,10 +260,11 @@ async def delete_dict_entry(
     entry_id: int,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    user_id = x_user_id or ""
-    deleted = await delete_dictionary_entry(entry_id=entry_id, user_id=user_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Entry not found or not yours")
+    from ..services.dictionary_service import remove_dictionary_entry
+    try:
+        await remove_dictionary_entry(entry_id=entry_id, user_id=x_user_id or "")
+    except LookupError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     return {"status": "deleted", "id": entry_id}
 
 
@@ -292,9 +280,8 @@ class SnippetRequest(BaseModel):
 
 @router.get("/snippets")
 async def get_snippets_route(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
-    user_id = x_user_id or ""
-    items = await get_snippets(user_id=user_id)
-    return {"items": items, "count": len(items)}
+    from ..services.dictionary_service import list_snippets
+    return await list_snippets(user_id=x_user_id or "")
 
 
 @router.post("/snippets")
@@ -302,18 +289,16 @@ async def add_snippet_route(
     body: SnippetRequest,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    if not body.trigger_phrase.strip() or not body.expansion.strip():
-        raise HTTPException(status_code=400, detail="trigger_phrase and expansion must not be empty")
-    if body.scope not in ("personal", "team"):
-        raise HTTPException(status_code=400, detail="scope must be 'personal' or 'team'")
-    user_id = x_user_id or ""
-    snippet_id = await add_snippet(
-        trigger_phrase=body.trigger_phrase,
-        expansion=body.expansion,
-        user_id=user_id,
-        scope=body.scope,
-    )
-    return {"id": snippet_id, "trigger_phrase": body.trigger_phrase, "expansion": body.expansion, "scope": body.scope}
+    from ..services.dictionary_service import create_snippet
+    try:
+        return await create_snippet(
+            trigger_phrase=body.trigger_phrase,
+            expansion=body.expansion,
+            user_id=x_user_id or "",
+            scope=body.scope,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.delete("/snippets/{snippet_id}")
@@ -321,80 +306,40 @@ async def delete_snippet_route(
     snippet_id: int,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    user_id = x_user_id or ""
-    deleted = await delete_snippet(snippet_id=snippet_id, user_id=user_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Snippet not found or not yours")
+    from ..services.dictionary_service import remove_snippet
+    try:
+        await remove_snippet(snippet_id=snippet_id, user_id=x_user_id or "")
+    except LookupError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     return {"status": "deleted", "id": snippet_id}
 
 
-_SNIPPET_PACKS: dict[str, str] = {
-    "office": "office_pack.json",
-    "engineering": "engineering_pack.json",
-}
-
-
 @router.post("/snippets/pack/{pack_name}")
-async def load_snippet_pack(
+async def load_snippet_pack_route(
     pack_name: str,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Load a pre-built snippet pack (office / engineering). Idempotent."""
-    import json as _json
-    from pathlib import Path
-    from ..db import add_snippet as _add_snippet, get_snippets as _get_snippets
-
-    if pack_name not in _SNIPPET_PACKS:
-        raise HTTPException(status_code=404, detail=f"Unknown pack: {pack_name}. Available: {list(_SNIPPET_PACKS)}")
-
-    scope = f"pack_{pack_name}"
-    pack_path = Path(__file__).parents[5] / "ml" / "snippets" / _SNIPPET_PACKS[pack_name]
-    if not pack_path.exists():
-        raise HTTPException(status_code=404, detail="Pack file not found")
-
-    with open(pack_path, encoding="utf-8") as f:
-        items = _json.load(f)
-
-    user_id = x_user_id or ""
-    existing = await _get_snippets(user_id=user_id)
-    existing_triggers = {s["trigger_phrase"] for s in existing if s.get("scope") == scope}
-
-    added = 0
-    for item in items:
-        trigger = item["trigger_phrase"]
-        if trigger not in existing_triggers:
-            await _add_snippet(
-                trigger_phrase=trigger,
-                expansion=item["expansion"],
-                user_id=user_id,
-                scope=scope,
-            )
-            added += 1
-
-    return {"status": "loaded", "pack": pack_name, "added": added, "total": len(items)}
+    from ..services.dictionary_service import load_snippet_pack
+    try:
+        return await load_snippet_pack(pack_name=pack_name, user_id=x_user_id or "")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.delete("/snippets/pack/{pack_name}")
-async def clear_snippet_pack(
+async def clear_snippet_pack_route(
     pack_name: str,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Remove all entries from a snippet pack."""
-    from ..db.cipher_connection import connect as _connect
-    from ..db.storage import DB_PATH as _db_path
-
-    if pack_name not in _SNIPPET_PACKS:
-        raise HTTPException(status_code=404, detail=f"Unknown pack: {pack_name}")
-
-    scope = f"pack_{pack_name}"
-    user_id = x_user_id or ""
-    async with _connect(_db_path) as db:
-        cur = await db.execute(
-            "DELETE FROM snippets WHERE scope = ? AND (user_id = ? OR user_id = '')",
-            (scope, user_id),
-        )
-        await db.commit()
-    return {"status": "cleared", "pack": pack_name, "deleted": cur.rowcount}
+    from ..services.dictionary_service import clear_snippet_pack
+    try:
+        return await clear_snippet_pack(pack_name=pack_name, user_id=x_user_id or "")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 # ------------------------------------------------------------------
