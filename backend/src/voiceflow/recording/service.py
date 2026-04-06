@@ -26,18 +26,20 @@ logger = logging.getLogger(__name__)
 class RecordingService:
     """Coordinates the full voice recording pipeline.
 
-    Injected with concrete transcriber and corrector implementations —
-    swap out for mocks in tests or for different backend modes.
+    All dependencies are injected — swap for mocks in tests or alternate backends.
     """
 
     def __init__(
         self,
         transcriber: AbstractTranscriber,
         corrector: AbstractCorrector,
+        audio: AudioCapture | None = None,
+        executor=None,
     ) -> None:
-        self._audio = AudioCapture(config=AudioConfig())
+        self._audio = audio if audio is not None else AudioCapture(config=AudioConfig())
         self._transcriber = transcriber
         self._corrector = corrector
+        self._executor = executor if executor is not None else _mlx_executor
         # Aho-Corasick automaton cache: rebuilt only when dictionary entries change
         self._dict_automaton: object | None = None
         self._dict_entry_count: int = 0
@@ -105,43 +107,24 @@ class RecordingService:
             result = TranscriptionResult(text=merged_text, language=language, duration=duration)
         else:
             transcribe_fn = functools.partial(self._transcriber.transcribe, audio_data, mode=active_mode)
-            result = await loop.run_in_executor(_mlx_executor, transcribe_fn)
+            result = await loop.run_in_executor(self._executor, transcribe_fn)
         logger.info("Whisper: %.3fs → '%s'", time.perf_counter() - t_whisper, result.text[:80])
 
         raw_text = result.text
 
+        from ..core.config import IT_DATASET_DIR, USER_CORRECTIONS_DIR
+        from ..services.training_data_service import save_it_recording, save_pending_wav as _save_pending_wav
+
         # IT Dataset: save WAV + recording to SQLite
         _it_wav_path: str | None = None
         if it_dataset_index is not None and len(audio_data) > 0:
-            try:
-                import soundfile as sf
-                from pathlib import Path as _Path
-                import time as _t
-                from ..db import get_training_sentence_by_id, save_training_recording
-                wav_dir = _Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings"
-                wav_dir.mkdir(parents=True, exist_ok=True)
-                ts = int(_t.time() * 1000)
-                wav_path = wav_dir / f"{it_dataset_index:05d}_{ts}.wav"
-                sf.write(str(wav_path), audio_data, _SAMPLE_RATE)
-                _it_wav_path = str(wav_path)
-                logger.info("IT dataset WAV saved: %s", wav_path)
-
-                if not raw_text.strip():
-                    wav_path.unlink(missing_ok=True)
-                    _it_wav_path = None
-                    logger.warning("IT recording skipped: empty/hallucination text for sentence_id=%d", it_dataset_index)
-                else:
-                    sentence = await get_training_sentence_by_id(it_dataset_index)
-                    training_set = sentence["training_set"] if sentence else "it_dataset"
-                    await save_training_recording(
-                        sentence_id=it_dataset_index,
-                        training_set=training_set,
-                        wav_path=str(wav_path),
-                        whisper_out=raw_text,
-                    )
-                    logger.info("IT recording saved: id=%d whisper='%s'", it_dataset_index, raw_text[:60])
-            except Exception as e:
-                logger.warning("IT dataset save failed: %s", e)
+            _it_wav_path = await save_it_recording(
+                audio_data=audio_data,
+                it_dataset_index=it_dataset_index,
+                raw_text=raw_text,
+                wav_dir=IT_DATASET_DIR,
+                sample_rate=_SAMPLE_RATE,
+            )
 
         # IT Dataset mode: skip all post-processing, return raw Whisper output
         if it_dataset_index is not None:
@@ -182,20 +165,13 @@ class RecordingService:
         )
 
         _pending_wav_path: str | None = None
-        if save_pending_wav and len(audio_data) > 0 and raw_text.strip():
-            try:
-                import soundfile as _sf
-                from pathlib import Path as _Path
-                import time as _t
-                pending_dir = _Path(__file__).parents[4] / "ml" / "whisper" / "datasets" / "user_corrections" / "pending"
-                pending_dir.mkdir(parents=True, exist_ok=True)
-                ts = int(_t.time() * 1000)
-                pending_wav = pending_dir / f"{ts}.wav"
-                _sf.write(str(pending_wav), audio_data, _SAMPLE_RATE)
-                _pending_wav_path = str(pending_wav)
-                logger.info("Pending WAV saved: %s", pending_wav.name)
-            except Exception as e:
-                logger.warning("Pending WAV save failed: %s", e)
+        if save_pending_wav and len(audio_data) > 0:
+            _pending_wav_path = await _save_pending_wav(
+                audio_data=audio_data,
+                raw_text=raw_text,
+                pending_dir=USER_CORRECTIONS_DIR,
+                sample_rate=_SAMPLE_RATE,
+            )
 
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
         return {
@@ -319,7 +295,7 @@ class RecordingService:
                     result.text, result.language, None, active_app,
                     window_title=window_title, selected_text=selected_text,
                 )
-                corrected = await loop.run_in_executor(_mlx_executor, _correct_fn)
+                corrected = await loop.run_in_executor(self._executor, _correct_fn)
             logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
             if corrected != result.text:
                 was_corrected = True
@@ -364,7 +340,7 @@ class RecordingService:
         loop = asyncio.get_running_loop()
         logger.info("Preloading Whisper model...")
         try:
-            await loop.run_in_executor(_mlx_executor, self._transcriber._ensure_model_loaded)
+            await loop.run_in_executor(self._executor, self._transcriber._ensure_model_loaded)
             logger.info("Whisper model loaded")
         except Exception as e:
             logger.error("Whisper model load failed: %s", e)
@@ -375,7 +351,7 @@ class RecordingService:
                 if hasattr(self._corrector, "correct_async"):
                     await loop.run_in_executor(None, self._corrector._ensure_model_loaded)
                 else:
-                    await loop.run_in_executor(_mlx_executor, self._corrector._ensure_model_loaded)
+                    await loop.run_in_executor(self._executor, self._corrector._ensure_model_loaded)
                 logger.info("LLM model loaded")
             except Exception as e:
                 logger.error("LLM model load failed: %s", e)
