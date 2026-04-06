@@ -182,6 +182,17 @@ async def history(
         raise HTTPException(status_code=403, detail=str(e))
 
 
+@router.delete("/history/{record_id}")
+async def delete_history_item(record_id: int, request: Request):
+    from ..db import delete_transcription_by_id
+    tenant_id = getattr(request.state, "tenant_id", "default") or "default"
+    deleted = await delete_transcription_by_id(record_id, tenant_id)
+    if not deleted:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"status": "deleted", "id": record_id}
+
+
 @router.delete("/history", dependencies=[require_role("admin")])
 async def delete_history(request: Request):
     from ..services.history_service import wipe_history

@@ -71,3 +71,47 @@ class TestIsolatedDbFixture:
         """Second test — DB is fresh, no data from test A."""
         count = db_conn.execute("SELECT COUNT(*) FROM transcriptions").fetchone()[0]
         assert count == 0
+
+
+class TestDeleteTranscriptionById:
+    """Tests for delete_transcription_by_id()."""
+
+    def test_delete_existing_row(self, isolated_db):
+        from voiceflow.db import save_transcription, get_history
+        from voiceflow.db.transcription_storage import delete_transcription_by_id
+
+        async def _run():
+            row_id = await save_transcription(
+                text="Silinecek kayıt", tenant_id="test"
+            )
+            deleted = await delete_transcription_by_id(row_id, tenant_id="test")
+            assert deleted is True
+            rows = await get_history(tenant_id="test")
+            assert len(rows) == 0
+
+        run(_run())
+
+    def test_delete_nonexistent_row(self, isolated_db):
+        from voiceflow.db.transcription_storage import delete_transcription_by_id
+
+        async def _run():
+            deleted = await delete_transcription_by_id(9999, tenant_id="test")
+            assert deleted is False
+
+        run(_run())
+
+    def test_delete_wrong_tenant(self, isolated_db):
+        """Cannot delete a row belonging to another tenant."""
+        from voiceflow.db import save_transcription, get_history
+        from voiceflow.db.transcription_storage import delete_transcription_by_id
+
+        async def _run():
+            row_id = await save_transcription(
+                text="Başka tenant kaydı", tenant_id="tenant_a"
+            )
+            deleted = await delete_transcription_by_id(row_id, tenant_id="tenant_b")
+            assert deleted is False
+            rows = await get_history(tenant_id="tenant_a")
+            assert len(rows) == 1
+
+        run(_run())

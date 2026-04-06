@@ -4,7 +4,7 @@ All imports go through here. Internal modules are an implementation detail.
 """
 
 from .migrations import init_db
-from .transcription_storage import save_transcription, get_history, clear_history
+from .transcription_storage import save_transcription, get_history, clear_history, delete_transcription_by_id
 from .config_storage import get_config, set_config
 from .dictionary_storage import (
     get_dictionary, add_dictionary_entry, delete_dictionary_entry,

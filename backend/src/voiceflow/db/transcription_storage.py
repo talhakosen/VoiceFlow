@@ -63,3 +63,14 @@ async def clear_history(tenant_id: str = "default") -> None:
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("DELETE FROM transcriptions WHERE tenant_id = ?", (tenant_id,))
         await db.commit()
+
+
+async def delete_transcription_by_id(record_id: int, tenant_id: str = "default") -> bool:
+    """Delete a single transcription. Returns True if a row was deleted."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "DELETE FROM transcriptions WHERE id = ? AND tenant_id = ?",
+            (record_id, tenant_id),
+        )
+        await db.commit()
+        return cursor.rowcount > 0

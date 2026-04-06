@@ -12,6 +12,8 @@ import logging
 import re
 import time
 
+import numpy as np
+
 from ..audio import AudioCapture, AudioConfig
 from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
 from ..db import save_transcription, get_dictionary, get_snippets
@@ -92,6 +94,13 @@ class RecordingService:
         logger.info("Audio capture stop: %.3fs, samples: %d", time.perf_counter() - t_start, len(audio_data))
 
         if len(audio_data) == 0:
+            return {"text": "", "duration": 0.0}
+
+        # Discard silence: too short (<0.5s) or too quiet (RMS < 0.005)
+        duration_sec = len(audio_data) / _SAMPLE_RATE
+        rms = float(np.sqrt(np.mean(audio_data.astype(np.float32) ** 2)))
+        if duration_sec < 0.5 or rms < 0.005:
+            logger.info("Discarding silent/short audio: %.2fs rms=%.4f", duration_sec, rms)
             return {"text": "", "duration": 0.0}
 
         loop = asyncio.get_running_loop()
