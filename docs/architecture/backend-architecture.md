@@ -62,7 +62,9 @@ class RecordingService:
     def force_stop() → bool
     async def preload_models() → None
 ```
-Pipeline sırası: **Whisper (+Symbol Injection) → Dictionary → Snippets → LLM correction → SQLite**
+Pipeline sırası: **Whisper → Dictionary → Snippets → Filler clean → Symbol Injection → LLM correction → SQLite**
+
+Her adımın yaptığı substitutionlar `corrections` dict'ine ayrı key altında kaydedilir: `dict`, `snippet`, `symbol`, `llm`. `raw_text` her zaman Whisper ham çıktısıdır (correction açık/kapalı fark etmez). Eval için `json_extract(corrections, '$.dict')` gibi SQLite sorguları atılabilir.
 
 **Engineering mode symbol detection:** `stop()` içinde, dictionary/snippets adımından sonra, `active_mode == "engineering"` ise `inject_symbol_refs()` otomatik çağrılır. Tespit edilen semboller `symbol_refs` listesine eklenir, pasted text temiz kalır. Cmd basılı segment varsa ek olarak `_transcribe_segmented()` de çalışır.
 
@@ -195,15 +197,21 @@ DELETE /api/training/pending-wav    → {wav_path} → pending WAV sil (dismiss/
 ```python
 {
     "text": "Bugün hava çok güzel.",
-    "raw_text": "bugun hava cok guzel",  # sadece düzeltildiyse dolu
-    "corrected": true,
+    "raw_text": "bugun hava cok guzel",  # her zaman dolu — Whisper ham çıktısı
+    "corrected": true,                   # LLM correction çalışıp değiştirdiyse true
     "snippet_used": false,               # snippet expand olduysa true — Training Pill bu durumda gösterilmez
     "language": "tr",
     "duration": 3.45,
     "processing_ms": 1240,               # ses durma → paste arası toplam süre (ms)
     "id": 42,                            # SQLite row ID
     "pending_wav_path": "/abs/path.wav", # X-Training-Mode=1 ise dolu; null otherwise
-    "symbol_refs": ["BackendService → VoiceFlowApp/Sources/BackendService.swift:212"]  # engineering mode, null otherwise
+    "symbol_refs": ["BackendService → VoiceFlowApp/Sources/BackendService.swift:212"],  # engineering mode, null otherwise
+    "corrections": {                     # pipeline substitution detayları (eval için); null ise hiç substitution olmadı
+        "dict":    {"visspar": "Whisper"},
+        "snippet": {"aç parantez": "("},
+        "symbol":  {"AppViewModel": "VoiceFlowApp/AppViewModel.swift:42"},
+        "llm":     {"in": "text before LLM", "out": "text after LLM"}
+    }
 }
 ```
 
@@ -310,15 +318,22 @@ CREATE TABLE users (
 CREATE TABLE transcriptions (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
-    text          TEXT    NOT NULL,
-    raw_text      TEXT,
-    corrected     INTEGER DEFAULT 0,
+    text          TEXT    NOT NULL,         -- final metin (kullanıcıya yapıştırılan)
+    raw_text      TEXT,                     -- Whisper ham çıktısı (her zaman dolu)
+    corrected     INTEGER DEFAULT 0,        -- LLM correction çalışıp değiştirdiyse 1
     language      TEXT,
-    duration      REAL,                    -- ses kaydı süresi (saniye)
+    duration      REAL,                     -- ses kaydı süresi (saniye)
     mode          TEXT    DEFAULT 'general',
     user_id       TEXT,
     tenant_id     TEXT    NOT NULL DEFAULT 'default',
-    processing_ms INTEGER                  -- Whisper+LLM toplam süresi (ms)
+    processing_ms INTEGER,                  -- Whisper+LLM toplam süresi (ms)
+    whisper_model TEXT,                     -- kullanılan Whisper model path
+    corrections   TEXT                      -- JSON: pipeline substitution detayları (eval için)
+    -- corrections format:
+    -- {"dict":    {"original": "replacement"},   -- dictionary substitutions
+    --  "snippet": {"trigger": "expansion"},      -- snippet expansions
+    --  "symbol":  {"SymbolName": "file.swift:42"}, -- engineering symbol injections
+    --  "llm":     {"in": "before LLM", "out": "after LLM"}}  -- LLM değişikliği
 );
 
 CREATE TABLE config (

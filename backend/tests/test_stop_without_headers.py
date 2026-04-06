@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 def make_recording_service(corrector):
     """Build a minimal RecordingService with a mock transcriber and audio."""
-    from voiceflow.services.recording import RecordingService
+    from voiceflow.recording.service import RecordingService
 
     transcriber = MagicMock()
     transcriber.config = MagicMock()
@@ -44,9 +44,9 @@ def test_stop_no_context_headers_passes():
     svc = make_recording_service(corrector)
 
     async def _run():
-        with patch("voiceflow.services.recording.save_transcription", new_callable=AsyncMock, return_value=1), \
-             patch("voiceflow.services.recording.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-             patch("voiceflow.services.recording.get_snippets", new_callable=AsyncMock, return_value=[]):
+        with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
+             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
+             patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
             return await svc.stop(user_id=None, tenant_id="default")
 
     result = asyncio.run(_run())
@@ -63,9 +63,9 @@ def test_stop_with_context_headers_passes():
     svc = make_recording_service(corrector)
 
     async def _run():
-        with patch("voiceflow.services.recording.save_transcription", new_callable=AsyncMock, return_value=1), \
-             patch("voiceflow.services.recording.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-             patch("voiceflow.services.recording.get_snippets", new_callable=AsyncMock, return_value=[]):
+        with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
+             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
+             patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
             return await svc.stop(
                 user_id=None,
                 tenant_id="default",

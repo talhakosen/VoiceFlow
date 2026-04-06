@@ -408,6 +408,8 @@ IT terimi yoğun içerik seçmek kritik — genel Türkçe bölümler değersiz.
 
 ### 4.6 P2 — Quality Monitor: Self-Improving Pipeline
 
+- [DONE 2026-04-06] **Pipeline correction tracking** — `transcriptions.corrections` JSON kolonu (migration); `raw_text` her zaman Whisper çıktısı (correction açık/kapalı fark etmez); `corrections` = `{"dict": {orig→repl}, "snippet": {trigger→expand}, "symbol": {name→file:line}, "llm": {"in":..., "out":...}}` — sadece tetiklenen key'ler; `_apply_aho_corasick`/`_apply_regex_fallback`/`apply_snippets` substitution takibi; eval için `json_extract(corrections, '$.dict')` sorgulanabilir
+
 - [ ] **`hallucination_phrases` DB tablosu** — hardcoded liste yerine dinamik; Whisper DB + hardcoded birleşimini okur
 - [ ] **Trailing phrase detector** — son 200 transkripsiyonun sonu analiz; %15+ tekrar → hallucination_phrases'e otomatik ekle
 - [ ] **Correction pair aggregator** — `raw_text→text` token diff; 3+ tekrar → `dict_suggestions` kuyruğu

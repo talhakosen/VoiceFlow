@@ -5,16 +5,16 @@ Replaces the entire transcript if it exactly matches a trigger phrase.
 """
 
 
-def apply_snippets(text: str, snippets: list[dict]) -> str:
+def apply_snippets(text: str, snippets: list[dict]) -> tuple[str, dict[str, str] | None]:
     """Expand text if it exactly matches a snippet trigger phrase.
 
     - Exact match first (original casing)
     - Fallback: stripped + lowercased match
-    - Returns expansion if matched, original text otherwise
-    - Short-circuits if snippets list is empty
+    - Returns (expansion, {trigger: expansion}) if matched
+    - Returns (original_text, None) otherwise
     """
     if not snippets:
-        return text
+        return text, None
 
     stripped = text.strip().rstrip(".,!?;:")
     stripped_lower = stripped.lower()
@@ -26,9 +26,9 @@ def apply_snippets(text: str, snippets: list[dict]) -> str:
             continue
         # Exact match
         if stripped == trigger:
-            return expansion
+            return expansion, {trigger: expansion}
         # Case-insensitive match
         if stripped_lower == trigger.lower():
-            return expansion
+            return expansion, {trigger: expansion}
 
-    return text
+    return text, None

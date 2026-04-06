@@ -147,7 +147,7 @@ class RecordingService:
         if it_dataset_index is not None:
             processing_ms = int((time.perf_counter() - t_start) * 1000)
             row_id = await save_transcription(
-                text=raw_text, raw_text=None, corrected=False,
+                text=raw_text, raw_text=raw_text, corrected=False,
                 language=result.language, duration=result.duration,
                 mode=active_mode, user_id=user_id, tenant_id=tenant_id,
                 processing_ms=processing_ms,
@@ -160,7 +160,7 @@ class RecordingService:
                 "id": row_id, "it_wav_path": _it_wav_path,
             }
 
-        result.text, was_corrected, snippet_used, symbol_refs = await self._apply_text_pipeline(
+        result.text, was_corrected, snippet_used, symbol_refs, corrections = await self._apply_text_pipeline(
             result, active_mode, user_id, active_app, window_title, selected_text, loop,
         )
 
@@ -169,7 +169,7 @@ class RecordingService:
 
         row_id = await save_transcription(
             text=result.text,
-            raw_text=raw_text if was_corrected else None,
+            raw_text=raw_text,
             corrected=was_corrected,
             language=result.language,
             duration=result.duration,
@@ -178,6 +178,7 @@ class RecordingService:
             tenant_id=tenant_id,
             processing_ms=processing_ms,
             whisper_model=self._transcriber.config.model_name,
+            corrections=corrections if corrections else None,
         )
 
         _pending_wav_path: str | None = None
@@ -199,7 +200,7 @@ class RecordingService:
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
         return {
             "text": result.text,
-            "raw_text": raw_text if was_corrected else None,
+            "raw_text": raw_text,
             "corrected": was_corrected,
             "snippet_used": snippet_used,
             "language": result.language,
@@ -209,6 +210,7 @@ class RecordingService:
             "it_wav_path": _it_wav_path,
             "pending_wav_path": _pending_wav_path,
             "symbol_refs": symbol_refs or None,
+            "corrections": corrections if corrections else None,
         }
 
     async def _apply_text_pipeline(
@@ -220,10 +222,18 @@ class RecordingService:
         window_title: str | None,
         selected_text: str | None,
         loop,
-    ) -> tuple[str, bool, bool, list[str]]:
+    ) -> tuple[str, bool, bool, list[str], dict]:
         """Apply the full text post-processing pipeline.
 
-        Returns: (final_text, was_corrected, snippet_used, symbol_refs)
+        Returns: (final_text, was_corrected, snippet_used, symbol_refs, corrections)
+
+        `corrections` dict structure (keys present only when non-empty):
+          {
+            "dict":    {"original_token": "replacement", ...},
+            "snippet": {"trigger_phrase": "expansion"},
+            "symbol":  {"symbol_name": "file.swift:42"},
+            "llm":     {"in": "text_before_llm", "out": "text_after_llm"}
+          }
 
         Pipeline order:
           1. Dictionary substitution (Aho-Corasick / regex fallback)
@@ -235,24 +245,32 @@ class RecordingService:
         was_corrected = False
         snippet_used = False
         symbol_refs: list[str] = []
+        corrections: dict = {}
 
         # 1. Dictionary + snippets
         if result.text and user_id:
             entries = await get_dictionary(user_id=user_id, include_smart=True)
             if entries:
+                dict_subs: dict[str, str] = {}
                 if _HAS_AC:
                     if self._dict_automaton is None or len(entries) != self._dict_entry_count:
                         self._dict_automaton = _build_automaton(entries)
                         self._dict_entry_count = len(entries)
-                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
-                    result.text = _apply_aho_corasick(result.text, self._dict_automaton)
+                    if self._dict_automaton is not None:
+                        result.text = _apply_aho_corasick(result.text, self._dict_automaton, dict_subs)
+                        result.text = _apply_aho_corasick(result.text, self._dict_automaton, dict_subs)
                 else:
-                    result.text = _apply_regex_fallback(result.text, entries)
+                    result.text = _apply_regex_fallback(result.text, entries, dict_subs)
+                if dict_subs:
+                    corrections["dict"] = dict_subs
+
             snippets = await get_snippets(user_id=user_id)
             if snippets:
-                expanded = apply_snippets(result.text, snippets)
+                expanded, snippet_subs = apply_snippets(result.text, snippets)
                 if expanded != result.text:
                     snippet_used = True
+                    if snippet_subs:
+                        corrections["snippet"] = snippet_subs
                 result.text = expanded
 
         # 2. Filler word removal — deterministic, general/office only
@@ -264,11 +282,15 @@ class RecordingService:
             from ..symbol import inject_symbol_refs as _inject
             injected = await _inject(result.text, user_id)
             if injected != result.text:
+                symbol_map: dict[str, str] = {}
+
                 def _fmt_sym(m: re.Match) -> str:
                     full_path, name = m.group(1), m.group(2)
                     path_only = full_path.rsplit(":", 1)[0]
                     symbol_refs.append(f"{name} → {full_path}")
+                    symbol_map[name] = full_path
                     return f"@{path_only}"
+
                 result.text = re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
                 _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
                 for _m in re.finditer(r'@([\w/.]+)', result.text):
@@ -277,11 +299,15 @@ class RecordingService:
                         _seen_paths.add(_path)
                         _basename = _path.rstrip("/").rsplit("/", 1)[-1] or _path
                         symbol_refs.append(f"{_basename} → {_path}")
+                        symbol_map[_basename] = _path
+                if symbol_map:
+                    corrections["symbol"] = symbol_map
                 logger.info("Engineering symbols detected: %s", symbol_refs)
 
         # 4. LLM correction
         if self._corrector.config.enabled and result.text:
             t_llm = time.perf_counter()
+            text_before_llm = result.text
             if hasattr(self._corrector, "correct_async"):
                 corrected = await self._corrector.correct_async(
                     result.text, result.language, None, active_app,
@@ -297,10 +323,11 @@ class RecordingService:
             logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
             if corrected != result.text:
                 was_corrected = True
+                corrections["llm"] = {"in": text_before_llm, "out": corrected}
                 logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
             result.text = corrected
 
-        return result.text, was_corrected, snippet_used, symbol_refs
+        return result.text, was_corrected, snippet_used, symbol_refs, corrections
 
     def force_stop(self) -> bool:
         """Force-stop regardless of state. Returns True if was recording."""

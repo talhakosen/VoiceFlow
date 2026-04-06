@@ -1,6 +1,7 @@
 """Server-mode LLM correction via Ollama (OpenAI-compatible API)."""
 
 import logging
+import os
 from dataclasses import dataclass, field
 
 from ..core import config as _cfg

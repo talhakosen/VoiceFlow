@@ -25,8 +25,10 @@ def _build_automaton(entries: list[dict]):
 
     Longer triggers win over shorter ones at the same position
     (stored as (len, replacement) so max() picks longest match).
+    Returns None if no valid entries exist.
     """
     A = ahocorasick.Automaton()
+    added = 0
     for entry in entries:
         trigger = entry.get("trigger", "").strip().lower()
         replacement = entry.get("replacement", "").strip()
@@ -39,16 +41,22 @@ def _build_automaton(entries: list[dict]):
                 A.add_word(trigger, (len(trigger), replacement))
         else:
             A.add_word(trigger, (len(trigger), replacement))
+        added += 1
+    if added == 0:
+        return None
     A.make_automaton()
     return A
 
 
-def _apply_aho_corasick(text: str, automaton) -> str:
+def _apply_aho_corasick(text: str, automaton, subs: dict[str, str] | None = None) -> str:
     """Single-pass replacement using Aho-Corasick.
 
     Finds all non-overlapping matches (longest at each position),
     respects word boundaries, applies replacements right-to-left
     so offsets stay valid.
+
+    If `subs` dict is provided, matched substitutions are recorded into it
+    as {original_token: replacement}.
     """
     lower_text = text.lower()
     matches = []  # (start, end_inclusive, replacement)
@@ -76,12 +84,15 @@ def _apply_aho_corasick(text: str, automaton) -> str:
     # Apply right-to-left so string indices stay valid
     result = list(text)
     for start, end, repl in reversed(non_overlapping):
+        original_token = text[start:end + 1]
+        if subs is not None and original_token.lower() != repl.lower():
+            subs[original_token] = repl
         result[start:end + 1] = list(repl)
 
     return "".join(result)
 
 
-def _apply_regex_fallback(text: str, entries: list[dict]) -> str:
+def _apply_regex_fallback(text: str, entries: list[dict], subs: dict[str, str] | None = None) -> str:
     """Fallback O(N×M) regex path (used when pyahocorasick not available)."""
     sorted_entries = sorted(
         entries,
@@ -96,7 +107,14 @@ def _apply_regex_fallback(text: str, entries: list[dict]) -> str:
             if not trigger or not replacement:
                 continue
             pattern = r"(?<!\w)" + re.escape(trigger) + r"(?!\w)"
-            t = re.sub(pattern, replacement, t, flags=re.IGNORECASE)
+
+            def _replacer(m: re.Match, repl: str = replacement) -> str:
+                original = m.group(0)
+                if subs is not None and original.lower() != repl.lower():
+                    subs[original] = repl
+                return repl
+
+            t = re.sub(pattern, _replacer, t, flags=re.IGNORECASE)
         return t
 
     return _pass(_pass(text))
@@ -131,6 +149,8 @@ def apply_dictionary(text: str, entries: list[dict]) -> str:
         if _automaton_cache is None or _automaton_cache[0] != h:
             _automaton_cache = (h, _build_automaton(entries))
         automaton = _automaton_cache[1]
+        if automaton is None:
+            return text
         # Two passes: second pass catches chains (e.g. expanded term triggers another)
         text = _apply_aho_corasick(text, automaton)
         text = _apply_aho_corasick(text, automaton)
