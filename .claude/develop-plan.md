@@ -174,6 +174,7 @@
       DB indexes: transcriptions(tenant_id, created_at), user_dictionary(trigger), snippets(user_id)
 - [DONE 2026-04-06] **storage.py modülarizasyonu** — 1077 satır tek dosya → 9 odaklı modül (migrations, transcription, config, dictionary, user, audit, training, symbol, token) + backward-compat shim; corrections tracking (dict/snippet/symbol/llm typed JSON); pre-commit hook (test zorunluluğu); 75 test geçiyor
 - [DONE 2026-04-06] **ContextService** — context_routes.py DB çağrıları (get_context_status, get_context_projects, clear_smart_dictionary) + ingest/validation logic services/context_service.py'a taşındı; _validate_ingest_path → validate_ingest_path (ValueError), `request: Request = None` anti-pattern kaldırıldı, _user_id/_last_index_paths helpers eklendi
+- [DONE 2026-04-06] **API layer warning fixes (W1-W5)** — limit caps (Query le=1000/2000), DELETE /history role guard (admin-only), JWT user_id priority over X-User-ID header (tüm dict/snippet endpoints), dataclasses.asdict() → vars() yerine, FeedbackService delegasyonu (validation routes'tan service'e taşındı), auth.py X-Api-Key → request.state.role="admin" eklendi, test_feedback.py patch target güncellendi; 80 test geçiyor
 - [DONE 2026-04-06] **Service Layer tam ayrıştırma** — 13 task tamamlandı; tüm routes DB'ye direkt erişim yapmıyor:
       ConfigService (transcriber switch, mode, LLM load/unload, re-index, audit log)
       HistoryService (get_history + clear + audit log; role-based tenant isolation)

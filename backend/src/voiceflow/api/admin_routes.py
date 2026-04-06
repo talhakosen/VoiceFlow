@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 
@@ -65,7 +65,7 @@ async def admin_stats(request: Request):
 @router.get("/audit-log", dependencies=[require_role("admin")])
 async def get_audit_log_endpoint(
     request: Request,
-    limit: int = 200,
+    limit: int = Query(default=200, le=2000),
     offset: int = 0,
 ):
     """Tenant audit log — admin only, newest first."""

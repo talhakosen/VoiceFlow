@@ -39,7 +39,7 @@ async def fetch_history(
 
 async def wipe_history(tenant_id: str, user_id: str) -> None:
     """Clear all history and append audit log."""
-    await clear_history()
+    await clear_history(tenant_id=tenant_id)
     await append_audit_log(
         tenant_id=tenant_id,
         action="history_cleared",

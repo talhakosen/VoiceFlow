@@ -99,7 +99,7 @@ def test_feedback_endpoint_approved():
     app = _make_app()
     client = TestClient(app)
 
-    with patch("voiceflow.api.routes.save_feedback", new_callable=AsyncMock, return_value=1) as mock_save:
+    with patch("voiceflow.services.feedback_service.save_feedback", new_callable=AsyncMock, return_value=1) as mock_save:
         resp = client.post("/api/feedback", json={
             "raw_whisper": "merhaba dunya",
             "model_output": "Merhaba dünya.",
@@ -116,7 +116,7 @@ def test_feedback_endpoint_edited():
     app = _make_app()
     client = TestClient(app)
 
-    with patch("voiceflow.api.routes.save_feedback", new_callable=AsyncMock, return_value=2):
+    with patch("voiceflow.services.feedback_service.save_feedback", new_callable=AsyncMock, return_value=2):
         resp = client.post("/api/feedback", json={
             "raw_whisper": "merhaba dunya",
             "model_output": "Merhaba dünya.",
@@ -134,7 +134,7 @@ def test_feedback_endpoint_dismissed():
     app = _make_app()
     client = TestClient(app)
 
-    with patch("voiceflow.api.routes.save_feedback", new_callable=AsyncMock, return_value=3):
+    with patch("voiceflow.services.feedback_service.save_feedback", new_callable=AsyncMock, return_value=3):
         resp = client.post("/api/feedback", json={
             "raw_whisper": "merhaba dunya",
             "model_output": "Merhaba dünya.",
@@ -149,7 +149,7 @@ def test_feedback_endpoint_invalid_action():
     app = _make_app()
     client = TestClient(app)
 
-    with patch("voiceflow.api.routes.save_feedback", new_callable=AsyncMock):
+    with patch("voiceflow.services.feedback_service.save_feedback", new_callable=AsyncMock):
         resp = client.post("/api/feedback", json={
             "raw_whisper": "merhaba",
             "model_output": "Merhaba.",

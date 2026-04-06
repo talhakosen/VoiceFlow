@@ -62,6 +62,7 @@ async def verify_api_key(
         # Respect X-User-ID header for backward compat
         request.state.user_id = request.headers.get("X-User-ID")
         request.state.tenant_id = "default"
+        request.state.role = "admin"  # X-Api-Key = trusted caller
         return
 
     raise HTTPException(status_code=401, detail="Invalid or missing credentials")

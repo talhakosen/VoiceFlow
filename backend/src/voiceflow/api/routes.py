@@ -5,15 +5,17 @@ No business logic here.
 """
 
 import asyncio
+import dataclasses
 import logging
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from .auth import verify_api_key
 from ..core.rate_limit import limiter, RATE_LIMIT_STOP
-from ..db import save_feedback
+from ..services.auth_service import require_role
+from ..services.feedback_service import record_feedback as _record_feedback
 
 from ..core.config import BACKEND_MODE as _BACKEND_MODE
 logger = logging.getLogger(__name__)
@@ -153,13 +155,13 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
         user_id=user_id,
         tenant_id=tenant_id,
     )
-    return vars(result)
+    return dataclasses.asdict(result)
 
 
 @router.get("/history")
 async def history(
     request: Request,
-    limit: int = 100,
+    limit: int = Query(default=100, le=1000),
     offset: int = 0,
     user_id: str | None = None,
 ):
@@ -180,13 +182,18 @@ async def history(
         raise HTTPException(status_code=403, detail=str(e))
 
 
-@router.delete("/history")
+@router.delete("/history", dependencies=[require_role("admin")])
 async def delete_history(request: Request):
     from ..services.history_service import wipe_history
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     user_id = getattr(request.state, "user_id", "") or ""
     await wipe_history(tenant_id=tenant_id, user_id=user_id)
     return {"status": "cleared"}
+
+
+def _user_id(request: Request, x_user_id: str | None) -> str:
+    """JWT claim takes priority over X-User-ID header (backward compat fallback)."""
+    return getattr(request.state, "user_id", None) or x_user_id or ""
 
 
 # ------------------------------------------------------------------
@@ -200,14 +207,18 @@ class DictionaryEntryRequest(BaseModel):
 
 
 @router.get("/dictionary")
-async def get_dict(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+async def get_dict(
+    request: Request,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
     from ..services.dictionary_service import list_dictionary
-    return await list_dictionary(user_id=x_user_id or "")
+    return await list_dictionary(user_id=_user_id(request, x_user_id))
 
 
 @router.post("/dictionary")
 async def add_dict_entry(
     body: DictionaryEntryRequest,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     from ..services.dictionary_service import create_dictionary_entry
@@ -215,7 +226,7 @@ async def add_dict_entry(
         return await create_dictionary_entry(
             trigger=body.trigger,
             replacement=body.replacement,
-            user_id=x_user_id or "",
+            user_id=_user_id(request, x_user_id),
             scope=body.scope,
         )
     except ValueError as e:
@@ -223,7 +234,7 @@ async def add_dict_entry(
 
 
 @router.post("/dictionary/bundle")
-async def load_dict_bundle(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+async def load_dict_bundle():
     """Load the pre-built IT Turkish phonetics bundle into DB (scope=bundle, hidden from UI)."""
     from ..services.dictionary_service import load_dict_bundle as _load
     try:
@@ -242,11 +253,12 @@ async def clear_dict_bundle():
 @router.delete("/dictionary/{entry_id}")
 async def delete_dict_entry(
     entry_id: int,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     from ..services.dictionary_service import remove_dictionary_entry
     try:
-        await remove_dictionary_entry(entry_id=entry_id, user_id=x_user_id or "")
+        await remove_dictionary_entry(entry_id=entry_id, user_id=_user_id(request, x_user_id))
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return {"status": "deleted", "id": entry_id}
@@ -263,14 +275,18 @@ class SnippetRequest(BaseModel):
 
 
 @router.get("/snippets")
-async def get_snippets_route(x_user_id: str | None = Header(default=None, alias="X-User-ID")):
+async def get_snippets_route(
+    request: Request,
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
     from ..services.dictionary_service import list_snippets
-    return await list_snippets(user_id=x_user_id or "")
+    return await list_snippets(user_id=_user_id(request, x_user_id))
 
 
 @router.post("/snippets")
 async def add_snippet_route(
     body: SnippetRequest,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     from ..services.dictionary_service import create_snippet
@@ -278,7 +294,7 @@ async def add_snippet_route(
         return await create_snippet(
             trigger_phrase=body.trigger_phrase,
             expansion=body.expansion,
-            user_id=x_user_id or "",
+            user_id=_user_id(request, x_user_id),
             scope=body.scope,
         )
     except ValueError as e:
@@ -288,11 +304,12 @@ async def add_snippet_route(
 @router.delete("/snippets/{snippet_id}")
 async def delete_snippet_route(
     snippet_id: int,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     from ..services.dictionary_service import remove_snippet
     try:
-        await remove_snippet(snippet_id=snippet_id, user_id=x_user_id or "")
+        await remove_snippet(snippet_id=snippet_id, user_id=_user_id(request, x_user_id))
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return {"status": "deleted", "id": snippet_id}
@@ -301,12 +318,13 @@ async def delete_snippet_route(
 @router.post("/snippets/pack/{pack_name}")
 async def load_snippet_pack_route(
     pack_name: str,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Load a pre-built snippet pack (office / engineering). Idempotent."""
     from ..services.dictionary_service import load_snippet_pack
     try:
-        return await load_snippet_pack(pack_name=pack_name, user_id=x_user_id or "")
+        return await load_snippet_pack(pack_name=pack_name, user_id=_user_id(request, x_user_id))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except FileNotFoundError as e:
@@ -316,12 +334,13 @@ async def load_snippet_pack_route(
 @router.delete("/snippets/pack/{pack_name}")
 async def clear_snippet_pack_route(
     pack_name: str,
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Remove all entries from a snippet pack."""
     from ..services.dictionary_service import clear_snippet_pack
     try:
-        return await clear_snippet_pack(pack_name=pack_name, user_id=x_user_id or "")
+        return await clear_snippet_pack(pack_name=pack_name, user_id=_user_id(request, x_user_id))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -329,9 +348,6 @@ async def clear_snippet_pack_route(
 # ------------------------------------------------------------------
 # Feedback (training signal)
 # ------------------------------------------------------------------
-
-_VALID_ACTIONS = {"approved", "edited", "dismissed"}
-
 
 class FeedbackRequest(BaseModel):
     raw_whisper: str
@@ -346,20 +362,21 @@ class FeedbackRequest(BaseModel):
 
 @router.post("/feedback")
 async def submit_feedback(req: FeedbackRequest, request: Request):
-    if req.user_action not in _VALID_ACTIONS:
-        raise HTTPException(status_code=400, detail=f"user_action must be one of {sorted(_VALID_ACTIONS)}")
     user_id = getattr(request.state, "user_id", None)
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
-    await save_feedback(
-        raw_whisper=req.raw_whisper,
-        model_output=req.model_output,
-        user_action=req.user_action,
-        tenant_id=tenant_id,
-        user_id=user_id,
-        user_edit=req.user_edit,
-        app_context=req.app_context,
-        window_title=req.window_title,
-        mode=req.mode,
-        language=req.language,
-    )
+    try:
+        await _record_feedback(
+            raw_whisper=req.raw_whisper,
+            model_output=req.model_output,
+            user_action=req.user_action,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            user_edit=req.user_edit,
+            app_context=req.app_context,
+            window_title=req.window_title,
+            mode=req.mode,
+            language=req.language,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return {"status": "ok"}
