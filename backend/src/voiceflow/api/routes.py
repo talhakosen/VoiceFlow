@@ -92,31 +92,15 @@ async def stop_recording(
     x_it_dataset_index: str | None = Header(default=None, alias="X-IT-Dataset-Index"),
     x_training_mode: str | None = Header(default=None, alias="X-Training-Mode"),
 ):
+    from .parsers import parse_cmd_intervals, parse_it_dataset_index, should_save_pending_wav
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
     user_id = state_user_id or x_user_id or None
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
 
-    # Parse "1.10-2.30,4.50-5.10" → [(1.10, 2.30), (4.50, 5.10)]
-    cmd_intervals: list[tuple[float, float]] | None = None
-    if x_cmd_intervals:
-        try:
-            cmd_intervals = [
-                (float(a), float(b))
-                for part in x_cmd_intervals.split(",")
-                for a, b in [part.strip().split("-", 1)]
-            ]
-        except Exception:
-            cmd_intervals = None
-
-    it_dataset_idx: int | None = None
-    if x_it_dataset_index:
-        try:
-            it_dataset_idx = int(x_it_dataset_index)
-        except ValueError:
-            it_dataset_idx = None
-
-    save_pending_wav = x_training_mode == "1" and it_dataset_idx is None
+    cmd_intervals = parse_cmd_intervals(x_cmd_intervals)
+    it_dataset_idx = parse_it_dataset_index(x_it_dataset_index)
+    save_pending_wav = should_save_pending_wav(x_training_mode, it_dataset_idx)
 
     try:
         result = await svc.stop(
