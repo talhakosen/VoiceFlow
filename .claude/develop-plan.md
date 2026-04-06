@@ -173,8 +173,17 @@
       Config enum validation: mode + output_format → Pydantic Literal types
       DB indexes: transcriptions(tenant_id, created_at), user_dictionary(trigger), snippets(user_id)
 - [DONE 2026-04-06] **storage.py modülarizasyonu** — 1077 satır tek dosya → 9 odaklı modül (migrations, transcription, config, dictionary, user, audit, training, symbol, token) + backward-compat shim; corrections tracking (dict/snippet/symbol/llm typed JSON); pre-commit hook (test zorunluluğu); 75 test geçiyor
-- [DONE 2026-04-06] **ConfigService** — routes.py /api/config endpoint'indeki business logic (transcriber switching, mode management, LLM load/unload, symbol re-index, audit log) services/config_service.py'a taşındı; route HTTP delegation katmanına indirildi
-      tenant_id: training_sentences/recordings + symbol_index/v2 tablolarına eklendi (ALTER TABLE migration)
+- [DONE 2026-04-06] **Service Layer tam ayrıştırma** — 13 task tamamlandı; tüm routes DB'ye direkt erişim yapmıyor:
+      ConfigService (transcriber switch, mode, LLM load/unload, re-index, audit log)
+      HistoryService (get_history + clear + audit log; role-based tenant isolation)
+      DictionaryService (dict/snippet CRUD + bundle + pack; raw SQL bypass → delete_snippets_by_scope)
+      AdminService (user mgmt, stats, audit log, wipe_user_data KVKK)
+      UserService (register, authenticate, refresh, logout, get_authenticated_user)
+      TrainingDataService (IT dataset WAV + DB; pending WAV kayıt)
+      CorrectorConfig.update() — attribute mutation kaldırıldı
+      RecordingService: AudioCapture + executor inject edilebilir; hardcoded path → config.py (IT_DATASET_DIR, USER_CORRECTIONS_DIR)
+      api/parsers.py: interval/index/training_mode header parse
+      conftest.py: isolated_db + db_conn pytest fixtures; 80 test geçiyor
 - [DONE 2026-04-05] **symbol_indexer.py → voiceflow/symbol/ paketi**:
       1447 satırlık services/symbol_indexer.py, correction/ ve transcription/ ile aynı seviyede voiceflow/symbol/ paketine taşındı
       extractor.py (SymbolInfo + TreeSitterExtractor) + indexer.py (build_symbol_index, generate_project_notes) +
