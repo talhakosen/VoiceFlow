@@ -11,7 +11,7 @@ import mlx.core as mx
 from ..core import config as _cfg
 from .prompts import (
     BASE_PROMPT, MODE_SUFFIXES, BaseCorrectorConfig,
-    build_messages, build_system_prompt, guard_output,
+    build_messages, build_system_prompt, guard_output, pre_process,
 )
 
 logger = logging.getLogger(__name__)
@@ -130,6 +130,10 @@ class MLXCorrector:
         Returns corrected text, or original on failure / disabled.
         """
         if not self.config.enabled or not text or not text.strip():
+            return text
+
+        text = pre_process(text)
+        if not text.strip():
             return text
 
         from mlx_lm import generate

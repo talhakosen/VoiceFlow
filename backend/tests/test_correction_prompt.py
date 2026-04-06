@@ -1,200 +1,124 @@
-"""Unit tests for correction prompt improvements (K4-P0).
+"""Unit tests for correction prompt and pre-processor pipeline.
 
-Tests verify that _BASE_PROMPT and _FEW_SHOT_EXAMPLES in both correctors
-contain all required rules without executing LLM inference.
+Architecture:
+  pre_process() → deterministic (spoken punct, clear backtracks, simple fillers)
+  BASE_PROMPT   → LLM instructions for what pre_process cannot handle
 """
 
-from voiceflow.correction.prompts import BASE_PROMPT as LLM_BASE_PROMPT
-from voiceflow.correction.prompts import BASE_PROMPT as OLLAMA_BASE_PROMPT
-from voiceflow.correction.prompts import FEW_SHOT_EXAMPLES as LLM_EXAMPLES
-from voiceflow.correction.prompts import FEW_SHOT_EXAMPLES as OLLAMA_EXAMPLES
+from voiceflow.correction.prompts import BASE_PROMPT, FEW_SHOT_EXAMPLES, pre_process
 
 
 # ---------------------------------------------------------------------------
-# _BASE_PROMPT content checks
+# BASE_PROMPT content — verifies LLM instructions for remaining work
 # ---------------------------------------------------------------------------
 
-class TestLLMBasePrompt:
-    def test_filler_word_removal_tr_mentioned(self):
-        assert "yani" in LLM_BASE_PROMPT
-        assert "şey" in LLM_BASE_PROMPT
-        assert "hani" in LLM_BASE_PROMPT
-
-    def test_filler_word_removal_en_mentioned(self):
-        # LLM prompt is Turkish-focused; English fillers covered by Ollama prompt
-        assert "yani" in LLM_BASE_PROMPT  # Turkish filler always present
-
-    def test_backtracking_tr_markers(self):
-        assert "hayır yok yok" in LLM_BASE_PROMPT
-
-    def test_backtracking_en_markers(self):
-        # LLM prompt is Turkish-focused; check backtracking concept exists
-        assert "Backtracking" in LLM_BASE_PROMPT or "backtrack" in LLM_BASE_PROMPT.lower()
-
-    def test_spoken_punctuation_tr(self):
-        assert "virgül" in LLM_BASE_PROMPT
-        assert "nokta" in LLM_BASE_PROMPT
-
-    def test_spoken_punctuation_en(self):
-        # LLM prompt Turkish-focused; check punctuation section exists
-        assert "virgül" in LLM_BASE_PROMPT  # Turkish punctuation always present
+class TestBasePrompt:
+    def test_context_sensitive_filler_keep_rule(self):
+        """Prompt must instruct LLM to KEEP meaningful 'yani' / 'hani'."""
+        assert "yani" in BASE_PROMPT
+        assert "hani" in BASE_PROMPT
 
     def test_hallucination_guard(self):
-        prompt_lower = LLM_BASE_PROMPT.lower()
-        assert "not in the original" in prompt_lower or "never insert" in prompt_lower or "do not add" in prompt_lower
+        """Prompt must forbid inserting unsaid content."""
+        lower = BASE_PROMPT.lower()
+        assert "never insert" in lower or "not in the original" in lower or "did not say" in lower
 
-    def test_no_ideas_rule(self):
-        prompt_lower = LLM_BASE_PROMPT.lower()
-        assert "not in the original" in prompt_lower or "did not say" in prompt_lower
+    def test_no_answer_critical_rule(self):
+        """Prompt must instruct LLM not to answer commands."""
+        assert "CRITICAL" in BASE_PROMPT
 
+    def test_turkish_char_rule(self):
+        """Prompt must instruct LLM to fix Turkish characters."""
+        assert "ç" in BASE_PROMPT or "ş" in BASE_PROMPT or "ğ" in BASE_PROMPT
 
-class TestOllamaBasePrompt:
-    def test_filler_word_removal_tr_mentioned(self):
-        assert "yani" in OLLAMA_BASE_PROMPT
-        assert "şey" in OLLAMA_BASE_PROMPT
-        assert "hani" in OLLAMA_BASE_PROMPT
+    def test_misheard_correction_mentioned(self):
+        """Prompt must mention misheard word correction."""
+        lower = BASE_PROMPT.lower()
+        assert "misheard" in lower or "correct" in lower
 
-    def test_filler_word_removal_en_mentioned(self):
-        assert "um" in OLLAMA_BASE_PROMPT
-        assert "uh" in OLLAMA_BASE_PROMPT
-
-    def test_backtracking_tr_markers(self):
-        assert "hayır yok yok" in OLLAMA_BASE_PROMPT
-
-    def test_backtracking_en_markers(self):
-        assert "scratch that" in OLLAMA_BASE_PROMPT
-
-    def test_spoken_punctuation_tr(self):
-        assert "virgül" in OLLAMA_BASE_PROMPT
-        assert "nokta" in OLLAMA_BASE_PROMPT
-
-    def test_spoken_punctuation_en(self):
-        assert "comma" in OLLAMA_BASE_PROMPT
-        assert "period" in OLLAMA_BASE_PROMPT
-
-    def test_hallucination_guard(self):
-        assert "Never insert" in OLLAMA_BASE_PROMPT or "never insert" in OLLAMA_BASE_PROMPT.lower()
-
-    def test_no_ideas_rule(self):
-        assert "did not say" in OLLAMA_BASE_PROMPT
+    def test_pre_process_acknowledged(self):
+        """Prompt must acknowledge that pre-processing has already run."""
+        lower = BASE_PROMPT.lower()
+        assert "pre-process" in lower or "pre_process" in lower or "pre-processed" in lower
 
 
 # ---------------------------------------------------------------------------
-# Few-shot example coverage checks
+# Few-shot examples — verifies coverage of remaining LLM tasks
 # ---------------------------------------------------------------------------
 
-def _get_inputs(examples: list) -> list[str]:
-    return [inp for inp, _ in examples]
+def _inputs(examples): return [i for i, _ in examples]
+def _outputs(examples): return [o for _, o in examples]
 
 
-def _get_outputs(examples: list) -> list[str]:
-    return [out for _, out in examples]
-
-
-class TestLLMFewShotExamples:
-    def test_has_filler_word_removal_tr(self):
-        """At least one example should demonstrate TR filler removal."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_filler = any(
-            any(f in inp for f in ["yani", "şey", "hani", "işte", "ee", "aa"])
+class TestFewShotExamples:
+    def test_has_turkish_char_example(self):
+        """At least one example should show Turkish character correction."""
+        inputs = _inputs(FEW_SHOT_EXAMPLES)
+        assert any(
+            any(c in inp for c in ["cok", "bugun", "basliyo", "icinde"])
             for inp in inputs
         )
-        assert has_filler, "No Turkish filler word example found in few-shot"
 
-    def test_has_filler_word_removal_en(self):
-        """At least one example should demonstrate EN filler removal."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_filler = any(
-            any(f in inp for f in ["um ", "uh ", " like ", "you know"])
+    def test_has_misheard_correction(self):
+        """At least one example should show misheard word correction."""
+        inputs = _inputs(FEW_SHOT_EXAMPLES)
+        assert any("apvyumodel" in inp or "apvu" in inp for inp in inputs)
+
+    def test_has_context_sensitive_filler(self):
+        """At least one example should show filler removal."""
+        inputs = _inputs(FEW_SHOT_EXAMPLES)
+        assert any(
+            any(f in inp for f in ["yani", "şey", "hani", "işte", "ee", "um ", "uh "])
             for inp in inputs
         )
-        assert has_filler, "No English filler word example found in few-shot"
 
-    def test_has_backtracking_tr(self):
-        """At least one example should demonstrate Turkish backtracking."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_backtrack = any(
-            any(m in inp for m in ["hayır yok yok", "dur bir dakika", "pardon"])
-            for inp in inputs
-        )
-        assert has_backtrack, "No Turkish backtracking example found in few-shot"
+    def test_has_english_example(self):
+        inputs = _inputs(FEW_SHOT_EXAMPLES)
+        assert any(inp[0].islower() and inp.isascii() for inp in inputs)
 
-    def test_has_backtracking_en(self):
-        """At least one example should demonstrate English backtracking."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_backtrack = any("scratch that" in inp or "actually" in inp for inp in inputs)
-        assert has_backtrack, "No English backtracking example found in few-shot"
+    def test_outputs_never_empty(self):
+        for _, out in FEW_SHOT_EXAMPLES:
+            assert out.strip(), "Few-shot output must not be empty"
 
-    def test_has_spoken_punctuation_tr(self):
-        """At least one example should demonstrate Turkish spoken punctuation."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_punct = any("virgül" in inp or "nokta" in inp for inp in inputs)
-        assert has_punct, "No Turkish spoken punctuation example found in few-shot"
-
-    def test_has_spoken_punctuation_en(self):
-        """At least one example should demonstrate English spoken punctuation."""
-        inputs = _get_inputs(LLM_EXAMPLES)
-        has_punct = any("comma" in inp or " period" in inp for inp in inputs)
-        assert has_punct, "No English spoken punctuation example found in few-shot"
-
-    def test_backtracking_output_omits_retracted_part(self):
-        """Backtracking output should NOT contain the retracted phrase."""
-        for inp, out in LLM_EXAMPLES:
+    def test_backtracking_output_omits_retracted(self):
+        """Backtracking examples: retracted part must not appear in output."""
+        for inp, out in FEW_SHOT_EXAMPLES:
             if "hayır yok yok" in inp:
-                # The part before the backtrack marker should not appear verbatim
                 retracted = inp.split("hayır yok yok")[0].strip()
-                assert retracted not in out, f"Retracted part '{retracted}' still in output"
+                assert retracted not in out
             if "scratch that" in inp:
                 retracted = inp.split("scratch that")[0].strip()
-                assert retracted not in out, f"Retracted part '{retracted}' still in output"
+                assert retracted not in out
 
-    def test_spoken_punctuation_symbol_in_output(self):
-        """Spoken punctuation input must produce symbol in output."""
-        for inp, out in LLM_EXAMPLES:
+    def test_spoken_punct_symbol_in_output(self):
+        """Spoken-punct examples: symbol must appear in output."""
+        for inp, out in FEW_SHOT_EXAMPLES:
             if "virgül" in inp:
-                assert "," in out, "Expected ',' in output for 'virgül' input"
-            if "nokta" in inp and inp != "nokta":
-                assert "." in out, "Expected '.' in output for 'nokta' input"
+                assert "," in out
             if "comma" in inp:
-                assert "," in out, "Expected ',' in output for 'comma' input"
+                assert "," in out
 
 
-class TestOllamaFewShotExamples:
-    def test_has_filler_word_removal_tr(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_filler = any(
-            any(f in inp for f in ["yani", "şey", "hani", "işte", "ee", "aa"])
-            for inp in inputs
-        )
-        assert has_filler
+# ---------------------------------------------------------------------------
+# Integration: pre_process + BASE_PROMPT cover the full rule set
+# ---------------------------------------------------------------------------
 
-    def test_has_filler_word_removal_en(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_filler = any(
-            any(f in inp for f in ["um ", "uh ", " like ", "you know"])
-            for inp in inputs
-        )
-        assert has_filler
+class TestPipelineCoverage:
+    """Verify that pre_process + LLM together handle the full rule set."""
 
-    def test_has_backtracking_tr(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_backtrack = any(
-            any(m in inp for m in ["hayır yok yok", "dur bir dakika", "pardon"])
-            for inp in inputs
-        )
-        assert has_backtrack
+    def test_spoken_punct_handled_by_preprocessor(self):
+        result = pre_process("hazır ol lütfen nokta")
+        assert result.endswith(".")
 
-    def test_has_backtracking_en(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_backtrack = any("scratch that" in inp for inp in inputs)
-        assert has_backtrack
+    def test_backtrack_handled_by_preprocessor(self):
+        result = pre_process("kaydet hayır yok yok vazgeç")
+        assert "kaydet" not in result
 
-    def test_has_spoken_punctuation_tr(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_punct = any("virgül" in inp or "nokta" in inp for inp in inputs)
-        assert has_punct
+    def test_sentence_filler_handled_by_preprocessor(self):
+        result = pre_process("Yani, toplantıya gidiyoruz")
+        assert not result.lower().startswith("yani")
 
-    def test_has_spoken_punctuation_en(self):
-        inputs = _get_inputs(OLLAMA_EXAMPLES)
-        has_punct = any("comma" in inp or " period" in inp for inp in inputs)
-        assert has_punct
+    def test_context_sensitive_filler_left_for_llm(self):
+        """mid-sentence 'yani' as i.e. must NOT be stripped by pre_process."""
+        result = pre_process("500 kişi yani yarısı geldi")
+        assert "yani" in result
