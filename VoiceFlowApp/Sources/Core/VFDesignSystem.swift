@@ -223,7 +223,8 @@ enum VFLayout {
 
     enum Overlay {
         static let pill:          CGSize = CGSize(width: 140, height: 48)
-        static let modeIndicator: CGSize = CGSize(width: 220, height: 60)
+        static let modeIndicator:     CGSize = CGSize(width: 220, height: 60) // legacy fallback
+        static let modeIndicatorPill: CGSize = CGSize(width: 66,  height: 66)
         static let trainingPill:  CGSize = CGSize(width: 88,  height: 88)
     }
 

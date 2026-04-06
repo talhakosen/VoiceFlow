@@ -308,9 +308,10 @@ protocol BackendServiceProtocol: Actor {
 - AppDelegate: her kayıt bitiminden 0.5s sonra `hotkeyManager.start()` — macOS bazen fn=true eventi durdurur, yeniden register düzeltir
 - `onStartRecording` / `onStopRecording` closure'ları `HotkeyStateMachine.onStart/onStop`'a iletilir
 
-**⌥1/2/3 global mod kısayolları:**
-- keyCode 18→Genel, 19→Mühendislik, 20→Ofis
-- `NSEvent.addGlobalMonitorForEvents(.keyDown)` — `.option` modifier'da tetiklenir
+**⌥1/2/3 mod kısayolları:**
+- `NSMenu keyEquivalent` + `keyEquivalentModifierMask = .option` — mode submenu item'larına atanır
+- Global NSEvent keyDown monitörü kullanılmaz (macOS'ta Input Monitoring izni gerektirir, sessizce çalışmaz)
+- macOS'un yerleşik menu shortcut sistemi — sıfır ek izin, menu kapalıyken de tetiklenir
 
 ---
 
@@ -322,12 +323,14 @@ Alt orta floating pill. İki state:
 - `isProcessing = true` → 3 nokta bounce
 
 ### ModeIndicatorView + ModeIndicatorWindowController
-Sağ üst köşe kayan kapsül (`ultraThinMaterial` + mod rengi).
+Sağ üst köşe kayan kapsül (`ultraThinMaterial` + mod rengi), `20px` kenar boşluğu.
 - `showPersistent(mode:)` — kayıt boyunca kalır
 - `showBriefly(mode:)` — mod değişiminde 2 sn
+- `NSHostingView` kullanır (SafeHostingView değil — constraint override fittingSize hesabını bozuyordu)
 
 ### TrainingPillView + TrainingPillWindowController
-Sağ alt köşe 60×60px float buton. Paste sonrası 10s geri sayım arc + edit ikonu (sayı gösterilmez).
+Sağ alt köşe 60×60px float buton, `20px` kenar boşluğu. Paste sonrası 10s geri sayım arc + edit ikonu (sayı gösterilmez).
+- ModeIndicatorView ile aynı sağ kenar hizası (`overlayEdgeInset = 20`)
 - Tıkla → NSAlert + NSTextView edit dialog
 - **Kaydet** → token diff → dictionary auto-add (aynı kelime sayısı şartıyla her farklı çift)
 - **WAV pipeline:** `trainingMode: true` → backend pending WAV → `saveUserCorrection()` veya `deletePendingWav()`

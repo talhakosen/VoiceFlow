@@ -71,11 +71,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Monitor refresh moved to polling loop — happens after processing completes,
             // not immediately after stop. This prevents stale fn=true events during processing.
         }
-        hotkeyManager.onSwitchMode = { [weak self] index in
-            let modes = AppMode.allCases
-            guard index < modes.count else { return }
-            self?.store.send(.recording(.selectAppMode(modes[index])))
-        }
         hotkeyManager.start()
     }
 

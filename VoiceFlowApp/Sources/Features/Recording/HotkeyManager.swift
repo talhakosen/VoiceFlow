@@ -6,7 +6,6 @@ import AppKit
 class HotkeyManager {
     var onStartRecording: (() -> Void)? { didSet { sm.onStart = onStartRecording } }
     var onStopRecording: (() -> Void)?  { didSet { sm.onStop  = onStopRecording  } }
-    var onSwitchMode: ((Int) -> Void)?
 
     private var sm = HotkeyStateMachine()
     private var monitors: [Any] = []
@@ -39,18 +38,10 @@ class HotkeyManager {
             self?.handle(event, source: "local")
             return event
         }
-        let keys = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard event.modifierFlags.intersection([.option, .command, .control, .shift]) == .option else { return }
-            switch event.keyCode {
-            case 18: self?.onSwitchMode?(0)
-            case 19: self?.onSwitchMode?(1)
-            case 20: self?.onSwitchMode?(2)
-            default: break
-            }
-        }
-
-        monitors = [flags, local, keys].compactMap { $0 }
-        log("monitors registered: \(monitors.count) (flags=\(flags != nil), local=\(local != nil), keys=\(keys != nil))")
+        // Option+1/2/3 mode switching is handled via NSMenu keyEquivalent (no special permissions needed).
+        // HotkeyManager only manages Fn push-to-talk.
+        monitors = [flags, local].compactMap { $0 }
+        log("monitors registered: \(monitors.count) (flags=\(flags != nil), local=\(local != nil))")
 
         if flags == nil {
             log("⚠️ GLOBAL MONITOR IS NIL — Accessibility permission missing!")

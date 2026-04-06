@@ -162,8 +162,9 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(langItem)
 
         let modeMenu = NSMenu()
-        for mode in AppMode.allCases {
-            let item = action(mode.displayName, sel: #selector(switchMode(_:)), key: "")
+        for (idx, mode) in AppMode.allCases.enumerated() {
+            let item = action(mode.displayName, sel: #selector(switchMode(_:)), key: "\(idx + 1)")
+            item.keyEquivalentModifierMask = .option
             item.representedObject = mode.rawValue
             item.state = recordingState.currentAppMode == mode ? .on : .off
             if let img = NSImage(systemSymbolName: mode.menuIcon, accessibilityDescription: nil) {

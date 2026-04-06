@@ -22,7 +22,6 @@ struct ModeIndicatorView: View {
             }
         )
         .vfAccentShadow(accent: mode.color)
-        .padding(VFSpacing.xxxl)
     }
 }
 
@@ -63,17 +62,18 @@ final class ModeIndicatorWindowController: NSObject {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
 
-            let hosting = SafeHostingView(rootView: ModeIndicatorView(mode: mode))
-            hosting.sizingOptions = [.preferredContentSize]
+            let view = ModeIndicatorView(mode: mode)
 
             if let existing = self.panel {
-                existing.contentView = hosting
+                (existing.contentView as? NSHostingView<ModeIndicatorView>)?.rootView = view
                 existing.orderFront(nil)
                 return
             }
 
+            // Fixed size: icon(18) + inner-padding(16×2) + shadow(8) ≈ 66px square
+            let s = VFLayout.Overlay.modeIndicatorPill
             let p = NSPanel(
-                contentRect: NSRect(origin: .zero, size: VFLayout.Overlay.modeIndicator),
+                contentRect: NSRect(origin: .zero, size: s),
                 styleMask: [.borderless, .nonactivatingPanel],
                 backing: .buffered,
                 defer: false
@@ -83,32 +83,20 @@ final class ModeIndicatorWindowController: NSObject {
             p.backgroundColor = .clear
             p.isOpaque = false
             p.hasShadow = false
-            p.contentView = hosting
             p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+
+            let hosting = NSHostingView(rootView: view)
+            p.contentView = hosting
 
             if let screen = NSScreen.main {
                 let sw = screen.visibleFrame
                 p.setFrameOrigin(NSPoint(
-                    x: sw.maxX - p.frame.width - 20,
-                    y: sw.maxY - p.frame.height - 20
+                    x: sw.maxX - s.width  - VFLayout.overlayEdgeInset,
+                    y: sw.maxY - s.height - VFLayout.overlayEdgeInset
                 ))
             }
-
             p.orderFront(nil)
             self.panel = p
-
-            // Re-position after SwiftUI layout resolves actual content size
-            DispatchQueue.main.async {
-                let size = hosting.fittingSize
-                p.setContentSize(size)
-                if let screen = NSScreen.main {
-                    let sw = screen.visibleFrame
-                    p.setFrameOrigin(NSPoint(
-                        x: sw.maxX - size.width - 20,
-                        y: sw.maxY - size.height - 20
-                    ))
-                }
-            }
         }
     }
 }
