@@ -5,7 +5,6 @@ No business logic here.
 """
 
 import asyncio
-import gc
 import logging
 from typing import Literal
 
@@ -153,103 +152,29 @@ async def get_devices(svc=Depends(get_service)):
 
 @router.post("/config")
 async def update_config(config: ConfigRequest, request: Request, svc=Depends(get_service)):
-    from ..transcription import WhisperTranscriber, WhisperConfig
+    from ..services.config_service import apply_config
+    from ..services.config_service import ConfigRequest as SvcConfigRequest
 
-    loop = asyncio.get_running_loop()
-
-    transcriber = svc.transcriber
-    corrector = svc.corrector
-
-    # Update transcriber if config changed
-    new_cfg = WhisperConfig(
-        model_name=config.model or transcriber.config.model_name,
-        language=config.language if config.language is not None else transcriber.config.language,
-        task=config.task or transcriber.config.task,
-    )
-    if (new_cfg.model_name != transcriber.config.model_name
-            or new_cfg.language != transcriber.config.language
-            or new_cfg.task != transcriber.config.task):
-        transcriber.unload()
-        if _BACKEND_MODE == "server":
-            from ..transcription.faster_whisper import FasterWhisperTranscriber
-            svc.update_transcriber(FasterWhisperTranscriber(config=new_cfg))
-        else:
-            svc.update_transcriber(WhisperTranscriber(config=new_cfg))
-        gc.collect()
-
-    # Update mode — engineering mode auto-disables LLM correction
-    if config.mode is not None:
-        corrector.config.mode = config.mode
-        if config.mode == "engineering" and corrector.config.enabled:
-            logger.info("Engineering mode: auto-disabling LLM correction")
-            corrector.config.enabled = False
-            from ..recording import _mlx_executor
-            if hasattr(corrector, "correct_async"):
-                await loop.run_in_executor(None, corrector.unload)
-            else:
-                await loop.run_in_executor(_mlx_executor, corrector.unload)
-
-        if config.mode == "engineering":
-            import time as _time
-            last_paths = getattr(request.app.state, "last_index_paths", {})
-            req_user_id = getattr(request.state, "user_id", "") or ""
-            entry = last_paths.get(req_user_id) or last_paths.get("default")
-            if entry and (_time.time() - entry["indexed_at"]) > 300:
-                async def _reindex(path: str, uid: str, app_state) -> None:
-                    try:
-                        from ..symbol import build_symbol_index, generate_project_notes
-                        sym_count = await build_symbol_index(path, uid)
-                        logger.info("Auto re-index (engineering mode): %d symbols", sym_count)
-                        if sym_count > 0:
-                            await generate_project_notes(path, uid)
-                        import time as _t
-                        if not hasattr(app_state, "last_index_paths"):
-                            app_state.last_index_paths = {}
-                        app_state.last_index_paths[uid] = {"path": path, "indexed_at": _t.time()}
-                    except Exception as _e:
-                        logger.warning("Auto re-index failed: %s", _e)
-                asyncio.create_task(_reindex(entry["path"], req_user_id, request.app.state))
-
-    # Update output format
-    if config.output_format is not None:
-        corrector.config.output_format = config.output_format
-
-    # Update correction enabled/disabled
-    if config.correction_enabled is not None:
-        was_enabled = corrector.config.enabled
-        corrector.config.enabled = config.correction_enabled
-
-        from ..services.recording import _mlx_executor
-        if config.correction_enabled and not was_enabled:
-            logger.info("Correction enabled, loading LLM model...")
-            if hasattr(corrector, "correct_async"):
-                await loop.run_in_executor(None, corrector._ensure_model_loaded)
-            else:
-                await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
-        elif not config.correction_enabled and was_enabled:
-            logger.info("Correction disabled, unloading LLM model...")
-            if hasattr(corrector, "correct_async"):
-                await loop.run_in_executor(None, corrector.unload)
-            else:
-                await loop.run_in_executor(_mlx_executor, corrector.unload)
-
-    result = {
-        "model": svc.transcriber.config.model_name,
-        "language": svc.transcriber.config.language,
-        "task": svc.transcriber.config.task,
-        "correction_enabled": corrector.config.enabled,
-        "mode": corrector.config.mode,
-        "output_format": getattr(corrector.config, "output_format", "prose"),
-    }
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
     user_id = getattr(request.state, "user_id", "") or ""
-    await append_audit_log(
-        tenant_id=tenant_id,
-        action="config_changed",
-        user_id=user_id,
-        target=str({k: v for k, v in config.model_dump().items() if v is not None}),
+
+    svc_config = SvcConfigRequest(
+        model=config.model,
+        language=config.language,
+        task=config.task,
+        correction_enabled=config.correction_enabled,
+        mode=config.mode,
+        output_format=config.output_format,
     )
-    return result
+    result = await apply_config(
+        config=svc_config,
+        svc=svc,
+        app_state=request.app.state,
+        backend_mode=_BACKEND_MODE,
+        user_id=user_id,
+        tenant_id=tenant_id,
+    )
+    return vars(result)
 
 
 @router.get("/history")

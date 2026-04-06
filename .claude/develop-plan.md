@@ -172,6 +172,8 @@
       RecordingService: stop() god method → _apply_text_pipeline() extracted (dict+snippets+fillers+symbols+LLM)
       Config enum validation: mode + output_format → Pydantic Literal types
       DB indexes: transcriptions(tenant_id, created_at), user_dictionary(trigger), snippets(user_id)
+- [DONE 2026-04-06] **storage.py modülarizasyonu** — 1077 satır tek dosya → 9 odaklı modül (migrations, transcription, config, dictionary, user, audit, training, symbol, token) + backward-compat shim; corrections tracking (dict/snippet/symbol/llm typed JSON); pre-commit hook (test zorunluluğu); 75 test geçiyor
+- [DONE 2026-04-06] **ConfigService** — routes.py /api/config endpoint'indeki business logic (transcriber switching, mode management, LLM load/unload, symbol re-index, audit log) services/config_service.py'a taşındı; route HTTP delegation katmanına indirildi
       tenant_id: training_sentences/recordings + symbol_index/v2 tablolarına eklendi (ALTER TABLE migration)
 - [DONE 2026-04-05] **symbol_indexer.py → voiceflow/symbol/ paketi**:
       1447 satırlık services/symbol_indexer.py, correction/ ve transcription/ ile aynı seviyede voiceflow/symbol/ paketine taşındı
