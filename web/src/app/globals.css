@@ -7,6 +7,53 @@
   --section-gap: 120px;
   --gradient-blue: linear-gradient(135deg, #4F7AFF 0%, #7C6BFF 100%);
   --marquee-duration: 60s;
+
+  /* Theme tokens — light (default) */
+  --page-bg: #ffffff;
+  --page-bg-alt: #f8fafc;
+  --card-bg: rgba(0,0,0,0.025);
+  --card-border: rgba(0,0,0,0.08);
+  --card-border-hover: rgba(0,0,0,0.14);
+  --heading: #0f172a;
+  --body: #334155;
+  --muted: #64748b;
+  --subtle: #94a3b8;
+  --faint: #cbd5e1;
+  --example-bg: rgba(0,0,0,0.02);
+  --example-border: rgba(0,0,0,0.06);
+  --example-said: #64748b;
+  --bar-track: rgba(0,0,0,0.06);
+  --bar-label: #94a3b8;
+  --divider: rgba(0,0,0,0.06);
+  --stat-value: #0f172a;
+  --scrollbar-thumb: rgba(0,0,0,0.12);
+  --scrollbar-hover: rgba(0,0,0,0.22);
+  --selection-bg: rgba(79,122,255,0.15);
+  --selection-color: #2a4abf;
+}
+
+.dark {
+    --page-bg: #070810;
+    --page-bg-alt: #0c0e18;
+    --card-bg: rgba(255,255,255,0.02);
+    --card-border: rgba(255,255,255,0.07);
+    --card-border-hover: rgba(255,255,255,0.14);
+    --heading: #ffffff;
+    --body: rgba(255,255,255,0.60);
+    --muted: rgba(255,255,255,0.40);
+    --subtle: rgba(255,255,255,0.25);
+    --faint: rgba(255,255,255,0.15);
+    --example-bg: rgba(255,255,255,0.02);
+    --example-border: rgba(255,255,255,0.06);
+    --example-said: rgba(255,255,255,0.30);
+    --bar-track: rgba(255,255,255,0.04);
+    --bar-label: rgba(255,255,255,0.30);
+    --divider: rgba(255,255,255,0.05);
+    --stat-value: #ffffff;
+    --scrollbar-thumb: rgba(255,255,255,0.10);
+    --scrollbar-hover: rgba(255,255,255,0.18);
+  --selection-bg: rgba(79,122,255,0.22);
+  --selection-color: #a4bcff;
 }
 
 @keyframes marquee-right {
@@ -43,8 +90,8 @@ html {
 }
 
 body {
-  background-color: #070810;
-  color: #D4D8E8;
+  background-color: var(--page-bg);
+  color: var(--body);
   font-family: var(--font-inter), system-ui, sans-serif;
   line-height: 1.6;
 }
@@ -73,17 +120,17 @@ h1, h2, h3 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.10);
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--scrollbar-hover);
 }
 
 /* Selection */
 ::selection {
-  background: rgba(79, 122, 255, 0.22);
-  color: #a4bcff;
+  background: var(--selection-bg);
+  color: var(--selection-color);
 }
 
 /* Focus visible */

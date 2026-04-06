@@ -11,19 +11,13 @@ import type {
   AgenticUseCase,
 } from '@/types'
 
-export const NAV_LINKS: NavLink[] = [
-  { label: 'Ürün', href: '#urun' },
-  { label: 'Özellikler', href: '#ozellikler' },
-  { label: 'Nasıl Çalışır', href: '#nasil-calisir' },
-  { label: 'Güvenlik', href: '#guvenlik' },
-  { label: 'Fiyatlandırma', href: '#fiyatlandirma' },
-]
+export const NAV_LINKS: NavLink[] = []
 
 export const HERO = {
   tagline: 'Yazmayı bırakın,\nkonuşun.',
-  subtext: 'Konuştuğunuz her şeyi kusursuz Türkçe yazıya dönüştürür.',
-  ctaPrimary: 'Ücretsiz Pilot Başlatın',
-  trustedBy: 'Türkiye\'nin önde gelen kurumları güveniyor',
+  subtext: 'E-posta, rapor, commit mesajı — sesinizle, anında.',
+  ctaPrimary: 'Demo Talep Edin',
+  trustedBy: '',
 }
 
 export const TYPEWRITER_EXAMPLES = [
