@@ -10,4 +10,4 @@ limiter = Limiter(
     default_limits=[RATE_LIMIT_DEFAULT],
 )
 
-__all__ = ["limiter", "RATE_LIMIT_STOP", "RATE_LIMIT_AUTH"]
+__all__ = ["limiter", "RATE_LIMIT_DEFAULT", "RATE_LIMIT_STOP", "RATE_LIMIT_AUTH"]

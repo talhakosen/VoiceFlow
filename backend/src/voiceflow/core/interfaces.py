@@ -16,13 +16,6 @@ class TranscriptionResult:
     duration: float | None = None
 
 
-@dataclass
-class CorrectorConfig:
-    """Shared corrector configuration."""
-    enabled: bool = False
-    mode: str = "general"  # "general" | "engineering" | "office"
-
-
 class AbstractTranscriber(ABC):
     """Protocol for speech-to-text engines (MLX Whisper, faster-whisper, etc.)"""
 
@@ -31,8 +24,8 @@ class AbstractTranscriber(ABC):
         """Transcribe raw audio samples. Returns TranscriptionResult."""
 
     @abstractmethod
-    def _ensure_model_loaded(self) -> None:
-        """Eagerly load the model (called during preload)."""
+    def preload(self) -> None:
+        """Eagerly load the model into memory (called at startup)."""
 
     @abstractmethod
     def unload(self) -> None:
@@ -42,15 +35,13 @@ class AbstractTranscriber(ABC):
 class AbstractCorrector(ABC):
     """Protocol for LLM text correction engines (MLX-LM, Ollama, etc.)"""
 
-    config: CorrectorConfig
-
     @abstractmethod
     def correct(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
         """Synchronous correction. Used in MLX executor."""
 
     @abstractmethod
-    def _ensure_model_loaded(self) -> None:
-        """Eagerly load / pre-warm the model."""
+    def preload(self) -> None:
+        """Eagerly load / pre-warm the model (called at startup)."""
 
     @abstractmethod
     def unload(self) -> None:

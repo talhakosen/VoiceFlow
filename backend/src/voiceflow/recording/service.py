@@ -340,7 +340,7 @@ class RecordingService:
         loop = asyncio.get_running_loop()
         logger.info("Preloading Whisper model...")
         try:
-            await loop.run_in_executor(self._executor, self._transcriber._ensure_model_loaded)
+            await loop.run_in_executor(self._executor, self._transcriber.preload)
             logger.info("Whisper model loaded")
         except Exception as e:
             logger.error("Whisper model load failed: %s", e)
@@ -349,9 +349,9 @@ class RecordingService:
             logger.info("Preloading LLM model...")
             try:
                 if hasattr(self._corrector, "correct_async"):
-                    await loop.run_in_executor(None, self._corrector._ensure_model_loaded)
+                    await loop.run_in_executor(None, self._corrector.preload)
                 else:
-                    await loop.run_in_executor(self._executor, self._corrector._ensure_model_loaded)
+                    await loop.run_in_executor(self._executor, self._corrector.preload)
                 logger.info("LLM model loaded")
             except Exception as e:
                 logger.error("LLM model load failed: %s", e)

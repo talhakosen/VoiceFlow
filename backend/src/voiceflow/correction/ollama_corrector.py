@@ -149,7 +149,7 @@ class OllamaCorrector:
 
     config: OllamaCorrectorConfig = field(default_factory=OllamaCorrectorConfig)
 
-    def _ensure_model_loaded(self) -> None:
+    def preload(self) -> None:
         """Pre-warm Ollama — keeps model resident in GPU memory."""
         import httpx
 

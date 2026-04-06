@@ -97,9 +97,9 @@ async def apply_config(
         if config.correction_enabled and not was_enabled:
             logger.info("Correction enabled, loading LLM model...")
             if hasattr(corrector, "correct_async"):
-                await loop.run_in_executor(None, corrector._ensure_model_loaded)
+                await loop.run_in_executor(None, corrector.preload)
             else:
-                await loop.run_in_executor(_mlx_executor, corrector._ensure_model_loaded)
+                await loop.run_in_executor(_mlx_executor, corrector.preload)
         elif not config.correction_enabled and was_enabled:
             logger.info("Correction disabled, unloading LLM model...")
             if hasattr(corrector, "correct_async"):

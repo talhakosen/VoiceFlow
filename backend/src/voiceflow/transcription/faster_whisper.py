@@ -24,7 +24,7 @@ class FasterWhisperTranscriber:
     config: WhisperConfig = field(default_factory=WhisperConfig)
     _model: Any = field(default=None, init=False, repr=False)
 
-    def _ensure_model_loaded(self) -> None:
+    def preload(self) -> None:
         """Lazy load faster-whisper model on first use."""
         if self._model is None:
             from faster_whisper import WhisperModel
@@ -59,7 +59,7 @@ class FasterWhisperTranscriber:
         """
         import soundfile as sf
 
-        self._ensure_model_loaded()
+        self.preload()
 
         if len(audio) == 0:
             return TranscriptionResult(text="")

@@ -93,7 +93,7 @@ class WhisperTranscriber:
     config: WhisperConfig = field(default_factory=WhisperConfig)
     _model_loaded: bool = field(default=False, init=False)
 
-    def _ensure_model_loaded(self) -> None:
+    def preload(self) -> None:
         """Lazy load model on first use."""
         if not self._model_loaded:
             # mlx-whisper downloads model on first use
@@ -126,7 +126,7 @@ class WhisperTranscriber:
         """
         import mlx_whisper
 
-        self._ensure_model_loaded()
+        self.preload()
 
         if len(audio) == 0:
             return TranscriptionResult(text="")
@@ -180,7 +180,7 @@ class WhisperTranscriber:
         """
         import mlx_whisper
 
-        self._ensure_model_loaded()
+        self.preload()
 
         options = {
             "path_or_hf_repo": self.config.model_name,

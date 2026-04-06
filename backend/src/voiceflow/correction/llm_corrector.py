@@ -188,7 +188,7 @@ class LLMCorrector:
     _model: Any = field(default=None, init=False, repr=False)
     _tokenizer: Any = field(default=None, init=False, repr=False)
 
-    def _ensure_model_loaded(self) -> None:
+    def preload(self) -> None:
         """Lazy load model on first use, optionally with LoRA adapter."""
         if self._model is None:
             from mlx_lm import load
@@ -244,7 +244,7 @@ class LLMCorrector:
         from mlx_lm import generate
         from mlx_lm.sample_utils import make_sampler
 
-        self._ensure_model_loaded()
+        self.preload()
 
         try:
             # When a fine-tuned adapter is loaded, use a shorter system prompt —

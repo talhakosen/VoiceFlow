@@ -13,8 +13,12 @@ _CONFIG_PATH = _REPO_ROOT / "config.yaml"
 
 def _load() -> dict:
     if _CONFIG_PATH.exists():
-        with open(_CONFIG_PATH) as f:
-            return yaml.safe_load(f) or {}
+        try:
+            with open(_CONFIG_PATH) as f:
+                return yaml.safe_load(f) or {}
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("config.yaml parse error: %s — using defaults", e)
     return {}
 
 _raw = _load()
@@ -26,6 +30,17 @@ def _get(section: str, key: str, default: str = "") -> str:
     if env_val := os.getenv(env_key):
         return env_val
     return str(_raw.get(section, {}).get(key, default))
+
+
+def _get_int(section: str, key: str, default: int) -> int:
+    """Like _get() but parses as int; falls back to default on ValueError."""
+    raw = _get(section, key, str(default))
+    try:
+        return int(raw)
+    except ValueError:
+        import logging
+        logging.getLogger(__name__).warning("config %s.%s=%r is not an int — using %d", section, key, raw, default)
+        return default
 
 
 def _resolve_path(raw: str) -> Path | None:
@@ -60,7 +75,7 @@ _whisper_it_raw = _get("whisper", "it_model", "")
 _whisper_it_path = _resolve_path(_whisper_it_raw) if _whisper_it_raw else None
 WHISPER_IT_MODEL: str = str(_whisper_it_path) if (_whisper_it_path and _whisper_it_path.exists()) else _whisper_it_raw
 
-JWT_ACCESS_TTL_MINUTES: int = int(_get("auth", "jwt_access_ttl_minutes", "60"))
+JWT_ACCESS_TTL_MINUTES: int = _get_int("auth", "jwt_access_ttl_minutes", 60)
 
 # DB encryption key — empty = plaintext (local dev); set in .env for production
 # Example: DB_ENCRYPTION_KEY=<openssl rand -hex 32>
@@ -79,8 +94,8 @@ CORS_ORIGINS: list[str] = [o.strip() for o in _cors_raw.split(",") if o.strip()]
 
 # Log rotation
 LOG_FILE:         str = _get("logging", "file",          "/tmp/voiceflow.log")
-LOG_MAX_BYTES:    int = int(_get("logging", "max_bytes",  str(10 * 1024 * 1024)))  # 10 MB
-LOG_BACKUP_COUNT: int = int(_get("logging", "backup_count", "5"))
+LOG_MAX_BYTES:    int = _get_int("logging", "max_bytes",  10 * 1024 * 1024)  # 10 MB
+LOG_BACKUP_COUNT: int = _get_int("logging", "backup_count", 5)
 
 # ── ML Dataset Paths ──────────────────────────────────────────────────────────
 
