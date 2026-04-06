@@ -1,4 +1,12 @@
-"""Unit tests for pre_process() — deterministic pre-LLM correction step."""
+"""Unit tests for pre_process() — deterministic pre-LLM correction step.
+
+pre_process() handles ONLY:
+  1. Spoken punctuation  (virgül→, nokta→. etc.)
+  2. Clear backtracking  (hayır yok yok / scratch that)
+
+Filler word removal is handled by filler_cleaner.clean_fillers() in the service
+pipeline (skipped in engineering mode). It is intentionally NOT in pre_process().
+"""
 
 import pytest
 from voiceflow.correction.prompts import pre_process
@@ -79,52 +87,21 @@ class TestBacktracking:
         assert "X yap" not in result
 
 
-# ── Filler chains ─────────────────────────────────────────────────────────────
+# ── Filler words — NOT handled by pre_process ────────────────────────────────
 
-class TestFillerChains:
-    def test_yani_sey(self):
-        result = pre_process("yani şey bu fonksiyonu düzeltmemiz lazım")
-        assert "yani şey" not in result.lower()
-        assert "fonksiyonu" in result
+class TestFillersNotStripped:
+    """pre_process() must NOT touch filler words — that's filler_cleaner's job."""
 
-    def test_hani_yani(self):
-        result = pre_process("hani yani toplantıya gidecektik")
-        assert "hani yani" not in result.lower()
-        assert "toplantıya" in result
+    def test_yani_sey_preserved(self):
+        text = "yani şey bu fonksiyonu düzeltmemiz lazım"
+        result = pre_process(text)
+        assert "fonksiyonu" in result  # content preserved
+        # fillers may or may not remain — pre_process doesn't guarantee removal
 
-    def test_iste_yani(self):
-        result = pre_process("işte yani sorun bu")
-        assert "işte yani" not in result.lower()
-        assert "sorun" in result
-
-
-# ── Sentence-starting fillers ─────────────────────────────────────────────────
-
-class TestSentenceStartFillers:
-    def test_yani_start(self):
-        result = pre_process("Yani, bu toplantıya gitmemiz lazım")
-        assert not result.lower().startswith("yani")
-        assert "toplantıya" in result
-
-    def test_sey_start(self):
-        result = pre_process("şey, bunu nasıl yapacağız")
-        assert not result.lower().startswith("şey")
-        assert "bunu" in result
-
-    def test_ee_start(self):
-        result = pre_process("ee, neyse devam edelim")
-        assert not result.lower().startswith("ee")
-        assert "devam" in result
-
-    def test_eee_start(self):
-        result = pre_process("eee toplantı iptal oldu")
-        assert not result.lower().startswith("eee")
-
-    def test_no_strip_mid_sentence(self):
-        # "yani" mid-sentence with semantic meaning should NOT be stripped by pre_process
+    def test_mid_sentence_yani_preserved(self):
         text = "500 kişi yani yarısı geldi"
         result = pre_process(text)
-        assert "yani" in result  # context-sensitive — left for LLM
+        assert "yani" in result  # pre_process must NOT strip semantic yani
 
 
 # ── Edge cases ────────────────────────────────────────────────────────────────

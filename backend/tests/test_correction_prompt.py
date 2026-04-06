@@ -104,7 +104,16 @@ class TestFewShotExamples:
 # ---------------------------------------------------------------------------
 
 class TestPipelineCoverage:
-    """Verify that pre_process + LLM together handle the full rule set."""
+    """Verify that pre_process + filler_cleaner + LLM together handle the full rule set.
+
+    Pipeline:
+      service: [Dict → filler_cleaner (skipped in engineering) → Snippets]
+      corrector: pre_process() → LLM
+
+    pre_process() handles: spoken punctuation, backtracking.
+    filler_cleaner handles: filler word removal (mode-aware).
+    LLM handles: Turkish chars, misheard words, context-sensitive fillers, sentence repair.
+    """
 
     def test_spoken_punct_handled_by_preprocessor(self):
         result = pre_process("hazır ol lütfen nokta")
@@ -114,11 +123,15 @@ class TestPipelineCoverage:
         result = pre_process("kaydet hayır yok yok vazgeç")
         assert "kaydet" not in result
 
-    def test_sentence_filler_handled_by_preprocessor(self):
-        result = pre_process("Yani, toplantıya gidiyoruz")
+    def test_filler_removal_not_done_by_preprocessor(self):
+        """Filler removal is filler_cleaner's job, not pre_process's."""
+        from voiceflow.services.filler_cleaner import clean_fillers
+        result = clean_fillers("Yani, toplantıya gidiyoruz")
         assert not result.lower().startswith("yani")
 
-    def test_context_sensitive_filler_left_for_llm(self):
-        """mid-sentence 'yani' as i.e. must NOT be stripped by pre_process."""
-        result = pre_process("500 kişi yani yarısı geldi")
+    def test_context_sensitive_filler_protected_by_filler_cleaner(self):
+        """Number-yani with comma must be preserved by filler_cleaner."""
+        from voiceflow.services.filler_cleaner import clean_fillers
+        # Protection requires comma: "500 kişi, yani yarısı" → keep
+        result = clean_fillers("500 kişi, yani yarısı geldi")
         assert "yani" in result

@@ -6,6 +6,12 @@ Single source of truth for:
 - FEW_SHOT_EXAMPLES — training examples for the LLM
 - BaseCorrectorConfig — shared config dataclass
 - build_system_prompt(), build_messages() — shared helpers
+
+pre_process() pipeline note:
+  Spoken punctuation and backtracking run here (inside the corrector) because
+  they are always safe, even in engineering mode.
+  Filler word removal is NOT done here — it runs earlier in the service pipeline
+  via filler_cleaner.clean_fillers(), which is mode-aware (skipped in engineering).
 """
 
 import logging
@@ -213,27 +219,16 @@ _BACKTRACK_PATTERNS: list[re.Pattern] = [
     re.compile(r'^.+?\b(scratch that|no wait|let me rephrase)\b[,.\s]*', re.IGNORECASE | re.DOTALL),
 ]
 
-# Filler chains — specific multi-filler combinations (before individual filler pass)
-_FILLER_CHAINS = re.compile(
-    r'\b(yani şey|hani yani|işte yani|şey işte|yani işte|ee işte|şey yani)[,\s]+',
-    re.IGNORECASE,
-)
-
-# Sentence-starting fillers — only at the very beginning of the utterance
-_SENTENCE_START_FILLER = re.compile(
-    r'^(yani|şey|hani|işte|ee+|aa+|eee+)\s*[,\s]+',
-    re.IGNORECASE,
-)
-
-
 def pre_process(text: str) -> str:
     """Deterministic pre-processing before the LLM correction pass.
 
     Handles in order:
     1. Spoken punctuation  (virgül→, nokta→. etc.)
     2. Clear backtracking  (hayır yok yok / scratch that — discards retracted part)
-    3. Filler chains       (yani şey, hani yani, …)
-    4. Sentence-start filler (Yani, / Şey, / Ee, …)
+
+    Filler word removal is intentionally NOT done here — it is handled earlier
+    in the service pipeline by filler_cleaner.clean_fillers(), which is skipped
+    in engineering mode. Running filler removal here would break engineering mode.
 
     Context-sensitive decisions (yani as "i.e.", mid-sentence filler,
     misheard words, sentence repair) are left for the LLM.
@@ -249,12 +244,6 @@ def pre_process(text: str) -> str:
     for pattern in _BACKTRACK_PATTERNS:
         while pattern.search(text):
             text = pattern.sub('', text).strip()
-
-    # 3. Filler chains
-    text = _FILLER_CHAINS.sub('', text).strip()
-
-    # 4. Sentence-starting filler
-    text = _SENTENCE_START_FILLER.sub('', text).strip()
 
     return text
 
