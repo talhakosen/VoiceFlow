@@ -79,7 +79,7 @@ async def index_repo_endpoint(
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
     """Scan git repo, extract identifiers, populate smart dictionary."""
-    from ..services.smart_dictionary import build_smart_dictionary
+    from ..indexing.smart_dictionary import build_smart_dictionary
 
     user_id = x_user_id or getattr(request.state, "user_id", None) or "default"
 

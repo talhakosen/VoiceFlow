@@ -46,7 +46,7 @@ async def start_ingest(
 
     async def _run() -> None:
         try:
-            from ..services.smart_dictionary import build_smart_dictionary
+            from ..indexing.smart_dictionary import build_smart_dictionary
             added = await build_smart_dictionary(path_str, user_id)
             logger.info("Smart dictionary: %d entries added for user %s", added, user_id)
         except Exception as exc:
