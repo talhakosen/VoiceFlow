@@ -4,8 +4,8 @@ Tests verify that _BASE_PROMPT and _FEW_SHOT_EXAMPLES in both correctors
 contain all required rules without executing LLM inference.
 """
 
-from voiceflow.correction.llm_corrector import _BASE_PROMPT as LLM_BASE_PROMPT
-from voiceflow.correction.ollama_corrector import _BASE_PROMPT as OLLAMA_BASE_PROMPT
+from voiceflow.correction.prompts import BASE_PROMPT as LLM_BASE_PROMPT
+from voiceflow.correction.prompts import BASE_PROMPT as OLLAMA_BASE_PROMPT
 from voiceflow.correction.prompts import FEW_SHOT_EXAMPLES as LLM_EXAMPLES
 from voiceflow.correction.prompts import FEW_SHOT_EXAMPLES as OLLAMA_EXAMPLES
 

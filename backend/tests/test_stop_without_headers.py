@@ -78,35 +78,35 @@ def test_stop_with_context_headers_passes():
 
 
 # ---------------------------------------------------------------------------
-# OllamaCorrector.correct_async — no context
+# APICorrector.correct_async — no context
 # ---------------------------------------------------------------------------
 
 def test_ollama_correct_async_no_context():
     """correct_async with no window/selected must not raise."""
-    from voiceflow.correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
+    from voiceflow.correction.api_corrector import APICorrector, APICorrectorConfig
 
-    corrector = OllamaCorrector(config=OllamaCorrectorConfig(enabled=False))
+    corrector = APICorrector(config=APICorrectorConfig(enabled=False))
     result = asyncio.run(corrector.correct_async("test metni"))
     assert result == "test metni"
 
 
 def test_ollama_correct_no_context():
     """correct() with no window/selected must not raise."""
-    from voiceflow.correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
+    from voiceflow.correction.api_corrector import APICorrector, APICorrectorConfig
 
-    corrector = OllamaCorrector(config=OllamaCorrectorConfig(enabled=False))
+    corrector = APICorrector(config=APICorrectorConfig(enabled=False))
     result = corrector.correct("test metni")
     assert result == "test metni"
 
 
 # ---------------------------------------------------------------------------
-# LLMCorrector.correct — no context
+# MLXCorrector.correct — no context
 # ---------------------------------------------------------------------------
 
 def test_llm_corrector_no_context_disabled():
-    """LLMCorrector.correct() with no context and disabled must return original."""
-    from voiceflow.correction.llm_corrector import LLMCorrector, CorrectorConfig
+    """MLXCorrector.correct() with no context and disabled must return original."""
+    from voiceflow.correction.mlx_corrector import MLXCorrector, MLXCorrectorConfig
 
-    corrector = LLMCorrector(config=CorrectorConfig(enabled=False))
+    corrector = MLXCorrector(config=MLXCorrectorConfig(enabled=False))
     result = corrector.correct("test metni")
     assert result == "test metni"

@@ -1,5 +1,6 @@
 """LLM-based text correction module."""
 
-from .llm_corrector import LLMCorrector, CorrectorConfig
+from .mlx_corrector import MLXCorrector, MLXCorrectorConfig
+from .api_corrector import APICorrector, APICorrectorConfig
 
-__all__ = ["LLMCorrector", "CorrectorConfig"]
+__all__ = ["MLXCorrector", "MLXCorrectorConfig", "APICorrector", "APICorrectorConfig"]

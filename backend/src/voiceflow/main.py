@@ -46,12 +46,12 @@ def _build_corrector():
         or bool(LLM_ENDPOINT)
     )
     if use_ollama:
-        from .correction.ollama_corrector import OllamaCorrector, OllamaCorrectorConfig
-        logger.info("Using OllamaCorrector (endpoint: %s)", LLM_ENDPOINT or "http://localhost:11434")
-        return OllamaCorrector(config=OllamaCorrectorConfig())
-    from .correction import LLMCorrector, CorrectorConfig
-    logger.info("Using MLX LLMCorrector")
-    return LLMCorrector(config=CorrectorConfig())
+        from .correction import APICorrector, APICorrectorConfig
+        logger.info("Using APICorrector (endpoint: %s)", LLM_ENDPOINT or "http://localhost:11434")
+        return APICorrector(config=APICorrectorConfig())
+    from .correction import MLXCorrector, MLXCorrectorConfig
+    logger.info("Using MLXCorrector (local, Metal GPU)")
+    return MLXCorrector(config=MLXCorrectorConfig())
 
 
 async def _purge_tokens_loop() -> None:
