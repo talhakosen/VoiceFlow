@@ -137,3 +137,56 @@ def test_silence_guard_silent_audio():
     rms = float(np.sqrt(np.mean(audio.astype(np.float32) ** 2)))
 
     assert rms < 0.005
+
+
+# ---------------------------------------------------------------------------
+# IT Bundle auto-load
+# ---------------------------------------------------------------------------
+
+def test_count_bundle_entries_returns_int():
+    """count_bundle_entries must return an integer (0 when DB is fresh or bundle loaded)."""
+    import asyncio
+    from unittest.mock import AsyncMock, patch, MagicMock
+
+    async def _run():
+        mock_cursor = AsyncMock()
+        mock_cursor.fetchone = AsyncMock(return_value=(71294,))
+        mock_cursor.__aenter__ = AsyncMock(return_value=mock_cursor)
+        mock_cursor.__aexit__ = AsyncMock(return_value=False)
+
+        mock_db = MagicMock()
+        mock_db.execute = MagicMock(return_value=mock_cursor)
+        mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+        mock_db.__aexit__ = AsyncMock(return_value=False)
+
+        with patch("voiceflow.db.dictionary_storage.aiosqlite.connect", return_value=mock_db):
+            from voiceflow.db.dictionary_storage import count_bundle_entries
+            result = await count_bundle_entries("default")
+            assert isinstance(result, int)
+            assert result == 71294
+
+    asyncio.run(_run())
+
+
+def test_bundle_entries_have_trigger_and_replacement():
+    """Each bundle entry must have 'trigger' and 'replacement' keys."""
+    import json
+    import pathlib
+
+    bundle_path = pathlib.Path(__file__).parent.parent.parent.parent / "ml" / "dictionary" / "it_bundle_full.json"
+    if not bundle_path.exists():
+        return  # Skip if not present in CI
+
+    with open(bundle_path, encoding="utf-8") as f:
+        entries = json.load(f)
+
+    assert len(entries) > 0
+    sample = entries[:10]
+    for entry in sample:
+        assert "trigger" in entry, f"Missing 'trigger' in {entry}"
+        assert "replacement" in entry, f"Missing 'replacement' in {entry}"
+
+    # "batın bar" → "toolbar" must be present after UI terms were added
+    toolbar_entry = next((e for e in entries if e["trigger"] == "batın bar"), None)
+    assert toolbar_entry is not None, "'batın bar' not found in bundle"
+    assert toolbar_entry["replacement"] == "toolbar"

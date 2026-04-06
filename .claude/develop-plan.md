@@ -55,6 +55,8 @@
 - [DONE 2026-04-06] **AppDelegate refactor** — BackendProcessManager extract (250 satır, 11 metod); AppDelegate 542→215 satır; AppFeature.State.fromUserDefaults() factory; findBackendPath() fallback (/Applications desteği)
 - [DONE 2026-04-06] **Fn push-to-talk fix** — isProcessing guard (processing sırasında fnDown engeli); monitor refresh processing bittikten sonra; HotkeyStateMachineTests genişletildi
 - [DONE 2026-04-06] **Silence/short-audio guard** — duration<0.5s || rms<0.005 → Whisper çağrılmaz; hallüsinasyon önlenir
+- [DONE 2026-04-06] **IT Bundle macOS/UI terimleri** — toolbar/navbar/sidebar/status bar/tab bar/scroll view/button vb. 100+ macOS UI bileşen telaffuzu BASE_TERMS'e eklendi; bundle 71,294→75,969 entry
+- [DONE 2026-04-06] **IT Bundle auto-load** — backend startup'ta `_autoload_bundle()`: DB entry sayısı != dosya → otomatik yükle; `count_bundle_entries()` helper eklendi; main.py lifespan'e entegre
 - [DONE 2026-04-06] **HomeSection** — Ana ekran: son transkripsiyonlar + istatistikler; .task(id: whisperModelName) otomatik yenileme
 - [DONE 2026-04-06] **App ikonu** — Wispr Flow kalitesinde koyu charcoal arkaplan + 5 beyaz bar; tüm macOS boyutları (16→1024px) + .icns üretildi
 - [DONE 2026-04-05] **Swift hardcode audit** — Tüm magic string/sayı `AppConstants`/`APIConstants`/`Models.swift` enum'larına taşındı: URL/port sabitleri (AppConstants.defaultLocalURL/Port), API endpoint path'leri (APIEndpoint.*), HTTP header isimleri (APIHeader.*), timeout/limit/ses/log path sabitleri; LLMMode+DeploymentMode enum'ları string karşılaştırmaları yerine; AppConstants+APIConstants Xcode projesine eklendi
@@ -280,12 +282,14 @@
 - [DONE 2026-04-04] **VFDesignSystem** — merkezi tasarım token dosyası (VFColor/VFFont/VFSpacing/VFRadius/VFAnimation/VFIcon/VFLayout/VFShadow); tüm Swift dosyalarındaki hardcoded değerler token'lara taşındı
 - [DONE 2026-04-04] **Görünüm modu (Light/Dark/System)** — AppearanceMode enum; AppViewModel.appearanceMode didSet → NSApp.appearance; Settings → Genel → segmented picker
 - [DONE 2026-04-03] **Design system yeniden yapılandırma** — Sora display font (h1/h2/h3 global), JetBrains Mono (stats/labels), electric blue #4F7AFF, dark-first tüm section'lar (zebra pattern kaldırıldı), .section-label utility, .grid-lines pattern, Navbar her zaman dark
+- [DONE 2026-04-06] **Web landing page yeniden tasarım** — 3 section (Hero + Product + Closing); fake social proof kaldırıldı; use-case odaklı (ofis + mühendis); hız karşılaştırması animasyonlu bar chart + 3 istatistik; minimal Footer
+- [DONE 2026-04-06] **Light/dark mode** — ThemeProvider (localStorage + system pref); CSS custom properties (--page-bg, --heading, --muted vb.); Tailwind `darkMode: 'class'`; tüm section'lar dark: variant ile
+- [DONE 2026-04-06] **Theme toggle** — Navbar sağ üst sun/moon button; sistem tercihi default; kalıcı localStorage
+- [DONE 2026-04-06] **Tek ikon (waveform)** — web/public/app-icon.png; Mac AppIcon tüm boyutlar (16→1024); MenuBarIcon template image; hepsi `voiceflow_icon_preview.png`'den üretildi
+- [DONE 2026-04-06] **Deploy** — `voiceflow-tr.vercel.app` permanent alias; SEO meta + OG tamamlandı
 - [ ] **Pricing section** — `PricingTier` tipi hazır; Starter/Pro/Enterprise tiers, yıllık/aylık toggle, CTA butonları
 - [ ] **Gerçek social linkler** — Twitter/LinkedIn/GitHub şirket hesapları `constants.ts`'e girilecek
-- [ ] **Trusted logos SVG** — Garanti BBVA, Turkcell vb. text yerine gerçek logo
 - [ ] **Footer link'leri** — `#` placeholder'lar gerçek sayfalara bağlanacak
-- [ ] **Deploy** — Vercel veya static export; domain + SSL
-- [ ] **SEO meta** — `layout.tsx` OG image, Twitter card, canonical URL
 
 ### 3.4 Enterprise Distribution
 

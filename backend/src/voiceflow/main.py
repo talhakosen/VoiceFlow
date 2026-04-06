@@ -67,6 +67,32 @@ async def _purge_tokens_loop() -> None:
             pass
 
 
+async def _autoload_bundle() -> None:
+    """Load IT bundle into DB on startup if DB count differs from file (covers first run + updates)."""
+    import json, pathlib
+    from .db.dictionary_storage import count_bundle_entries, load_bundle_entries
+
+    bundle_path = pathlib.Path(__file__).parent.parent.parent.parent / "ml" / "dictionary" / "it_bundle_full.json"
+    if not bundle_path.exists():
+        logger.warning("IT bundle not found at %s — skipping auto-load", bundle_path)
+        return
+
+    try:
+        with open(bundle_path, encoding="utf-8") as f:
+            entries = json.load(f)
+    except Exception as exc:
+        logger.warning("IT bundle read failed: %s", exc)
+        return
+
+    db_count = await count_bundle_entries("default")
+    if db_count == len(entries):
+        logger.info("IT bundle up-to-date (%d entries) — skipping", db_count)
+        return
+
+    loaded = await load_bundle_entries("default", entries)
+    logger.info("IT bundle auto-loaded: %d entries (was %d)", loaded, db_count)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -80,6 +106,7 @@ async def lifespan(app: FastAPI):
 
     asyncio.create_task(service.preload_models())
     asyncio.create_task(_purge_tokens_loop())
+    asyncio.create_task(_autoload_bundle())
     yield
 
 

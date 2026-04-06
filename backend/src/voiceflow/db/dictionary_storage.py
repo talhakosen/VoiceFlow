@@ -137,6 +137,17 @@ async def clear_bundle_entries(tenant_id: str) -> None:
         await db.commit()
 
 
+async def count_bundle_entries(tenant_id: str = "default") -> int:
+    """Return number of bundle-scope entries for a tenant."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT COUNT(*) FROM user_dictionary WHERE tenant_id = ? AND scope = 'bundle'",
+            (tenant_id,),
+        ) as cursor:
+            row = await cursor.fetchone()
+            return row[0] if row else 0
+
+
 # ------------------------------------------------------------------
 # Context / smart dictionary
 # ------------------------------------------------------------------
