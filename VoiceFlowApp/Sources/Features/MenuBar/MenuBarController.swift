@@ -69,11 +69,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
         let recording = recordingState.isRecording
         if let recItem = menu.item(withTag: 101) {
             recItem.title = recording ? "Kaydı Durdur" : "Kaydı Başlat"
-            if let img = NSImage(systemSymbolName: recording ? "stop.circle.fill" : "mic",
-                                 accessibilityDescription: nil) {
-                img.isTemplate = true
-                recItem.image = img
-            }
         }
 
         // Paste last transcript (tag 102) — enabled only when a result exists
@@ -127,27 +122,24 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         // ── Home ─────────────────────────────────────────────────────────
-        menu.addItem(action("Ana Ekran", sel: #selector(openSettings), key: ",", icon: "house"))
+        menu.addItem(action("Ana Ekran", sel: #selector(openSettings), key: ","))
         menu.addItem(.separator())
 
         // ── Primary action ───────────────────────────────────────────────
         let isRec = recordingState.isRecording
         menu.addItem(action(isRec ? "Kaydı Durdur" : "Kaydı Başlat",
                             sel: #selector(toggleRecording),
-                            key: "", icon: isRec ? "stop.circle.fill" : "mic", tag: 101))
+                            key: "", tag: 101))
 
         let pasteItem = action("Son Transkripsiyonu Yapıştır",
                                sel: #selector(pasteLastTranscript),
-                               key: "v", icon: "doc.on.clipboard", tag: 102)
+                               key: "v", tag: 102)
         pasteItem.keyEquivalentModifierMask = [.control, .command]
         pasteItem.isEnabled = recordingState.lastResult != nil
         menu.addItem(pasteItem)
         menu.addItem(.separator())
 
         // ── Config submenus ──────────────────────────────────────────────
-        let shortcutItem = NSMenuItem(title: "Kısayol: Fn × 2 (başlat/durdur)", action: nil, keyEquivalent: "")
-        shortcutItem.isEnabled = false
-        menu.addItem(shortcutItem)
 
         let langMenu = NSMenu()
         for lang in LanguageMode.allCases {
@@ -167,10 +159,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
             item.keyEquivalentModifierMask = .option
             item.representedObject = mode.rawValue
             item.state = recordingState.currentAppMode == mode ? .on : .off
-            if let img = NSImage(systemSymbolName: mode.menuIcon, accessibilityDescription: nil) {
-                img.isTemplate = true
-                item.image = img
-            }
             modeMenu.addItem(item)
         }
         let modeItem = NSMenuItem(title: "Kullanım Alanı", action: nil, keyEquivalent: "")
@@ -181,24 +169,21 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         // ── Tools ────────────────────────────────────────────────────────
-        menu.addItem(action("Ses Eğitimi…",   sel: #selector(openITDataset),  key: "", icon: "waveform.badge.microphone"))
+        menu.addItem(action("Ses Eğitimi…", sel: #selector(openITDataset), key: ""))
 
-        // Fix 1: Read role from AuthFeature, not RecordingFeature
         let role = store.auth.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
-            menu.addItem(action("Admin Panel…", sel: #selector(openAdminPanel),
-                                key: "", icon: "shield.lefthalf.filled"))
+            menu.addItem(action("Admin Panel…", sel: #selector(openAdminPanel), key: ""))
         }
 
         menu.addItem(.separator())
 
         // ── Service ──────────────────────────────────────────────────────
-        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService),
-                            key: "", icon: "arrow.clockwise"))
+        menu.addItem(action("Servisi Yeniden Başlat", sel: #selector(restartService), key: ""))
         menu.addItem(.separator())
 
         // ── Quit ─────────────────────────────────────────────────────────
-        menu.addItem(action("VoiceFlow'dan Çık", sel: #selector(quit), key: "q"))
+        menu.addItem(action("VoiceFlow'dan Çık", sel: #selector(quit), key: "q", icon: "power"))
 
         menu.delegate = self
         statusItem?.menu = menu
