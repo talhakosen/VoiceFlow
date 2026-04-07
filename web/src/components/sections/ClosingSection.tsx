@@ -29,7 +29,7 @@ export function ClosingSection() {
             15 dakikada kurulumu gösteririz. Verileriniz kurumunuzdan ayrılmaz.
           </p>
 
-          <a href="mailto:demo@voiceflow.ai">
+          <a href="mailto:demo@dictamate.ai">
             <Button size="lg" variant="primary" className="text-base px-12">
               Demo Talep Edin
             </Button>

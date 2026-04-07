@@ -3,6 +3,8 @@
 Real-time speech-to-text for macOS — mlx-whisper + mlx-lm, enterprise on-premise.
 **Hedef:** Türkiye'nin Wispr Flow'u — veri egemenliği, on-premise, kurumsal.
 
+**Resmi Logo:** `assets/voiceflow_icon_preview.png` — koyu arka plan üzerinde waveform bars. Web, app icon, toolbar, menu bar dahil her yerde bu kullanılır. Başka logo kullanma.
+
 # IMPORTANT
 ihtiyac halinde context7 ve sequentialthinking yapmayi unutma
 
@@ -74,6 +76,7 @@ AppDelegate            ← lifecycle only: creates AppViewModel, starts backend 
 
 ### Deployment Modes
 - **Local** (`BACKEND_MODE=local`): MLX on Mac, 127.0.0.1, no auth
+- **Local + Cloud GPU** (`whisper.backend: runpod`): Ses Mac'te kaydedilir, transkripsiyon+düzeltme RunPod'da. **7x hızlı** (~850ms vs ~6sn). `BACKEND_MODE=local` kalır!
 - **Local + Cloud LLM** (`LLM_BACKEND=ollama` + `LLM_ENDPOINT=...`): Whisper Mac'te, correction RunPod'da. `BACKEND_MODE=local` kalır!
 - **Server** (`BACKEND_MODE=server`): NVIDIA GPU, 0.0.0.0, JWT auth zorunlu, faster-whisper gerektirir
 
@@ -140,3 +143,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **ISSAI extraction zorunluluğu**: `/workspace` (NFS) = 1K WAV/dk (~167 dk). `/root/` (container SSD) = 65K WAV/dk (~3 dk). DAIMA `/root/`'a extract et: `tar --no-same-owner -xzf ... -C /root/issai/extracted/`. `set -e` + tar chown hatası = extraction ~8K'da ölür.
 - **2. round Qwen training**: ISSAI pairs (`ml/whisper/datasets/issai/issai_pairs_clean.jsonl`) + mevcut dataset (`ml/qwen/data/`) → `prepare_dataset.py` → RunPod Qwen training.
 - **RunPod pod configs**: `runpod/pods/*.json` + `runpod/setup/*.sh`. Yeni pod: `cd runpod && python create_pod.py issai|stage2|qwen|ollama`.
+- **RunPod Cloud Inference (doğrulanan, 2026-04-07)**: `config.yaml` → `whisper.backend: runpod` + `.env` → `RUNPOD_INFERENCE_URL`. RTX 4090 EU-RO-1 pod'u, faster-whisper large-v3 + Ollama qwen2.5:7b. SSH tunnel + multipart upload ile **~850ms** toplam (local MLX ~6sn'den 7x hızlı). Detay: `runpod/README.md` "Cloud Inference" bölümü.
+- **RunPod Cloud Inference kurulum**: Pod aç → `zstd` + Ollama + faster-whisper + `python-multipart` kur → CUDA symlink (`ln -sf /usr/local/lib/ollama/cuda_v12/libcublas.so.12 /usr/lib/x86_64-linux-gnu/`) → handler + server yükle → SSH tunnel (`ssh -f -N -L 18765:localhost:8765 -p <SSH_PORT> root@<IP>`). Pod restart sonrası Ollama + server tekrar başlatılmalı.
+- **RunPod proxy vs SSH tunnel**: Proxy ~200ms overhead, SSH tunnel ~50ms. Tunnel: `ssh -f -N -L 18765:localhost:8765 -p <PORT> root@<IP>`. `.env` → `RUNPOD_INFERENCE_URL=http://localhost:18765/inference`.
+- **config.py .env yüklüyor**: `backend/src/voiceflow/core/config.py` repo root'taki `.env` dosyasını startup'ta `os.environ.setdefault()` ile yüklüyor. AppDelegate'in env geçirmesine gerek yok.

@@ -176,11 +176,6 @@ export function ProductSection() {
                   <div className="text-2xl font-bold text-[var(--stat-value)]">2.5<span className="text-base font-normal text-[var(--muted)]"> saat</span></div>
                   <div className="text-[11px] text-[var(--subtle)]">günlük tasarruf</div>
                 </div>
-                <div className="w-px h-8 bg-[var(--divider)]" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--stat-value)]">98.7<span className="text-base font-normal text-[var(--muted)]">%</span></div>
-                  <div className="text-[11px] text-[var(--subtle)]">Türkçe doğruluk</div>
-                </div>
               </div>
 
             </div>

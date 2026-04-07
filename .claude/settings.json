@@ -60,6 +60,11 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/require-tests.sh",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/memory-reminder.sh",
+            "timeout": 10
           }
         ]
       }
@@ -76,16 +81,6 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/memory-reminder.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
+    "Stop": []
   }
 }

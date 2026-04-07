@@ -169,7 +169,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="text-lg sm:text-xl text-slate-500 dark:text-text-muted mb-10 max-w-md"
+          className="text-lg sm:text-xl text-slate-500 dark:text-text-muted mb-10 sm:whitespace-nowrap max-w-xs sm:max-w-none"
         >
           {HERO.subtext}
         </motion.p>
@@ -241,11 +241,48 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Etiket */}
-        <div className="flex items-center justify-center gap-6 mt-3">
-          <span className="text-xs text-slate-400 dark:text-white/25 font-mono">Ham ses</span>
-          <span className="text-xs text-slate-300 dark:text-white/15">→</span>
-          <span className="text-xs text-slate-400 dark:text-white/40">300K+ Türkçe ses ile eğitilmiş özel model</span>
+        {/* Pipeline — 3 node connected by gradient lines */}
+        <div className="relative flex items-start justify-center mt-5 px-4 sm:px-12 max-w-xl mx-auto">
+
+          {/* Connecting lines (behind nodes) */}
+          <div className="absolute top-3 left-[calc(16.67%+12px)] right-[calc(16.67%+12px)] flex z-0">
+            <div className="flex-1 h-px bg-gradient-to-r from-slate-300/60 dark:from-white/10 to-brand-blue/40" />
+            <div className="flex-1 h-px bg-gradient-to-r from-brand-blue/40 to-slate-400/60 dark:to-white/15" />
+          </div>
+
+          {/* Node 1 — Ham ses */}
+          <div className="relative z-10 flex flex-col items-center flex-1">
+            <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 flex items-center justify-center">
+              <svg viewBox="0 0 16 16" fill="none" className="w-3 h-3 text-slate-400 dark:text-white/30" stroke="currentColor" strokeWidth="1.5">
+                <rect x="5.5" y="1" width="5" height="8" rx="2.5" />
+                <path d="M3 8a5 5 0 0 0 10 0" strokeLinecap="round" />
+                <path d="M8 13v2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <span className="text-[11px] text-slate-400 dark:text-white/25 mt-1.5 font-medium">Ham ses</span>
+          </div>
+
+          {/* Node 2 — Özel model (hero node) */}
+          <div className="relative z-10 flex flex-col items-center flex-1">
+            <div className="w-6 h-6 rounded-full bg-brand-blue/15 dark:bg-brand-blue/20 border border-brand-blue/40 flex items-center justify-center shadow-[0_0_12px_rgba(79,122,255,0.25)]">
+              <svg viewBox="0 0 12 12" fill="currentColor" className="w-2.5 h-2.5 text-brand-blue">
+                <path d="M6 0l1.5 3.5L11 5l-3 2.5L9 11l-3-2-3 2 1-3.5L1 5l3.5-1.5z"/>
+              </svg>
+            </div>
+            <span className="text-[11px] text-brand-blue font-semibold mt-1.5">Özel model</span>
+            <span className="text-[9px] text-slate-400 dark:text-white/20 mt-0.5 font-mono">300K+ Türkçe ses</span>
+          </div>
+
+          {/* Node 3 — İşlenmiş yazı */}
+          <div className="relative z-10 flex flex-col items-center flex-1">
+            <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300/60 dark:border-emerald-500/25 flex items-center justify-center">
+              <svg viewBox="0 0 16 16" fill="none" className="w-3 h-3 text-emerald-500 dark:text-emerald-400/70" stroke="currentColor" strokeWidth="1.5">
+                <path d="M3 4.5h10M3 8h7M3 11.5h5" strokeLinecap="round" />
+              </svg>
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-white/35 mt-1.5 font-medium">İşlenmiş yazı</span>
+          </div>
+
         </div>
       </motion.div>
 

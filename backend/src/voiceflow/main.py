@@ -18,6 +18,7 @@ from .core.config import (
     LLM_BACKEND, LLM_ENDPOINT,
     WHISPER_MODEL as _WHISPER_MODEL,
     WHISPER_IT_MODEL as _WHISPER_IT_MODEL,
+    WHISPER_BACKEND as _WHISPER_BACKEND,
     CORS_ORIGINS,
 )
 from .core.logging import setup_logging
@@ -31,6 +32,11 @@ logger = logging.getLogger(__name__)
 
 
 def _build_transcriber():
+    if _WHISPER_BACKEND == "runpod":
+        from .transcription.runpod_transcriber import RunPodTranscriber
+        from .transcription import WhisperConfig
+        logger.info("Using RunPod serverless transcriber")
+        return RunPodTranscriber(config=WhisperConfig())
     if _BACKEND_MODE == "server":
         from .transcription.faster_whisper import FasterWhisperTranscriber
         from .transcription import WhisperConfig
@@ -40,6 +46,11 @@ def _build_transcriber():
 
 
 def _build_corrector():
+    if _WHISPER_BACKEND == "runpod":
+        # RunPod serverless handler does correction internally — use a no-op corrector
+        from .correction.runpod_passthrough import RunPodPassthroughCorrector
+        logger.info("Using RunPodPassthroughCorrector (correction handled on RunPod)")
+        return RunPodPassthroughCorrector()
     use_ollama = (
         LLM_BACKEND == "ollama"
         or _BACKEND_MODE == "server"
@@ -98,9 +109,16 @@ async def lifespan(app: FastAPI):
     await init_db()
 
     from .services import RecordingService
+    transcriber = _build_transcriber()
+    corrector = _build_corrector()
+
+    # RunPod mode: link corrector to transcriber for cached results
+    if _WHISPER_BACKEND == "runpod" and hasattr(corrector, "set_transcriber"):
+        corrector.set_transcriber(transcriber)
+
     service = RecordingService(
-        transcriber=_build_transcriber(),
-        corrector=_build_corrector(),
+        transcriber=transcriber,
+        corrector=corrector,
     )
     app.state.recording_service = service
 

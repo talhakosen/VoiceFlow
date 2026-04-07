@@ -17,6 +17,129 @@ python create_pod.py ollama   # Ollama inference (RTX 4090)
 python create_pod.py --list
 ```
 
+## Workflow: Cloud Inference (RTX 4090, doğrulanan 2026-04-07)
+
+Mac app ses kaydeder → RunPod GPU'da transkripsiyon + düzeltme → sonuç geri döner.
+**~850ms toplam** (local MLX ~6sn'den 7x hızlı).
+
+### Mimari
+
+```
+Mac App → Local Backend (ses kayıt) → SSH Tunnel → RunPod Pod (GPU)
+                                                      ├── faster-whisper large-v3 (transkripsiyon, ~300ms)
+                                                      └── Ollama qwen2.5:7b (düzeltme, ~350ms)
+                                                   → sonuç geri döner (~850ms toplam)
+```
+
+### Benchmark (doğrulanan)
+
+| Yöntem | Ortalama | Açıklama |
+|---|---|---|
+| Local MLX (Mac) | ~6000ms | whisper-small + Qwen 4-bit |
+| RunPod US + proxy + base64 | ~2500ms | İlk deney |
+| RunPod EU + proxy + base64 | ~1500ms | Romanya DC |
+| **RunPod EU + SSH tunnel + multipart** | **~850ms** | **Aktif config** |
+
+### Latency breakdown
+
+| Katman | Süre |
+|---|---|
+| Ping İstanbul→Romanya | ~50ms |
+| SSH tunnel + HTTP | ~200ms |
+| Audio upload (multipart) | ~100ms |
+| Whisper GPU (large-v3) | 276-660ms |
+| LLM GPU (qwen2.5:7b) | 250-470ms |
+| Response | ~50ms |
+
+### Kurulum (sıfırdan)
+
+```bash
+# 1. RunPod pod oluştur (EU datacenter, RTX 4090)
+#    MCP: mcp__runpod__create-pod ile veya RunPod UI'dan
+#    Image: runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
+#    GPU: RTX 4090, Disk: 50GB, Ports: 22/tcp 8765/http 11434/http
+#    DC: EU-RO-1 (Romanya — İstanbul'a en yakın)
+
+# 2. SSH ile bağlan ve kur
+ssh -p <PORT> root@<IP> 'bash -s' << 'EOF'
+set -e
+apt-get update -qq && apt-get install -y -qq zstd > /dev/null 2>&1
+curl -fsSL https://ollama.com/install.sh | sh
+OLLAMA_HOST=0.0.0.0 ollama serve > /tmp/ollama.log 2>&1 &
+sleep 5
+ollama pull qwen2.5:7b
+curl -sf http://localhost:11434/api/generate -d '{"model":"qwen2.5:7b","keep_alive":-1}' > /dev/null
+pip install faster-whisper soundfile httpx numpy fastapi uvicorn python-multipart --quiet
+# CUDA lib fix (Ollama'nın libcublas'ını system path'e symlink)
+ln -sf /usr/local/lib/ollama/cuda_v12/libcublas.so.12 /usr/lib/x86_64-linux-gnu/
+ln -sf /usr/local/lib/ollama/cuda_v12/libcublasLt.so.12 /usr/lib/x86_64-linux-gnu/
+ldconfig
+python3 -c "from faster_whisper import WhisperModel; WhisperModel('Systran/faster-whisper-large-v3', device='cuda', compute_type='float16'); print('OK')"
+EOF
+
+# 3. Handler + server yükle
+scp -P <PORT> runpod/serverless/handler.py root@<IP>:/root/handler.py
+# server.py'yi oluştur (multipart destekli — aşağıya bak)
+
+# 4. Server başlat (pod'da)
+ssh -p <PORT> root@<IP> 'nohup python3 /root/server.py > /tmp/server.log 2>&1 &'
+
+# 5. SSH tunnel aç (Mac'te)
+ssh -f -N -L 18765:localhost:8765 -p <PORT> root@<IP>
+
+# 6. .env güncelle
+# RUNPOD_VOICEFLOW_POD_ID=<pod_id>
+# RUNPOD_INFERENCE_URL=http://localhost:18765/inference
+
+# 7. config.yaml güncelle
+# whisper:
+#   backend: runpod
+
+# 8. Backend restart
+./voiceflow.sh restart
+```
+
+### Pod restart sonrası (Ollama + server tekrar başlatma)
+
+```bash
+ssh -p <PORT> root@<IP> 'bash -s' << 'EOF'
+OLLAMA_HOST=0.0.0.0 ollama serve > /tmp/ollama.log 2>&1 &
+sleep 5
+curl -sf http://localhost:11434/api/generate -d '{"model":"qwen2.5:7b","keep_alive":-1}' > /dev/null
+nohup python3 /root/server.py > /tmp/server.log 2>&1 &
+EOF
+# SSH tunnel yeniden aç (Mac'te)
+ssh -f -N -L 18765:localhost:8765 -p <PORT> root@<IP>
+```
+
+### Kritik notlar
+
+- **CUDA lib symlink ZORUNLU**: Ollama kendi `libcublas.so.12`'sini `/usr/local/lib/ollama/cuda_v12/` altına koyar. faster-whisper bulamaz → `ln -sf` ile system path'e bağla.
+- **SSH tunnel vs proxy**: RunPod proxy (`*.proxy.runpod.net`) ~200ms overhead. SSH tunnel ~50ms. Tunnel her zaman tercih et.
+- **Multipart upload**: Base64 JSON yerine raw WAV bytes gönderir — %33 küçük payload, ~40ms kazanç.
+- **EU-RO-1 (Romanya)**: İstanbul'a en yakın RunPod DC. Ping ~50ms. US-NC ~150ms.
+- **VRAM kullanımı**: Whisper large-v3 (1.5GB) + Ollama qwen2.5:7b (5GB) = 6.5GB / 24GB. 14b modele bile yer var.
+- **Maliyet**: RTX 4090 $0.59/saat. Sadece aktif kullanımda açık tut.
+- **Local'e geri dönmek**: `config.yaml` → `whisper.backend: ""` + `./voiceflow.sh restart`. Tek satır.
+
+### Dosyalar
+
+```
+runpod/serverless/
+├── handler.py           ← RunPod serverless handler (audio → Whisper → Ollama → text)
+├── Dockerfile           ← Serverless deploy için (Docker image gerektirir)
+├── start.sh             ← Serverless startup script
+├── deploy.py            ← Serverless endpoint oluşturma yardımcısı
+├── requirements.txt     ← Python deps
+└── test_input.json      ← Test payload
+
+backend/src/voiceflow/
+├── transcription/runpod_transcriber.py   ← Audio → RunPod API → result (multipart + serverless)
+└── correction/runpod_passthrough.py      ← No-op corrector (RunPod handles LLM)
+```
+
+---
+
 ## Workflow: Whisper Stage 2 — Noktalama Fine-Tune
 
 **Base:** `tkosen/voiceflow-whisper-tr` (Stage 1 çıktısı)

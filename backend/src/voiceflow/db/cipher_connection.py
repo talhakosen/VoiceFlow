@@ -32,7 +32,7 @@ def _open_connection(path: str, key: str | None):
         conn.execute("PRAGMA foreign_keys=ON")
         conn.row_factory = sqlcipher3.Row
     else:
-        conn = sqlite3.connect(str(path))
+        conn = sqlite3.connect(str(path), check_same_thread=False)
         conn.execute("PRAGMA foreign_keys=ON")
         conn.row_factory = sqlite3.Row
     return conn

@@ -1,8 +1,17 @@
 #!/bin/bash
-# Stop Hook — Remind to update docs if significant changes were made
+# PreToolUse Hook — Remind to update docs only when committing
 set -euo pipefail
 
+# Only run on git commit commands
+COMMAND="${TOOL_INPUT_COMMAND:-}"
+if ! echo "$COMMAND" | grep -qE '^git commit'; then
+  exit 0
+fi
+
 ALL_CHANGES=$(git diff --name-only HEAD 2>/dev/null || git diff --name-only 2>/dev/null || true)
+# Also include staged changes
+STAGED=$(git diff --cached --name-only 2>/dev/null || true)
+ALL_CHANGES=$(printf '%s\n%s' "$ALL_CHANGES" "$STAGED" | sort -u)
 
 if [ -z "$ALL_CHANGES" ]; then
   exit 0

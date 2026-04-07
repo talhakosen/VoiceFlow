@@ -6,6 +6,7 @@ import AppKit
 class HotkeyManager {
     var onStartRecording: (() -> Void)? { didSet { sm.onStart = onStartRecording } }
     var onStopRecording: (() -> Void)?  { didSet { sm.onStop  = onStopRecording  } }
+    var onModeSwitch: ((AppMode) -> Void)?
 
     private var sm = HotkeyStateMachine()
     private var monitors: [Any] = []
@@ -38,9 +39,15 @@ class HotkeyManager {
             self?.handle(event, source: "local")
             return event
         }
-        // Option+1/2/3 mode switching is handled via NSMenu keyEquivalent (no special permissions needed).
-        // HotkeyManager only manages Fn push-to-talk.
-        monitors = [flags, local].compactMap { $0 }
+        // Option+1/2/3 global mode switching (keyDown with ⌥ modifier)
+        let keyGlobal = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] in
+            self?.handleModeKey($0)
+        }
+        let keyLocal = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if self?.handleModeKey(event) == true { return nil }
+            return event
+        }
+        monitors = [flags, local, keyGlobal, keyLocal].compactMap { $0 }
         log("monitors registered: \(monitors.count) (flags=\(flags != nil), local=\(local != nil))")
 
         if flags == nil {
@@ -67,6 +74,28 @@ class HotkeyManager {
 
     func setProcessing(_ processing: Bool) {
         sm.setProcessing(processing)
+    }
+
+    /// Returns true if event was consumed (⌥1/2/3 mode switch).
+    @discardableResult
+    private func handleModeKey(_ event: NSEvent) -> Bool {
+        guard event.modifierFlags.contains(.option),
+              !event.modifierFlags.contains(.command),
+              !event.modifierFlags.contains(.control) else { return false }
+        let modes = AppMode.allCases  // [general, engineering, office]
+        // keyCodes: 1→18, 2→19, 3→20
+        let index: Int
+        switch event.keyCode {
+        case 18: index = 0
+        case 19: index = 1
+        case 20: index = 2
+        default: return false
+        }
+        guard index < modes.count else { return false }
+        let mode = modes[index]
+        log("⌥\(index + 1) → mode switch to \(mode.rawValue)")
+        onModeSwitch?(mode)
+        return true
     }
 
     private func handle(_ event: NSEvent, source: String) {

@@ -11,6 +11,16 @@ import yaml
 _REPO_ROOT = Path(__file__).parents[4]
 _CONFIG_PATH = _REPO_ROOT / "config.yaml"
 
+# Load .env from repo root (secrets: API keys, tokens)
+_ENV_PATH = _REPO_ROOT / ".env"
+if _ENV_PATH.exists():
+    for line in _ENV_PATH.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
 def _load() -> dict:
     if _CONFIG_PATH.exists():
         try:
@@ -69,6 +79,7 @@ _whisper_model_path = _resolve_path(_whisper_model_raw)
 # Use absolute path if it resolves to an existing local dir; else keep as HF repo name
 WHISPER_MODEL: str = str(_whisper_model_path) if (_whisper_model_path and _whisper_model_path.exists()) else _whisper_model_raw
 WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
+WHISPER_BACKEND:     str  = _get("whisper", "backend",      "")  # "" | "runpod"
 
 # IT-specific fine-tuned model for engineering mode (empty = use base model)
 _whisper_it_raw = _get("whisper", "it_model", "")
