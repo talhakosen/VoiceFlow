@@ -170,6 +170,7 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
         // ── Tools ────────────────────────────────────────────────────────
         menu.addItem(action("Ses Eğitimi…", sel: #selector(openITDataset), key: ""))
+        menu.addItem(action("Öğrendiklerini Güncelle", sel: #selector(learnDictionary), key: ""))
 
         let role = store.auth.currentUser?.role ?? ""
         if role == "admin" || role == "superadmin" {
@@ -230,6 +231,10 @@ class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func restartService() {
         store.send(.recording(.restartBackend))
+    }
+
+    @objc private func learnDictionary() {
+        store.send(.recording(.learnDictionary))
     }
 
     @objc private func switchLanguage(_ sender: NSMenuItem) {

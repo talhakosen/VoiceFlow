@@ -45,6 +45,7 @@ struct BackendClient {
         _ scope: String
     ) async throws -> DictionaryEntry
     var deleteDictionaryEntry: (_ id: Int) async throws -> Void
+    var learnDictionary: () async throws -> Int
 
     // MARK: - Snippets
     var getSnippets: () async throws -> [SnippetEntry]
@@ -148,6 +149,9 @@ extension BackendClient: DependencyKey {
             },
             deleteDictionaryEntry: { id in
                 try await service.deleteDictionaryEntry(id: id)
+            },
+            learnDictionary: {
+                try await service.learnDictionary()
             },
             getSnippets: {
                 try await service.getSnippets()
@@ -259,6 +263,7 @@ extension BackendClient: DependencyKey {
             DictionaryEntry(id: 0, trigger: trigger, replacement: replacement, scope: scope, userId: nil, tenantId: nil)
         },
         deleteDictionaryEntry: { _ in },
+        learnDictionary: { 0 },
         getSnippets: { [] },
         addSnippet: { triggerPhrase, expansion, scope in
             SnippetEntry(id: 0, triggerPhrase: triggerPhrase, expansion: expansion, scope: scope, userId: nil, tenantId: nil)

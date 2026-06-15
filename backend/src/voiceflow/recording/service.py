@@ -45,10 +45,8 @@ class RecordingService:
         # Aho-Corasick automaton cache: rebuilt only when dictionary entries change
         self._dict_automaton: object | None = None
         self._dict_entry_count: int = 0
-        # Background dictionary learning: every N dictations, mine recurring
-        # Whisper misrecognitions into the smart dictionary (off the live path).
-        self._dictations_since_learn: int = 0
-        self._learn_threshold: int = 20
+        # Dictionary learning runs on-demand (user-triggered from the menu), not
+        # automatically — auto-running would block the single MLX worker mid-use.
         self._learning_in_progress: bool = False
 
     # ------------------------------------------------------------------
@@ -202,7 +200,6 @@ class RecordingService:
             )
 
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
-        self._maybe_schedule_learning(user_id, tenant_id)
         return {
             "text": result.text,
             "raw_text": raw_text,
@@ -356,37 +353,39 @@ class RecordingService:
     # Background dictionary learning
     # ------------------------------------------------------------------
 
-    def _maybe_schedule_learning(self, user_id: str | None, tenant_id: str) -> None:
-        """Count dictations; every N, fire a background learning task.
+    async def learn_now(self, user_id: str | None, tenant_id: str = "default") -> dict:
+        """User-triggered: scan recent transcriptions and learn new smart-dict
+        entries. Returns {"added": int, "busy": bool}.
 
-        Fire-and-forget via create_task so it runs after the response is sent —
-        zero added latency on the dictation itself.
+        If the LLM had to be loaded only for this (correction off), the light
+        state is restored afterwards (unload + re-warm whisper). Guarded so two
+        concurrent triggers don't pile up on the single MLX worker.
         """
         if not user_id:
-            return
-        self._dictations_since_learn += 1
-        if self._dictations_since_learn < self._learn_threshold or self._learning_in_progress:
-            return
-        self._dictations_since_learn = 0
-        self._learning_in_progress = True
-        asyncio.create_task(self._run_learning(user_id, tenant_id))
+            return {"added": 0, "busy": False}
+        if self._learning_in_progress:
+            return {"added": 0, "busy": True}
 
-    async def _run_learning(self, user_id: str, tenant_id: str) -> None:
-        """Run the learner; if it had to load the LLM only for this (correction
-        off), restore the light state afterwards (unload + re-warm whisper)."""
         from ..services.dictionary_learning import learn_from_history
 
+        self._learning_in_progress = True
         loop = asyncio.get_running_loop()
         try:
             llm_was_loaded = getattr(self._corrector, "_model", None) is not None
-            await learn_from_history(user_id, tenant_id, self._corrector, self._executor)
-            if not llm_was_loaded and not self._corrector.config.enabled:
+            added = await learn_from_history(user_id, tenant_id, self._corrector, self._executor)
+            llm_now_loaded = getattr(self._corrector, "_model", None) is not None
+            # Only restore the light state if learning actually loaded the LLM
+            # (correction off + there was history to analyse) — otherwise the
+            # unload + whisper re-warm would be wasted work.
+            if llm_now_loaded and not llm_was_loaded and not self._corrector.config.enabled:
                 await loop.run_in_executor(self._executor, self._corrector.unload)
                 _warm = getattr(self._transcriber, "warm", None)
                 if _warm is not None:
                     await loop.run_in_executor(self._executor, _warm)
+            return {"added": added, "busy": False}
         except Exception as e:
-            logger.warning("Background dictionary learning failed: %s", e)
+            logger.warning("Dictionary learning failed: %s", e)
+            return {"added": 0, "busy": False}
         finally:
             self._learning_in_progress = False
 

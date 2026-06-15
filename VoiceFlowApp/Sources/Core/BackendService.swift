@@ -190,6 +190,7 @@ protocol BackendServiceProtocol: Actor {
     func getDictionary() async throws -> [DictionaryEntry]
     func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry
     func deleteDictionaryEntry(id: Int) async throws
+    func learnDictionary() async throws -> Int
     func getSnippets() async throws -> [SnippetEntry]
     func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry
     func deleteSnippet(id: Int) async throws
@@ -498,6 +499,16 @@ actor BackendService: BackendServiceProtocol {
             throw BackendError.requestFailed
         }
         return try JSONDecoder().decode(DictionaryResponse.self, from: data).items
+    }
+
+    func learnDictionary() async throws -> Int {
+        let request = makeRequest(path: APIEndpoint.dictionaryLearn, method: "POST")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        return (obj?["added"] as? Int) ?? 0
     }
 
     func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry {

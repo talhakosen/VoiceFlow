@@ -261,6 +261,22 @@ async def clear_dict_bundle():
     return await wipe_dict_bundle()
 
 
+@router.post("/dictionary/learn")
+async def learn_dictionary(
+    request: Request,
+    svc=Depends(get_service),
+    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
+):
+    """User-triggered: scan recent transcriptions and learn recurring Whisper
+    misrecognitions into the smart dictionary. Returns {"added", "busy"}.
+
+    Heavy (loads the LLM if correction is off) — runs only when the user asks,
+    so it never blocks a dictation on the single MLX worker.
+    """
+    tenant_id = getattr(request.state, "tenant_id", "default")
+    return await svc.learn_now(_user_id(request, x_user_id), tenant_id)
+
+
 @router.delete("/dictionary/{entry_id}")
 async def delete_dict_entry(
     entry_id: int,

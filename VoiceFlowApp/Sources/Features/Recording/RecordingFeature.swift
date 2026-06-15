@@ -48,6 +48,10 @@ struct RecordingFeature {
         case setTrainingMode(Bool)
         case setAppearanceMode(AppearanceMode)
 
+        // Dictionary learning (user-triggered from the menu)
+        case learnDictionary
+        case learnDictionaryFinished(Int)
+
         // Backend lifecycle
         case restartBackend
         case hardReset
@@ -130,6 +134,21 @@ struct RecordingFeature {
                 return .run { _ in
                     try? await backend.forceStop()
                 }
+
+            case .learnDictionary:
+                // User-triggered from the menu. Heavy (~10s, loads the LLM), so
+                // never on the dictation path — runs only on explicit request.
+                state.statusText = "VoiceFlow öğreniyor…"
+                return .run { send in
+                    let added = (try? await backend.learnDictionary()) ?? 0
+                    await send(.learnDictionaryFinished(added))
+                }
+
+            case let .learnDictionaryFinished(added):
+                state.statusText = added > 0
+                    ? "\(added) yeni kelime öğrenildi"
+                    : "Yeni bir şey öğrenilmedi"
+                return .none
 
             case let .recordingFailed(msg):
                 state.isRecording = false

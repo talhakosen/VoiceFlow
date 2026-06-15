@@ -139,3 +139,25 @@ class TestLearnFromHistory:
         monkeypatch.setattr(dl, "get_history", fake_get_history)
         added = _run(dl.learn_from_history("u1", "default", _FakeCorrector("[]"), None))
         assert added == 0
+
+
+class TestLearnNowGuards:
+    """RecordingService.learn_now guards (user-triggered entry point)."""
+
+    def _svc(self):
+        from unittest.mock import MagicMock
+
+        from voiceflow.recording.service import RecordingService
+
+        return RecordingService(
+            transcriber=MagicMock(), corrector=MagicMock(), audio=MagicMock()
+        )
+
+    def test_busy_returns_busy_without_running(self):
+        svc = self._svc()
+        svc._learning_in_progress = True
+        assert _run(svc.learn_now("u1", "default")) == {"added": 0, "busy": True}
+
+    def test_no_user_is_noop(self):
+        svc = self._svc()
+        assert _run(svc.learn_now(None, "default")) == {"added": 0, "busy": False}
