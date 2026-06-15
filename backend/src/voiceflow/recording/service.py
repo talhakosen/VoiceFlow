@@ -45,6 +45,11 @@ class RecordingService:
         # Aho-Corasick automaton cache: rebuilt only when dictionary entries change
         self._dict_automaton: object | None = None
         self._dict_entry_count: int = 0
+        # Background dictionary learning: every N dictations, mine recurring
+        # Whisper misrecognitions into the smart dictionary (off the live path).
+        self._dictations_since_learn: int = 0
+        self._learn_threshold: int = 20
+        self._learning_in_progress: bool = False
 
     # ------------------------------------------------------------------
     # Status
@@ -197,6 +202,7 @@ class RecordingService:
             )
 
         logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
+        self._maybe_schedule_learning(user_id, tenant_id)
         return {
             "text": result.text,
             "raw_text": raw_text,
@@ -345,6 +351,44 @@ class RecordingService:
             result.text = corrected
 
         return result.text, was_corrected, snippet_used, symbol_refs, corrections
+
+    # ------------------------------------------------------------------
+    # Background dictionary learning
+    # ------------------------------------------------------------------
+
+    def _maybe_schedule_learning(self, user_id: str | None, tenant_id: str) -> None:
+        """Count dictations; every N, fire a background learning task.
+
+        Fire-and-forget via create_task so it runs after the response is sent —
+        zero added latency on the dictation itself.
+        """
+        if not user_id:
+            return
+        self._dictations_since_learn += 1
+        if self._dictations_since_learn < self._learn_threshold or self._learning_in_progress:
+            return
+        self._dictations_since_learn = 0
+        self._learning_in_progress = True
+        asyncio.create_task(self._run_learning(user_id, tenant_id))
+
+    async def _run_learning(self, user_id: str, tenant_id: str) -> None:
+        """Run the learner; if it had to load the LLM only for this (correction
+        off), restore the light state afterwards (unload + re-warm whisper)."""
+        from ..services.dictionary_learning import learn_from_history
+
+        loop = asyncio.get_running_loop()
+        try:
+            llm_was_loaded = getattr(self._corrector, "_model", None) is not None
+            await learn_from_history(user_id, tenant_id, self._corrector, self._executor)
+            if not llm_was_loaded and not self._corrector.config.enabled:
+                await loop.run_in_executor(self._executor, self._corrector.unload)
+                _warm = getattr(self._transcriber, "warm", None)
+                if _warm is not None:
+                    await loop.run_in_executor(self._executor, _warm)
+        except Exception as e:
+            logger.warning("Background dictionary learning failed: %s", e)
+        finally:
+            self._learning_in_progress = False
 
     def force_stop(self) -> bool:
         """Force-stop regardless of state. Returns True if was recording."""

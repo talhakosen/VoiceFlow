@@ -255,3 +255,25 @@ class MLXCorrector:
         except Exception as e:
             logger.error("MLX correction failed: %s", e, exc_info=True)
             return text
+
+    def complete(self, system: str, user: str, max_tokens: int = 256) -> str:
+        """One-off generation with a custom system+user prompt.
+
+        Used by the background dictionary learner — NOT the correction path,
+        so it bypasses the correction prompt-cache and output guards and just
+        returns the model's raw text.
+        """
+        from mlx_lm import generate
+        from mlx_lm.sample_utils import make_sampler
+
+        self.preload()
+        messages = build_messages(system, user)
+        formatted = self._tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        raw = generate(
+            self._model, self._tokenizer, prompt=formatted,
+            max_tokens=max_tokens, sampler=make_sampler(temp=0.0),
+        )
+        mx.metal.clear_cache()
+        return raw.strip()

@@ -329,7 +329,9 @@ class TestPipelineCorrectionsIntegration:
         svc = RecordingService(transcriber=transcriber, corrector=corrector)
         svc._audio = MagicMock()
         svc._audio.is_recording = True
-        svc._audio.stop = MagicMock(return_value=np.zeros(16000, dtype="float32"))
+        # Non-silent audio (rms > 0.001, >0.5s) so it passes the silence-discard
+        # gate and exercises the real pipeline that returns raw_text.
+        svc._audio.stop = MagicMock(return_value=np.full(16000, 0.1, dtype="float32"))
 
         async def _run():
             with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
