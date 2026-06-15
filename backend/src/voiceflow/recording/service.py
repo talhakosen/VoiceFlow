@@ -90,16 +90,18 @@ class RecordingService:
             raise ValueError("Not recording")
 
         t_start = time.perf_counter()
+        timings: dict[str, float] = {}
         audio_data = self._audio.stop()
-        logger.info("Audio capture stop: %.3fs, samples: %d", time.perf_counter() - t_start, len(audio_data))
+        timings["audio_ms"] = (time.perf_counter() - t_start) * 1000
+        logger.info("Audio capture stop: %.3fs, samples: %d", timings["audio_ms"] / 1000, len(audio_data))
 
         if len(audio_data) == 0:
             return {"text": "", "duration": 0.0}
 
-        # Discard silence: too short (<0.5s) or too quiet (RMS < 0.005)
+        # Discard silence: too short (<0.5s) or pure line noise (RMS < 0.001)
         duration_sec = len(audio_data) / _SAMPLE_RATE
         rms = float(np.sqrt(np.mean(audio_data.astype(np.float32) ** 2)))
-        if duration_sec < 0.5 or rms < 0.005:
+        if duration_sec < 0.5 or rms < 0.001:
             logger.info("Discarding silent/short audio: %.2fs rms=%.4f", duration_sec, rms)
             return {"text": "", "duration": 0.0}
 
@@ -117,7 +119,8 @@ class RecordingService:
         else:
             transcribe_fn = functools.partial(self._transcriber.transcribe, audio_data, mode=active_mode)
             result = await loop.run_in_executor(self._executor, transcribe_fn)
-        logger.info("Whisper: %.3fs → '%s'", time.perf_counter() - t_whisper, result.text[:80])
+        timings["whisper_ms"] = (time.perf_counter() - t_whisper) * 1000
+        logger.info("Whisper: %.3fs → '%s'", timings["whisper_ms"] / 1000, result.text[:80])
 
         raw_text = result.text
 
@@ -152,12 +155,23 @@ class RecordingService:
                 "id": row_id, "it_wav_path": _it_wav_path,
             }
 
+        t_pipeline = time.perf_counter()
         result.text, was_corrected, snippet_used, symbol_refs, corrections = await self._apply_text_pipeline(
-            result, active_mode, user_id, active_app, window_title, selected_text, loop,
+            result, active_mode, user_id, active_app, window_title, selected_text, loop, timings,
         )
+        timings["pipeline_ms"] = (time.perf_counter() - t_pipeline) * 1000
 
         processing_ms = int((time.perf_counter() - t_start) * 1000)
         logger.info("Total stop→result: %dms", processing_ms)
+        # Consolidated phase breakdown — one line to spot the bottleneck.
+        # llm_load_ms > 0 means the LLM was (re)loaded into GPU mid-request (cold).
+        logger.info(
+            "PROFILE | audio=%.0f whisper=%.0f text=%.0f llm=%.0f (load=%.0f gen=%.0f) | total=%dms",
+            timings.get("audio_ms", 0), timings.get("whisper_ms", 0),
+            timings.get("text_proc_ms", 0), timings.get("llm_ms", 0),
+            timings.get("llm_load_ms", 0), timings.get("llm_gen_ms", 0),
+            processing_ms,
+        )
 
         row_id = await save_transcription(
             text=result.text,
@@ -207,6 +221,7 @@ class RecordingService:
         window_title: str | None,
         selected_text: str | None,
         loop,
+        timings: dict[str, float] | None = None,
     ) -> tuple[str, bool, bool, list[str], dict]:
         """Apply the full text post-processing pipeline.
 
@@ -231,6 +246,10 @@ class RecordingService:
         snippet_used = False
         symbol_refs: list[str] = []
         corrections: dict = {}
+        if timings is None:
+            timings = {}
+
+        t_text = time.perf_counter()
 
         # 1. Dictionary + snippets
         if result.text and user_id:
@@ -289,8 +308,13 @@ class RecordingService:
                     corrections["symbol"] = symbol_map
                 logger.info("Engineering symbols detected: %s", symbol_refs)
 
+        # Deterministic text processing done (dict/snippet/filler/symbol + DB reads)
+        timings["text_proc_ms"] = (time.perf_counter() - t_text) * 1000
+
         # 4. LLM correction
         if self._corrector.config.enabled and result.text:
+            # Was the model already resident? If not, this call pays a cold load.
+            llm_was_loaded = getattr(self._corrector, "_model", "n/a") is not None
             t_llm = time.perf_counter()
             text_before_llm = result.text
             if hasattr(self._corrector, "correct_async"):
@@ -305,7 +329,15 @@ class RecordingService:
                     window_title=window_title, selected_text=selected_text,
                 )
                 corrected = await loop.run_in_executor(self._executor, _correct_fn)
-            logger.info("LLM correction: %.3fs", time.perf_counter() - t_llm)
+            timings["llm_ms"] = (time.perf_counter() - t_llm) * 1000
+            # Split load vs generate when the corrector exposes a measured load time.
+            timings["llm_load_ms"] = float(getattr(self._corrector, "_last_load_ms", 0.0)) if not llm_was_loaded else 0.0
+            timings["llm_gen_ms"] = timings["llm_ms"] - timings["llm_load_ms"]
+            logger.info(
+                "LLM correction: %.3fs%s",
+                timings["llm_ms"] / 1000,
+                " (COLD — model loaded mid-request)" if timings["llm_load_ms"] > 0 else "",
+            )
             if corrected != result.text:
                 was_corrected = True
                 corrections["llm"] = {"in": text_before_llm, "out": corrected}
@@ -360,7 +392,15 @@ class RecordingService:
                 if hasattr(self._corrector, "correct_async"):
                     await loop.run_in_executor(None, self._corrector.preload)
                 else:
-                    await loop.run_in_executor(self._executor, self._corrector.preload)
+                    # Local MLX LLM load re-cools whisper — re-warm it in the SAME
+                    # executor task so it completes before any early dictation.
+                    def _load_llm_then_rewarm() -> None:
+                        self._corrector.preload()
+                        _warm = getattr(self._transcriber, "warm", None)
+                        if _warm is not None:
+                            _warm()
+
+                    await loop.run_in_executor(self._executor, _load_llm_then_rewarm)
                 logger.info("LLM model loaded")
             except Exception as e:
                 logger.error("LLM model load failed: %s", e)

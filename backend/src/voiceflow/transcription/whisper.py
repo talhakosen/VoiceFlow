@@ -94,11 +94,45 @@ class WhisperTranscriber:
     _model_loaded: bool = field(default=False, init=False)
 
     def preload(self) -> None:
-        """Lazy load model on first use."""
+        """Load weights AND compile Metal kernels via a tiny dummy transcription.
+
+        mlx-whisper loads lazily on first `transcribe()`, so without this the
+        *first* real dictation pays ~9s for model load + kernel compilation.
+        Warming here moves that cost to startup (background).
+        """
         if not self._model_loaded:
-            # mlx-whisper downloads model on first use
-            import mlx_whisper
+            self.warm()
             self._model_loaded = True
+
+    def warm(self) -> None:
+        """Run a tiny dummy transcription to (re)compile Metal kernels and page
+        in weights. Idempotent and cheap (~1-4s).
+
+        Call at startup AND again after a heavy Metal event — loading the ~5GB
+        LLM re-cools whisper's compiled state, so the first real dictation after
+        enabling correction would otherwise pay the full cold cost again.
+        """
+        import time
+
+        import mlx_whisper
+
+        t0 = time.perf_counter()
+        try:
+            # 1s of quiet tone — enough to run encoder+decoder and compile.
+            warm = (0.01 * np.sin(2 * np.pi * 220 * np.arange(16000) / 16000)).astype(np.float32)
+            options = {
+                "path_or_hf_repo": self.config.model_name,
+                "task": self.config.task,
+                "temperature": 0.0,
+                "condition_on_previous_text": False,
+            }
+            if self.config.language:
+                options["language"] = self.config.language
+            mlx_whisper.transcribe(warm, **options)
+            mx.metal.clear_cache()
+            logger.info("Whisper warmed in %.0fms", (time.perf_counter() - t0) * 1000)
+        except Exception as e:  # best-effort; never block
+            logger.warning("Whisper warm-up failed: %s", e)
 
     def unload(self) -> None:
         """Unload model from memory by clearing mlx-whisper's internal cache."""

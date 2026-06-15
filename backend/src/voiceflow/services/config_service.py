@@ -99,7 +99,20 @@ async def apply_config(
             if hasattr(corrector, "correct_async"):
                 await loop.run_in_executor(None, corrector.preload)
             else:
-                await loop.run_in_executor(_mlx_executor, corrector.preload)
+                # Loading the local MLX LLM re-cools whisper's compiled Metal
+                # state. Re-warm whisper in the SAME executor task so this runs
+                # atomically before any dictation the user starts meanwhile —
+                # otherwise a transcribe enqueued during the load races ahead of
+                # a separate re-warm task and pays the full cold cost.
+                transcriber = svc.transcriber
+
+                def _load_llm_then_rewarm() -> None:
+                    corrector.preload()
+                    _warm = getattr(transcriber, "warm", None)
+                    if _warm is not None:
+                        _warm()
+
+                await loop.run_in_executor(_mlx_executor, _load_llm_then_rewarm)
         elif not config.correction_enabled and was_enabled:
             logger.info("Correction disabled, unloading LLM model...")
             if hasattr(corrector, "correct_async"):
