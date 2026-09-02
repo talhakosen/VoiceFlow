@@ -16,7 +16,7 @@ import numpy as np
 
 from ..audio import AudioCapture, AudioConfig
 from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
-from ..db import save_transcription, get_dictionary, get_snippets
+from ..db import save_transcription, get_dictionary, get_snippets, dictionary_version
 from ..services.dictionary import _apply_aho_corasick, _apply_regex_fallback, _build_automaton, _HAS_AC
 from ..services.snippets import apply_snippets
 from ..services.filler_cleaner import clean_fillers
@@ -44,7 +44,10 @@ class RecordingService:
         self._executor = executor if executor is not None else _mlx_executor
         # Aho-Corasick automaton cache: rebuilt only when dictionary entries change
         self._dict_automaton: object | None = None
-        self._dict_entry_count: int = 0
+        # Automaton'ı sözlük SÜRÜMÜne bağla. Eskiden kayıt sayısına bakıyordu:
+        # bir kelime silinip başka biri eklendiğinde sayı sabit kalıyor ve
+        # automaton bayat kalıyordu. -1 = henüz kurulmadı.
+        self._dict_version: int = -1
         # Dictionary learning runs on-demand (user-triggered from the menu), not
         # automatically — auto-running would block the single MLX worker mid-use.
         self._learning_in_progress: bool = False
@@ -294,9 +297,15 @@ class RecordingService:
             if entries:
                 dict_subs: dict[str, str] = {}
                 if _HAS_AC:
-                    if self._dict_automaton is None or len(entries) != self._dict_entry_count:
+                    version = dictionary_version()
+                    if self._dict_automaton is None or version != self._dict_version:
+                        t_ac = time.perf_counter()
                         self._dict_automaton = _build_automaton(entries)
-                        self._dict_entry_count = len(entries)
+                        self._dict_version = version
+                        logger.info(
+                            "Dictionary automaton rebuilt: %d entries in %.0fms (v%d)",
+                            len(entries), (time.perf_counter() - t_ac) * 1000, version,
+                        )
                     if self._dict_automaton is not None:
                         result.text = _apply_aho_corasick(result.text, self._dict_automaton, dict_subs)
                         result.text = _apply_aho_corasick(result.text, self._dict_automaton, dict_subs)

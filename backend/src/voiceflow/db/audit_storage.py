@@ -146,6 +146,11 @@ async def delete_user_data(user_id: str, tenant_id: str) -> dict:
         )
         user_deactivated = cur.rowcount > 0
         await db.commit()
+
+    # KVKK silme sözlüğü de siliyor — cache bayat kalmasın
+    from .dictionary_storage import invalidate_dictionary_cache
+    invalidate_dictionary_cache()
+
     return {
         "transcriptions_deleted": transcriptions_deleted,
         "dictionary_deleted": dictionary_deleted,

@@ -104,6 +104,25 @@ async def _autoload_bundle() -> None:
     logger.info("IT bundle auto-loaded: %d entries (was %d)", loaded, db_count)
 
 
+async def _warm_dictionary() -> None:
+    """Sözlüğü cache'e al — ilk dikte 250ms DB okuması beklemesin.
+
+    Bundle auto-load'dan SONRA çalışmalı: bundle yüklenirse cache geçersiz
+    kılınıyor ve daha erken yapılan ısınma boşa giderdi.
+    """
+    from .db import last_active_user_id, warm_dictionary_cache
+
+    try:
+        await _autoload_bundle()
+        user_id = await last_active_user_id()
+        if user_id:
+            await warm_dictionary_cache(user_id)
+        else:
+            logger.info("No prior user — dictionary cache will warm on first dictation")
+    except Exception as exc:
+        logger.warning("Dictionary warm-up skipped: %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -124,7 +143,7 @@ async def lifespan(app: FastAPI):
 
     asyncio.create_task(service.preload_models())
     asyncio.create_task(_purge_tokens_loop())
-    asyncio.create_task(_autoload_bundle())
+    asyncio.create_task(_warm_dictionary())  # bundle auto-load + sözlük ısınması
     yield
 
 

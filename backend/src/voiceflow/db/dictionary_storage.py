@@ -1,6 +1,44 @@
 """Dictionary, snippet, bundle, and smart-dictionary storage."""
 
+import logging
+
 from ._base import aiosqlite, DB_PATH
+
+logger = logging.getLogger(__name__)
+
+
+# ------------------------------------------------------------------
+# Dictionary cache
+# ------------------------------------------------------------------
+# Sözlük her diktede okunuyordu: include_smart=True 78.107 kayıt → 285ms,
+# yani metin işleme aşamasının TAMAMI (ölçüldü 2026-09-02). Sözlük ise
+# nadiren değişiyor — kullanıcı kelime eklediğinde, bundle yüklendiğinde
+# veya smart index yeniden kurulduğunda.
+#
+# Cache süreç içi ve yazma anında geçersiz kılınıyor. `_version` her
+# geçersiz kılmada artar; pipeline Aho-Corasick automaton'ını bu sürüme
+# göre yeniden kuruyor (eskiden kayıt SAYISINA bakıyordu — sayı değişmeden
+# içerik değişirse automaton bayat kalıyordu).
+
+_cache: dict[tuple[str, str, bool], list[dict]] = {}
+_version: int = 0
+
+# Sunucu modunda kullanıcı başına bir giriş birikir; 78K kayıtlık bir sözlük
+# ~25MB tutuyor, sınırsız büyümesin. Local modda tek kullanıcı var, bu sınır
+# hiç devreye girmez.
+_MAX_CACHED_KEYS = 8
+
+
+def dictionary_version() -> int:
+    """Her geçersiz kılmada artan sürüm — automaton cache'i için."""
+    return _version
+
+
+def invalidate_dictionary_cache() -> None:
+    """Sözlüğü değiştiren HER yazma bunu çağırmalı."""
+    global _version
+    _cache.clear()
+    _version += 1
 
 
 # ------------------------------------------------------------------
@@ -12,7 +50,14 @@ async def get_dictionary(user_id: str, tenant_id: str = "default", include_smart
 
     include_smart=False (default): only manual entries (personal/team) — for UI display.
     include_smart=True: all entries including auto-generated smart dict — for pipeline use.
+
+    Sonuç cache'lenir. Dönen liste PAYLAŞILIR — çağıran tarafta değiştirme;
+    78K kaydı her çağrıda kopyalamak cache'in amacını yok eder.
     """
+    key = (tenant_id, user_id, include_smart)
+    if (cached := _cache.get(key)) is not None:
+        return cached
+
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         if include_smart:
@@ -25,7 +70,42 @@ async def get_dictionary(user_id: str, tenant_id: str = "default", include_smart
                        ORDER BY scope, trigger"""
         async with db.execute(query, (tenant_id, user_id)) as cursor:
             rows = await cursor.fetchall()
-            return [dict(row) for row in rows]
+            entries = [dict(row) for row in rows]
+
+    if len(_cache) >= _MAX_CACHED_KEYS:
+        _cache.pop(next(iter(_cache)))  # FIFO — en eski giriş
+    _cache[key] = entries
+    logger.debug("Dictionary cached: %d entries (smart=%s)", len(entries), include_smart)
+    return entries
+
+
+async def last_active_user_id(tenant_id: str = "default") -> str | None:
+    """En son dikte yapan kullanıcı — startup'ta kimin sözlüğünü ısıtacağımızı bilmek için.
+
+    Local modda tek kullanıcı var; sunucu modunda ısınma zaten anlamsız
+    (hangi kullanıcının geleceği bilinmez) ama yanlış tahmin de zarar vermez,
+    sadece bir kereliğine kullanılmayan bir cache girişi oluşur.
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            """SELECT user_id FROM transcriptions
+               WHERE tenant_id = ? AND user_id IS NOT NULL AND user_id != ''
+               ORDER BY id DESC LIMIT 1""",
+            (tenant_id,),
+        ) as cursor:
+            row = await cursor.fetchone()
+            return row[0] if row else None
+
+
+async def warm_dictionary_cache(user_id: str, tenant_id: str = "default") -> int:
+    """Sözlüğü startup'ta cache'e al — ilk dikte 250ms beklemesin.
+
+    Bundle auto-load'dan SONRA çağrılmalı, yoksa yüklenen bundle cache'i
+    hemen geçersiz kılar ve ısınma boşa gider.
+    """
+    entries = await get_dictionary(user_id=user_id, tenant_id=tenant_id, include_smart=True)
+    logger.info("Dictionary cache warmed: %d entries", len(entries))
+    return len(entries)
 
 
 async def add_dictionary_entry(
@@ -42,7 +122,8 @@ async def add_dictionary_entry(
             (tenant_id, user_id, trigger.strip(), replacement.strip(), scope),
         )
         await db.commit()
-        return cursor.lastrowid
+    invalidate_dictionary_cache()
+    return cursor.lastrowid
 
 
 async def delete_dictionary_entry(entry_id: int, user_id: str, tenant_id: str = "default") -> bool:
@@ -53,7 +134,8 @@ async def delete_dictionary_entry(entry_id: int, user_id: str, tenant_id: str = 
             (entry_id, user_id, tenant_id),
         )
         await db.commit()
-        return cursor.rowcount > 0
+    invalidate_dictionary_cache()
+    return cursor.rowcount > 0
 
 
 # ------------------------------------------------------------------
@@ -125,6 +207,7 @@ async def load_bundle_entries(tenant_id: str, entries: list[dict]) -> int:
             [(tenant_id, "", e["trigger"], e["replacement"]) for e in entries],
         )
         await db.commit()
+    invalidate_dictionary_cache()
     return len(entries)
 
 
@@ -135,6 +218,7 @@ async def clear_bundle_entries(tenant_id: str) -> None:
             "DELETE FROM user_dictionary WHERE tenant_id = ? AND scope = 'bundle'", (tenant_id,)
         )
         await db.commit()
+    invalidate_dictionary_cache()
 
 
 async def count_bundle_entries(tenant_id: str = "default") -> int:
@@ -193,6 +277,7 @@ async def clear_smart_dictionary(user_id: str, tenant_id: str = "default") -> No
             (user_id, tenant_id),
         )
         await db.commit()
+    invalidate_dictionary_cache()
 
 
 async def get_dictionary_triggers(user_id: str) -> set[str]:
@@ -222,4 +307,5 @@ async def bulk_add_smart_entries(
             to_insert,
         )
         await db.commit()
+    invalidate_dictionary_cache()
     return len(to_insert)

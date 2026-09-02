@@ -12,6 +12,8 @@ from .dictionary_storage import (
     load_bundle_entries, clear_bundle_entries,
     get_context_status, get_context_projects, clear_smart_dictionary,
     get_dictionary_triggers, bulk_add_smart_entries,
+    dictionary_version, invalidate_dictionary_cache,
+    warm_dictionary_cache, last_active_user_id,
 )
 from .user_storage import (
     create_user, get_user_by_email, get_user_by_id,
@@ -47,6 +49,8 @@ __all__ = [
     "load_bundle_entries", "clear_bundle_entries",
     "get_context_status", "get_context_projects", "clear_smart_dictionary",
     "get_dictionary_triggers", "bulk_add_smart_entries",
+    "dictionary_version", "invalidate_dictionary_cache",
+    "warm_dictionary_cache", "last_active_user_id",
     # Users
     "create_user", "get_user_by_email", "get_user_by_id",
     "list_users", "update_user_role", "deactivate_user",
