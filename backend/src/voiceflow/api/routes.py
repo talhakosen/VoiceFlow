@@ -44,6 +44,7 @@ class TranscriptionResponse(BaseModel):
     it_wav_path: str | None = None
     pending_wav_path: str | None = None
     symbol_refs: list[str] | None = None
+    notice: str | None = None  # kullanıcıya gösterilecek uyarı (ör. mikrofon izni yok)
 
 
 class ConfigRequest(BaseModel):
@@ -53,6 +54,7 @@ class ConfigRequest(BaseModel):
     correction_enabled: bool | None = None
     mode: Literal["general", "engineering", "office"] | None = None
     output_format: Literal["prose", "code_comment", "pr_description", "jira_ticket"] | None = None
+    input_device: str | None = None  # mikrofon ADI; "" = sistem varsayılanı
 
 
 # ------------------------------------------------------------------
@@ -146,6 +148,7 @@ async def update_config(config: ConfigRequest, request: Request, svc=Depends(get
         correction_enabled=config.correction_enabled,
         mode=config.mode,
         output_format=config.output_format,
+        input_device=config.input_device,
     )
     result = await apply_config(
         config=svc_config,

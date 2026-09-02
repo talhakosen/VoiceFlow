@@ -29,7 +29,7 @@ CONCURRENCY = 5             # concurrent in-flight requests
 RATE_LIMIT_PER_MIN = 45     # stay safely below 50 req/min limit
 MIN_INTERVAL = 60.0 / RATE_LIMIT_PER_MIN   # ~1.33s between request dispatches
 MAX_RETRIES = 5
-ENV_FILE = Path("/Users/talhakosen/Developer/utils/voiceflow/.env")
+ENV_FILE = Path("/Users/talhakosen/Developer/personal/voiceflow/.env")
 
 SYSTEM_PROMPT = (
     "Sen bir Türkçe metin düzeltme asistanısın. Verilen metne SADECE şunları ekle/düzelt: "

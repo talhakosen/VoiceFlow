@@ -113,14 +113,19 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 
 - **After ANY Swift build**: Accessibility izni sıfırlanır → System Settings → Privacy → Accessibility → VoiceFlow'u etkinleştir. Auto-paste sessizce çalışmaz.
 - **Fn key**: Release eventi güvenilmez — double-tap toggle + Force Stop yedek. Asla sadece key-up'a güvenme.
+- **Sessiz kayıt (rms=0.0000)**: İki sebebi var, ikisi de hata vermeden boş ses döndürür — (1) macOS mikrofon izni yok (her rebuild imzayı değiştirdiği için sıfırlanır; `AppDelegate.requestMicrophonePermission()` artık açıkça istiyor, `tccutil reset Microphone com.voiceflow.app` ile sıfırlanır), (2) Bluetooth kulaklık susturulmuş/uykuda (Jabra Evolve2 boom kolu). Backend artık sebebi `notice` alanıyla UI'a söylüyor ve her kayıtta cihaz adını logluyor. Çözüm: Ayarlar > Kayıt > Mikrofon'dan cihazı sabitle — İSİMLE saklanır (index'ler cihaz takıldıkça kayıyor) ve backend her restart'ta ayarı unuttuğu için AppDelegate tekrar gönderir.
 - **7B minimum**: 1.5B/3B Türkçe'de hallüsinasyon yapıyor (doğrulandı). 7B altına inme.
 - **Whisper fine-tune**: Correction için Whisper frozen + Qwen adapter (hâlâ geçerli). Engineering mode için Whisper'ı da fine-tune ediyoruz: ISSAI 164K pair → voiceflow-whisper-tr → IT kayıtlar → voiceflow-whisper-it. Detay: `docs/ml/two-adapter-architecture.md`.
 - **faster-whisper**: numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`.
 - **MLX LLM on-demand**: Correction açılınca yükle, kapanınca unload (~4GB boşalt).
+- **Dinamik Whisper penceresi**: Whisper girdiyi hep 30sn'ye pad'ler → 4sn dikte de 30sn'lik hesabı öder. `transcription/dynamic_window.py` pencereyi `ceil(süre)+3sn`'ye kısaltır (min 6, max 30) → M4'te **~3x** (1.5sn ses: 1908→389ms). İki zorunlu koruma: `without_timestamps=True` (yoksa seek döngüsü SONSUZA kilitleniyor, >3.5dk ölçüldü) + 2sn'den az marjda cümle tekrarı → `has_repeated_span()` yakalarsa 30sn ile retry. Kapatmak için `config.yaml → whisper.dynamic_window: false`.
 - **Mode capture**: `RecordingService.stop()`'ta `active_mode = corrector.config.mode` ilk önce yakala — concurrent `/api/config` race condition önler.
 - **ChromaDB lazy**: `_build_retriever()` sadece `ChromaRetriever()` döner, `is_empty()` çağırma — MiniLM startup'ta indirilmez.
 - **NSPanel pattern**: Settings, History, Knowledge Base hepsi NSPanel floating window. SwiftUI `Settings {}` scene selector debug'da güvenilmez.
 - **DerivedData**: Her build öncesi sil yoksa eski binary çalışır.
+- **Backend path hardcoded değil**: `AppConstants.backendPathCandidates` + marker doğrulaması (`src/voiceflow/main.py`). Repo taşınırsa listeye ekle ya da `defaults write com.voiceflow.app backendPathOverride /yeni/path/backend`. Yanlış cwd → `Process.run()` sessizce fırlatır, backend hiç açılmaz.
+- **Servis butonları süreci yönetir**: `.restartBackend`/`.hardReset` → `backendProcessClient` (BackendProcessManager.shared). Sadece `/api/force-stop` atmak yetmez — backend ölüyse HTTP'nin kurtaracağı bir şey yok.
+- **Watchdog**: 5sn'de bir `/health`; ölürse en fazla 3 kez otomatik restart, sonra kullanıcıya hata. `/tmp/voiceflow.log` artık append (truncate edilirse çöküş kanıtı kayboluyor), Swift tarafı `/tmp/voiceflow-swift.log`.
 - **Swift binary güncelleme**: `cp -Rf` /Applications'ı güncellemez — `sudo cp -Rf` zorunlu.
 - **Docker yok (local)**: Katman 3'e ertelendi. Local geliştirmede Docker kullanma.
 - **HF_TOKEN**: Model indirme hızı için gerekli — env var olarak ver.

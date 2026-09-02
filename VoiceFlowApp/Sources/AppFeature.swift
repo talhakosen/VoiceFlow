@@ -27,6 +27,7 @@ struct AppFeature {
             if let raw = ud.string(forKey: AppSettings.appearanceMode), let ap = AppearanceMode(rawValue: raw) {
                 s.recording.appearanceMode = ap
             }
+            s.recording.inputDeviceName = ud.string(forKey: AppSettings.inputDevice) ?? ""
             return s
         }
     }

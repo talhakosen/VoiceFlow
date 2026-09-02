@@ -26,6 +26,10 @@ class AudioConfig:
     channels: int = 1
     dtype: str = "float32"
     blocksize: int = 1024
+    # Giriş cihazı: None = sistem varsayılanı. Varsayılan güvenilmez olabilir —
+    # Bluetooth kulaklıklar (ör. Jabra Evolve2, boom kolu kapalıyken) hata
+    # vermeden TAM SESSİZLİK döndürüyor. Kullanıcı buradan sabitleyebilsin.
+    device: int | None = None
 
 
 @dataclass
@@ -75,11 +79,14 @@ class AudioCapture:
                 channels=self.config.channels,
                 dtype=self.config.dtype,
                 blocksize=self.config.blocksize,
+                device=self.config.device,
                 callback=self._audio_callback,
             )
             self._stream.start()
             self._state = RecordingState.RECORDING
-            logger.debug("Audio capture started")
+            # Hangi cihazdan kaydettiğimizi logla — sessiz kayıt şikayetinde
+            # ilk bakılacak yer burası.
+            logger.info("Audio capture started on device: %s", self.current_device_name())
 
     def stop(self) -> np.ndarray:
         """Stop recording and return audio data as float32 mono array."""
@@ -130,6 +137,45 @@ class AudioCapture:
             self._state = RecordingState.IDLE
             logger.debug("Audio capture force-reset")
 
+    def current_device_name(self) -> str:
+        """Aktif giriş cihazının adı (log/teşhis için)."""
+        try:
+            dev = self.config.device
+            if dev is None:
+                dev = sd.default.device[0]
+            return f"{sd.query_devices(dev)['name']} (#{dev})"
+        except Exception:
+            return "unknown"
+
+    def set_device(self, device: int | None) -> None:
+        """Giriş cihazını değiştir. Kayıt sırasında çağrılırsa stream sıfırlanır."""
+        if self.config.device == device:
+            return
+        if self._state == RecordingState.RECORDING:
+            self.force_reset()
+        self.config.device = device
+        logger.info("Input device set to: %s", self.current_device_name())
+
+    def resolve_device(self, name: str | None) -> int | None:
+        """Cihaz ADINI index'e çevir. Boş/None = sistem varsayılanı.
+
+        İsimle eşleştiriyoruz çünkü index'ler cihaz takılıp çıkarıldıkça
+        kayıyor — kullanıcının seçtiği kulaklık bir sonraki açılışta başka
+        bir numaraya düşebilir.
+        """
+        if not name:
+            return None
+        inputs = [(i, d["name"]) for i, d in enumerate(sd.query_devices())
+                  if d["max_input_channels"] > 0]
+        for i, dev_name in inputs:
+            if dev_name == name:
+                return i
+        for i, dev_name in inputs:
+            if name.lower() in dev_name.lower():
+                return i
+        logger.warning("Input device %r not found — falling back to system default", name)
+        return None
+
     def get_devices(self) -> list[dict]:
         """Return available audio input devices."""
         devices = sd.query_devices()
@@ -139,6 +185,8 @@ class AudioCapture:
                 "name": device["name"],
                 "channels": device["max_input_channels"],
                 "sample_rate": device["default_samplerate"],
+                "is_default": i == sd.default.device[0],
+                "is_selected": i == self.config.device,
             }
             for i, device in enumerate(devices)
             if device["max_input_channels"] > 0

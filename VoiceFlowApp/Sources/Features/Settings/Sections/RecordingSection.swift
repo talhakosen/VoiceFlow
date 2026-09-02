@@ -46,6 +46,29 @@ struct RecordingSection: View {
                 }
             }
 
+            // MARK: Mikrofon
+            SettingsCardSection(title: "Mikrofon") {
+                SettingsRow(
+                    title: "Giriş Cihazı",
+                    subtitle: "Kayıt sessiz çıkıyorsa buradan başka bir mikrofon seçin. Bluetooth kulaklıklar susturulduğunda sessizce boş ses gönderir.",
+                    isLast: true
+                ) {
+                    Picker("", selection: Binding(
+                        get: { store.state.inputDeviceName },
+                        set: { store.send(.setInputDevice($0)) }
+                    )) {
+                        Text("Sistem Varsayılanı").tag("")
+                        ForEach(uniqueDevices, id: \.name) { device in
+                            Text(device.isDefault ? "\(device.name) (varsayılan)" : device.name)
+                                .tag(device.name)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 220)
+                }
+            }
+            .onAppear { store.send(.loadInputDevices) }
+
             // MARK: Mod
             SettingsCardSection(title: "Mod") {
                 ForEach(Array(AppMode.allCases.enumerated()), id: \.element) { idx, mode in
@@ -127,6 +150,13 @@ struct RecordingSection: View {
         .padding(VFSpacing.xxxl)
 
         } // end outer VStack
+    }
+
+    /// Aynı cihaz birden fazla index'te listelenebiliyor (ör. Jabra 0 ve 3);
+    /// isimle seçtiğimiz için tekrarları gizliyoruz.
+    private var uniqueDevices: [AudioInputDevice] {
+        var seen = Set<String>()
+        return store.state.availableInputDevices.filter { seen.insert($0.name).inserted }
     }
 
     private func modeSubtitle(_ mode: AppMode) -> String {

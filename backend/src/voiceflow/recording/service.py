@@ -64,6 +64,14 @@ class RecordingService:
     def get_devices(self) -> list:
         return self._audio.get_devices()
 
+    def set_input_device(self, name: str | None) -> str:
+        """Giriş cihazını isimle ayarla; aktif cihazın adını döndürür."""
+        self._audio.set_device(self._audio.resolve_device(name))
+        return self._audio.current_device_name()
+
+    def current_device_name(self) -> str:
+        return self._audio.current_device_name()
+
     # ------------------------------------------------------------------
     # Recording lifecycle
     # ------------------------------------------------------------------
@@ -104,8 +112,34 @@ class RecordingService:
         # Discard silence: too short (<0.5s) or pure line noise (RMS < 0.001)
         duration_sec = len(audio_data) / _SAMPLE_RATE
         rms = float(np.sqrt(np.mean(audio_data.astype(np.float32) ** 2)))
-        if duration_sec < 0.5 or rms < 0.001:
-            logger.info("Discarding silent/short audio: %.2fs rms=%.4f", duration_sec, rms)
+
+        # Ses geldi ama içi boş → kullanıcıya SEBEBİNİ söyle. Sessizce atarsak
+        # "kayıt oluyor ama panoya bir şey gelmiyor" şikayeti çıkıyor ve hiçbir
+        # yerde hata görünmüyor (yaşandı: hem mikrofon izni, hem susturulmuş
+        # Bluetooth kulaklık aynı belirtiyi veriyor).
+        # Eşik 0.0003: ölçülen gerçek konuşma kayıtları 0.02-0.07 arası, ama
+        # kısık bir mikrofondan gelen GEÇERLİ bir kayıt 0.0015 ölçüldü. 0.001
+        # sınırı bu yüzden fazla yakındı — geçerli diktenin elenmesindense
+        # bir miktar gürültünün Whisper'a gitmesi yeğdir.
+        if duration_sec >= 0.5 and rms < 0.0003:
+            device = self._audio.current_device_name()
+            logger.error(
+                "Silent audio from %s: %.2fs rms=%.6f — mikrofon susturulmuş "
+                "veya izin verilmemiş olabilir",
+                device, duration_sec, rms,
+            )
+            return {
+                "text": "",
+                "duration": 0.0,
+                "notice": (
+                    f"Mikrofondan ses gelmiyor ({device}). Kulaklık susturulmuş olabilir "
+                    "— Ayarlar > Kayıt'tan başka bir mikrofon seç, ya da Sistem Ayarları > "
+                    "Gizlilik > Mikrofon'dan VoiceFlow'u aç."
+                ),
+            }
+
+        if duration_sec < 0.5:
+            logger.info("Discarding short audio: %.2fs rms=%.4f", duration_sec, rms)
             return {"text": "", "duration": 0.0}
 
         loop = asyncio.get_running_loop()

@@ -12,6 +12,8 @@ struct TranscriptionResult: Codable {
     let itWavPath: String?
     let pendingWavPath: String?
     let symbolRefs: [String]?
+    /// Backend'den gelen kullanıcı uyarısı (ör. mikrofon izni yok).
+    let notice: String?
 
     enum CodingKeys: String, CodingKey {
         case text
@@ -25,7 +27,24 @@ struct TranscriptionResult: Codable {
         case itWavPath = "it_wav_path"
         case pendingWavPath = "pending_wav_path"
         case symbolRefs = "symbol_refs"
+        case notice
     }
+}
+
+/// Backend'in bildirdiği mikrofon girişi.
+struct AudioInputDevice: Codable, Identifiable, Hashable {
+    let id: Int
+    let name: String
+    let isDefault: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case isDefault = "is_default"
+    }
+}
+
+private struct DevicesResponse: Codable {
+    let devices: [AudioInputDevice]
 }
 
 struct HistoryItem: Identifiable {
@@ -181,6 +200,8 @@ protocol BackendServiceProtocol: Actor {
     func getStatus() async throws -> StatusResponse
     func isBackendRunning() async -> Bool
     func updateConfig(language: String?, task: String, correctionEnabled: Bool?, mode: String?) async throws
+    func getInputDevices() async throws -> [AudioInputDevice]
+    func setInputDevice(_ name: String) async throws
     func getHistory(limit: Int) async throws -> [HistoryItem]
     func clearHistory() async throws
     func getContextStatus() async throws -> ContextStatus
@@ -433,6 +454,29 @@ actor BackendService: BackendServiceProtocol {
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
+        let (_, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+    }
+
+    func getInputDevices() async throws -> [AudioInputDevice] {
+        let request = makeRequest(path: APIEndpoint.devices)
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw BackendError.requestFailed
+        }
+        return try JSONDecoder().decode(DevicesResponse.self, from: data).devices
+    }
+
+    /// Mikrofonu ADIYLA sabitler. Boş string = sistem varsayılanı.
+    /// İsim kullanıyoruz çünkü cihaz index'leri takıp çıkardıkça kayıyor.
+    func setInputDevice(_ name: String) async throws {
+        var request = makeRequest(path: APIEndpoint.config, method: "POST")
+        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
+        request.httpBody = try JSONSerialization.data(
+            withJSONObject: ["task": "transcribe", "input_device": name]
+        )
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed

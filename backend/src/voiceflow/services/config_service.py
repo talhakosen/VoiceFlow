@@ -23,6 +23,7 @@ class ConfigRequest:
     correction_enabled: bool | None = None
     mode: Literal["general", "engineering", "office"] | None = None
     output_format: Literal["prose", "code_comment", "pr_description", "jira_ticket"] | None = None
+    input_device: str | None = None
 
 
 @dataclass
@@ -33,6 +34,7 @@ class ConfigResult:
     correction_enabled: bool
     mode: str
     output_format: str
+    input_device: str = ""
 
 
 async def apply_config(
@@ -130,6 +132,11 @@ async def apply_config(
             target=str(changed),
         )
 
+    # ── Giriş cihazı ────────────────────────────────────────────────
+    # None = değiştirme; "" = sistem varsayılanına dön.
+    if config.input_device is not None:
+        svc.set_input_device(config.input_device or None)
+
     return ConfigResult(
         model=svc.transcriber.config.model_name,
         language=svc.transcriber.config.language,
@@ -137,6 +144,7 @@ async def apply_config(
         correction_enabled=corrector.config.enabled,
         mode=corrector.config.mode,
         output_format=getattr(corrector.config, "output_format", "prose"),
+        input_device=svc.current_device_name(),
     )
 
 

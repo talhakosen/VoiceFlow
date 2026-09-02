@@ -30,7 +30,12 @@ def make_recording_service(corrector):
     # Patch audio so stop() can be called without a real audio capture
     svc._audio = MagicMock()
     svc._audio.is_recording = True
-    svc._audio.stop = MagicMock(return_value=__import__("numpy").zeros(16000, dtype="float32"))
+    # SESSİZ OLMAYAN ses şart: sıfır dolu dizi artık "mikrofon susmuş" dalına
+    # düşüp pipeline'ı hiç çalıştırmıyor — testler sessizce boşa dönerdi.
+    import numpy as np
+    rng = np.random.default_rng(0)
+    svc._audio.stop = MagicMock(return_value=(rng.standard_normal(16000) * 0.05).astype("float32"))
+    svc._audio.current_device_name = MagicMock(return_value="Test Mic (#0)")
     return svc
 
 
@@ -116,27 +121,67 @@ def test_llm_corrector_no_context_disabled():
 # Silence / short-audio guard
 # ---------------------------------------------------------------------------
 
-def test_silence_guard_short_duration():
-    """Audio shorter than 0.5s should be discarded without calling Whisper."""
+def _silence_service():
+    corrector = MagicMock()
+    corrector.config = MagicMock()
+    corrector.config.enabled = False
+    corrector.config.mode = "general"
+    return make_recording_service(corrector)
+
+
+def test_short_audio_is_discarded_without_notice():
+    """0.5sn altı kayıt atılır — kullanıcı yanlışlıkla tuşa dokunmuştur, uyarma."""
     import numpy as np
-    _SAMPLE_RATE = 16000
 
-    duration_sec = 0.3
-    audio = np.zeros(int(_SAMPLE_RATE * duration_sec), dtype=np.int16)
-    rms = float(np.sqrt(np.mean(audio.astype(np.float32) ** 2)))
+    svc = _silence_service()
+    rng = np.random.default_rng(1)
+    svc._audio.stop = MagicMock(return_value=(rng.standard_normal(4800) * 0.05).astype("float32"))
 
-    assert duration_sec < 0.5 or rms < 0.005
+    result = asyncio.run(svc.stop(user_id=None, tenant_id="default"))
+
+    assert result["text"] == ""
+    assert "notice" not in result
+    svc.transcriber.transcribe.assert_not_called()
 
 
-def test_silence_guard_silent_audio():
-    """Silent audio (rms < 0.005) should be discarded regardless of duration."""
+def test_digital_silence_returns_notice():
+    """Ses geldi ama içi boş → SEBEBİNİ söyle.
+
+    Regresyon: mikrofon izni yokken ve susturulmuş Bluetooth kulaklıkta
+    CoreAudio hata vermeden sıfır örnek döndürüyor. Sessizce atarsak
+    kullanıcı 'kayıt oluyor ama panoya bir şey gelmiyor' görüyor.
+    """
     import numpy as np
-    _SAMPLE_RATE = 16000
 
-    audio = np.zeros(int(_SAMPLE_RATE * 2.0), dtype=np.int16)
-    rms = float(np.sqrt(np.mean(audio.astype(np.float32) ** 2)))
+    svc = _silence_service()
+    svc._audio.stop = MagicMock(return_value=np.zeros(32000, dtype="float32"))
 
-    assert rms < 0.005
+    result = asyncio.run(svc.stop(user_id=None, tenant_id="default"))
+
+    assert result["text"] == ""
+    assert "notice" in result
+    assert "Test Mic" in result["notice"]  # hangi cihaz olduğunu söylemeli
+    svc.transcriber.transcribe.assert_not_called()
+
+
+def test_quiet_but_valid_audio_is_transcribed():
+    """Kısık mikrofon elenmemeli — ölçülen geçerli bir kayıt rms=0.0015'ti."""
+    import numpy as np
+
+    svc = _silence_service()
+    rng = np.random.default_rng(2)
+    quiet = (rng.standard_normal(32000) * 0.0015).astype("float32")
+    assert 0.0003 < float(np.sqrt(np.mean(quiet ** 2))) < 0.005
+    svc._audio.stop = MagicMock(return_value=quiet)
+
+    with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
+         patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
+         patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
+        result = asyncio.run(svc.stop(user_id=None, tenant_id="default"))
+
+    # Pipeline cümle başını büyütüyor — önemli olan metnin elenmemesi
+    assert result["text"].lower() == "test metni"
+    svc.transcriber.transcribe.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

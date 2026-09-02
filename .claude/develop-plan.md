@@ -24,6 +24,9 @@
 - App icon tüm boyutlar doğru (Xcode warning yok)
 - Versiyon 0.3.0
 - Backend kapalıyken kullanıcıya Türkçe hata mesajı
+- **Dinamik Whisper penceresi** — encoder penceresi ses uzunluğuna göre kısalır (ceil+3sn, min 6 max 30); kısa diktede ~3x hız (1.5sn ses: 1908→389ms) [DONE 2026-09-02]
+- **Backend watchdog** — 5sn'de bir /health, ölürse otomatik restart (max 3); "Servisi Yeniden Başlat"/"Zorla Yeniden Başlat" artık gerçekten süreci yönetiyor [DONE 2026-09-02]
+- **Mikrofon seçimi** — Ayarlar > Kayıt > Mikrofon; cihaz isimle saklanır, backend restart'ında tekrar uygulanır; sessiz kayıtta sebebi kullanıcıya söylenir [DONE 2026-09-02]
 - Local mode (MLX/Mac) + Server mode (faster-whisper + Ollama)
 - JWT auth (register/login/refresh) — server mode
 - Mac app login ekranı + Keychain token saklama

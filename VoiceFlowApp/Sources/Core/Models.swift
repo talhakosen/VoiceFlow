@@ -18,6 +18,8 @@ enum AppSettings {
     static let trainingMode        = "trainingMode"
     static let correctionEnabled   = "correctionEnabled"
     static let appearanceMode      = "appearanceMode"
+    /// Sabitlenen mikrofon ADI; boş = sistem varsayılanı.
+    static let inputDevice         = "inputDevice"
 }
 
 // MARK: - DeploymentMode

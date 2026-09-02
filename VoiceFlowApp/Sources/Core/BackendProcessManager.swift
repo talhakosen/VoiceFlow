@@ -2,9 +2,49 @@ import Foundation
 
 /// Manages the backend Python process lifecycle: start, stop, restart, health check.
 /// Extracted from AppDelegate to keep it focused on app lifecycle + wiring.
+///
+/// Tasarım notları (stale-state önlemleri):
+/// - Path DOĞRULANIR (`src/voiceflow/main.py` marker). Yanlış dizine `Process.run()`
+///   atmak sessizce fırlatır ve backend hiç ayağa kalkmaz — proje taşındığında yaşandı.
+/// - Log dosyası her start'ta SİLİNMEZ; append edilir. Aksi halde çöken backend'in
+///   kanıtı bir sonraki restart'ta yok oluyor.
+/// - Watchdog: backend ölürse otomatik yeniden başlatılır ve durum dışarı bildirilir.
 final class BackendProcessManager {
+
+    /// Tek örnek — hem AppDelegate hem BackendProcessClient (TCA) aynı süreci yönetmeli.
+    static let shared = BackendProcessManager()
+
+    // MARK: - Observable failure state
+
+    enum Failure: Equatable {
+        case backendPathNotFound([String])
+        case pythonNotFound(String)
+        case spawnFailed(String)
+        case notHealthy
+
+        var message: String {
+            switch self {
+            case let .backendPathNotFound(tried):
+                return "Backend klasörü bulunamadı (denenen: \(tried.joined(separator: ", ")))"
+            case let .pythonNotFound(path):
+                return "Python bulunamadı: \(path)"
+            case let .spawnFailed(err):
+                return "Servis başlatılamadı: \(err)"
+            case .notHealthy:
+                return "Servis yanıt vermiyor"
+            }
+        }
+    }
+
+    private(set) var lastFailure: Failure?
+    /// Watchdog / restart sonucu değiştiğinde tetiklenir (main thread).
+    var onStateChange: ((Bool, Failure?) -> Void)?
+
     private var process: Process?
     private var healthCheckTimer: Timer?
+    private var watchdogTimer: Timer?
+    private var autoRestartCount = 0
+    private var isRestarting = false
     private let port: Int
 
     init(port: Int = AppConstants.defaultLocalPort) {
@@ -22,6 +62,7 @@ final class BackendProcessManager {
     /// Wait for /health to return 200. Calls completion on main thread.
     func waitUntilReady(maxAttempts: Int = 30, completion: @escaping (Bool) -> Void) {
         var attempts = 0
+        healthCheckTimer?.invalidate()
 
         healthCheckTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] timer in
             attempts += 1
@@ -32,9 +73,18 @@ final class BackendProcessManager {
                 return
             }
 
+            // Süreç hiç doğmadıysa (spawn hatası) beklemeye gerek yok.
+            if self.process == nil {
+                timer.invalidate()
+                self.log("Backend process was never spawned — \(self.lastFailure?.message ?? "unknown")")
+                completion(false)
+                return
+            }
+
             if let proc = self.process, !proc.isRunning {
                 timer.invalidate()
-                NSLog("VoiceFlow: Backend process died")
+                self.log("Backend process died (exit \(proc.terminationStatus)) — see \(AppConstants.backendLogPath)")
+                self.lastFailure = .spawnFailed("process exited (\(proc.terminationStatus))")
                 completion(false)
                 return
             }
@@ -42,10 +92,12 @@ final class BackendProcessManager {
             self.checkHealth { isHealthy in
                 if isHealthy {
                     timer.invalidate()
+                    self.lastFailure = nil
                     completion(true)
                 } else if attempts >= maxAttempts {
                     timer.invalidate()
-                    NSLog("VoiceFlow: Backend health check timed out after %d attempts", attempts)
+                    self.log("Backend health check timed out after \(attempts) attempts")
+                    self.lastFailure = .notHealthy
                     completion(false)
                 }
             }
@@ -54,13 +106,19 @@ final class BackendProcessManager {
 
     /// Soft restart: SIGTERM → wait → SIGKILL if needed → start fresh → wait for ready.
     func restart(completion: ((Bool) -> Void)? = nil) {
-        NSLog("VoiceFlow: Restarting backend...")
+        guard !isRestarting else {
+            log("restart() ignored — already restarting")
+            completion?(false)
+            return
+        }
+        isRestarting = true
+        log("Restarting backend...")
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             self.stop()
 
             if !self.pidsOnPort().isEmpty {
-                NSLog("VoiceFlow: Port still busy — escalating to hard kill")
+                self.log("Port still busy — escalating to hard kill")
                 self.shellKill(signal: "KILL")
                 Thread.sleep(forTimeInterval: 1.0)
             }
@@ -69,7 +127,9 @@ final class BackendProcessManager {
                 self.start()
                 self.waitUntilReady { success in
                     DispatchQueue.main.async {
-                        NSLog("VoiceFlow: Backend restart %@", success ? "succeeded" : "failed")
+                        self.isRestarting = false
+                        self.log("Backend restart \(success ? "succeeded" : "failed")")
+                        self.onStateChange?(success, success ? nil : self.lastFailure)
                         completion?(success)
                     }
                 }
@@ -81,24 +141,27 @@ final class BackendProcessManager {
     func hardReset(completion: @escaping (Bool) -> Void) {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
+            self.isRestarting = true
 
             if let p = self.process, p.isRunning { p.terminate() }
             self.process = nil
 
             for pid in self.pidsOnPort() {
                 kill(pid, SIGKILL)
-                NSLog("VoiceFlow: Hard reset SIGKILL pid %d", pid)
+                self.log("Hard reset SIGKILL pid \(pid)")
             }
             self.waitForPortFree()
 
-            NSLog("VoiceFlow: Hard reset — port %d %@", self.port,
-                  self.pidsOnPort().isEmpty ? "free" : "still in use!")
+            self.log("Hard reset — port \(self.port) \(self.pidsOnPort().isEmpty ? "free" : "still in use!")")
 
             DispatchQueue.main.async {
+                self.autoRestartCount = 0   // manuel müdahale → watchdog kotasını sıfırla
                 self.start()
                 self.waitUntilReady { success in
                     DispatchQueue.main.async {
-                        NSLog("VoiceFlow: Hard reset restart %@", success ? "succeeded" : "failed")
+                        self.isRestarting = false
+                        self.log("Hard reset restart \(success ? "succeeded" : "failed")")
+                        self.onStateChange?(success, success ? nil : self.lastFailure)
                         completion(success)
                     }
                 }
@@ -113,23 +176,83 @@ final class BackendProcessManager {
         }
         process = nil
         killExisting()
-        NSLog("VoiceFlow: Backend stopped")
+        log("Backend stopped")
     }
 
     func invalidateHealthTimer() {
         healthCheckTimer?.invalidate()
+        healthCheckTimer = nil
+    }
+
+    // MARK: - Watchdog
+
+    /// Periyodik sağlık kontrolü. Backend ölürse otomatik toparlar.
+    /// Sonsuz restart döngüsünü önlemek için `backendMaxAutoRestarts` limiti var:
+    /// limit aşılınca kullanıcıya "Zorla Yeniden Başlat" için hata bildirilir.
+    func startWatchdog() {
+        watchdogTimer?.invalidate()
+        watchdogTimer = Timer.scheduledTimer(
+            withTimeInterval: AppConstants.backendWatchdogInterval,
+            repeats: true
+        ) { [weak self] _ in
+            guard let self, !self.isRestarting else { return }
+
+            self.checkHealth { healthy in
+                DispatchQueue.main.async {
+                    if healthy {
+                        if self.autoRestartCount > 0 || self.lastFailure != nil {
+                            self.autoRestartCount = 0
+                            self.lastFailure = nil
+                            self.onStateChange?(true, nil)
+                        }
+                        return
+                    }
+
+                    guard self.autoRestartCount < AppConstants.backendMaxAutoRestarts else {
+                        if self.lastFailure == nil {
+                            self.lastFailure = .notHealthy
+                            self.onStateChange?(false, .notHealthy)
+                        }
+                        return
+                    }
+
+                    self.autoRestartCount += 1
+                    self.log("Watchdog: backend unhealthy — auto-restart \(self.autoRestartCount)/\(AppConstants.backendMaxAutoRestarts)")
+                    self.restart(completion: nil)
+                }
+            }
+        }
+    }
+
+    func stopWatchdog() {
+        watchdogTimer?.invalidate()
+        watchdogTimer = nil
+    }
+
+    /// Anlık durum — UI/menü için.
+    func isHealthy(completion: @escaping (Bool) -> Void) {
+        checkHealth(completion: completion)
     }
 
     // MARK: - Process Start
 
     private func start() {
-        let backendPath = Self.findBackendPath()
-        NSLog("VoiceFlow: Backend path: %@", backendPath)
-        guard let pythonPath = Self.findPythonPath(backendPath: backendPath) else {
-            NSLog("VoiceFlow: ERROR - Python not found!")
+        guard let backendPath = Self.findBackendPath() else {
+            lastFailure = .backendPathNotFound(Self.searchedBackendPaths())
+            log("ERROR — \(lastFailure!.message)")
+            process = nil
             return
         }
-        NSLog("VoiceFlow: Python path: %@", pythonPath)
+        log("Backend path: \(backendPath)")
+
+        guard let pythonPath = Self.findPythonPath(backendPath: backendPath),
+              FileManager.default.isExecutableFile(atPath: pythonPath) else {
+            lastFailure = .pythonNotFound("\(backendPath)/.venv/bin/python")
+            log("ERROR — \(lastFailure!.message)")
+            process = nil
+            return
+        }
+        log("Python path: \(pythonPath)")
 
         let proc = Process()
         proc.executableURL = URL(fileURLWithPath: pythonPath)
@@ -137,22 +260,34 @@ final class BackendProcessManager {
         proc.currentDirectoryURL = URL(fileURLWithPath: backendPath)
         proc.environment = Self.buildEnvironment(backendPath: backendPath)
 
-        // Redirect stdout+stderr to log file
+        // Redirect stdout+stderr to log file — APPEND, asla truncate etme.
+        // Truncate edersek çöken backend'in stack trace'i bir sonraki restart'ta kaybolur.
         let logPath = AppConstants.backendLogPath
-        FileManager.default.createFile(atPath: logPath, contents: nil)
+        if !FileManager.default.fileExists(atPath: logPath) {
+            FileManager.default.createFile(atPath: logPath, contents: nil)
+        }
         if let logHandle = FileHandle(forWritingAtPath: logPath) {
             logHandle.seekToEndOfFile()
+            let banner = "\n===== VoiceFlow backend start \(ISO8601DateFormatter().string(from: Date())) — cwd=\(backendPath) =====\n"
+            logHandle.write(Data(banner.utf8))
             proc.standardOutput = logHandle
             proc.standardError = logHandle
         }
 
+        proc.terminationHandler = { [weak self] p in
+            self?.log("Backend exited with status \(p.terminationStatus) (reason: \(p.terminationReason.rawValue))")
+        }
+
         do {
             try proc.run()
-            NSLog("VoiceFlow: Backend started with PID: %d", proc.processIdentifier)
+            lastFailure = nil
+            process = proc
+            log("Backend started with PID: \(proc.processIdentifier)")
         } catch {
-            NSLog("VoiceFlow: Failed to start backend: %@", error.localizedDescription)
+            lastFailure = .spawnFailed(error.localizedDescription)
+            process = nil   // spawn olmadıysa ölü Process nesnesini tutma
+            log("Failed to start backend: \(error.localizedDescription)")
         }
-        process = proc
     }
 
     // MARK: - Port Management
@@ -163,11 +298,11 @@ final class BackendProcessManager {
 
         if !pidsOnPort().isEmpty {
             shellKill(signal: "KILL")
-            NSLog("VoiceFlow: SIGKILL sent to port %d", port)
+            log("SIGKILL sent to port \(port)")
         }
 
         waitForPortFree()
-        NSLog("VoiceFlow: Port %d is %@", port, pidsOnPort().isEmpty ? "free" : "still in use!")
+        log("Port \(port) is \(pidsOnPort().isEmpty ? "free" : "still in use!")")
     }
 
     private func shellKill(signal: String) {
@@ -213,7 +348,9 @@ final class BackendProcessManager {
             return
         }
 
-        URLSession.shared.dataTask(with: url) { _, response, _ in
+        var request = URLRequest(url: url)
+        request.timeoutInterval = AppConstants.healthCheckTimeout
+        URLSession.shared.dataTask(with: request) { _, response, _ in
             let ok = (response as? HTTPURLResponse)?.statusCode == 200
             completion(ok)
         }.resume()
@@ -221,30 +358,43 @@ final class BackendProcessManager {
 
     // MARK: - Path Discovery
 
-    static func findBackendPath() -> String {
-        // 1. Relative to bundle (works when running from DerivedData)
-        let bundleRelative = URL(fileURLWithPath: Bundle.main.bundlePath)
+    /// Denenen tüm adaylar — hata mesajında göstermek için.
+    static func searchedBackendPaths() -> [String] {
+        var paths: [String] = []
+        if let override = UserDefaults.standard.string(forKey: AppConstants.backendPathOverrideKey),
+           !override.isEmpty {
+            paths.append(override)
+        }
+        paths.append(bundleRelativeBackendPath())
+        paths.append(contentsOf: AppConstants.backendPathCandidates)
+        return paths
+    }
+
+    private static func bundleRelativeBackendPath() -> String {
+        URL(fileURLWithPath: Bundle.main.bundlePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("backend")
             .path
-        if FileManager.default.fileExists(atPath: bundleRelative) {
-            return bundleRelative
-        }
+    }
 
-        // 2. Known project path (works when app is in /Applications)
-        let projectPath = AppConstants.projectBackendPath
-        if FileManager.default.fileExists(atPath: projectPath) {
-            return projectPath
+    /// Marker dosyası (`src/voiceflow/main.py`) olan İLK adayı döner.
+    /// Sadece klasör varlığına bakmak yetmez: /Applications/backend gibi
+    /// var olmayan/yanlış bir dizin `Process.run()`'ı sessizce patlatıyordu.
+    static func findBackendPath() -> String? {
+        for candidate in searchedBackendPaths() where isValidBackendPath(candidate) {
+            return candidate
         }
+        return nil
+    }
 
-        NSLog("VoiceFlow: WARNING — backend path not found, using bundle-relative: %@", bundleRelative)
-        return bundleRelative
+    static func isValidBackendPath(_ path: String) -> Bool {
+        FileManager.default.fileExists(atPath: "\(path)/\(AppConstants.backendMarkerFile)")
     }
 
     static func findPythonPath(backendPath: String? = nil) -> String? {
-        let backend = backendPath ?? findBackendPath()
+        guard let backend = backendPath ?? findBackendPath() else { return nil }
         let venvPython = "\(backend)/.venv/bin/python"
         if FileManager.default.fileExists(atPath: venvPython) {
             return venvPython
@@ -285,19 +435,12 @@ final class BackendProcessManager {
         }
 
         switch llmMode {
-        case .cloud:
-            env["LLM_BACKEND"] = "ollama"
-            for key in ["LLM_ENDPOINT", "LLM_MODEL", "HF_TOKEN"] {
+        case .runpod:
+            env["WHISPER_BACKEND"] = "runpod"
+            for key in ["RUNPOD_INFERENCE_URL", "RUNPOD_API_TOKEN", "RUNPOD_ENDPOINT_ID", "HF_TOKEN"] {
                 if let val = dotEnv[key] { env[key] = val }
             }
-            NSLog("VoiceFlow: LLM_BACKEND=ollama (RunPod), LLM_ENDPOINT=%@", env["LLM_ENDPOINT"] ?? "nil")
-
-        case .alibaba:
-            env["LLM_BACKEND"] = "ollama"
-            env["LLM_ENDPOINT"] = AppConstants.alibabaDashScopeURL
-            env["LLM_MODEL"] = AppConstants.alibabaScopeModel
-            if let apiKey = dotEnv["ALIBABA_API_KEY"] { env["LLM_API_KEY"] = apiKey }
-            NSLog("VoiceFlow: LLM_BACKEND=ollama (Alibaba DashScope), model=qwen-max")
+            NSLog("VoiceFlow: WHISPER_BACKEND=runpod, URL=%@", env["RUNPOD_INFERENCE_URL"] ?? "nil")
 
         case .local:
             env["LLM_BACKEND"] = "mlx"
@@ -314,5 +457,21 @@ final class BackendProcessManager {
         }
 
         return env
+    }
+
+    // MARK: - Logging
+
+    /// NSLog + dosya. Unified log'da NSLog kaybolabiliyor (private data),
+    /// bu yüzden teşhis için ayrıca /tmp/voiceflow-swift.log'a yazıyoruz.
+    private func log(_ msg: String) {
+        NSLog("VoiceFlow: %@", msg)
+        let line = "\(ISO8601DateFormatter().string(from: Date())) [BackendProcessManager] \(msg)\n"
+        guard let data = line.data(using: .utf8) else { return }
+        let path = AppConstants.swiftLogPath
+        if let fh = FileHandle(forWritingAtPath: path) {
+            fh.seekToEndOfFile(); fh.write(data); fh.closeFile()
+        } else {
+            try? data.write(to: URL(fileURLWithPath: path))
+        }
     }
 }

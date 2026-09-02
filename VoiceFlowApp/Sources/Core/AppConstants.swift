@@ -10,8 +10,6 @@ enum AppConstants {
     static let defaultLocalPort:    Int    = 8765
     static let defaultLocalURL:     String = "http://127.0.0.1:\(defaultLocalPort)"
     static let defaultLocalAPIURL:  String = "\(defaultLocalURL)/api"
-    static let alibabaDashScopeURL: String = "https://dashscope-intl.aliyuncs.com/compatible-mode"
-    static let alibabaScopeModel:   String = "qwen-max"
 
     // MARK: Timeouts (seconds)
     static let requestTimeout:     TimeInterval = 30
@@ -33,7 +31,25 @@ enum AppConstants {
     static let pillCountdownSeconds: Int = 10
 
     // MARK: Paths
-    static let projectBackendPath: String = "\(NSHomeDirectory())/Developer/utils/voiceflow/backend"
+    /// Repo konumu değişebilir (proje taşındı: utils/ → personal/).
+    /// Tek bir hardcoded path yerine aday listesi denenir; ilk GEÇERLİ olan kullanılır.
+    /// "Geçerli" = içinde `src/voiceflow/main.py` var. Bkz. BackendProcessManager.findBackendPath()
+    static let backendPathCandidates: [String] = [
+        "\(NSHomeDirectory())/Developer/personal/voiceflow/backend",
+        "\(NSHomeDirectory())/Developer/utils/voiceflow/backend",
+        "\(NSHomeDirectory())/Developer/voiceflow/backend",
+    ]
+
+    /// Kullanıcı/geliştirici override — UserDefaults key.
+    /// `defaults write com.voiceflow.app backendPathOverride /path/to/backend`
+    static let backendPathOverrideKey: String = "backendPathOverride"
+
+    /// Backend dizinini doğrulayan marker dosya.
+    static let backendMarkerFile: String = "src/voiceflow/main.py"
+
+    // MARK: Backend watchdog
+    static let backendWatchdogInterval: TimeInterval = 5.0   // sağlık kontrolü periyodu
+    static let backendMaxAutoRestarts:  Int          = 3     // arka arkaya otomatik restart limiti
 
     // MARK: Log paths
     static let swiftLogPath:   String = "/tmp/voiceflow-swift.log"

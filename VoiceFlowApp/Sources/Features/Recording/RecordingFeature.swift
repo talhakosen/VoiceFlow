@@ -26,6 +26,9 @@ struct RecordingFeature {
         var appearanceMode: AppearanceMode = .system
         // Fix 2: trainingModeEnabled kept for config persistence; training pill state removed
         var trainingModeEnabled: Bool = false
+        /// Sabitlenen mikrofon adı; boş = sistem varsayılanı.
+        var inputDeviceName: String = ""
+        var availableInputDevices: [AudioInputDevice] = []
     }
 
     // MARK: - Action
@@ -48,6 +51,11 @@ struct RecordingFeature {
         case setTrainingMode(Bool)
         case setAppearanceMode(AppearanceMode)
 
+        // Mikrofon girişi
+        case setInputDevice(String)
+        case loadInputDevices
+        case inputDevicesLoaded([AudioInputDevice])
+
         // Dictionary learning (user-triggered from the menu)
         case learnDictionary
         case learnDictionaryFinished(Int)
@@ -55,6 +63,7 @@ struct RecordingFeature {
         // Backend lifecycle
         case restartBackend
         case hardReset
+        case backendRestartFinished(Bool)
         case backendStatusReceived(isLLMReady: Bool, whisperModel: String, adapterVersion: String)
 
         // Accessibility (delegated to AppDelegate / MenuBarFeature)
@@ -64,6 +73,7 @@ struct RecordingFeature {
     // MARK: - Dependencies
 
     @Dependency(\.backendClient) var backend
+    @Dependency(\.backendProcessClient) var backendProcess
     @Dependency(\.soundClient) var sound
     @Dependency(\.pasteClient) var paste
     @Dependency(\.userDefaultsClient) var userDefaults
@@ -161,7 +171,9 @@ struct RecordingFeature {
                 state.isProcessing = false
                 state.lastResult = result
                 guard !result.text.isEmpty else {
-                    state.statusText = "Ready"
+                    // Backend sessiz dönebilir ama sebebini biliyorsa söylesin —
+                    // "kayıt oluyor, panoya bir şey gelmiyor" sessiz hatasını önler.
+                    state.statusText = result.notice.map { "Hata: \($0)" } ?? "Ready"
                     return .none
                 }
                 let trainingMode = state.trainingModeEnabled
@@ -247,6 +259,27 @@ struct RecordingFeature {
                     await MainActor.run { NSApp.appearance = mode.nsAppearance }
                 }
 
+            // MARK: Mikrofon girişi
+
+            case let .setInputDevice(name):
+                state.inputDeviceName = name
+                userDefaults.setString(name, AppSettings.inputDevice)
+                return .run { _ in
+                    // Backend yeniden başlayınca ayar sıfırlanır — AppDelegate
+                    // her sağlıklı başlangıçta bunu tekrar gönderir.
+                    try? await backend.setInputDevice(name)
+                }
+
+            case .loadInputDevices:
+                return .run { send in
+                    let devices = (try? await backend.getInputDevices()) ?? []
+                    await send(.inputDevicesLoaded(devices))
+                }
+
+            case let .inputDevicesLoaded(devices):
+                state.availableInputDevices = devices
+                return .none
+
             // MARK: Backend lifecycle
 
             case .restartBackend:
@@ -254,8 +287,12 @@ struct RecordingFeature {
                 state.isRecording = false
                 state.isProcessing = false
                 return .run { send in
+                    // Önce nazikçe kaydı bitir (backend ayaktaysa), sonra SÜRECİ yeniden başlat.
+                    // Sadece forceStop atmak yetmiyordu: backend ölüyse buton hiçbir şey yapmıyordu.
                     try? await backend.forceStop()
                     await send(.backendStatusReceived(isLLMReady: false, whisperModel: "", adapterVersion: ""))
+                    let ok = await backendProcess.restart()
+                    await send(.backendRestartFinished(ok))
                 }
 
             case .hardReset:
@@ -263,9 +300,18 @@ struct RecordingFeature {
                 state.isProcessing = false
                 state.statusText = "Sifirlaniyor..."
                 return .run { send in
-                    try? await backend.forceStop()
                     await send(.backendStatusReceived(isLLMReady: false, whisperModel: "", adapterVersion: ""))
+                    let ok = await backendProcess.hardReset()
+                    await send(.backendRestartFinished(ok))
                 }
+
+            case let .backendRestartFinished(ok):
+                state.isRecording = false
+                state.isProcessing = false
+                state.statusText = ok
+                    ? "Servis hazir"
+                    : "Hata: " + (backendProcess.lastFailureMessage() ?? "Servis baslatilamadi")
+                return .none
 
             case let .backendStatusReceived(llmReady, whisper, adapter):
                 state.isLLMReady = llmReady

@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import ComposableArchitecture
 import SwiftUI
 
@@ -10,7 +11,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let trainingPillController = TrainingPillWindowController()
     private let modeIndicator = ModeIndicatorWindowController()
 
-    private let backendManager = BackendProcessManager()
+    // Tek örnek: TCA'daki BackendProcessClient de aynı manager'ı kullanır,
+    // aksi halde restart butonu başka bir süreç nesnesini yönetirdi.
+    private let backendManager = BackendProcessManager.shared
 
     let store = Store(initialState: AppFeature.State.fromUserDefaults()) { AppFeature() }
 
@@ -37,27 +40,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.menuBarController = MenuBarController(store: self.store)
             }
         } else {
+            // Backend ölürse kullanıcı bunu ancak dikte çalışmayınca anlıyordu.
+            // Watchdog hem otomatik toparlar hem de durumu menüye yansıtır.
+            backendManager.onStateChange = { [weak self] healthy, failure in
+                guard let self else { return }
+                if healthy {
+                    self.store.send(.recording(.backendRestartFinished(true)))
+                    self.reapplyInputDevice()
+                } else {
+                    let msg = failure?.message ?? "Servis yanıt vermiyor"
+                    self.store.send(.recording(.recordingFailed("\(msg) — Zorla Yeniden Başlat")))
+                }
+            }
             backendManager.startFresh()
             backendManager.waitUntilReady { [weak self] success in
                 DispatchQueue.main.async {
+                    guard let self else { return }
                     NSLog("VoiceFlow: Backend %@", success ? "ready" : "may not be ready")
                     if !success {
-                        self?.store.send(.recording(.recordingFailed("Servis başlatılamadı — Yeniden Başlat'a bas")))
+                        let detail = self.backendManager.lastFailure?.message ?? "Servis başlatılamadı"
+                        self.store.send(.recording(.recordingFailed("\(detail) — Yeniden Başlat'a bas")))
                     }
-                    self?.menuBarController = MenuBarController(store: self!.store)
+                    self.menuBarController = MenuBarController(store: self.store)
+                    self.backendManager.startWatchdog()
+                    if success { self.reapplyInputDevice() }
                 }
             }
         }
 
         requestAccessibilityPermission()
+        requestMicrophonePermission()
         handleAuthFlow(deploymentMode: mode)
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        backendManager.stopWatchdog()
         backendManager.invalidateHealthTimer()
         storeObservation?.cancel()
         hotkeyManager.stop()
         backendManager.stop()
+    }
+
+    /// Backend süreci mikrofon tercihini hafızada tutuyor — her yeniden
+    /// başlatmada (watchdog dahil) sıfırlanır, o yüzden tekrar göndeririz.
+    private func reapplyInputDevice() {
+        let name = UserDefaults.standard.string(forKey: AppSettings.inputDevice) ?? ""
+        guard !name.isEmpty else { return }
+        store.send(.recording(.setInputDevice(name)))
+        NSLog("VoiceFlow: Re-applied input device: %@", name)
     }
 
     // MARK: - Hotkey Wiring
@@ -224,6 +254,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Permissions
+
+    /// Mikrofonu Python backend'i açıyor ama TCC izni SORUMLU sürece (bu app'e)
+    /// yazılıyor. App hiç izin istemezse macOS prompt göstermiyor ve CoreAudio
+    /// hata yerine sessizce SIFIR örnek döndürüyor — kullanıcı "kayıt oluyor ama
+    /// panoya bir şey gelmiyor" görüyor. Her rebuild imzayı değiştirdiği için
+    /// izin sıfırlanıyor; Accessibility gibi bunu da açıkça istemek zorundayız.
+    private func requestMicrophonePermission() {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            NSLog("VoiceFlow: Microphone permission GRANTED")
+
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { [weak self] granted in
+                NSLog("VoiceFlow: Microphone permission %@", granted ? "GRANTED" : "DENIED")
+                if !granted { self?.warnMicrophoneDenied() }
+            }
+
+        case .denied, .restricted:
+            NSLog("VoiceFlow: Microphone permission DENIED — dictation will record silence")
+            warnMicrophoneDenied()
+
+        @unknown default:
+            break
+        }
+    }
+
+    private func warnMicrophoneDenied() {
+        DispatchQueue.main.async { [weak self] in
+            self?.store.send(.recording(.recordingFailed(
+                "Mikrofon izni yok — Sistem Ayarları > Gizlilik > Mikrofon"
+            )))
+        }
+    }
 
     private func requestAccessibilityPermission() {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]

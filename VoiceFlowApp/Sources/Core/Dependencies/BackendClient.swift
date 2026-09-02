@@ -27,6 +27,10 @@ struct BackendClient {
         _ mode: String?
     ) async throws -> Void
 
+    // MARK: - Audio input
+    var getInputDevices: () async throws -> [AudioInputDevice]
+    var setInputDevice: (_ name: String) async throws -> Void
+
     // MARK: - History
     var getHistory: (_ limit: Int) async throws -> [HistoryItem]
     var clearHistory: () async throws -> Void
@@ -122,6 +126,12 @@ extension BackendClient: DependencyKey {
                     correctionEnabled: correctionEnabled,
                     mode: mode
                 )
+            },
+            getInputDevices: {
+                try await service.getInputDevices()
+            },
+            setInputDevice: { name in
+                try await service.setInputDevice(name)
             },
             getHistory: { limit in
                 try await service.getHistory(limit: limit)
@@ -230,7 +240,8 @@ extension BackendClient: DependencyKey {
                 id: nil,
                 itWavPath: nil,
                 pendingWavPath: nil,
-                symbolRefs: nil
+                symbolRefs: nil,
+                notice: nil
             )
         },
         forceStop: {},
@@ -248,6 +259,8 @@ extension BackendClient: DependencyKey {
         },
         isBackendRunning: { true },
         updateConfig: { _, _, _, _ in },
+        getInputDevices: { [] },
+        setInputDevice: { _ in },
         getHistory: { _ in [] },
         clearHistory: {},
         getContextStatus: {
