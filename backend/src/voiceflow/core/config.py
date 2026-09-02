@@ -80,6 +80,10 @@ _whisper_model_path = _resolve_path(_whisper_model_raw)
 WHISPER_MODEL: str = str(_whisper_model_path) if (_whisper_model_path and _whisper_model_path.exists()) else _whisper_model_raw
 WHISPER_SERVER_MODEL: str  = _get("whisper", "server_model", "large-v3")
 WHISPER_BACKEND:     str  = _get("whisper", "backend",      "")  # "" | "runpod"
+# Dinamik encoder penceresi — kısa diktede Whisper'ı ~2-4x hızlandırır.
+# Sorun çıkarsa kapat: config.yaml → whisper.dynamic_window: false
+WHISPER_DYNAMIC_WINDOW: bool = _get("whisper", "dynamic_window", "true").strip().lower() \
+                               not in ("false", "0", "no", "off")
 
 # IT-specific fine-tuned model for engineering mode (empty = use base model)
 _whisper_it_raw = _get("whisper", "it_model", "")

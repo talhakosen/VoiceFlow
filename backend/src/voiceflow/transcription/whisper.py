@@ -2,7 +2,12 @@
 
 import logging
 from dataclasses import dataclass, field
-from ..core.config import WHISPER_MODEL as _WHISPER_MODEL, WHISPER_IT_MODEL as _WHISPER_IT_MODEL
+from ..core.config import (
+    WHISPER_MODEL as _WHISPER_MODEL,
+    WHISPER_IT_MODEL as _WHISPER_IT_MODEL,
+    WHISPER_DYNAMIC_WINDOW as _WHISPER_DYNAMIC_WINDOW,
+)
+from .dynamic_window import compute_window, encoder_window, has_repeated_span, FULL_WINDOW_S
 from typing import Any
 
 import mlx.core as mx
@@ -84,6 +89,7 @@ class WhisperConfig:
     language: str | None = "tr"  # Default Turkish, None for auto-detect
     task: str = "transcribe"  # "transcribe" = same language, "translate" = to English
     it_model_name: str | None = field(default_factory=lambda: _WHISPER_IT_MODEL or None)
+    dynamic_window: bool = field(default_factory=lambda: _WHISPER_DYNAMIC_WINDOW)
 
 
 @dataclass
@@ -190,18 +196,48 @@ class WhisperTranscriber:
         if self.config.language:
             options["language"] = self.config.language
 
-        # Transcribe
-        result = mlx_whisper.transcribe(audio, **options)
+        duration = len(audio) / sample_rate
+        window = compute_window(duration) if self.config.dynamic_window else FULL_WINDOW_S
 
-        # Free Metal GPU buffers to prevent memory growth
-        mx.metal.clear_cache()
+        if window < FULL_WINDOW_S:
+            # Timestamp token'ları 30sn pencereye göre eğitilmiş; kısa pencerede
+            # seek döngüsü kilitlenebiliyor. Dikte akışında segment zamanı kullanılmıyor.
+            options["without_timestamps"] = True
 
-        text = _strip_hallucination_phrases(_strip_hallucination_loop(result.get("text", "").strip()))
+        result = self._run(mlx_whisper, audio, options, model_path, window)
+        raw_text = result.get("text", "").strip()
+
+        # Kısa pencere nadiren tüm cümleyi tekrarlatıyor. Yakalarsak tam
+        # pencereyle bir kez daha dene — yavaş ama doğru.
+        if window < FULL_WINDOW_S and has_repeated_span(raw_text):
+            logger.warning(
+                "Repetition at %ds window (%.1fs audio) — retrying at %ds",
+                window, duration, FULL_WINDOW_S,
+            )
+            options.pop("without_timestamps", None)
+            result = self._run(mlx_whisper, audio, options, model_path, FULL_WINDOW_S)
+            raw_text = result.get("text", "").strip()
+
+        text = _strip_hallucination_phrases(_strip_hallucination_loop(raw_text))
         return TranscriptionResult(
             text=text,
             language=result.get("language"),
-            duration=len(audio) / sample_rate,
+            duration=duration,
         )
+
+    def _run(self, mlx_whisper, audio, options: dict, model_path: str, window: int) -> dict:
+        """Tek transkripsiyon çağrısı — verilen encoder penceresiyle."""
+        import time
+
+        t0 = time.perf_counter()
+        with encoder_window(model_path, window):
+            result = mlx_whisper.transcribe(audio, **options)
+        mx.metal.clear_cache()  # Metal buffer'ları serbest bırak, bellek şişmesin
+        logger.info(
+            "Whisper %.1fs audio @ %ds window → %.0fms",
+            len(audio) / 16000, window, (time.perf_counter() - t0) * 1000,
+        )
+        return result
 
     def transcribe_file(self, file_path: str) -> TranscriptionResult:
         """Transcribe audio file.

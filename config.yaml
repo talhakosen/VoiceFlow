@@ -18,7 +18,8 @@ whisper:
   model: ml/whisper/models/v2.0  # Versiyon geçmişi: ml/whisper/CHANGELOG.md
   server_model: large-v3  # faster-whisper (server mode) — NVIDIA GPU, kurumsal merkezi sunucu için. Mac local modunda kullanılmaz.
   it_model: ""  # IT/mühendislik modu fine-tuned model; boş = base model kullan. Örn: ml/whisper/models/voiceflow-whisper-it
-  backend: runpod   # "" = local MLX | "runpod" = RunPod cloud GPU (RUNPOD_INFERENCE_URL in .env)
+  backend: ""   # "" = local MLX | "runpod" = RunPod cloud GPU (RUNPOD_INFERENCE_URL in .env)
+  dynamic_window: true  # encoder penceresini ses uzunluğuna göre kısalt (kısa diktede ~2-4x hız)
 
 auth:
   jwt_access_ttl_minutes: 60
