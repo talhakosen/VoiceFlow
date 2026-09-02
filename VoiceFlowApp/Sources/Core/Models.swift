@@ -30,9 +30,8 @@ enum DeploymentMode: String {
 // MARK: - LLMMode
 
 enum LLMMode: String {
-    case local   = "local"
-    case cloud   = "cloud"
-    case alibaba = "alibaba"
+    case local  = "local"
+    case runpod = "runpod"
 }
 
 // MARK: - AppearanceMode

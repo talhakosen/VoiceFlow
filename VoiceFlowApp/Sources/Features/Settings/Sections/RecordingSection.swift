@@ -86,28 +86,15 @@ struct RecordingSection: View {
                     SettingsRow(
                         title: "Yapay Zeka Motoru",
                         subtitle: llmModeSubtitle(llmMode),
-                        isLast: llmMode != "cloud"
+                        isLast: true
                     ) {
                         Picker("", selection: $llmMode) {
                             Text("Yerel").tag("local")
-                            Text("Bulut").tag("cloud")
-                            Text("Alibaba").tag("alibaba")
+                            Text("RunPod").tag("runpod")
                         }
                         .pickerStyle(.menu)
                         .frame(width: 130)
                         .onChange(of: llmMode) { showRestartNotice = true }
-                    }
-                    if llmMode == "cloud" {
-                        SettingsRow(
-                            title: "Ollama URL",
-                            subtitle: "RunPod veya şirket içi Ollama sunucu adresi",
-                            isLast: true
-                        ) {
-                            TextField("https://…-11434.proxy.runpod.net", text: $llmEndpoint)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(minWidth: VFLayout.fieldLarge)
-                                .onChange(of: llmEndpoint) { showRestartNotice = true }
-                        }
                     }
                 }
             }
@@ -131,8 +118,8 @@ struct RecordingSection: View {
             if showRestartNotice {
                 InfoNote(icon: VFIcon.restartCircle, text: "Değişikliği uygulamak için servisi yeniden başlatın.", color: VFColor.warning)
             }
-            if llmMode == "alibaba" {
-                InfoNote(icon: VFIcon.bolt, text: "Alibaba — Hızlı, yüksek kalite. İnternet bağlantısı gerektirir.", color: VFColor.warning)
+            if llmMode == "runpod" {
+                InfoNote(icon: VFIcon.bolt, text: "RunPod — GPU ile hızlı transkripsiyon ve düzeltme. İnternet bağlantısı gerektirir.", color: VFColor.warning)
             }
 
             Spacer()
@@ -152,10 +139,9 @@ struct RecordingSection: View {
 
     private func llmModeSubtitle(_ mode: String) -> String {
         switch mode {
-        case "local":   return "Qwen 7B bu Mac'te çalışır, internet gerekmez"
-        case "cloud":   return "RunPod Ollama — daha hızlı, internet gerektirir"
-        case "alibaba": return "Alibaba DashScope API — en hızlı, internet gerektirir"
-        default:        return ""
+        case "local":  return "Qwen 7B bu Mac'te çalışır, internet gerekmez"
+        case "runpod": return "RunPod GPU — hızlı transkripsiyon ve düzeltme"
+        default:       return ""
         }
     }
 }
