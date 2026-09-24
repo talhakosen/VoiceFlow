@@ -21,6 +21,8 @@ final class BackendProcessManager {
         case pythonNotFound(String)
         case spawnFailed(String)
         case notHealthy
+        case portBusy(Int32)
+        case lsofMissing([String])
 
         var message: String {
             switch self {
@@ -32,6 +34,12 @@ final class BackendProcessManager {
                 return "Servis başlatılamadı: \(err)"
             case .notHealthy:
                 return "Servis yanıt vermiyor"
+            case let .portBusy(pid):
+                return "Port \(AppConstants.defaultLocalPort) takılı bir süreç tarafından tutuluyor "
+                     + "(PID \(pid)). Terminal'de: kill -9 \(pid)"
+            case let .lsofMissing(tried):
+                return "lsof bulunamadı (denenen: \(tried.joined(separator: ", "))) — "
+                     + "port temizliği yapılamıyor"
             }
         }
     }
@@ -44,6 +52,7 @@ final class BackendProcessManager {
     private var healthCheckTimer: Timer?
     private var watchdogTimer: Timer?
     private var autoRestartCount = 0
+    private var slowRetryTicks = 0
     private var isRestarting = false
     private let port: Int
 
@@ -54,8 +63,9 @@ final class BackendProcessManager {
     // MARK: - Public API
 
     /// Kill any existing backend on the port, then start a fresh process.
+    /// Port temizlenemezse başlatmaz — spawn etsek bind hatasıyla exit(1) verirdi.
     func startFresh() {
-        killExisting()
+        guard killExisting() else { return }
         start()
     }
 
@@ -115,13 +125,8 @@ final class BackendProcessManager {
         log("Restarting backend...")
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
+            // stop() içindeki killExisting() TERM→KILL yükseltmesini zaten yapıyor.
             self.stop()
-
-            if !self.pidsOnPort().isEmpty {
-                self.log("Port still busy — escalating to hard kill")
-                self.shellKill(signal: "KILL")
-                Thread.sleep(forTimeInterval: 1.0)
-            }
 
             DispatchQueue.main.async {
                 self.start()
@@ -146,16 +151,19 @@ final class BackendProcessManager {
             if let p = self.process, p.isRunning { p.terminate() }
             self.process = nil
 
-            for pid in self.pidsOnPort() {
-                kill(pid, SIGKILL)
-                self.log("Hard reset SIGKILL pid \(pid)")
-            }
-            self.waitForPortFree()
-
-            self.log("Hard reset — port \(self.port) \(self.pidsOnPort().isEmpty ? "free" : "still in use!")")
+            let freed = self.killExisting()
+            self.log("Hard reset — port \(self.port) \(freed ? "free" : "STILL IN USE")")
 
             DispatchQueue.main.async {
                 self.autoRestartCount = 0   // manuel müdahale → watchdog kotasını sıfırla
+                guard freed else {
+                    // Port temizlenemediyse yeni süreç zaten exit(1) verecek.
+                    // Boşuna spawn edip "process exited (1)" demektense sebebi söyle.
+                    self.isRestarting = false
+                    self.onStateChange?(false, self.lastFailure)
+                    completion(false)
+                    return
+                }
                 self.start()
                 self.waitUntilReady { success in
                     DispatchQueue.main.async {
@@ -202,17 +210,29 @@ final class BackendProcessManager {
                     if healthy {
                         if self.autoRestartCount > 0 || self.lastFailure != nil {
                             self.autoRestartCount = 0
+                            self.slowRetryTicks = 0
                             self.lastFailure = nil
                             self.onStateChange?(true, nil)
                         }
                         return
                     }
 
-                    guard self.autoRestartCount < AppConstants.backendMaxAutoRestarts else {
-                        if self.lastFailure == nil {
-                            self.lastFailure = .notHealthy
-                            self.onStateChange?(false, .notHealthy)
+                    // Hızlı seri tükendiyse pes etme, YAVAŞLA. Engel (dolu port,
+                    // takılı süreç) kendiliğinden kalkabilir; eskiden limit
+                    // dolunca watchdog bir daha hiç denemiyordu ve kullanıcı
+                    // manuel müdahale etmeden sistem asla toparlamıyordu.
+                    if self.autoRestartCount >= AppConstants.backendMaxAutoRestarts {
+                        self.slowRetryTicks += 1
+                        guard self.slowRetryTicks >= AppConstants.backendSlowRetryTicks else {
+                            if self.lastFailure == nil {
+                                self.lastFailure = .notHealthy
+                                self.onStateChange?(false, .notHealthy)
+                            }
+                            return
                         }
+                        self.slowRetryTicks = 0
+                        self.log("Watchdog: slow retry (limit reached, still unhealthy)")
+                        self.restart(completion: nil)
                         return
                     }
 
@@ -254,6 +274,16 @@ final class BackendProcessManager {
         }
         log("Python path: \(pythonPath)")
 
+        // Son savunma: port doluyken spawn edersek uvicorn bind edemez ve
+        // exit(1) verir — kullanıcı "process exited (1)" görür, sebebini değil.
+        guard Self.isPortFree(port) else {
+            let pid = pidsOnPort().first ?? -1
+            lastFailure = .portBusy(pid)
+            log("ERROR — \(lastFailure!.message)")
+            process = nil
+            return
+        }
+
         let proc = Process()
         proc.executableURL = URL(fileURLWithPath: pythonPath)
         proc.arguments = ["-m", "voiceflow.main"]
@@ -291,53 +321,133 @@ final class BackendProcessManager {
     }
 
     // MARK: - Port Management
+    //
+    // Buradaki tek kural: "port boş" DİYE BİLMEK ile boş OLMASI aynı şey değil.
+    // Eski kod `/usr/bin/lsof` çağırıyordu — bu makinede lsof `/usr/sbin/lsof`'ta.
+    // Process.run() ENOENT fırlatıyor, catch bloğu boş dizi dönüyor, yönetici de
+    // "Port free" yazıp SIGKILL aşamasını tamamen atlıyordu. Sonuç: takılı bir
+    // backend portu 16 gün tuttu, her restart exit(1) verdi, "Zorla Yeniden
+    // Başlat" hiçbir zaman SIGKILL göndermedi (2026-09-24).
+    //
+    // Artık: lsof adayları taranıyor, bulunamazsa AYRI bir hata olarak raporlanıyor,
+    // ve nihai karar lsof'a değil bind() denemesine dayanıyor — uvicorn'un
+    // çarpacağı şeyin aynısı.
 
-    private func killExisting() {
-        shellKill(signal: "TERM")
-        Thread.sleep(forTimeInterval: 1.0)
+    private static let lsofCandidates = ["/usr/sbin/lsof", "/usr/bin/lsof", "/opt/homebrew/bin/lsof"]
 
-        if !pidsOnPort().isEmpty {
-            shellKill(signal: "KILL")
-            log("SIGKILL sent to port \(port)")
-        }
-
-        waitForPortFree()
-        log("Port \(port) is \(pidsOnPort().isEmpty ? "free" : "still in use!")")
+    private static let lsofPath: String? = lsofCandidates.first {
+        FileManager.default.isExecutableFile(atPath: $0)
     }
 
-    private func shellKill(signal: String) {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/bin/bash")
-        task.arguments = ["-c", "lsof -nP -iTCP:\(port) -sTCP:LISTEN -t 2>/dev/null | xargs kill -\(signal) 2>/dev/null"]
-        task.standardOutput = Pipe()
-        task.standardError = Pipe()
-        try? task.run()
-        task.waitUntilExit()
+    /// Port gerçekten bağlanabilir durumda mı? Ground truth — harici araç yok.
+    /// uvicorn gibi SO_REUSEADDR ile deniyoruz ki aynı sonucu görelim.
+    static func isPortFree(_ port: Int) -> Bool {
+        let fd = socket(AF_INET, SOCK_STREAM, 0)
+        guard fd >= 0 else { return true }   // karar veremiyoruz, engelleme
+        defer { close(fd) }
+
+        var yes: Int32 = 1
+        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, socklen_t(MemoryLayout<Int32>.size))
+
+        var addr = sockaddr_in()
+        addr.sin_family = sa_family_t(AF_INET)
+        addr.sin_port = UInt16(port).bigEndian
+        addr.sin_addr.s_addr = inet_addr("127.0.0.1")
+
+        let rc = withUnsafePointer(to: &addr) { ptr in
+            ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                Darwin.bind(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+            }
+        }
+        return rc == 0
+    }
+
+    /// TERM → bekle → KILL → bekle. Her aşamada bind() ile doğrular.
+    /// Port temizlenemezse `lastFailure` set eder ve false döner.
+    @discardableResult
+    private func killExisting() -> Bool {
+        if Self.isPortFree(port) {
+            log("Port \(port) already free")
+            return true
+        }
+
+        let pidsBefore = pidsOnPort()
+        log("Port \(port) busy\(pidsBefore.isEmpty ? "" : " (PID \(pidsBefore.map(String.init).joined(separator: ", ")))") — terminating")
+
+        signalPids(pidsBefore, sig: SIGTERM)
+        if waitForPortFree(maxWaitMs: 3000) {
+            log("Port \(port) freed by SIGTERM")
+            return true
+        }
+
+        // Takılı uvicorn SIGTERM'i yutabiliyor (graceful shutdown MLX executor'da
+        // asılı kalıyor). Eskiden bu aşamaya hiç gelinmiyordu.
+        let pidsStill = pidsOnPort()
+        log("SIGTERM insufficient — escalating to SIGKILL")
+        signalPids(pidsStill, sig: SIGKILL)
+        if waitForPortFree(maxWaitMs: 3000) {
+            log("Port \(port) freed by SIGKILL")
+            return true
+        }
+
+        if let pid = pidsOnPort().first {
+            lastFailure = .portBusy(pid)
+        } else if Self.lsofPath == nil {
+            lastFailure = .lsofMissing(Self.lsofCandidates)
+        } else {
+            lastFailure = .portBusy(-1)
+        }
+        log("ERROR — \(lastFailure!.message)")
+        return false
+    }
+
+    private func signalPids(_ pids: [Int32], sig: Int32) {
+        guard !pids.isEmpty else {
+            log("No PIDs resolved for port \(port) — cannot signal (lsof: \(Self.lsofPath ?? "MISSING"))")
+            return
+        }
+        for pid in pids {
+            let rc = kill(pid, sig)
+            log("kill(\(pid), \(sig == SIGKILL ? "SIGKILL" : "SIGTERM")) → \(rc == 0 ? "ok" : "errno \(errno)")")
+        }
     }
 
     private func pidsOnPort() -> [Int32] {
+        guard let lsof = Self.lsofPath else {
+            log("lsof not found in \(Self.lsofCandidates.joined(separator: ", "))")
+            return []
+        }
+
         let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/lsof")
+        task.executableURL = URL(fileURLWithPath: lsof)
         task.arguments = ["-nP", "-iTCP:\(port)", "-sTCP:LISTEN", "-t"]
         let pipe = Pipe()
         task.standardOutput = pipe
         task.standardError = Pipe()
         do {
             try task.run()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
             task.waitUntilExit()
-            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-            return output.components(separatedBy: "\n").compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }
+            let output = String(data: data, encoding: .utf8) ?? ""
+            return output.components(separatedBy: "\n").compactMap {
+                Int32($0.trimmingCharacters(in: .whitespaces))
+            }
         } catch {
+            // Sessizce boş dönmek bu hatanın ta kendisiydi.
+            log("ERROR — lsof at \(lsof) failed: \(error.localizedDescription)")
             return []
         }
     }
 
-    private func waitForPortFree(maxWaitMs: Int = 3000) {
-        let iterations = maxWaitMs / 100
+    /// Port serbest kalana kadar bekler. Serbest kaldıysa true.
+    @discardableResult
+    private func waitForPortFree(maxWaitMs: Int = 3000) -> Bool {
+        let iterations = max(1, maxWaitMs / 100)
         for _ in 0..<iterations {
-            if pidsOnPort().isEmpty { break }
+            if Self.isPortFree(port) { return true }
             Thread.sleep(forTimeInterval: 0.1)
         }
+        return Self.isPortFree(port)
     }
 
     // MARK: - Health Check

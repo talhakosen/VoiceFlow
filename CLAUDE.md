@@ -126,7 +126,8 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **DerivedData**: Her build öncesi sil yoksa eski binary çalışır.
 - **Backend path hardcoded değil**: `AppConstants.backendPathCandidates` + marker doğrulaması (`src/voiceflow/main.py`). Repo taşınırsa listeye ekle ya da `defaults write com.voiceflow.app backendPathOverride /yeni/path/backend`. Yanlış cwd → `Process.run()` sessizce fırlatır, backend hiç açılmaz.
 - **Servis butonları süreci yönetir**: `.restartBackend`/`.hardReset` → `backendProcessClient` (BackendProcessManager.shared). Sadece `/api/force-stop` atmak yetmez — backend ölüyse HTTP'nin kurtaracağı bir şey yok.
-- **Watchdog**: 5sn'de bir `/health`; ölürse en fazla 3 kez otomatik restart, sonra kullanıcıya hata. `/tmp/voiceflow.log` artık append (truncate edilirse çöküş kanıtı kayboluyor), Swift tarafı `/tmp/voiceflow-swift.log`.
+- **Watchdog**: 5sn'de bir `/health`; ölürse en fazla 3 kez hızlı restart, sonra SUSMAZ — 60sn'de bir yavaş retry'a geçer (engel kalkarsa kendi toparlar). `/tmp/voiceflow.log` append, Swift tarafı `/tmp/voiceflow-swift.log`.
+- **Port temizliği lsof'a GÜVENMEZ**: `lsof` bu makinede `/usr/sbin/lsof`'ta; kod `/usr/bin/lsof` çağırıyordu, `Process.run()` ENOENT fırlatıyor, `catch` boş dizi dönüyordu → "Port free" yalanı → SIGKILL aşaması hiç çalışmadı, takılı bir backend portu 16 gün tuttu (2026-09-24). Artık: lsof aday listesi + **nihai karar `bind()` denemesiyle** (`isPortFree`, uvicorn'un çarptığı şeyin aynısı). Takılı uvicorn SIGTERM'i yutabiliyor (graceful shutdown MLX executor'da asılı) → TERM→bekle→KILL yükseltmesi ZORUNLU. Port temizlenemezse spawn edilmez, kullanıcıya PID ile söylenir.
 - **Swift binary güncelleme**: `cp -Rf` /Applications'ı güncellemez — `sudo cp -Rf` zorunlu.
 - **Docker yok (local)**: Katman 3'e ertelendi. Local geliştirmede Docker kullanma.
 - **HF_TOKEN**: Model indirme hızı için gerekli — env var olarak ver.

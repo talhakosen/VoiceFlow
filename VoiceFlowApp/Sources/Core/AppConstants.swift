@@ -50,6 +50,9 @@ enum AppConstants {
     // MARK: Backend watchdog
     static let backendWatchdogInterval: TimeInterval = 5.0   // sağlık kontrolü periyodu
     static let backendMaxAutoRestarts:  Int          = 3     // arka arkaya otomatik restart limiti
+    // Limit dolunca watchdog susmuyor, yavaşlıyor: her N tick'te bir yeniden dener
+    // (12 × 5sn = 60sn). Engel kalkarsa sistem kendi kendine toparlar.
+    static let backendSlowRetryTicks:   Int          = 12
 
     // MARK: Log paths
     static let swiftLogPath:   String = "/tmp/voiceflow-swift.log"
