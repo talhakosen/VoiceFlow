@@ -80,9 +80,9 @@ export function PricingSection() {
               ].map((item) => (
                 <div
                   key={item.step}
-                  className="flex gap-5 p-6 rounded-2xl bg-white/[0.04] border border-line hover:border-signal/30 transition-colors"
+                  className="flex gap-5 p-6 rounded-2xl bg-control/40 border border-line hover:border-signal/30 transition-colors"
                 >
-                  <span className="text-xs font-bold text-signal-text/50 font-mono mt-0.5 shrink-0 w-6">
+                  <span className="text-xs font-bold text-signal-text font-mono mt-0.5 shrink-0 w-6">
                     {item.step}
                   </span>
                   <div>
@@ -96,7 +96,7 @@ export function PricingSection() {
 
           {/* Right: savings table */}
           <FadeUp delay={0.25}>
-            <div className="rounded-2xl bg-white/[0.05] border border-line overflow-hidden">
+            <div className="rounded-2xl bg-control border border-line overflow-hidden">
               <div className="px-6 py-5 border-b border-line">
                 <p className="text-sm font-semibold text-white">
                   Ortalama Maliyet Karşılaştırması

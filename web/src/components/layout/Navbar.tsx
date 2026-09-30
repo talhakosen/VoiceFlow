@@ -11,7 +11,7 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label={theme === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç'}
-      className="w-9 h-9 rounded-full border border-slate-200 dark:border-line bg-white dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-line transition-colors shadow-sm"
+      className="w-9 h-9 rounded-full border border-line dark:border-line bg-white dark:bg-control flex items-center justify-center text-text-muted dark:text-text-muted hover:text-text dark:hover:text-white hover:border-line-strong dark:hover:border-line transition-colors shadow-sm"
     >
       {theme === 'dark' ? (
         /* Sun */
@@ -31,18 +31,22 @@ function ThemeToggle() {
 export function Navbar() {
   const { scrollY } = useScroll()
 
-  const navBg = useTransform(scrollY, [0, 80], ['rgba(7,8,16,0)', 'rgba(7,8,16,0.92)'])
-  const navBorder = useTransform(scrollY, [0, 80], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.07)'])
+  // Renk değil OPAKLIK animasyonu: zemin ve kenar token'dan gelir, böylece
+  // her iki temada doğru çalışır. Eskiden rgba(7,8,16) sabitti — açık temada
+  // kaydırınca navbar lacivert oluyordu.
+  const navOpacity = useTransform(scrollY, [0, 80], [0, 0.92])
+  const navBorderOpacity = useTransform(scrollY, [0, 80], [0, 1])
   const navBlur = useTransform(scrollY, [0, 80], ['blur(0px)', 'blur(20px)'])
 
   return (
-    <motion.header
-      style={{ backgroundColor: navBg, borderColor: navBorder }}
-      className="fixed top-0 left-0 right-0 z-50 border-b"
-    >
+    <header className="fixed top-0 left-0 right-0 z-50">
       <motion.div
-        style={{ backdropFilter: navBlur, WebkitBackdropFilter: navBlur }}
-        className="absolute inset-0 pointer-events-none"
+        style={{ opacity: navOpacity, backdropFilter: navBlur, WebkitBackdropFilter: navBlur }}
+        className="absolute inset-0 bg-surface pointer-events-none"
+      />
+      <motion.div
+        style={{ opacity: navBorderOpacity }}
+        className="absolute inset-x-0 bottom-0 h-px bg-line pointer-events-none"
       />
       <Container className="relative">
         <div className="flex items-center justify-between h-[var(--navbar-height)]">
@@ -56,7 +60,7 @@ export function Navbar() {
               alt=""
               className="h-8 w-8 transition-opacity duration-200 group-hover:opacity-75"
             />
-            <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white transition-opacity duration-200 group-hover:opacity-75">
+            <span className="font-bold text-lg tracking-tight text-text dark:text-white transition-opacity duration-200 group-hover:opacity-75">
               VoiceFlow
             </span>
           </a>
@@ -64,6 +68,6 @@ export function Navbar() {
           <ThemeToggle />
         </div>
       </Container>
-    </motion.header>
+    </header>
   )
 }

@@ -54,7 +54,7 @@ export function TestimonialsSection() {
               <div className="bg-surface rounded-lg border border-line p-8 lg:p-12 relative overflow-hidden">
                 {/* Large decorative quote mark */}
                 <span
-                  className="font-mono text-[96px] leading-none text-signal-text/10 absolute -top-2 left-6 select-none pointer-events-none"
+                  className="font-mono text-[96px] leading-none text-signal-text absolute -top-2 left-6 select-none pointer-events-none"
                   aria-hidden="true"
                 >
                   &ldquo;
@@ -72,7 +72,7 @@ export function TestimonialsSection() {
                     <div className="font-semibold text-white text-sm">
                       {testimonial.author}
                     </div>
-                    <div className="text-xs text-white/35 mt-0.5 font-mono">
+                    <div className="text-xs text-text-muted mt-0.5 font-mono">
                       {testimonial.title} · {testimonial.company}
                     </div>
                   </div>
@@ -86,7 +86,7 @@ export function TestimonialsSection() {
             <button
               onClick={prev}
               aria-label="Önceki"
-              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-white/35 hover:text-signal-text"
+              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-text-muted hover:text-signal-text"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -111,7 +111,7 @@ export function TestimonialsSection() {
                   className={`transition-all duration-300 rounded-full ${
                     i === current
                       ? 'w-6 h-2 bg-signal'
-                      : 'w-2 h-2 bg-white/[0.14] hover:bg-white/[0.28]'
+                      : 'w-2 h-2 bg-line-strong/60 hover:bg-line-strong'
                   }`}
                 />
               ))}
@@ -120,7 +120,7 @@ export function TestimonialsSection() {
             <button
               onClick={next}
               aria-label="Sonraki"
-              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-white/35 hover:text-signal-text"
+              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-text-muted hover:text-signal-text"
             >
               <svg
                 viewBox="0 0 24 24"

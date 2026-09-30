@@ -26,10 +26,10 @@ function SpeedBar({
   return (
     <div>
       <div className="flex justify-between text-sm mb-2.5">
-        <span className="font-medium text-white/60">{label}</span>
+        <span className="font-medium text-text-muted">{label}</span>
         <span className="font-bold text-white font-mono tabular-nums">{wpm} kelime/dk</span>
       </div>
-      <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-control rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={inView ? { width: `${pct}%` } : { width: 0 }}
@@ -62,7 +62,7 @@ export function SpeedSection() {
               </h2>
             </FadeUp>
             <FadeUp delay={0.2}>
-              <p className="text-lg text-white/45 leading-relaxed mb-10">
+              <p className="text-lg text-text-muted leading-relaxed mb-10">
                 Ortalama insan dakikada 40 kelime yazar. Konuşarak dakikada 400
                 kelimeye ulaşın. Günde 2.5 saat geri kazanın.
               </p>
@@ -71,9 +71,9 @@ export function SpeedSection() {
             {/* Comparison table */}
             <FadeUp delay={0.3}>
               <div className="rounded-lg border border-line overflow-hidden">
-                <div className="grid grid-cols-3 border-b border-line bg-white/[0.03] px-4 py-3">
-                  <span className="section-label text-white/25 mb-0">Özellik</span>
-                  <span className="section-label text-white/25 mb-0 text-center">Klavye</span>
+                <div className="grid grid-cols-3 border-b border-line bg-control/40 px-4 py-3">
+                  <span className="section-label text-text-muted mb-0">Özellik</span>
+                  <span className="section-label text-text-muted mb-0 text-center">Klavye</span>
                   <span className="section-label mb-0 text-center">VoiceFlow</span>
                 </div>
                 {COMPARISON_ROWS.map((row, i) => (
@@ -85,8 +85,8 @@ export function SpeedSection() {
                         : ''
                     }`}
                   >
-                    <span className="text-white/55 font-medium text-xs">{row.feature}</span>
-                    <span className="text-center text-white/25 text-xs">{row.keyboard}</span>
+                    <span className="text-text-muted font-medium text-xs">{row.feature}</span>
+                    <span className="text-center text-text-muted text-xs">{row.keyboard}</span>
                     <span className="text-center text-signal-text font-semibold text-xs">{row.voice}</span>
                   </div>
                 ))}
@@ -106,7 +106,7 @@ export function SpeedSection() {
                     label="Klavye Yazma"
                     wpm={40}
                     maxWpm={400}
-                    color="bg-white/[0.18]"
+                    color="bg-line-strong/60"
                     delay={0.3}
                     inView={inView}
                   />
@@ -130,7 +130,7 @@ export function SpeedSection() {
                       <div className="text-2xl font-bold text-signal-text font-mono tabular-nums">
                         {item.value}
                       </div>
-                      <div className="section-label text-white/25 mt-1 mb-0">{item.label}</div>
+                      <div className="section-label text-text-muted mt-1 mb-0">{item.label}</div>
                     </div>
                   ))}
                 </div>

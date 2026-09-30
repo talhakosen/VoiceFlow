@@ -50,22 +50,22 @@ export function DemoStripSection() {
   return (
     <section className="py-0 bg-ground">
       {/* Full-width strip */}
-      <div className="w-full border-y border-line bg-white/[0.03] backdrop-blur-sm py-5 overflow-hidden">
+      <div className="w-full border-y border-line bg-control/40 backdrop-blur-sm py-5 overflow-hidden">
         <div className="max-w-5xl mx-auto px-6 flex items-center gap-5">
 
           {/* Left: pill with waveform */}
-          <div className="shrink-0 flex items-center gap-3 bg-white/[0.07] border border-line rounded-pill px-4 py-2.5">
-            <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+          <div className="shrink-0 flex items-center gap-3 bg-control border border-line rounded-pill px-4 py-2.5">
+            <span className="w-2 h-2 rounded-full bg-critical animate-pulse shrink-0" />
             <WaveformBars />
           </div>
 
           {/* Arrow */}
-          <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white/20 shrink-0" strokeWidth="1.5" stroke="currentColor">
+          <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-text-muted shrink-0" strokeWidth="1.5" stroke="currentColor">
             <path d="M5 12h14m-7-7 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
 
           {/* Context label */}
-          <span className="shrink-0 text-xs font-semibold text-signal-text/70 uppercase tracking-widest hidden sm:block">
+          <span className="shrink-0 text-xs font-semibold text-signal-text uppercase tracking-widest hidden sm:block">
             {example.context}
           </span>
 

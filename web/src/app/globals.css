@@ -37,11 +37,11 @@
 
   /* Mod renkleri — anlam taşır, dekor değil */
   --mode-general: 31 95 204;
-  --mode-engineering: 10 122 85;
+  --mode-engineering: 7 96 63;
   --mode-office: 107 69 201;
 
   /* Durum */
-  --positive: 10 122 85;
+  --positive: 7 96 63;
   --caution: 179 92 0;
   --critical: 194 53 42;
 

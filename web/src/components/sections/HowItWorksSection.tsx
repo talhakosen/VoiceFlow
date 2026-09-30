@@ -35,7 +35,7 @@ export function HowItWorksSection() {
             </h2>
           </FadeUp>
           <FadeUp delay={0.2}>
-            <p className="text-lg text-white/45 max-w-2xl mx-auto">
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">
               15 dakika içinde kurulum tamamlanır, aynı gün üretken olursunuz.
             </p>
           </FadeUp>
@@ -60,7 +60,7 @@ export function HowItWorksSection() {
                   </div>
 
                   <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                  <p className="text-white/45 leading-relaxed text-sm">{step.description}</p>
+                  <p className="text-text-muted leading-relaxed text-sm">{step.description}</p>
                 </div>
               </StaggerItem>
             ))}

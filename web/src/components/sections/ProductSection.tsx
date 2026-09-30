@@ -57,12 +57,12 @@ function ExampleCard({ title, said, got }: { title: string; said: string; got: s
     <div className="rounded-xl border border-[var(--example-border)] bg-[var(--example-bg)] overflow-hidden">
       {/* Label */}
       <div className="px-4 py-2 border-b border-[var(--example-border)]">
-        <span className="text-[10px] text-signal-text/60 font-mono uppercase tracking-widest">{title}</span>
+        <span className="text-[10px] text-signal-text font-mono uppercase tracking-widest">{title}</span>
       </div>
       {/* Said */}
       <div className="px-4 py-3 border-b border-[var(--example-border)]">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400/60 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-critical/60 animate-pulse" />
           <span className="text-[10px] text-[var(--subtle)] font-mono">Söylenen</span>
         </div>
         <p className="text-[13px] text-[var(--example-said)] font-mono leading-relaxed">{said}</p>
@@ -70,7 +70,7 @@ function ExampleCard({ title, said, got }: { title: string; said: string; got: s
       {/* Got */}
       <div className="px-4 py-3">
         <div className="flex items-center gap-2 mb-1.5">
-          <svg viewBox="0 0 12 12" fill="none" className="w-2.5 h-2.5 text-emerald-500" stroke="currentColor" strokeWidth="2">
+          <svg viewBox="0 0 12 12" fill="none" className="w-2.5 h-2.5 text-positive" stroke="currentColor" strokeWidth="2">
             <path d="M2 6l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span className="text-[10px] text-[var(--subtle)] font-mono">Yazılan</span>
@@ -80,7 +80,7 @@ function ExampleCard({ title, said, got }: { title: string; said: string; got: s
             <span key={i}>
               {line.split(/(@\S+)/g).map((part, j) =>
                 part.startsWith('@') ? (
-                  <span key={j} className="text-cyan-500 font-mono text-xs">{part}</span>
+                  <span key={j} className="text-mode-general font-mono text-xs">{part}</span>
                 ) : (
                   <span key={j}>{part}</span>
                 )

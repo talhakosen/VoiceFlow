@@ -14,7 +14,7 @@ export function StatsSection() {
               <div className="text-[60px] sm:text-[72px] leading-none font-bold tracking-[-2.5px] text-white tabular-nums mb-3 font-display">
                 {stat.value}
               </div>
-              <div className="section-label text-white/28">{stat.label}</div>
+              <div className="section-label text-text-muted">{stat.label}</div>
             </div>
           ))}
         </div>

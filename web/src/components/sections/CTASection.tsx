@@ -8,7 +8,7 @@ export function CTASection() {
       <div className="absolute inset-0 dot-grid opacity-15" />
 
       <Container size="md" className="relative z-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-white/[0.06] border border-line text-signal-text text-sm font-medium mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-control border border-line text-signal-text text-sm font-medium mb-8">
           <span className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           14 gün ücretsiz pilot
         </div>
@@ -28,7 +28,7 @@ export function CTASection() {
           <Button
             size="lg"
             variant="ghost"
-            className="text-white hover:bg-white/10 hover:text-white text-base"
+            className="text-white hover:bg-line-strong/60 hover:text-white text-base"
           >
             {CTA_SECTION.ctaSecondary}
           </Button>

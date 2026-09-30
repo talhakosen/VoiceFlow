@@ -63,7 +63,7 @@ export function FeaturesSection() {
             </h2>
           </FadeUp>
           <FadeUp delay={0.2}>
-            <p className="text-lg text-white/45 max-w-2xl mx-auto">
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">
               Ses tanımadan yapay zeka düzeltmeye, güvenlikten entegrasyona —
               ihtiyacınız olan her şey tek platformda.
             </p>
@@ -76,10 +76,10 @@ export function FeaturesSection() {
               <div
                 className={cn(
                   'relative rounded-lg p-6 h-full flex flex-col transition-all duration-300 group cursor-default',
-                  'bg-white/[0.05] border backdrop-blur-sm',
+                  'bg-control border backdrop-blur-sm',
                   feature.highlight
-                    ? 'border-signal/40 hover:border-signal/60 hover:bg-white/[0.08]'
-                    : 'border-line hover:border-line hover:bg-white/[0.07]'
+                    ? 'border-signal/40 hover:border-signal/60 hover:bg-control'
+                    : 'border-line hover:border-line hover:bg-control'
                 )}
               >
                 {feature.highlight && (
@@ -92,7 +92,7 @@ export function FeaturesSection() {
                     'w-12 h-12 rounded-md flex items-center justify-center mb-5 transition-colors',
                     feature.highlight
                       ? 'bg-signal/10 text-signal-text'
-                      : 'bg-white/10 text-text-muted group-hover:text-white group-hover:bg-white/20'
+                      : 'bg-line-strong/60 text-text-muted group-hover:text-white group-hover:bg-white/20'
                   )}
                 >
                   {iconPaths[feature.icon]}
