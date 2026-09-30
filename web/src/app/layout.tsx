@@ -1,23 +1,26 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Sora, JetBrains_Mono } from 'next/font/google'
+import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
-const sora = Sora({
-  subsets: ['latin'],
-  variable: '--font-sora',
-  display: 'swap',
-  weight: ['600', '700', '800'],
-})
-
-const inter = Inter({
+// latin-ext şart: onsuz ğ ş İ ı ç ö ü fallback fonta düşer.
+const display = Space_Grotesk({
   subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
+  variable: '--font-display',
   display: 'swap',
+  weight: ['500', '600', '700'],
 })
 
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
+const sans = IBM_Plex_Sans({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-sans',
+  display: 'swap',
+  weight: ['400', '500', '600'],
+})
+
+// Her ölçüm mono yazılır: ms, sn, sürüm, PID.
+const mono = IBM_Plex_Mono({
+  subsets: ['latin', 'latin-ext'],
   variable: '--font-mono',
   display: 'swap',
   weight: ['400', '500'],
@@ -79,8 +82,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#070810' },
+    { media: '(prefers-color-scheme: light)', color: '#fbfaf7' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0b0d' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -92,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="tr" className={`${sora.variable} ${inter.variable} ${mono.variable}`}>
+    <html lang="tr" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>

@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-export type CardVariant = 'default' | 'glass' | 'dark' | 'bordered'
+export type CardVariant = 'default' | 'sunken' | 'signal' | 'bordered'
 
 export interface CardProps {
   children: React.ReactNode
@@ -9,19 +9,21 @@ export interface CardProps {
   padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
+// Kartlar gölgeyle değil çizgiyle ayrılır. Cam efekti yok:
+// saydamlık arkasında ne olduğunu gizler, bu sistem gizlemez.
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-white shadow-card',
-  glass:
-    'bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] shadow-card',
-  dark: 'bg-brand-navy-light border border-white/[0.08]',
-  bordered: 'bg-white border border-surface-muted shadow-card',
+  default: 'bg-surface-raised border border-line',
+  sunken: 'bg-surface-sunken border border-line',
+  // Dikkat isteyen tek grup için — sayfada en fazla bir tane.
+  signal: 'bg-surface-raised border border-signal',
+  bordered: 'bg-transparent border border-line',
 }
 
 const paddingClasses = {
   none: '',
-  sm: 'p-4',
-  md: 'p-6',
-  lg: 'p-8',
+  sm: 'p-s-4',
+  md: 'p-s-6',
+  lg: 'p-s-8',
 }
 
 export function Card({
@@ -33,7 +35,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-card overflow-hidden',
+        'rounded-lg overflow-hidden',
         variantClasses[variant],
         paddingClasses[padding],
         className

@@ -6,7 +6,7 @@ const STATS = [
 
 export function StatsSection() {
   return (
-    <section className="border-y border-white/[0.06] bg-ink-2">
+    <section className="border-y border-line bg-surface">
       <div className="max-w-4xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06]">
           {STATS.map((stat) => (

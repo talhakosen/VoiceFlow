@@ -1,6 +1,15 @@
 import { cn } from '@/lib/utils'
 
-export type BadgeVariant = 'default' | 'blue' | 'green' | 'purple' | 'outline'
+export type BadgeVariant =
+  | 'default'
+  | 'signal'
+  | 'positive'
+  | 'caution'
+  | 'critical'
+  | 'general'
+  | 'engineering'
+  | 'office'
+  | 'outline'
 
 export interface BadgeProps {
   children: React.ReactNode
@@ -9,20 +18,30 @@ export interface BadgeProps {
   className?: string
 }
 
+// Dolgu rengin %20 saydamı, yazı rengin kendisi. Dolu renk kullanılmaz:
+// rozet bir uyarı değil, bir etikettir.
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-surface-muted text-text-secondary',
-  blue: 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20',
-  green: 'bg-accent-green/10 text-accent-green border border-accent-green/20',
-  purple: 'bg-brand-blue-purple/10 text-brand-blue-purple border border-brand-blue-purple/20',
-  outline: 'bg-transparent border border-text-muted/30 text-text-secondary',
+  default: 'bg-control text-text-muted',
+  signal: 'bg-signal/20 text-signal-text',
+  positive: 'bg-positive/20 text-positive',
+  caution: 'bg-caution/20 text-caution',
+  critical: 'bg-critical/20 text-critical',
+  general: 'bg-mode-general/20 text-mode-general',
+  engineering: 'bg-mode-engineering/20 text-mode-engineering',
+  office: 'bg-mode-office/20 text-mode-office',
+  outline: 'bg-transparent border border-line-strong text-text-muted',
 }
 
 const dotVariantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-text-muted',
-  blue: 'bg-brand-blue',
-  green: 'bg-accent-green',
-  purple: 'bg-brand-blue-purple',
-  outline: 'bg-text-muted',
+  default: 'bg-text-faint',
+  signal: 'bg-signal',
+  positive: 'bg-positive',
+  caution: 'bg-caution',
+  critical: 'bg-critical',
+  general: 'bg-mode-general',
+  engineering: 'bg-mode-engineering',
+  office: 'bg-mode-office',
+  outline: 'bg-text-faint',
 }
 
 export function Badge({
@@ -34,7 +53,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-xs font-medium',
+        'inline-flex items-center gap-s-2 px-s-2 py-s-1 rounded-sm font-mono text-data-s uppercase tracking-wide',
         variantClasses[variant],
         className
       )}

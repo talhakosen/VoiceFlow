@@ -57,7 +57,7 @@ function ExampleCard({ title, said, got }: { title: string; said: string; got: s
     <div className="rounded-xl border border-[var(--example-border)] bg-[var(--example-bg)] overflow-hidden">
       {/* Label */}
       <div className="px-4 py-2 border-b border-[var(--example-border)]">
-        <span className="text-[10px] text-brand-blue/60 font-mono uppercase tracking-widest">{title}</span>
+        <span className="text-[10px] text-signal-text/60 font-mono uppercase tracking-widest">{title}</span>
       </div>
       {/* Said */}
       <div className="px-4 py-3 border-b border-[var(--example-border)]">
@@ -104,7 +104,7 @@ export function ProductSection() {
               <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-7 h-full flex flex-col">
                 {/* Icon + label */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue">
+                  <div className="w-9 h-9 rounded-xl bg-signal/10 border border-signal/20 flex items-center justify-center text-signal-text">
                     {uc.icon}
                   </div>
                   <div>
@@ -151,16 +151,16 @@ export function ProductSection() {
 
                 {/* Voice */}
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-brand-blue w-16 text-right shrink-0 font-medium">Ses</span>
+                  <span className="text-xs text-signal-text w-16 text-right shrink-0 font-medium">Ses</span>
                   <div className="flex-1 h-7 rounded-lg bg-[var(--bar-track)] overflow-hidden relative">
                     <motion.div
-                      className="absolute inset-y-0 left-0 rounded-lg bg-gradient-to-r from-brand-blue/30 to-brand-blue/10"
+                      className="absolute inset-y-0 left-0 rounded-lg bg-gradient-to-r from-signal/30 to-signal/10"
                       initial={{ width: 0 }}
                       whileInView={{ width: '100%' }}
                       viewport={{ once: true }}
                       transition={{ duration: 1.2, ease: 'easeOut', delay: 0.6 }}
                     />
-                    <span className="absolute inset-y-0 left-3 flex items-center text-xs text-brand-blue font-mono font-medium">400 kelime/dk</span>
+                    <span className="absolute inset-y-0 left-3 flex items-center text-xs text-signal-text font-mono font-medium">400 kelime/dk</span>
                   </div>
                 </div>
               </div>

@@ -28,11 +28,11 @@ export function TestimonialsSection() {
   const testimonial = TESTIMONIALS[current]
 
   return (
-    <section id="referanslar" className="section-padding bg-ink">
+    <section id="referanslar" className="section-padding bg-ground">
       <Container size="lg">
         <div className="text-center mb-16">
           <FadeUp>
-            <span className="section-label text-brand-blue">Müşteri Hikayeleri</span>
+            <span className="section-label">Müşteri Hikayeleri</span>
           </FadeUp>
           <FadeUp delay={0.1}>
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
@@ -51,10 +51,10 @@ export function TestimonialsSection() {
               exit={{ opacity: 0, x: direction * -32 }}
               transition={{ duration: 0.38, ease: 'easeInOut' }}
             >
-              <div className="bg-ink-2 rounded-card border border-white/[0.08] p-8 lg:p-12 relative overflow-hidden">
+              <div className="bg-surface rounded-lg border border-line p-8 lg:p-12 relative overflow-hidden">
                 {/* Large decorative quote mark */}
                 <span
-                  className="font-mono text-[96px] leading-none text-brand-blue/10 absolute -top-2 left-6 select-none pointer-events-none"
+                  className="font-mono text-[96px] leading-none text-signal-text/10 absolute -top-2 left-6 select-none pointer-events-none"
                   aria-hidden="true"
                 >
                   &ldquo;
@@ -64,8 +64,8 @@ export function TestimonialsSection() {
                   {testimonial.quote}
                 </blockquote>
 
-                <div className="flex items-center gap-4 pt-6 border-t border-white/[0.07]">
-                  <div className="w-11 h-11 rounded-full bg-blue-gradient flex items-center justify-center text-white font-bold text-sm shrink-0 font-mono">
+                <div className="flex items-center gap-4 pt-6 border-t border-line">
+                  <div className="w-11 h-11 rounded-full bg-signal flex items-center justify-center text-white font-bold text-sm shrink-0 font-mono">
                     {testimonial.avatar}
                   </div>
                   <div>
@@ -86,7 +86,7 @@ export function TestimonialsSection() {
             <button
               onClick={prev}
               aria-label="Önceki"
-              className="w-9 h-9 rounded-full border border-white/[0.09] hover:border-brand-blue/35 hover:bg-brand-blue/5 transition-all flex items-center justify-center text-white/35 hover:text-brand-blue-light"
+              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-white/35 hover:text-signal-text"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -110,7 +110,7 @@ export function TestimonialsSection() {
                   aria-label={`Yorum ${i + 1}`}
                   className={`transition-all duration-300 rounded-full ${
                     i === current
-                      ? 'w-6 h-2 bg-brand-blue'
+                      ? 'w-6 h-2 bg-signal'
                       : 'w-2 h-2 bg-white/[0.14] hover:bg-white/[0.28]'
                   }`}
                 />
@@ -120,7 +120,7 @@ export function TestimonialsSection() {
             <button
               onClick={next}
               aria-label="Sonraki"
-              className="w-9 h-9 rounded-full border border-white/[0.09] hover:border-brand-blue/35 hover:bg-brand-blue/5 transition-all flex items-center justify-center text-white/35 hover:text-brand-blue-light"
+              className="w-9 h-9 rounded-full border border-line hover:border-signal/35 hover:bg-signal/5 transition-all flex items-center justify-center text-white/35 hover:text-signal-text"
             >
               <svg
                 viewBox="0 0 24 24"

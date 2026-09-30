@@ -17,12 +17,12 @@ const TRUST_ITEMS = [
 
 export function SecuritySection() {
   return (
-    <section id="guvenlik" className="section-padding bg-ink-2">
+    <section id="guvenlik" className="section-padding bg-surface">
       <div className="max-w-5xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <div>
-            <span className="section-label text-brand-blue">
+            <span className="section-label">
               Güvenlik & Uyumluluk
             </span>
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight mb-6">
@@ -38,12 +38,12 @@ export function SecuritySection() {
               {CERTS.map((cert) => (
                 <span
                   key={cert}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-white/65 bg-white/[0.05] border border-white/[0.09] rounded-full px-4 py-2 hover:border-brand-blue/30 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-white/65 bg-white/[0.05] border border-line rounded-full px-4 py-2 hover:border-signal/30 transition-colors"
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
-                    className="w-3.5 h-3.5 text-accent-green shrink-0"
+                    className="w-3.5 h-3.5 text-positive shrink-0"
                     strokeWidth="2.5"
                     stroke="currentColor"
                   >
@@ -60,9 +60,9 @@ export function SecuritySection() {
             {TRUST_ITEMS.map((item) => (
               <div
                 key={item.title}
-                className="flex gap-4 p-5 rounded-2xl bg-ink-3 border border-white/[0.07] hover:border-brand-blue/20 transition-colors group"
+                className="flex gap-4 p-5 rounded-2xl bg-surface-raised border border-line hover:border-signal/20 transition-colors group"
               >
-                <div className="w-9 h-9 rounded-xl bg-brand-blue/10 text-brand-blue-light flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-brand-blue/15 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-signal/10 text-signal-text flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-signal/15 transition-colors">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"

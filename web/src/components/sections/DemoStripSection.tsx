@@ -10,7 +10,7 @@ function WaveformBars() {
       {[4, 8, 13, 7, 11, 15, 9, 13, 6, 10, 14, 8, 5].map((h, i) => (
         <motion.span
           key={i}
-          className="w-[3px] rounded-full bg-brand-blue-light/80"
+          className="w-[3px] rounded-full bg-signal/80"
           animate={{ height: [h * 0.5, h, h * 0.7, h * 1.1, h * 0.6, h] }}
           transition={{
             duration: 1.1 + i * 0.07,
@@ -48,13 +48,13 @@ export function DemoStripSection() {
   const example = DEMO_STRIP.examples[index]
 
   return (
-    <section className="py-0 bg-brand-navy">
+    <section className="py-0 bg-ground">
       {/* Full-width strip */}
-      <div className="w-full border-y border-white/[0.08] bg-white/[0.03] backdrop-blur-sm py-5 overflow-hidden">
+      <div className="w-full border-y border-line bg-white/[0.03] backdrop-blur-sm py-5 overflow-hidden">
         <div className="max-w-5xl mx-auto px-6 flex items-center gap-5">
 
           {/* Left: pill with waveform */}
-          <div className="shrink-0 flex items-center gap-3 bg-white/[0.07] border border-white/[0.12] rounded-pill px-4 py-2.5">
+          <div className="shrink-0 flex items-center gap-3 bg-white/[0.07] border border-line rounded-pill px-4 py-2.5">
             <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
             <WaveformBars />
           </div>
@@ -65,7 +65,7 @@ export function DemoStripSection() {
           </svg>
 
           {/* Context label */}
-          <span className="shrink-0 text-xs font-semibold text-brand-blue-light/70 uppercase tracking-widest hidden sm:block">
+          <span className="shrink-0 text-xs font-semibold text-signal-text/70 uppercase tracking-widest hidden sm:block">
             {example.context}
           </span>
 
@@ -108,7 +108,7 @@ export function DemoStripSection() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex items-center gap-1.5 text-xs text-accent-green"
+                  className="flex items-center gap-1.5 text-xs text-positive"
                 >
                   <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" strokeWidth="2.5" stroke="currentColor">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
@@ -126,7 +126,7 @@ export function DemoStripSection() {
                 key={i}
                 className={`rounded-full transition-all duration-300 ${
                   i === index
-                    ? 'w-4 h-1.5 bg-brand-blue'
+                    ? 'w-4 h-1.5 bg-signal'
                     : 'w-1.5 h-1.5 bg-white/15'
                 }`}
               />

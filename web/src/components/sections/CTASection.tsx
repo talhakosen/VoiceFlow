@@ -4,16 +4,12 @@ import { CTA_SECTION } from '@/lib/constants'
 
 export function CTASection() {
   return (
-    <section className="section-padding bg-brand-navy relative overflow-hidden">
-      <div className="absolute inset-0 bg-hero-gradient" />
-      <div className="glow-orb w-[600px] h-[600px] bg-brand-blue/12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="glow-orb w-[300px] h-[300px] bg-brand-blue-purple/15 top-0 right-0" />
-      <div className="glow-orb w-[300px] h-[300px] bg-brand-blue/10 bottom-0 left-0" />
+    <section className="section-padding bg-ground relative overflow-hidden">
       <div className="absolute inset-0 dot-grid opacity-15" />
 
       <Container size="md" className="relative z-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-white/[0.06] border border-white/[0.12] text-brand-blue-light text-sm font-medium mb-8">
-          <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-white/[0.06] border border-line text-signal-text text-sm font-medium mb-8">
+          <span className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           14 gün ücretsiz pilot
         </div>
 
@@ -39,7 +35,7 @@ export function CTASection() {
         </div>
         <p className="text-sm text-text-muted">{CTA_SECTION.disclaimer}</p>
 
-        <div className="flex flex-wrap justify-center gap-6 mt-12 pt-12 border-t border-white/[0.08]">
+        <div className="flex flex-wrap justify-center gap-6 mt-12 pt-12 border-t border-line">
           {[
             {
               icon: (
@@ -77,7 +73,7 @@ export function CTASection() {
             },
           ].map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-sm text-text-muted">
-              <span className="text-brand-blue-light">{item.icon}</span>
+              <span className="text-signal-text">{item.icon}</span>
               <span>{item.text}</span>
             </div>
           ))}

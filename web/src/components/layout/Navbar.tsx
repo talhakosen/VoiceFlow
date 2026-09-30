@@ -11,7 +11,7 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label={theme === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç'}
-      className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-colors shadow-sm"
+      className="w-9 h-9 rounded-full border border-slate-200 dark:border-line bg-white dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-line transition-colors shadow-sm"
     >
       {theme === 'dark' ? (
         /* Sun */

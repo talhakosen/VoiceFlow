@@ -149,11 +149,9 @@ export function HeroSection() {
   return (
     <section
       id="urun"
-      className="relative min-h-screen flex flex-col justify-center items-center bg-slate-50 dark:bg-brand-navy overflow-hidden pt-[var(--navbar-height)]"
+      className="relative min-h-screen flex flex-col justify-center items-center bg-slate-50 dark:bg-ground overflow-hidden pt-[var(--navbar-height)]"
     >
       {/* Glow */}
-      <div className="absolute inset-0 bg-hero-gradient opacity-60 dark:opacity-100" />
-      <div className="glow-orb w-[700px] h-[700px] bg-brand-blue/5 dark:bg-brand-blue/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
       {/* Başlık + CTA */}
       <div className="relative z-10 text-center px-6 w-full max-w-4xl mx-auto flex flex-col items-center">
@@ -217,14 +215,14 @@ export function HeroSection() {
 
             {/* Sol: RAW */}
             <div className="absolute inset-y-0 left-0 right-1/2 overflow-hidden flex items-center">
-              <div className="absolute right-0 inset-y-0 w-24 bg-gradient-to-r from-transparent to-slate-50 dark:to-brand-navy z-10 pointer-events-none" />
+              <div className="absolute right-0 inset-y-0 w-24 bg-gradient-to-r from-transparent to-slate-50 dark:to-ground z-10 pointer-events-none" />
               <Strip text={RAW_TEXT} bright={false} />
             </div>
 
             {/* Sağ: FIX */}
             <div className="absolute inset-y-0 left-1/2 right-0 overflow-hidden flex items-center">
-              <div className="absolute left-0 inset-y-0 w-20 bg-gradient-to-r from-slate-50 dark:from-brand-navy to-transparent z-10 pointer-events-none" />
-              <div className="absolute inset-0 bg-black/[0.04] dark:bg-white/[0.06] border-t border-b border-black/[0.07] dark:border-white/[0.10]" />
+              <div className="absolute left-0 inset-y-0 w-20 bg-gradient-to-r from-slate-50 dark:from-ground to-transparent z-10 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/[0.04] dark:bg-white/[0.06] border-t border-b border-black/[0.07] dark:border-line" />
               <div className="relative">
                 <Strip text={FIX_TEXT} bright={true} />
               </div>
@@ -234,7 +232,7 @@ export function HeroSection() {
 
           {/* Waveform pill */}
           <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20">
-            <div className="flex items-center gap-3 bg-slate-800 dark:bg-[#0c1228] border-2 border-white/20 rounded-2xl px-5 py-2.5 shadow-[0_0_24px_rgba(59,130,246,0.3)]">
+            <div className="flex items-center gap-3 bg-slate-800 dark:bg-[#0c1228] border-2 border-line rounded-2xl px-5 py-2.5 shadow-[0_0_24px_rgba(59,130,246,0.3)]">
               <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse shrink-0" />
               <WaveformBars />
             </div>
@@ -246,13 +244,13 @@ export function HeroSection() {
 
           {/* Connecting lines (behind nodes) */}
           <div className="absolute top-3 left-[calc(16.67%+12px)] right-[calc(16.67%+12px)] flex z-0">
-            <div className="flex-1 h-px bg-gradient-to-r from-slate-300/60 dark:from-white/10 to-brand-blue/40" />
-            <div className="flex-1 h-px bg-gradient-to-r from-brand-blue/40 to-slate-400/60 dark:to-white/15" />
+            <div className="flex-1 h-px bg-gradient-to-r from-slate-300/60 dark:from-white/10 to-signal/40" />
+            <div className="flex-1 h-px bg-gradient-to-r from-signal/40 to-slate-400/60 dark:to-white/15" />
           </div>
 
           {/* Node 1 — Ham ses */}
           <div className="relative z-10 flex flex-col items-center flex-1">
-            <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-line flex items-center justify-center">
               <svg viewBox="0 0 16 16" fill="none" className="w-3 h-3 text-slate-400 dark:text-white/30" stroke="currentColor" strokeWidth="1.5">
                 <rect x="5.5" y="1" width="5" height="8" rx="2.5" />
                 <path d="M3 8a5 5 0 0 0 10 0" strokeLinecap="round" />
@@ -264,12 +262,12 @@ export function HeroSection() {
 
           {/* Node 2 — Özel model (hero node) */}
           <div className="relative z-10 flex flex-col items-center flex-1">
-            <div className="w-6 h-6 rounded-full bg-brand-blue/15 dark:bg-brand-blue/20 border border-brand-blue/40 flex items-center justify-center shadow-[0_0_12px_rgba(79,122,255,0.25)]">
-              <svg viewBox="0 0 12 12" fill="currentColor" className="w-2.5 h-2.5 text-brand-blue">
+            <div className="w-6 h-6 rounded-full bg-signal/15 dark:bg-signal/20 border border-signal/40 flex items-center justify-center shadow-[0_0_12px_rgba(79,122,255,0.25)]">
+              <svg viewBox="0 0 12 12" fill="currentColor" className="w-2.5 h-2.5 text-signal-text">
                 <path d="M6 0l1.5 3.5L11 5l-3 2.5L9 11l-3-2-3 2 1-3.5L1 5l3.5-1.5z"/>
               </svg>
             </div>
-            <span className="text-[11px] text-brand-blue font-semibold mt-1.5">Özel model</span>
+            <span className="text-[11px] text-signal-text font-semibold mt-1.5">Özel model</span>
             <span className="text-[9px] text-slate-400 dark:text-white/20 mt-0.5 font-mono">300K+ Türkçe ses</span>
           </div>
 

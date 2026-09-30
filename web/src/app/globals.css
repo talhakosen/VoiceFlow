@@ -2,80 +2,134 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────
+   VoiceFlow — Enstrüman
+   Token kaynağı: design system (tokens.json). Değer değiştirmek
+   istiyorsan orayı güncelle, sonra buraya taşı.
+   Tek marka rengi: --signal. Gradyan ve glow yok.
+   ───────────────────────────────────────────────────────────── */
+
 :root {
+  color-scheme: light;
+
+  /* Yüzeyler */
+  --ground: 251 250 247;
+  --surface: 255 255 255;
+  --surface-raised: 255 255 255;
+  --surface-sunken: 242 241 236;
+  --control: 239 238 233;
+  --control-hover: 229 228 222;
+
+  /* Çizgiler */
+  --line: 227 225 218;
+  --line-strong: 207 204 195;
+
+  /* Metin */
+  --text: 22 22 26;
+  --text-muted: 92 92 102;
+  --text-faint: 133 132 140;
+  --text-on-signal: 19 19 22;
+
+  /* Signal — tek marka rengi */
+  --signal: 224 155 11;
+  --signal-dim: 247 227 176;
+  --signal-text: 138 93 0;
+
+  /* Mod renkleri — anlam taşır, dekor değil */
+  --mode-general: 31 95 204;
+  --mode-engineering: 10 122 85;
+  --mode-office: 107 69 201;
+
+  /* Durum */
+  --positive: 10 122 85;
+  --caution: 179 92 0;
+  --critical: 194 53 42;
+
+  /* Dalga — tek süs */
+  --wave: 22 22 26;
+  --wave-live: 224 155 11;
+
+  /* Overlay: her iki temada da koyu */
+  --overlay-ground: #16161ae6;
+  --overlay-line: #ffffff2b;
+
+  --shadow-overlay: 0 8px 28px #16161a40, 0 2px 6px #16161a26;
+  --shadow-focus: 0 0 0 3px #e09b0b4d;
+
+  /* Düzen */
   --navbar-height: 72px;
   --section-gap: 120px;
-  --gradient-blue: linear-gradient(135deg, #4F7AFF 0%, #7C6BFF 100%);
   --marquee-duration: 60s;
 
-  /* Theme tokens — light (default) */
-  --page-bg: #ffffff;
-  --page-bg-alt: #f8fafc;
-  --card-bg: rgba(0,0,0,0.025);
-  --card-border: rgba(0,0,0,0.08);
-  --card-border-hover: rgba(0,0,0,0.14);
-  --heading: #0f172a;
-  --body: #334155;
-  --muted: #64748b;
-  --subtle: #94a3b8;
-  --faint: #cbd5e1;
-  --example-bg: rgba(0,0,0,0.02);
-  --example-border: rgba(0,0,0,0.06);
-  --example-said: #64748b;
-  --bar-track: rgba(0,0,0,0.06);
-  --bar-label: #94a3b8;
-  --divider: rgba(0,0,0,0.06);
-  --stat-value: #0f172a;
-  --scrollbar-thumb: rgba(0,0,0,0.12);
-  --scrollbar-hover: rgba(0,0,0,0.22);
-  --selection-bg: rgba(79,122,255,0.15);
-  --selection-color: #2a4abf;
+  /* Sayfa genelinde kullanılan semantik adlar — token'lara bağlı.
+     Bileşenler bunları kullanır; ham hex hiçbir yerde geçmez. */
+  --page-bg: var(--ground);
+  --page-bg-alt: var(--surface-sunken);
+  --card-bg: var(--surface-raised);
+  --card-border: var(--line);
+  --card-border-hover: var(--line-strong);
+  --heading: var(--text);
+  --body: var(--text-muted);
+  --muted: var(--text-muted);
+  --subtle: var(--text-faint);
+  --faint: var(--line-strong);
+  --divider: var(--line);
+  --stat-value: var(--text);
+  --example-bg: var(--surface-sunken);
+  --example-border: var(--line);
+  --example-said: var(--text-muted);
+  --bar-track: var(--control);
+  --bar-label: var(--text-faint);
+  --scrollbar-thumb: var(--line-strong);
+  --scrollbar-hover: var(--text-faint);
+  --selection-bg: var(--signal-dim);
+  --selection-color: var(--text-on-signal);
 }
 
 .dark {
-    --page-bg: #070810;
-    --page-bg-alt: #0c0e18;
-    --card-bg: rgba(255,255,255,0.02);
-    --card-border: rgba(255,255,255,0.07);
-    --card-border-hover: rgba(255,255,255,0.14);
-    --heading: #ffffff;
-    --body: rgba(255,255,255,0.60);
-    --muted: rgba(255,255,255,0.40);
-    --subtle: rgba(255,255,255,0.25);
-    --faint: rgba(255,255,255,0.15);
-    --example-bg: rgba(255,255,255,0.02);
-    --example-border: rgba(255,255,255,0.06);
-    --example-said: rgba(255,255,255,0.30);
-    --bar-track: rgba(255,255,255,0.04);
-    --bar-label: rgba(255,255,255,0.30);
-    --divider: rgba(255,255,255,0.05);
-    --stat-value: #ffffff;
-    --scrollbar-thumb: rgba(255,255,255,0.10);
-    --scrollbar-hover: rgba(255,255,255,0.18);
-  --selection-bg: rgba(79,122,255,0.22);
-  --selection-color: #a4bcff;
+  color-scheme: dark;
+
+  --ground: 11 11 13;
+  --surface: 19 19 22;
+  --surface-raised: 26 26 30;
+  --surface-sunken: 8 8 10;
+  --control: 36 36 42;
+  --control-hover: 46 46 54;
+
+  --line: 38 38 44;
+  --line-strong: 58 58 68;
+
+  --text: 242 242 245;
+  --text-muted: 166 166 176;
+  --text-faint: 116 116 126;
+  --text-on-signal: 19 19 22;
+
+  --signal: 240 180 41;
+  --signal-dim: 74 58 18;
+  --signal-text: 245 200 92;
+
+  --mode-general: 106 168 255;
+  --mode-engineering: 79 216 164;
+  --mode-office: 183 155 255;
+
+  --positive: 79 216 164;
+  --caution: 255 159 69;
+  --critical: 255 122 107;
+
+  --wave: 242 242 245;
+  --wave-live: 240 180 41;
+
+  --overlay-ground: #0b0b0de6;
+  --overlay-line: #ffffff1f;
+
+  --shadow-overlay: 0 8px 28px #0000008c, 0 2px 6px #00000059;
+  --shadow-focus: 0 0 0 3px #f0b42959;
+
+  --selection-bg: var(--signal-dim);
+  --selection-color: var(--signal-text);
 }
 
-@keyframes marquee-right {
-  0%   { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
-}
-
-.animate-marquee-left {
-  animation: marquee-right var(--marquee-duration) linear infinite;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee-left {
-    animation: none;
-  }
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+/* ── Temel ─────────────────────────────────────────────────── */
 
 * {
   box-sizing: border-box;
@@ -90,18 +144,27 @@ html {
 }
 
 body {
-  background-color: var(--page-bg);
-  color: var(--body);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  line-height: 1.6;
+  background-color: rgb(var(--page-bg));
+  color: rgb(var(--body));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.625;
 }
 
-/* Sora display font for all headings — automatic, no per-component class needed */
 h1, h2, h3 {
-  font-family: var(--font-sora), system-ui, sans-serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  color: rgb(var(--heading));
+  text-wrap: balance;
 }
 
-/* Section label — mono, tracked, uppercase (use alongside color utilities) */
+/* Ölçüm yazan her şey mono — sistemin ayırt edici kuralı */
+.data,
+.counter-value {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Bölüm etiketi — mono, aralıklı, büyük harf */
 .section-label {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
@@ -110,93 +173,91 @@ h1, h2, h3 {
   font-weight: 500;
   display: block;
   margin-bottom: 1rem;
+  color: rgb(var(--text-muted));
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-hover);
+/* Bölüm başlığı çizgisi — gradyan banner'ın yerine geçen işaret */
+.section-rule {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  border-radius: 2px;
+  background: rgb(var(--signal));
+  vertical-align: -0.1em;
+  margin-right: 0.6em;
 }
 
-/* Selection */
-::selection {
-  background: var(--selection-bg);
-  color: var(--selection-color);
+/* ── Dalga: tek süs ─────────────────────────────────────────── */
+
+.wave {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
 }
 
-/* Focus visible */
+.wave > i {
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: rgb(var(--wave));
+  transition: height 70ms ease-in-out;
+}
+
+.wave.is-live > i {
+  background: rgb(var(--wave-live));
+}
+
+/* ── Odak ───────────────────────────────────────────────────── */
+
 :focus-visible {
-  outline: 2px solid #4F7AFF;
+  outline: 2px solid rgb(var(--signal));
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Glass utility */
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+/* ── Scrollbar / seçim ──────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(var(--scrollbar-thumb)); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--scrollbar-hover)); }
+
+::selection {
+  background: rgb(var(--selection-bg));
+  color: rgb(var(--selection-color));
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #7B9FFF 0%, #7C6BFF 50%, #7B9FFF 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradientShift 4s ease infinite;
-}
+/* ── Izgara: 4px sisteminin görünür hali ────────────────────── */
 
-/* Noise texture overlay */
-.noise-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Dot grid — updated color */
 .dot-grid {
-  background-image: radial-gradient(circle, rgba(79, 122, 255, 0.10) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgb(var(--line)) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
-/* Grid lines — premium thin-line grid (Linear-style) */
 .grid-lines {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
+    linear-gradient(rgb(var(--line)) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--line)) 1px, transparent 1px);
   background-size: 72px 72px;
 }
 
-/* Glow orb */
-.glow-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
+/* ── Hareket ────────────────────────────────────────────────── */
+
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
-/* Counter / tabular numbers */
-.counter-value {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum';
+.animate-marquee-left {
+  animation: marquee-right var(--marquee-duration) linear infinite;
+  will-change: transform;
 }
 
-/* Typewriter cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .cursor {
   display: inline-block;
   width: 2px;
@@ -207,44 +268,32 @@ h1, h2, h3 {
   animation: blink 1s step-end infinite;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
+/* Kayıt nabzı — signal ile, kırmızıyla değil */
 @keyframes recordPulse {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  0%   { box-shadow: 0 0 0 0 rgb(var(--signal)); }
+  70%  { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .record-pulse {
   animation: recordPulse 2s ease-out infinite;
 }
 
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .record-pulse {
+    animation: none;
+  }
+  .wave > i { transition: none; }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
+/* ── Bölüm aralığı ──────────────────────────────────────────── */
 
-/* Section spacing */
 .section-padding {
   padding-top: var(--section-gap);
   padding-bottom: var(--section-gap);

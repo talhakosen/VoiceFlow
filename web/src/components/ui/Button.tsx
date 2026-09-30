@@ -16,19 +16,21 @@ export interface ButtonProps
   href?: string
 }
 
+// Birincil buton signal kullanır ve ekrandaki tek amber nesnedir.
+// Görünür alanda iki birincil buton varsa biri ghost/outline olmalı.
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-brand-blue to-brand-blue-purple text-white shadow-elevated hover:shadow-glow hover:opacity-90 active:opacity-80',
+    'bg-signal text-text-on-signal hover:brightness-95 active:brightness-90',
   ghost:
-    'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12]',
+    'bg-transparent text-text-muted hover:text-text hover:bg-control active:bg-control-hover',
   outline:
-    'bg-transparent border border-brand-blue/50 text-brand-blue-light hover:bg-brand-blue/8 hover:border-brand-blue active:bg-brand-blue/12',
+    'bg-transparent border border-line-strong text-text hover:bg-control active:bg-control-hover',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'px-4 py-2 text-sm gap-1.5 rounded-pill',
-  md: 'px-6 py-3 text-sm gap-2 rounded-pill',
-  lg: 'px-8 py-4 text-base gap-2.5 rounded-pill',
+  sm: 'px-s-4 py-s-2 text-web-small gap-s-2 rounded-md min-h-[36px]',
+  md: 'px-s-5 py-s-3 text-web-small gap-s-2 rounded-md min-h-[44px]',
+  lg: 'px-s-6 py-s-4 text-web-body gap-s-3 rounded-md min-h-[52px]',
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,8 +53,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer select-none whitespace-nowrap',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'inline-flex items-center justify-center font-medium transition-colors duration-200 cursor-pointer select-none whitespace-nowrap',
+          'focus-visible:outline-none focus-visible:shadow-focus',
+          'disabled:text-text-faint disabled:cursor-not-allowed',
           variantClasses[variant],
           sizeClasses[size],
           className

@@ -1,5 +1,14 @@
 import type { Config } from 'tailwindcss'
 
+/**
+ * VoiceFlow — Enstrüman
+ *
+ * Renkler CSS değişkenlerine bağlıdır (globals.css); tema geçişi
+ * Tailwind'in dark: varyantı olmadan, değişken üzerinden çözülür.
+ * Bu yüzden `bg-surface` her iki temada da doğru zemini verir.
+ *
+ * Kural: ham hex yazma. Yeni bir renk gerekiyorsa önce token olur.
+ */
 const config: Config = {
   darkMode: 'class',
   content: [
@@ -10,56 +19,93 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Design system base
-        ink: {
-          DEFAULT: '#070810',
-          2: '#0C0E18',
-          3: '#12151F',
-        },
-        brand: {
-          navy: '#070810',
-          'navy-light': '#0C0E18',
-          blue: '#4F7AFF',
-          'blue-light': '#7B9FFF',
-          'blue-purple': '#7C6BFF',
-        },
+        ground: 'rgb(var(--ground) / <alpha-value>)',
         surface: {
-          DEFAULT: '#F8FAFC',
-          muted: '#F1F5F9',
-          dark: '#070810',
+          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
+          raised: 'rgb(var(--surface-raised) / <alpha-value>)',
+          sunken: 'rgb(var(--surface-sunken) / <alpha-value>)',
+        },
+        control: {
+          DEFAULT: 'rgb(var(--control) / <alpha-value>)',
+          hover: 'rgb(var(--control-hover) / <alpha-value>)',
+        },
+        line: {
+          DEFAULT: 'rgb(var(--line) / <alpha-value>)',
+          strong: 'rgb(var(--line-strong) / <alpha-value>)',
         },
         text: {
-          primary: '#0F172A',
-          secondary: '#64748B',
-          muted: '#94A3B8',
-          inverse: '#FFFFFF',
+          DEFAULT: 'rgb(var(--text) / <alpha-value>)',
+          muted: 'rgb(var(--text-muted) / <alpha-value>)',
+          faint: 'rgb(var(--text-faint) / <alpha-value>)',
+          'on-signal': 'rgb(var(--text-on-signal) / <alpha-value>)',
         },
-        accent: {
-          green: '#22C55E',
+        signal: {
+          DEFAULT: 'rgb(var(--signal) / <alpha-value>)',
+          dim: 'rgb(var(--signal-dim) / <alpha-value>)',
+          text: 'rgb(var(--signal-text) / <alpha-value>)',
+        },
+        mode: {
+          general: 'rgb(var(--mode-general) / <alpha-value>)',
+          engineering: 'rgb(var(--mode-engineering) / <alpha-value>)',
+          office: 'rgb(var(--mode-office) / <alpha-value>)',
+        },
+        positive: 'rgb(var(--positive) / <alpha-value>)',
+        caution: 'rgb(var(--caution) / <alpha-value>)',
+        critical: 'rgb(var(--critical) / <alpha-value>)',
+        wave: {
+          DEFAULT: 'rgb(var(--wave) / <alpha-value>)',
+          live: 'rgb(var(--wave-live) / <alpha-value>)',
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-sora)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
+      fontSize: {
+        // Design system tip ölçeği — Web grubu
+        'web-h1': ['40px', { lineHeight: '46px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'web-h2': ['28px', { lineHeight: '36px', fontWeight: '600' }],
+        'web-h3': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        'web-body': ['16px', { lineHeight: '26px' }],
+        'web-small': ['14px', { lineHeight: '22px' }],
+        // Display grubu
+        'display-xl': ['56px', { lineHeight: '56px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-l': ['40px', { lineHeight: '44px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-m': ['28px', { lineHeight: '34px', letterSpacing: '-0.01em', fontWeight: '700' }],
+        // Veri grubu (mono)
+        'data-l': ['20px', { lineHeight: '24px', fontWeight: '500' }],
+        'data-m': ['13px', { lineHeight: '18px', fontWeight: '500' }],
+        'data-s': ['11px', { lineHeight: '14px', fontWeight: '500' }],
+      },
+      spacing: {
+        's-05': '2px',
+        's-1': '4px',
+        's-2': '8px',
+        's-3': '12px',
+        's-4': '16px',
+        's-5': '20px',
+        's-6': '24px',
+        's-8': '32px',
+        's-12': '48px',
+        's-16': '64px',
+      },
       borderRadius: {
-        card: '16px',
-        'card-sm': '12px',
-        pill: '9999px',
+        xs: '2px',
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+        pill: '24px',
+        full: '999px',
       },
       boxShadow: {
-        card: '0 4px 24px rgba(0,0,0,0.08)',
-        elevated: '0 8px 32px rgba(79,122,255,0.15)',
-        glow: '0 0 40px rgba(79,122,255,0.28)',
-        'glow-sm': '0 0 20px rgba(79,122,255,0.18)',
+        overlay: 'var(--shadow-overlay)',
+        focus: 'var(--shadow-focus)',
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.4s ease-out forwards',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'gradient-shift': 'gradientShift 6s ease infinite',
-        float: 'float 6s ease-in-out infinite',
         blink: 'blink 1s step-end infinite',
       },
       keyframes: {
@@ -71,27 +117,10 @@ const config: Config = {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        gradientShift: {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-12px)' },
-        },
         blink: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0' },
         },
-      },
-      backgroundImage: {
-        'hero-gradient':
-          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79,122,255,0.10), transparent)',
-        'card-gradient':
-          'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-        'blue-gradient': 'linear-gradient(135deg, #4F7AFF 0%, #7C6BFF 100%)',
-        'text-gradient':
-          'linear-gradient(135deg, #7B9FFF 0%, #7C6BFF 50%, #7B9FFF 100%)',
       },
     },
   },

@@ -46,19 +46,19 @@ export function SpeedSection() {
   const inView = useInView(ref, { once: true, amount: 0.3 })
 
   return (
-    <section id="ozellikler" className="section-padding bg-ink">
+    <section id="ozellikler" className="section-padding bg-ground">
       <Container>
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left: copy */}
           <div>
             <FadeUp>
-              <span className="section-label text-brand-blue">Verimlilik</span>
+              <span className="section-label">Verimlilik</span>
             </FadeUp>
             <FadeUp delay={0.1}>
               <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
                 Klavyeden 10x
                 <br />
-                <span className="text-brand-blue-light">daha hızlı.</span>
+                <span className="text-signal-text">daha hızlı.</span>
               </h2>
             </FadeUp>
             <FadeUp delay={0.2}>
@@ -70,24 +70,24 @@ export function SpeedSection() {
 
             {/* Comparison table */}
             <FadeUp delay={0.3}>
-              <div className="rounded-card border border-white/[0.08] overflow-hidden">
-                <div className="grid grid-cols-3 border-b border-white/[0.06] bg-white/[0.03] px-4 py-3">
+              <div className="rounded-lg border border-line overflow-hidden">
+                <div className="grid grid-cols-3 border-b border-line bg-white/[0.03] px-4 py-3">
                   <span className="section-label text-white/25 mb-0">Özellik</span>
                   <span className="section-label text-white/25 mb-0 text-center">Klavye</span>
-                  <span className="section-label text-brand-blue mb-0 text-center">VoiceFlow</span>
+                  <span className="section-label mb-0 text-center">VoiceFlow</span>
                 </div>
                 {COMPARISON_ROWS.map((row, i) => (
                   <div
                     key={row.feature}
                     className={`grid grid-cols-3 px-4 py-3.5 text-sm ${
                       i !== COMPARISON_ROWS.length - 1
-                        ? 'border-b border-white/[0.05]'
+                        ? 'border-b border-line'
                         : ''
                     }`}
                   >
                     <span className="text-white/55 font-medium text-xs">{row.feature}</span>
                     <span className="text-center text-white/25 text-xs">{row.keyboard}</span>
-                    <span className="text-center text-brand-blue-light font-semibold text-xs">{row.voice}</span>
+                    <span className="text-center text-signal-text font-semibold text-xs">{row.voice}</span>
                   </div>
                 ))}
               </div>
@@ -97,7 +97,7 @@ export function SpeedSection() {
           {/* Right: speed bars */}
           <div ref={ref}>
             <FadeUp delay={0.2}>
-              <div className="rounded-card bg-ink-2 p-8 border border-white/[0.08]">
+              <div className="rounded-lg bg-surface p-8 border border-line">
                 <h3 className="font-bold text-white mb-8 text-lg">
                   İçerik Üretim Hızı Karşılaştırması
                 </h3>
@@ -114,20 +114,20 @@ export function SpeedSection() {
                     label="VoiceFlow"
                     wpm={400}
                     maxWpm={400}
-                    color="bg-blue-gradient"
+                    color="bg-signal"
                     delay={0.5}
                     inView={inView}
                   />
                 </div>
 
-                <div className="mt-10 pt-6 border-t border-white/[0.07] grid grid-cols-3 gap-4">
+                <div className="mt-10 pt-6 border-t border-line grid grid-cols-3 gap-4">
                   {[
                     { value: '10x', label: 'Daha Hızlı' },
                     { value: '2.5s', label: 'Günlük Tasarruf' },
                     { value: '98.7%', label: 'Doğruluk' },
                   ].map((item) => (
                     <div key={item.label} className="text-center">
-                      <div className="text-2xl font-bold text-brand-blue font-mono tabular-nums">
+                      <div className="text-2xl font-bold text-signal-text font-mono tabular-nums">
                         {item.value}
                       </div>
                       <div className="section-label text-white/25 mt-1 mb-0">{item.label}</div>

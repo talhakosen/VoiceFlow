@@ -10,7 +10,7 @@ export function ClosingSection() {
   return (
     <section id="demo" className="relative bg-[var(--page-bg-alt)] py-32 overflow-hidden">
       {/* Subtle glow */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-blue/5 blur-[80px] rounded-full pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-signal/5 blur-[80px] rounded-full pointer-events-none" />
 
       <Container size="sm">
         <motion.div

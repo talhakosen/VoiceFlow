@@ -30,17 +30,15 @@ export function PricingSection() {
   return (
     <section
       id="fiyatlandirma"
-      className="section-padding bg-brand-navy relative overflow-hidden"
+      className="section-padding bg-ground relative overflow-hidden"
     >
-      <div className="absolute inset-0 bg-hero-gradient opacity-60" />
-      <div className="glow-orb w-[600px] h-[600px] bg-brand-blue/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute inset-0 dot-grid opacity-10" />
 
       <Container size="lg" className="relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
           <FadeUp>
-            <span className="section-label text-brand-blue">
+            <span className="section-label">
               Fiyatlandırma
             </span>
           </FadeUp>
@@ -48,7 +46,7 @@ export function PricingSection() {
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight mb-5">
               Siz kazanıyorsunuz,
               <br />
-              <span className="text-brand-blue-light">biz kazanıyoruz.</span>
+              <span className="text-signal-text">biz kazanıyoruz.</span>
             </h2>
           </FadeUp>
           <FadeUp delay={0.2}>
@@ -82,9 +80,9 @@ export function PricingSection() {
               ].map((item) => (
                 <div
                   key={item.step}
-                  className="flex gap-5 p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:border-brand-blue/30 transition-colors"
+                  className="flex gap-5 p-6 rounded-2xl bg-white/[0.04] border border-line hover:border-signal/30 transition-colors"
                 >
-                  <span className="text-xs font-bold text-brand-blue/50 font-mono mt-0.5 shrink-0 w-6">
+                  <span className="text-xs font-bold text-signal-text/50 font-mono mt-0.5 shrink-0 w-6">
                     {item.step}
                   </span>
                   <div>
@@ -98,8 +96,8 @@ export function PricingSection() {
 
           {/* Right: savings table */}
           <FadeUp delay={0.25}>
-            <div className="rounded-2xl bg-white/[0.05] border border-white/[0.10] overflow-hidden">
-              <div className="px-6 py-5 border-b border-white/[0.08]">
+            <div className="rounded-2xl bg-white/[0.05] border border-line overflow-hidden">
+              <div className="px-6 py-5 border-b border-line">
                 <p className="text-sm font-semibold text-white">
                   Ortalama Maliyet Karşılaştırması
                 </p>
@@ -107,34 +105,34 @@ export function PricingSection() {
               </div>
 
               {/* Table header */}
-              <div className="grid grid-cols-4 px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wide border-b border-white/[0.06]">
+              <div className="grid grid-cols-4 px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wide border-b border-line">
                 <span className="col-span-1">Kalem</span>
                 <span className="text-center">Öncesi</span>
-                <span className="text-center text-brand-blue-light">VoiceFlow ile</span>
-                <span className="text-right text-accent-green">Tasarruf</span>
+                <span className="text-center text-signal-text">VoiceFlow ile</span>
+                <span className="text-right text-positive">Tasarruf</span>
               </div>
 
               {SAVINGS_ROWS.map((row, i) => (
                 <div
                   key={row.label}
                   className={`grid grid-cols-4 px-6 py-4 text-sm items-center ${
-                    i !== SAVINGS_ROWS.length - 1 ? 'border-b border-white/[0.05]' : ''
+                    i !== SAVINGS_ROWS.length - 1 ? 'border-b border-line' : ''
                   }`}
                 >
-                  <span className="text-text-secondary col-span-1 text-xs">{row.label}</span>
+                  <span className="text-text-muted col-span-1 text-xs">{row.label}</span>
                   <span className="text-center text-text-muted line-through decoration-red-400/50 text-xs">
                     {row.before}
                   </span>
-                  <span className="text-center text-brand-blue-light font-medium text-xs">
+                  <span className="text-center text-signal-text font-medium text-xs">
                     {row.after}
                   </span>
-                  <span className="text-right text-accent-green font-semibold text-xs">
+                  <span className="text-right text-positive font-semibold text-xs">
                     {row.saving}
                   </span>
                 </div>
               ))}
 
-              <div className="px-6 py-5 bg-accent-green/5 border-t border-accent-green/15">
+              <div className="px-6 py-5 bg-positive/5 border-t border-positive/15">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-white">Yıllık tasarruf</p>
@@ -142,7 +140,7 @@ export function PricingSection() {
                   </div>
                   <div className="text-right">
                     <motion.p
-                      className="text-2xl font-bold text-accent-green"
+                      className="text-2xl font-bold text-positive"
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}

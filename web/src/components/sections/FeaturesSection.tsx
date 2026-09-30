@@ -44,17 +44,14 @@ const iconPaths: Record<string, React.ReactNode> = {
 
 export function FeaturesSection() {
   return (
-    <section className="section-padding bg-brand-navy relative overflow-hidden">
+    <section className="section-padding bg-ground relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-hero-gradient opacity-60" />
       <div className="absolute inset-0 dot-grid opacity-20" />
-      <div className="glow-orb w-[500px] h-[500px] bg-brand-blue-purple/8 top-[-200px] left-[-100px]" />
-      <div className="glow-orb w-[400px] h-[400px] bg-brand-blue/8 bottom-[-100px] right-[-100px]" />
 
       <Container className="relative z-10">
         <div className="text-center mb-16">
           <FadeUp>
-            <span className="section-label text-brand-blue">
+            <span className="section-label">
               Yetenekler
             </span>
           </FadeUp>
@@ -62,7 +59,7 @@ export function FeaturesSection() {
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
               Kurumsal standartlarda
               <br />
-              <span className="text-brand-blue-light">tüm özellikler dahil.</span>
+              <span className="text-signal-text">tüm özellikler dahil.</span>
             </h2>
           </FadeUp>
           <FadeUp delay={0.2}>
@@ -78,23 +75,23 @@ export function FeaturesSection() {
             <StaggerItem key={feature.title}>
               <div
                 className={cn(
-                  'relative rounded-card p-6 h-full flex flex-col transition-all duration-300 group cursor-default',
+                  'relative rounded-lg p-6 h-full flex flex-col transition-all duration-300 group cursor-default',
                   'bg-white/[0.05] border backdrop-blur-sm',
                   feature.highlight
-                    ? 'border-brand-blue/40 hover:border-brand-blue/60 hover:bg-white/[0.08]'
-                    : 'border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.07]'
+                    ? 'border-signal/40 hover:border-signal/60 hover:bg-white/[0.08]'
+                    : 'border-line hover:border-line hover:bg-white/[0.07]'
                 )}
               >
                 {feature.highlight && (
-                  <div className="absolute inset-0 rounded-card bg-gradient-to-br from-brand-blue/5 to-brand-blue-purple/5 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-signal/5 to-mode-office/5 pointer-events-none" />
                 )}
 
                 {/* Icon */}
                 <div
                   className={cn(
-                    'w-12 h-12 rounded-card-sm flex items-center justify-center mb-5 transition-colors',
+                    'w-12 h-12 rounded-md flex items-center justify-center mb-5 transition-colors',
                     feature.highlight
-                      ? 'bg-brand-blue/10 text-brand-blue-light'
+                      ? 'bg-signal/10 text-signal-text'
                       : 'bg-white/10 text-text-muted group-hover:text-white group-hover:bg-white/20'
                   )}
                 >
@@ -107,8 +104,8 @@ export function FeaturesSection() {
                 </p>
 
                 {feature.highlight && (
-                  <div className="mt-4 pt-4 border-t border-brand-blue/15">
-                    <span className="text-xs text-brand-blue-light font-medium">
+                  <div className="mt-4 pt-4 border-t border-signal/15">
+                    <span className="text-xs text-signal-text font-medium">
                       Kurumsal Tercih
                     </span>
                   </div>

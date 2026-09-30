@@ -23,11 +23,11 @@ const iconPaths: Record<string, React.ReactNode> = {
 
 export function HowItWorksSection() {
   return (
-    <section id="nasil-calisir" className="section-padding bg-ink-2">
+    <section id="nasil-calisir" className="section-padding bg-surface">
       <Container>
         <div className="text-center mb-16">
           <FadeUp>
-            <span className="section-label text-brand-blue">Nasıl Çalışır</span>
+            <span className="section-label">Nasıl Çalışır</span>
           </FadeUp>
           <FadeUp delay={0.1}>
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
@@ -43,7 +43,7 @@ export function HowItWorksSection() {
 
         <StaggerContainer className="relative">
           {/* Connector line */}
-          <div className="hidden lg:block absolute top-[30px] left-[calc(16.67%+3rem)] right-[calc(16.67%+3rem)] h-px bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent" />
+          <div className="hidden lg:block absolute top-[30px] left-[calc(16.67%+3rem)] right-[calc(16.67%+3rem)] h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
 
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             {HOW_IT_WORKS.map((step, index) => (
@@ -51,10 +51,10 @@ export function HowItWorksSection() {
                 <div className="relative flex flex-col items-center text-center lg:items-start lg:text-left">
                   {/* Step icon + number */}
                   <div className="relative mb-7">
-                    <div className="w-14 h-14 rounded-2xl bg-ink-3 border border-white/[0.09] flex items-center justify-center text-brand-blue-light">
+                    <div className="w-14 h-14 rounded-2xl bg-surface-raised border border-line flex items-center justify-center text-signal-text">
                       {iconPaths[step.icon]}
                     </div>
-                    <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-brand-blue text-white text-[10px] font-bold flex items-center justify-center font-mono">
+                    <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-signal text-white text-[10px] font-bold flex items-center justify-center font-mono">
                       {index + 1}
                     </span>
                   </div>
