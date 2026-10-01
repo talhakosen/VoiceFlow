@@ -71,6 +71,7 @@ DB_PATH:         Path      = _resolve_path(_get("backend", "db_path", "voiceflow
 LLM_BACKEND:     str       = _get("llm", "backend",          "mlx")
 LLM_ENDPOINT:    str       = _get("llm", "endpoint",         "")
 LLM_MODEL:       str       = _get("llm", "model",            "qwen2.5:7b")
+LLM_MLX_MODEL:   str       = _get("llm", "mlx_model",        "mlx-community/Qwen3-4B-Instruct-2507-4bit")
 LLM_ADAPTER_PATH: Path | None = _resolve_path(_get("llm", "adapter_path", ""))
 LLM_ADAPTER_VERSION: str      = _get("llm", "adapter_version", "")
 

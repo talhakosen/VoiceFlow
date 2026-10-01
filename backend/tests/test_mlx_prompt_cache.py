@@ -3,7 +3,7 @@
 The system prompt is a large constant prefix; we cache its KV once and only
 process the per-request user text on later calls. These tests verify that
 orchestration logic (split, build-once, trim-on-reuse, rebuild-on-change,
-fallback, unload) WITHOUT loading a real 7B model — all MLX calls are mocked.
+fallback, unload) WITHOUT loading a real model — all MLX calls are mocked.
 """
 
 import sys
@@ -131,3 +131,10 @@ class TestPromptCache:
         assert c._prompt_cache is None
         assert c._cache_prefix is None
         assert c._cache_prefix_len == 0
+
+
+class TestModelConfig:
+    def test_model_name_comes_from_config(self, monkeypatch):
+        # config.yaml → llm.mlx_model; resolved at construction, not import time
+        monkeypatch.setattr(mod._cfg, "LLM_MLX_MODEL", "org/some-model")
+        assert MLXCorrectorConfig().model_name == "org/some-model"

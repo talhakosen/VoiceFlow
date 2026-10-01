@@ -4,7 +4,15 @@ Aktif adapter → `config.yaml: llm.adapter_path`
 
 ---
 
-## v3.0 — 2026-04-04 ✅ AKTİF
+## Taban model değişti — 2026-10-01 ⚠️
+
+Local corrector `Qwen3-4B-Instruct-2507-4bit`'e geçti, **adapter'sız** (Qwen2.5-7B + v3.0'dan iyi
+çıktı). Aşağıdaki adapter'lar Qwen2.5-7B tabanlı, yeni modelle çalışmaz. Sonraki adapter
+Qwen3-4B üzerinde eğitilmeli. Bkz. `docs/ml/llm-model-degerlendirme.md`.
+
+---
+
+## v3.0 — 2026-04-04 (Qwen2.5-7B — artık aktif değil)
 
 **Dosya:** `adapters/v3.0/` | **HF:** `tkosen/voiceflow-qwen-adapter-v3`
 

@@ -20,7 +20,7 @@ These decisions are settled and correct:
 - **ChromaDB embedded** — no separate server, right call for single-company deployment
 - **SQLite over PostgreSQL** — correct until 10k+ concurrent users (we're not there)
 - **DMG over App Store** — sandbox incompatibility is real
-- **7B minimum LLM** — smaller models hallucinate on Turkish (tested)
+- **LLM: Qwen3-4B** — Qwen2.5 <7B hallucinated on Turkish; Qwen3-4B beats Qwen2.5-7B (tested, docs/ml/llm-model-degerlendirme.md)
 
 ## Katman 1 Scope Guard
 

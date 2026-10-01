@@ -48,7 +48,7 @@ _NON_LATIN_TR = re.compile(
 class MLXCorrectorConfig(BaseCorrectorConfig):
     """Configuration for the MLX (local, on-device) corrector."""
 
-    model_name: str = "mlx-community/Qwen2.5-7B-Instruct-4bit"
+    model_name: str = field(default_factory=lambda: _cfg.LLM_MLX_MODEL)
     adapter_path: str | None = field(
         default_factory=lambda: str(_cfg.LLM_ADAPTER_PATH) if _cfg.LLM_ADAPTER_PATH else None
     )  # LoRA adapter; None → full prompt fallback

@@ -12,7 +12,7 @@ Yeni bir Qwen LoRA adapter eğit. Mevcut versiyon: `ml/qwen/CHANGELOG.md`.
 6. **SECURE cloud** — RunPod Community'de Docker Hub timeout olur. Sadece SECURE cloud pod'u aç.
 7. **Val loss yetmez** — eğitim bitince mutlaka gerçek örneklerle test et (input passthrough kontrolü).
 8. **Dataset format**: Qwen chat template — `{"messages": [{"role": "user", ...}, {"role": "assistant", ...}]}`. `input`/`output` field'ı değil.
-9. **7B minimum** — 1.5B/3B Türkçe'de hallüsinasyon yapıyor.
+9. **Taban model Qwen3-4B-Instruct-2507** (2026-10-01) — v3.0 ve öncesi Qwen2.5-7B tabanlıydı, onlarla uyumsuz. Bkz. `docs/ml/llm-model-degerlendirme.md`.
 
 ---
 

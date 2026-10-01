@@ -102,7 +102,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 ## Key Config
 
 - Whisper (local): `mlx-community/whisper-small-mlx`
-- LLM (local): `mlx-community/Qwen2.5-7B-Instruct-4bit` (~4GB)
+- LLM (local): `mlx-community/Qwen3-4B-Instruct-2507-4bit` (~2.2GB, adapter'sız) — `config.yaml: llm.mlx_model`
 - Embeddings (RAG): `all-MiniLM-L6-v2` (CPU, ~22MB, lazy loaded)
 - Python venv: `backend/.venv` (python3.14)
 - MLX executor: `ThreadPoolExecutor(max_workers=1)` in RecordingService — Metal GPU not thread-safe
@@ -114,10 +114,10 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **After ANY Swift build**: Accessibility izni sıfırlanır → System Settings → Privacy → Accessibility → VoiceFlow'u etkinleştir. Auto-paste sessizce çalışmaz.
 - **Fn key**: Release eventi güvenilmez — double-tap toggle + Force Stop yedek. Asla sadece key-up'a güvenme.
 - **Sessiz kayıt (rms=0.0000)**: İki sebebi var, ikisi de hata vermeden boş ses döndürür — (1) macOS mikrofon izni yok (her rebuild imzayı değiştirdiği için sıfırlanır; `AppDelegate.requestMicrophonePermission()` artık açıkça istiyor, `tccutil reset Microphone com.voiceflow.app` ile sıfırlanır), (2) Bluetooth kulaklık susturulmuş/uykuda (Jabra Evolve2 boom kolu). Backend artık sebebi `notice` alanıyla UI'a söylüyor ve her kayıtta cihaz adını logluyor. Çözüm: Ayarlar > Kayıt > Mikrofon'dan cihazı sabitle — İSİMLE saklanır (index'ler cihaz takıldıkça kayıyor) ve backend her restart'ta ayarı unuttuğu için AppDelegate tekrar gönderir.
-- **7B minimum**: 1.5B/3B Türkçe'de hallüsinasyon yapıyor (doğrulandı). 7B altına inme.
+- **LLM seçimi (2026-10-01)**: Qwen3-4B, Qwen2.5-7B+v3 adapter'dan iyi (WER 0.32 vs 0.40, 1.7x hızlı, yarı bellek). "7B minimum" kuralı Qwen2.5 içindi. Kumru-2B, Ministral-8B, Qwen3-8B elendi. Detay: `docs/ml/llm-model-degerlendirme.md`.
 - **Whisper fine-tune**: Correction için Whisper frozen + Qwen adapter (hâlâ geçerli). Engineering mode için Whisper'ı da fine-tune ediyoruz: ISSAI 164K pair → voiceflow-whisper-tr → IT kayıtlar → voiceflow-whisper-it. Detay: `docs/ml/two-adapter-architecture.md`.
 - **faster-whisper**: numpy array değil BytesIO alır → `soundfile.write(buf, audio, sr, format="WAV")`.
-- **MLX LLM on-demand**: Correction açılınca yükle, kapanınca unload (~4GB boşalt).
+- **MLX LLM on-demand**: Correction açılınca yükle, kapanınca unload (~2.5GB boşalt).
 - **Sözlük cache'i**: `get_dictionary(include_smart=True)` 78K kayıt döndürüyor ve her diktede okunuyordu (285ms — metin aşamasının tamamı). `dictionary_storage` içinde süreç-içi cache var; sözlüğü değiştiren HER fonksiyon `invalidate_dictionary_cache()` çağırmalı (test bunu zorluyor). Dönen liste PAYLAŞILIR, kopyalama — 78K kaydı kopyalamak cache'i anlamsız kılar. Aho-Corasick automaton'ı `dictionary_version()`'a bağlı (eskiden kayıt sayısına bakıyordu → sayı sabit kalıp içerik değişince bayat kalıyordu). Startup'ta bundle auto-load'dan SONRA ısıtılır. Sonuç: metin aşaması 313ms → ~3ms.
 - **Dinamik Whisper penceresi**: Whisper girdiyi hep 30sn'ye pad'ler → 4sn dikte de 30sn'lik hesabı öder. `transcription/dynamic_window.py` pencereyi `ceil(süre)+3sn`'ye kısaltır (min 6, max 30) → M4'te **~3x** (1.5sn ses: 1908→389ms). İki zorunlu koruma: `without_timestamps=True` (yoksa seek döngüsü SONSUZA kilitleniyor, >3.5dk ölçüldü) + 2sn'den az marjda cümle tekrarı → `has_repeated_span()` yakalarsa 30sn ile retry. Kapatmak için `config.yaml → whisper.dynamic_window: false`.
 - **CoreML/WhisperKit ELENDİ (2026-09-30, ölçüldü)**: Kısa diktede 2.5x yavaş (3.2sn ses: MLX 311ms, WhisperKit 765ms), aynı boyut (1.5 GB), ilk yükleme 933 sn. Sebep: dinamik pencere taşınamıyor — CoreML'de girdi şekli derleme anında sabitlenir, dönüştürücüde encoder penceresi seçeneği yok. Fine-tune'umuz CoreML'e sorunsuz geçiyor ve Türkçe doğruluğu koruyor (iOS'a geçilirse yol açık). Argmax'ın PSNR testi bizim checkpoint'te deterministik DEĞİL (9.3–138 arası savruluyor), ona bakarak karar verme. Detay + tekrar denemek için: `docs/ml/coreml-whisperkit-degerlendirme.md`.
@@ -140,7 +140,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **ISSAI/Whisper paralel shard**: Kısa ses dosyalarında `BatchedInferencePipeline` yavaş (7K/saat). 3 paralel process = %99 GPU, ~9 saat (tek process 26 saat). `large-v3 float16` = 3.5GB → 3 instance = 10.5GB, RTX 4090'a rahat sığar. `SHARD_INDEX=N SHARD_TOTAL=3 python process_issai.py`. Detay: `docs/ml/runpod-finetuning.md`.
 - **RunPod Pod ID**: `.env`'deki `RUNPOD_VOICEFLOW_POD_ID` ve `RUNPOD_OLLAMA_URL` pod değişince güncelle.
 - **Config ayrımı**: `config.yaml` (non-secret: DB_PATH, LLM_ADAPTER_PATH, BACKEND_MODE, WHISPER_MODEL vb.) + `.env` (sadece secrets: API key'ler, token'lar). `backend/.env` oluşturma — tüm config root'ta.
-- **LoRA adapter (fine-tuned)**: `ml/qwen/adapters/v3.0` (aktif — `config.yaml: llm.adapter_path`). Sürüm geçmişi: `ml/qwen/CHANGELOG.md`. HF PEFT → MLX dönüşüm scripti: `ml/qwen/scripts/convert_adapter.py`.
+- **LoRA adapter (fine-tuned)**: şu an KAPALI — v3.0 Qwen2.5-7B içindi, Qwen3-4B'de çalışmaz. Yeni adapter Qwen3-4B tabanlı eğitilmeli (dolgu temizliği zayıf). `config.yaml: llm.adapter_path`. Sürüm geçmişi: `ml/qwen/CHANGELOG.md`. HF PEFT → MLX dönüşüm scripti: `ml/qwen/scripts/convert_adapter.py`.
 - **ML scripts**: `ml/qwen/` (scripts/, generators/, data/, datasets/, adapters/) + `ml/whisper/` (scripts/, datasets/issai/, datasets/it_dataset/, models/).
 - **Whisper fine-tune (ISSAI)**: `ml/whisper/scripts/train_stage1.py` — whisper-large-v3-turbo, ISSAI 164K pair, H100, çıktı `tkosen/voiceflow-whisper-tr` (HF). Stage 1 TAMAMLANDI.
 - **Whisper Stage 2 TAMAMLANDI**: `tkosen/voiceflow-whisper-tr-v2` (HF, PyTorch kaynak) → `ml/whisper/models/v2.0/` (MLX, aktif — `config.yaml: whisper.model`). Dönüşüm: `ml/whisper/scripts/convert_whisper_mlx.py`. Eğitim: `ml/whisper/scripts/train_stage2.py`, 10644 step, 2 epoch, H100. Sürüm geçmişi: `ml/whisper/CHANGELOG.md`.

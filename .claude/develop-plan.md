@@ -463,7 +463,7 @@ IT terimi yoğun içerik seçmek kritik — genel Türkçe bölümler değersiz.
 - **MLX (Mac) + NVIDIA (server):** İki farklı inference engine, env ile seçilir
 - **Smart Dictionary:** ChromaDB kaldırıldı; Bilgi Tabanı = kod tabanı identifier tarama → `user_dictionary` tablosuna fonetik varyantlar
 - **Mac App Store değil, DMG:** Sandbox global hotkey + paste'i kısıtlar
-- **7B minimum LLM:** 1.5B ve 3B Türkçe'de hallüsinasyon yapıyor (doğrulandı)
+- **LLM:** Qwen3-4B (2026-10-01) — Qwen2.5 1.5B/3B hallüsinasyon yapıyordu; Qwen3-4B, Qwen2.5-7B+adapter'dan iyi
 - **faster-whisper input:** numpy array değil BytesIO — soundfile ile dönüştür
 - **Ollama keep_alive=-1:** Model GPU'da sürekli yüklü, cold start yok
 
