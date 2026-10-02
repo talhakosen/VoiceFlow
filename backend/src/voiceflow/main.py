@@ -81,7 +81,9 @@ async def _purge_tokens_loop() -> None:
 async def _autoload_bundle() -> None:
     """Load IT bundle into DB on startup if DB count differs from file (covers first run + updates)."""
     import json, pathlib
-    from .db.dictionary_storage import count_bundle_entries, load_bundle_entries
+    from .db.dictionary_storage import (
+        count_bundle_entries, load_bundle_entries, usable_bundle_entries,
+    )
 
     bundle_path = pathlib.Path(__file__).parent.parent.parent.parent / "ml" / "dictionary" / "it_bundle_full.json"
     if not bundle_path.exists():
@@ -95,6 +97,9 @@ async def _autoload_bundle() -> None:
         logger.warning("IT bundle read failed: %s", exc)
         return
 
+    # Compare against what would actually be stored — Turkish-word triggers are
+    # filtered out, so the raw file length would trigger a reload every startup.
+    entries = usable_bundle_entries(entries)
     db_count = await count_bundle_entries("default")
     if db_count == len(entries):
         logger.info("IT bundle up-to-date (%d entries) — skipping", db_count)
@@ -111,9 +116,12 @@ async def _warm_dictionary() -> None:
     kılınıyor ve daha erken yapılan ısınma boşa giderdi.
     """
     from .db import last_active_user_id, warm_dictionary_cache
+    from .db.dictionary_storage import purge_turkish_word_entries
 
     try:
         await _autoload_bundle()
+        # Smart rows written before the Turkish-word guard existed
+        await purge_turkish_word_entries()
         user_id = await last_active_user_id()
         if user_id:
             await warm_dictionary_cache(user_id)

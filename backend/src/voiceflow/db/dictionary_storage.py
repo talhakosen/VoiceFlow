@@ -3,6 +3,7 @@
 import logging
 
 from ._base import aiosqlite, DB_PATH
+from ..core.turkish_words import without_turkish_triggers
 
 logger = logging.getLogger(__name__)
 
@@ -196,8 +197,15 @@ async def delete_snippets_by_scope(scope: str, user_id: str, tenant_id: str = "d
 # Bundle dictionary
 # ------------------------------------------------------------------
 
+def usable_bundle_entries(entries: list[dict]) -> list[dict]:
+    """Bundle entries minus those that would rewrite a real Turkish word."""
+    keep = set(without_turkish_triggers([(e["trigger"], e["replacement"]) for e in entries]))
+    return [e for e in entries if (e["trigger"], e["replacement"]) in keep]
+
+
 async def load_bundle_entries(tenant_id: str, entries: list[dict]) -> int:
     """Replace bundle-scope dictionary entries for a tenant. Returns count inserted."""
+    entries = usable_bundle_entries(entries)
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "DELETE FROM user_dictionary WHERE tenant_id = ? AND scope = 'bundle'", (tenant_id,)
@@ -296,7 +304,7 @@ async def bulk_add_smart_entries(
     existing = await get_dictionary_triggers(user_id)
     to_insert = [
         (tenant_id, user_id, trigger, replacement, "smart")
-        for trigger, replacement in pairs
+        for trigger, replacement in without_turkish_triggers(pairs)
         if trigger and replacement and trigger not in existing
     ]
     if not to_insert:
@@ -309,3 +317,27 @@ async def bulk_add_smart_entries(
         await db.commit()
     invalidate_dictionary_cache()
     return len(to_insert)
+
+
+async def purge_turkish_word_entries() -> int:
+    """Delete existing bundle/smart entries that rewrite real Turkish words.
+
+    Idempotent — run at startup to clean rows written before the guard existed.
+    Manual (personal/team) entries are never touched. Returns rows removed.
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute(
+            "SELECT id, trigger, replacement FROM user_dictionary WHERE scope IN ('bundle', 'smart')"
+        ) as cursor:
+            rows = await cursor.fetchall()
+        bad = [
+            (row_id,) for row_id, trigger, replacement in rows
+            if not without_turkish_triggers([(trigger, replacement)])
+        ]
+        if not bad:
+            return 0
+        await db.executemany("DELETE FROM user_dictionary WHERE id = ?", bad)
+        await db.commit()
+    invalidate_dictionary_cache()
+    logger.info("Purged %d dictionary entries that rewrote Turkish words", len(bad))
+    return len(bad)
