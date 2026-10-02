@@ -9,7 +9,7 @@ Tests the apply_dictionary function with:
 """
 
 import pytest
-from voiceflow.services.dictionary import apply_dictionary
+from voiceflow.services.dictionary import _apply_aho_corasick, _build_automaton, apply_dictionary
 
 
 # ---------------------------------------------------------------------------
@@ -116,3 +116,33 @@ def test_empty_replacement_skipped():
 def test_apply_dictionary_empty_text():
     entries = [entry("test", "TEST")]
     assert apply_dictionary("", entries) == ""
+
+
+class TestTurkishDottedCapitalI:
+    """Regresyon: "İ".lower() iki karakter ("i" + birleşik nokta) → küçük harfli
+    metin uzuyor, eşleşme konumları orijinal metne kayık uygulanıyordu:
+    "İstanbul ekibi komit attı" → "İstanbul ekibi kcommitattı". 70 dikte etkilendi.
+    """
+
+    @pytest.fixture
+    def automaton(self):
+        pytest.importorskip("ahocorasick")
+        return _build_automaton([{"trigger": "komit", "replacement": "commit"}])
+
+    @pytest.mark.parametrize("text, expected", [
+        ("İstanbul ekibi komit attı", "İstanbul ekibi commit attı"),
+        ("İki İnsan komit attı", "İki İnsan commit attı"),
+        ("komit İzmir", "commit İzmir"),
+    ])
+    def test_offsets_survive_dotted_i(self, automaton, text, expected):
+        assert _apply_aho_corasick(text, automaton) == expected
+
+    def test_recorded_original_token_is_exact(self, automaton):
+        subs = {}
+        _apply_aho_corasick("İstanbul ekibi komit attı", automaton, subs)
+        assert subs == {"komit": "commit"}
+
+    def test_trigger_with_dotted_i_matches(self):
+        pytest.importorskip("ahocorasick")
+        a = _build_automaton([{"trigger": "İnstagram", "replacement": "Instagram"}])
+        assert _apply_aho_corasick("İnstagram hesabı", a) == "Instagram hesabı"

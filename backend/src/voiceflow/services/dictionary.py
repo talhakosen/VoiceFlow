@@ -20,6 +20,16 @@ except ImportError:
     _HAS_AC = False
 
 
+def _fold(text: str) -> str:
+    """Lowercase WITHOUT changing length — match offsets must map 1:1 to the text.
+
+    "İ".lower() is two characters ("i" + combining dot), so plain str.lower()
+    shifted every match after an "İ": "İstanbul ekibi komit attı" became
+    "İstanbul ekibi kcommitattı".
+    """
+    return text.replace("İ", "i").lower()  # U+0130: the only char whose lower() expands
+
+
 def _build_automaton(entries: list[dict]):
     """Build Aho-Corasick automaton from dictionary entries.
 
@@ -30,7 +40,7 @@ def _build_automaton(entries: list[dict]):
     A = ahocorasick.Automaton()
     added = 0
     for entry in entries:
-        trigger = entry.get("trigger", "").strip().lower()
+        trigger = _fold(entry.get("trigger", "").strip())
         replacement = entry.get("replacement", "").strip()
         if not trigger or not replacement:
             continue
@@ -58,7 +68,7 @@ def _apply_aho_corasick(text: str, automaton, subs: dict[str, str] | None = None
     If `subs` dict is provided, matched substitutions are recorded into it
     as {original_token: replacement}.
     """
-    lower_text = text.lower()
+    lower_text = _fold(text)
     matches = []  # (start, end_inclusive, replacement)
 
     for end_idx, (tlen, replacement) in automaton.iter(lower_text):
