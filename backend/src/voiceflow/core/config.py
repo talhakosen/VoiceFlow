@@ -85,6 +85,9 @@ WHISPER_BACKEND:     str  = _get("whisper", "backend",      "")  # "" | "runpod"
 # Sorun çıkarsa kapat: config.yaml → whisper.dynamic_window: false
 WHISPER_DYNAMIC_WINDOW: bool = _get("whisper", "dynamic_window", "true").strip().lower() \
                                not in ("false", "0", "no", "off")
+# Uzun sesi sessizlikten bu uzunlukta parçalara böl (sn). Fine-tune model uzun
+# seste parça atlıyor; 0 = kapalı. Bkz. transcription/chunking.py
+WHISPER_CHUNK_MAX_S: float = float(_get("whisper", "chunk_max_s", "0") or 0)
 
 # IT-specific fine-tuned model for engineering mode (empty = use base model)
 _whisper_it_raw = _get("whisper", "it_model", "")

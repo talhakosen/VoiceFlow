@@ -6,7 +6,9 @@ from ..core.config import (
     WHISPER_MODEL as _WHISPER_MODEL,
     WHISPER_IT_MODEL as _WHISPER_IT_MODEL,
     WHISPER_DYNAMIC_WINDOW as _WHISPER_DYNAMIC_WINDOW,
+    WHISPER_CHUNK_MAX_S as _WHISPER_CHUNK_MAX_S,
 )
+from .chunking import split_on_silence
 from .dynamic_window import compute_window, encoder_window, has_repeated_span, FULL_WINDOW_S
 from typing import Any
 
@@ -90,6 +92,7 @@ class WhisperConfig:
     task: str = "transcribe"  # "transcribe" = same language, "translate" = to English
     it_model_name: str | None = field(default_factory=lambda: _WHISPER_IT_MODEL or None)
     dynamic_window: bool = field(default_factory=lambda: _WHISPER_DYNAMIC_WINDOW)
+    chunk_max_s: float = field(default_factory=lambda: _WHISPER_CHUNK_MAX_S)  # 0 = bölme yok
 
 
 @dataclass
@@ -197,6 +200,23 @@ class WhisperTranscriber:
             options["language"] = self.config.language
 
         duration = len(audio) / sample_rate
+        if self.config.chunk_max_s and duration > self.config.chunk_max_s:
+            spans = split_on_silence(audio, sample_rate, self.config.chunk_max_s)
+            parts = [self._transcribe_one(mlx_whisper, audio[s:e], dict(options), model_path, sample_rate)
+                     for s, e in spans]
+            logger.info("Chunked %.1fs audio into %d parts", duration, len(spans))
+            return TranscriptionResult(
+                text=" ".join(t for t, _ in parts if t),
+                language=next((lang for _, lang in parts if lang), None),
+                duration=duration,
+            )
+
+        text, language = self._transcribe_one(mlx_whisper, audio, options, model_path, sample_rate)
+        return TranscriptionResult(text=text, language=language, duration=duration)
+
+    def _transcribe_one(self, mlx_whisper, audio, options: dict, model_path: str, sample_rate: int) -> tuple[str, str | None]:
+        """Tek parça: pencere seç, çöz, tekrar varsa tam pencereyle yeniden dene, temizle."""
+        duration = len(audio) / sample_rate
         window = compute_window(duration) if self.config.dynamic_window else FULL_WINDOW_S
 
         if window < FULL_WINDOW_S:
@@ -219,11 +239,7 @@ class WhisperTranscriber:
             raw_text = result.get("text", "").strip()
 
         text = _strip_hallucination_phrases(_strip_hallucination_loop(raw_text))
-        return TranscriptionResult(
-            text=text,
-            language=result.get("language"),
-            duration=duration,
-        )
+        return text, result.get("language")
 
     def _run(self, mlx_whisper, audio, options: dict, model_path: str, window: int) -> dict:
         """Tek transkripsiyon çağrısı — verilen encoder penceresiyle."""
