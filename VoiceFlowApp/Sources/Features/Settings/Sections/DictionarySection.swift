@@ -11,14 +11,31 @@ struct DictionarySection: View {
     @State private var newTrigger = ""
     @State private var newReplacement = ""
 
-    private var personalEntries: [DictionaryEntry] {
-        store.dictionaryEntries.filter { $0.scope == "personal" }
+    private enum Tab: Int { case personal, team, learned }
+    private var tab: Tab { Tab(rawValue: selectedTab) ?? .personal }
+
+    private var entries: [DictionaryEntry] {
+        switch tab {
+        case .personal: store.personalEntries
+        case .team: store.teamEntries
+        case .learned: store.learnedEntries
+        }
     }
-    private var teamEntries: [DictionaryEntry] {
-        store.dictionaryEntries.filter { $0.scope == "team" }
+
+    private var listTitle: String {
+        switch tab {
+        case .personal: "Kişisel Kurallar"
+        case .team: "Takım Kuralları"
+        case .learned: "VoiceFlow'un Öğrendikleri"
+        }
     }
-    private func isSharedWithTeam(_ entry: DictionaryEntry) -> Bool {
-        teamEntries.contains { $0.trigger == entry.trigger && $0.replacement == entry.replacement }
+
+    private var emptyText: String {
+        switch tab {
+        case .personal: "Henüz kişisel kural yok."
+        case .team: "Takım kuralı yok. Kişisel kurallarını takıma ekleyebilirsin."
+        case .learned: "Henüz öğrenilen kelime yok. Menüden \"Öğrendiklerini Güncelle\" ile son diktelerinden öğrenir."
+        }
     }
 
     var body: some View {
@@ -37,19 +54,17 @@ struct DictionarySection: View {
 
             // Tab seçici
             Picker("", selection: $selectedTab) {
-                Text("Kişisel (\(personalEntries.count))").tag(0)
-                Text("Takım (\(teamEntries.count))").tag(1)
+                Text("Kişisel (\(store.personalEntries.count))").tag(Tab.personal.rawValue)
+                Text("Takım (\(store.teamEntries.count))").tag(Tab.team.rawValue)
+                Text("Öğrenilen (\(store.learnedEntries.count))").tag(Tab.learned.rawValue)
             }
             .pickerStyle(.segmented)
-            .frame(width: 260, alignment: .leading)
+            .frame(width: 380, alignment: .leading)
 
             // Liste
-            SettingsCardSection(title: selectedTab == 0 ? "Kişisel Kurallar" : "Takım Kuralları") {
-                let entries = selectedTab == 0 ? personalEntries : teamEntries
+            SettingsCardSection(title: listTitle) {
                 if entries.isEmpty {
-                    Text(selectedTab == 0
-                         ? "Henüz kişisel kural yok."
-                         : "Takım kuralı yok. Kişisel kurallarını takıma ekleyebilirsin.")
+                    Text(emptyText)
                         .foregroundStyle(.secondary)
                         .font(.system(size: 13))
                         .padding(.horizontal, 16)
@@ -58,10 +73,10 @@ struct DictionarySection: View {
                     ForEach(Array(entries.enumerated()), id: \.element.id) { idx, entry in
                         DictionaryRow(
                             entry: entry,
-                            alreadyShared: selectedTab == 0 ? isSharedWithTeam(entry) : false,
+                            alreadyShared: tab == .personal ? store.state.isSharedWithTeam(entry) : false,
                             isLast: idx == entries.count - 1,
                             onDelete: { store.send(.deleteDictionaryEntry(entry.id)) },
-                            onShareToTeam: selectedTab == 0 ? {
+                            onShareToTeam: tab == .personal ? {
                                 store.send(.addDictionaryEntry(
                                     trigger: entry.trigger,
                                     replacement: entry.replacement,
@@ -73,32 +88,36 @@ struct DictionarySection: View {
                 }
             }
 
-            // Kural Ekle
-            SettingsCardSection(title: selectedTab == 0 ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle") {
-                HStack(spacing: VFSpacing.md) {
-                    TextField("kelime (örn: voisflow)", text: $newTrigger)
-                        .textFieldStyle(.roundedBorder)
-                    Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
-                    TextField("doğru yazım (örn: VoiceFlow)", text: $newReplacement)
-                        .textFieldStyle(.roundedBorder)
-                    Button("Ekle") {
-                        guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
-                        store.send(.addDictionaryEntry(
-                            trigger: newTrigger,
-                            replacement: newReplacement,
-                            scope: selectedTab == 0 ? "personal" : "team"
-                        ))
-                        newTrigger = ""
-                        newReplacement = ""
+            if tab == .learned {
+                InfoNote(icon: "info.circle", text: "Yanlış öğrenilmiş bir kelimeyi silersen VoiceFlow onu bir daha öğrenmez.", color: .secondary)
+            } else {
+                // Kural Ekle
+                SettingsCardSection(title: tab == .personal ? "Kişisel Kural Ekle" : "Takım Kuralı Ekle") {
+                    HStack(spacing: VFSpacing.md) {
+                        TextField("kelime (örn: voisflow)", text: $newTrigger)
+                            .textFieldStyle(.roundedBorder)
+                        Image(systemName: VFIcon.arrow).foregroundStyle(.secondary)
+                        TextField("doğru yazım (örn: VoiceFlow)", text: $newReplacement)
+                            .textFieldStyle(.roundedBorder)
+                        Button("Ekle") {
+                            guard !newTrigger.isEmpty, !newReplacement.isEmpty else { return }
+                            store.send(.addDictionaryEntry(
+                                trigger: newTrigger,
+                                replacement: newReplacement,
+                                scope: tab == .personal ? "personal" : "team"
+                            ))
+                            newTrigger = ""
+                            newReplacement = ""
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(newTrigger.isEmpty || newReplacement.isEmpty)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-            }
 
-            InfoNote(icon: "info.circle", text: "Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.", color: .secondary)
+                InfoNote(icon: "info.circle", text: "Whisper sonrası, düzeltme öncesi uygulanır. Büyük/küçük harf duyarsız, kelime sınırı korunur.", color: .secondary)
+            }
 
             Spacer()
         }

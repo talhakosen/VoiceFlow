@@ -14,6 +14,16 @@ struct SettingsFeature {
         var userName: String = ""
         var userDepartment: String = ""
         var userID: String = ""
+
+        // Sözlük sekmeleri — backend scope'una göre
+        var personalEntries: [DictionaryEntry] { dictionaryEntries.filter { $0.scope == "personal" } }
+        var teamEntries: [DictionaryEntry] { dictionaryEntries.filter { $0.scope == "team" } }
+        /// VoiceFlow'un diktelerden öğrendikleri — kullanıcı yanlış olanı silebilsin diye görünür
+        var learnedEntries: [DictionaryEntry] { dictionaryEntries.filter { $0.scope == "learned" } }
+
+        func isSharedWithTeam(_ entry: DictionaryEntry) -> Bool {
+            teamEntries.contains { $0.trigger == entry.trigger && $0.replacement == entry.replacement }
+        }
     }
 
     enum Action {

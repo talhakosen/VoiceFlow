@@ -102,8 +102,9 @@ class TestLearnFromHistory:
         async def fake_get_history(limit, user_id, tenant_id):
             return rows
 
-        async def fake_bulk_add(user_id, tenant_id, pairs):
+        async def fake_bulk_add(user_id, tenant_id, pairs, scope="smart"):
             captured["pairs"] = pairs
+            captured["scope"] = scope
             return len(pairs)
 
         monkeypatch.setattr(dl, "get_history", fake_get_history)
@@ -118,6 +119,8 @@ class TestLearnFromHistory:
         assert added == 2
         assert ("diploy", "deploy") in captured["pairs"]
         assert ("komut", "commit") in captured["pairs"]
+        # öğrenilenler ayrı scope'ta — kullanıcı Ayarlar'da görüp silebilsin
+        assert captured["scope"] == "learned"
 
     def test_noop_without_complete(self, monkeypatch):
         called = {"hist": False}

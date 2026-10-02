@@ -49,7 +49,7 @@ def invalidate_dictionary_cache() -> None:
 async def get_dictionary(user_id: str, tenant_id: str = "default", include_smart: bool = False) -> list[dict]:
     """Return dictionary entries for user.
 
-    include_smart=False (default): only manual entries (personal/team) — for UI display.
+    include_smart=False (default): manual entries (personal/team) + learned — for UI display.
     include_smart=True: all entries including auto-generated smart dict — for pipeline use.
 
     Sonuç cache'lenir. Dönen liste PAYLAŞILIR — çağıran tarafta değiştirme;
@@ -62,12 +62,15 @@ async def get_dictionary(user_id: str, tenant_id: str = "default", include_smart
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         if include_smart:
+            # 'rejected' = kullanıcının sildiği öğrenilmiş kayıt; yalnızca yeniden
+            # öğrenilmesin diye tutuluyor, uygulanmaz
             query = """SELECT * FROM user_dictionary
                        WHERE tenant_id = ? AND (scope IN ('team', 'bundle') OR user_id = ?)
+                         AND scope != 'rejected'
                        ORDER BY length(trigger) DESC, trigger"""
         else:
             query = """SELECT * FROM user_dictionary
-                       WHERE tenant_id = ? AND (scope = 'team' OR (user_id = ? AND scope = 'personal'))
+                       WHERE tenant_id = ? AND (scope = 'team' OR (user_id = ? AND scope IN ('personal', 'learned')))
                        ORDER BY scope, trigger"""
         async with db.execute(query, (tenant_id, user_id)) as cursor:
             rows = await cursor.fetchall()
@@ -128,12 +131,22 @@ async def add_dictionary_entry(
 
 
 async def delete_dictionary_entry(entry_id: int, user_id: str, tenant_id: str = "default") -> bool:
-    """Delete an entry. Users can only delete their own personal entries."""
+    """Remove the user's own entry.
+
+    personal → deleted. learned → marked 'rejected': no longer applied, but the
+    trigger is remembered so learning never adds the same mistake again.
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
             "DELETE FROM user_dictionary WHERE id = ? AND user_id = ? AND tenant_id = ? AND scope = 'personal'",
             (entry_id, user_id, tenant_id),
         )
+        if cursor.rowcount == 0:
+            cursor = await db.execute(
+                "UPDATE user_dictionary SET scope = 'rejected' "
+                "WHERE id = ? AND user_id = ? AND tenant_id = ? AND scope = 'learned'",
+                (entry_id, user_id, tenant_id),
+            )
         await db.commit()
     invalidate_dictionary_cache()
     return cursor.rowcount > 0
@@ -298,12 +311,16 @@ async def get_dictionary_triggers(user_id: str) -> set[str]:
 
 
 async def bulk_add_smart_entries(
-    user_id: str, tenant_id: str, pairs: list[tuple[str, str]]
+    user_id: str, tenant_id: str, pairs: list[tuple[str, str]], scope: str = "smart"
 ) -> int:
-    """Insert (trigger, replacement) pairs with scope=smart. Skips existing triggers. Returns added count."""
+    """Insert auto-generated (trigger, replacement) pairs. Returns added count.
+
+    scope: "smart" (code indexing) or "learned" (dictation learning — shown in
+    the UI). Skips triggers the user already has, including rejected ones.
+    """
     existing = await get_dictionary_triggers(user_id)
     to_insert = [
-        (tenant_id, user_id, trigger, replacement, "smart")
+        (tenant_id, user_id, trigger, replacement, scope)
         for trigger, replacement in without_turkish_triggers(pairs)
         if trigger and replacement and trigger not in existing
     ]
@@ -327,7 +344,7 @@ async def purge_turkish_word_entries() -> int:
     """
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute(
-            "SELECT id, trigger, replacement FROM user_dictionary WHERE scope IN ('bundle', 'smart')"
+            "SELECT id, trigger, replacement FROM user_dictionary WHERE scope IN ('bundle', 'smart', 'learned')"
         ) as cursor:
             rows = await cursor.fetchall()
         bad = [

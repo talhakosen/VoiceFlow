@@ -138,7 +138,7 @@ async def learn_from_history(
     if not pairs:
         return 0
 
-    added = await bulk_add_smart_entries(user_id, tenant_id, pairs)
+    added = await bulk_add_smart_entries(user_id, tenant_id, pairs, scope="learned")
     if added:
         logger.info("Dictionary learning added %d entries: %s", added, pairs)
     return added
