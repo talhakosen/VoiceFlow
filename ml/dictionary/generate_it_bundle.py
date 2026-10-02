@@ -1900,7 +1900,84 @@ BASE_TERMS = [
     ("observabl", "observable"),
     ("rxceyis", "RxJS"),
     ("rxjs", "RxJS"),
+
+    # ── Whisper'ın GÖZLENEN yazımları (2026-10-02) ───────────────────────────
+    # Kaynak: 2032 dikte geçmişi + 121 etiketli eval. Elle tahmin değil —
+    # Whisper bunları gerçekten böyle yazdı.
+    ("apı", "API"),
+    ("bekent", "backend"),
+    ("bekend", "backend"),
+    ("superbase", "Supabase"),
+    ("kontant", "content"),
+    ("çalınç", "challenge"),
+    ("versel", "Vercel"),
+    ("linkedın", "LinkedIn"),
+    ("kvin", "Qwen"),
+    ("tivilyo", "Twilio"),
+    ("diplo", "deploy"),
+    ("vispar", "Whisper"),
+    ("visspar", "Whisper"),
+
+    # ── Eksik yaygın geliştirici terimleri (2026-10-02) ──────────────────────
+    ("eypiay", "API"),
+    ("ey pi ay", "API"),
+    ("diploy", "deploy"),
+    ("diploi", "deploy"),
+    ("bilt", "build"),
+    ("instol", "install"),
+    ("enstol", "install"),
+    ("apdeyt", "update"),
+    ("abdeyt", "update"),
+    ("ristart", "restart"),
+    ("pablış", "publish"),
+    ("rivört", "revert"),
+    ("rivert", "revert"),
+    ("riset", "reset"),
+    ("çekaut", "checkout"),
+    ("veyv", "WAV"),
+    ("gramır", "grammar"),
+    ("gremır", "grammar"),
+    ("çelınç", "challenge"),
+    ("çelenç", "challenge"),
+    ("onbording", "onboarding"),
+    ("anbording", "onboarding"),
+    ("slek", "Slack"),
+    ("postmen", "Postman"),
+    ("posgres", "Postgres"),
+    ("netlifay", "Netlify"),
+    ("hiroku", "Heroku"),
+    ("klaudfler", "Cloudflare"),
+    ("klaudfleyr", "Cloudflare"),
+    ("opın ey ay", "OpenAI"),
+    ("antropik", "Anthropic"),
+    ("entropik", "Anthropic"),
+    ("cemini", "Gemini"),
+    ("cemınay", "Gemini"),
+    ("vispır", "Whisper"),
+    ("em si pi", "MCP"),
+    ("eycınt", "agent"),
+    ("eyçınt", "agent"),
+    ("fayntün", "fine-tune"),
+    ("faynt tün", "fine-tune"),
+    ("emvipi", "MVP"),
+    ("isyu", "issue"),
+    ("işyu", "issue"),
+    ("supabeys", "Supabase"),
 ]
+
+# Türkçe'de "X et" diye fiil olarak kullanılan terimler. Whisper "commit et"i
+# tek kelime yazıyor ("komited") — birleşik biçimler bunlar için üretilir.
+VERB_TERMS = {
+    "commit", "push", "pull", "merge", "deploy", "build", "rebase", "debug",
+    "install", "update", "restart", "release", "review", "fetch", "refactor",
+    "revert", "reset", "publish", "checkout",
+}
+_MERGED_VERB_SUFFIXES = ("et", "ed")
+
+
+def _i_variants(text: str) -> set[str]:
+    """Whisper ı/i'yi sürekli karıştırıyor ("kvın" ↔ "kvin") — iki yönü de üret."""
+    return {text, text.replace("ı", "i"), text.replace("i", "ı")}
 
 # ── Türkçe çekim eki şablonları ────────────────────────────────────────────
 # (tetikleyici_ek, doğru_terim_eki)
@@ -2005,13 +2082,19 @@ def generate_bundle():
             seen.add(key)
             entries.append({"trigger": trigger, "replacement": replacement})
 
-    for tr_pronunciation, correct_term in BASE_TERMS:
-        # Temel form
-        add(tr_pronunciation, correct_term)
+    for base_pronunciation, correct_term in BASE_TERMS:
+        for tr_pronunciation in sorted(_i_variants(base_pronunciation)):
+            # Temel form
+            add(tr_pronunciation, correct_term)
 
-        # Tüm çekim ekleri
-        for suffix_tr, suffix_en in SUFFIXES:
-            add(tr_pronunciation + suffix_tr, correct_term + suffix_en, inflected=True)
+            # Tüm çekim ekleri
+            for suffix_tr, suffix_en in SUFFIXES:
+                add(tr_pronunciation + suffix_tr, correct_term + suffix_en, inflected=True)
+
+            # "commit et" → Whisper "komited" yazıyor
+            if correct_term.lower() in VERB_TERMS and " " not in tr_pronunciation:
+                for merged in _MERGED_VERB_SUFFIXES:
+                    add(tr_pronunciation + merged, f"{correct_term} et", inflected=True)
 
     return entries
 
