@@ -1,0 +1,6 @@
+# Elle eklenen Türkçe kelimeler — ISSAI (haber dili) bunları içermiyor ama
+# teknik dikte bağlamında sık geçiyorlar ve otomatik sözlük bunları bozuyordu.
+# Kaynak: geçmiş diktelerde gözlenen hatalı ikameler (2026-10-01).
+buton
+panel
+veritabanı

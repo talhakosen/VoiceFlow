@@ -8,6 +8,7 @@ tüm Türkçe çekim ekleriyle birlikte üretir.
 """
 
 import json
+import sys
 from pathlib import Path
 
 # ── Temel IT telaffuz listesi ────────────────────────────────────────────────
@@ -1971,14 +1972,35 @@ _TR_STOPWORDS = {
 }
 
 
+# Gerçek Türkçe kelime kontrolü — backend'in çalışma anı korumasıyla aynı liste.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend" / "src"))
+from voiceflow.core.turkish_words import is_turkish_phrase  # noqa: E402
+
+# Ek alınca İngilizce bir kelimeye dönüşen tetikleyiciler: log+in = "login",
+# sli+de = "slide". macOS'ta var; yoksa bu kontrol atlanır (uyarı basılır).
+_ENGLISH_WORDS_PATH = Path("/usr/share/dict/words")
+
+
+def _english_words() -> set[str]:
+    if not _ENGLISH_WORDS_PATH.exists():
+        print(f"UYARI: {_ENGLISH_WORDS_PATH} yok — İngilizce kelime kontrolü atlandı")
+        return set()
+    return {w.strip().lower() for w in _ENGLISH_WORDS_PATH.read_text().splitlines()}
+
+
 def generate_bundle():
     entries = []
     seen = set()
+    english = _english_words()
+    # Ek alınca başka bir terimin kendisine dönüşenler: "node" + "e" ≠ node'e
+    known_terms = {t.lower() for pair in BASE_TERMS for t in pair}
 
-    def add(trigger: str, replacement: str):
+    def add(trigger: str, replacement: str, inflected: bool = False):
         key = (trigger.lower(), replacement)
-        if trigger.lower() in _TR_STOPWORDS:
-            return  # Türkçe yaygın kelimeyle çakışıyor — atla
+        if trigger.lower() in _TR_STOPWORDS or is_turkish_phrase(trigger):
+            return  # gerçek Türkçe kelime ("diye", "dosya") — ikame etme
+        if inflected and (trigger.lower() in english or trigger.lower() in known_terms):
+            return  # ek ayrımı yanlış: "login" → log'in, "node" → node'e
         if key not in seen:
             seen.add(key)
             entries.append({"trigger": trigger, "replacement": replacement})
@@ -1989,7 +2011,7 @@ def generate_bundle():
 
         # Tüm çekim ekleri
         for suffix_tr, suffix_en in SUFFIXES:
-            add(tr_pronunciation + suffix_tr, correct_term + suffix_en)
+            add(tr_pronunciation + suffix_tr, correct_term + suffix_en, inflected=True)
 
     return entries
 

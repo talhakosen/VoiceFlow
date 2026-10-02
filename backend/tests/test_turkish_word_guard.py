@@ -33,6 +33,21 @@ class TestIsTurkishPhrase:
     def test_all_words_must_be_turkish(self):
         assert is_turkish_phrase("yeni ekran")
 
+    @pytest.mark.parametrize("trigger", ["şifreyi", "panelde", "kütüphaneler", "ekranları"])
+    def test_inflected_turkish_words(self, trigger):
+        # Türkçe kök + ek: listede çekimli hali olmasa da kök varsa Türkçe
+        assert is_turkish_phrase(trigger)
+
+    @pytest.mark.parametrize("trigger", ["buton", "butonu", "butona", "veritabanı"])
+    def test_tech_turkish_words_missing_from_news_corpus(self, trigger):
+        # ISSAI haber dili — teknik bağlamdaki Türkçe kelimeler elle eklenen listede
+        assert is_turkish_phrase(trigger)
+
+    @pytest.mark.parametrize("trigger", ["klasları", "indeksin", "view model", "reposteri", "komponent"])
+    def test_stem_rule_keeps_misheard_terms(self, trigger):
+        # kök Türkçe değilse ek almış olması onu Türkçe yapmaz
+        assert not is_turkish_phrase(trigger)
+
 
 class TestWithoutTurkishTriggers:
     def test_drops_turkish_keeps_rest(self):
