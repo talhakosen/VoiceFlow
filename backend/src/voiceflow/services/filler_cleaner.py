@@ -23,10 +23,15 @@ _CHAIN_RE = re.compile(
 )
 
 # ── Sentence starters ────────────────────────────────────────────────────────
+# The space after . ! ? is captured and put back — it used to go with the
+# filler: "satılması? Yani bu" → "satılması?bu".
 _STARTER_RE = re.compile(
-    r'(?:(?:^|(?<=[.!?])\s*))(şey|yani|hani|ee+|aa+|hmm?|ımm?)[,\s]+',
+    r'(^|(?<=[.!?]))(\s*)(şey|yani|hani|ee+|aa+|hmm?|ımm?)[,\s]+',
     re.IGNORECASE,
 )
+# Marks where a sentence-start filler was removed — the next letter is
+# capitalized there ("? Yani bu" → "? Bu"), nowhere else.
+_SENTENCE_START = "\x00"
 
 # ── "yani" between commas: "X, yani, Y" → "X, Y" ───────────────────────────
 _YANI_BETWEEN_COMMAS_RE = re.compile(
@@ -140,7 +145,7 @@ def clean_fillers(text: str) -> str:
     text = _HANI_REMINDER_PROTECT_RE.sub(lambda m: _HANI_SLOT if m.group(0).islower() else _HANI_SLOT_CAP, text)
 
     text = _CHAIN_RE.sub(' ', text)
-    text = _STARTER_RE.sub('', text)
+    text = _STARTER_RE.sub(lambda m: m.group(2) + _SENTENCE_START, text)
     text = _YANI_BETWEEN_COMMAS_RE.sub(',', text)
     text = _YANI_SOFTENER_RE.sub(', ', text)
     text = _YANI_MID_RE.sub(' ', text)
@@ -155,6 +160,8 @@ def clean_fillers(text: str) -> str:
     text = text.replace(_YANI_SLOT, "yani")
     text = text.replace(_HANI_SLOT, "hani").replace(_HANI_SLOT_CAP, "Hani")
     text = _restore_sey(text, sey_slots)
+    text = re.sub(_SENTENCE_START + r'\s*(\S)', lambda m: _upper_tr(m.group(1)), text)
+    text = text.replace(_SENTENCE_START, '')
     text = _normalize(text)
 
     return text

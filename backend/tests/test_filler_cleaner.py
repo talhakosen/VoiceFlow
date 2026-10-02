@@ -64,3 +64,14 @@ class TestTurkishCapitalization:
     ])
     def test_first_letter(self, raw, expected):
         assert clean_fillers(raw) == expected
+
+
+class TestSentenceStartAfterPunctuation:
+    @pytest.mark.parametrize("raw, expected", [
+        # Regresyon: "satılması? Yani bu" → "satılması?bu" (boşluk filler'la gidiyordu)
+        ("satılması mı? Yani bu mesela yavaşlatır", "Satılması mı? Bu mesela yavaşlatır"),
+        ("Tamam. Şey, yarın gelirim", "Tamam. Yarın gelirim"),
+        ("Bitti! Ee işte gidelim", "Bitti! İşte gidelim"),
+    ])
+    def test_keeps_space_and_capitalizes(self, raw, expected):
+        assert clean_fillers(raw) == expected
