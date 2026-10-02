@@ -6,15 +6,26 @@ from voiceflow.transcription.dynamic_window import (
     FULL_WINDOW_S,
     MARGIN_S,
     MIN_WINDOW_S,
+    SHORT_AUDIO_S,
     compute_window,
     has_repeated_span,
 )
 
 
 class TestComputeWindow:
-    def test_short_audio_gets_minimum_window(self):
-        # 1.5s ses → ceil(1.5)+3 = 5, ama alt sınır 6
-        assert compute_window(1.5) == MIN_WINDOW_S
+    @pytest.mark.parametrize("dur", [0.1, 1.5, 1.6, 3.0, 3.9])
+    def test_short_audio_uses_full_window(self, dur):
+        # Regresyon (2026-10-02): 4sn altı seste kısa pencere çıktıyı bozuyordu —
+        # 60 kayıtta 54 fark, "Test, deneme" → "Test döneme", tekrar döngüleri.
+        # 10/15/20sn pencere de kurtarmadı; yalnız tam pencere doğru.
+        assert compute_window(dur) == FULL_WINDOW_S
+
+    def test_short_audio_threshold(self):
+        assert compute_window(SHORT_AUDIO_S - 0.01) == FULL_WINDOW_S
+        assert compute_window(SHORT_AUDIO_S) < FULL_WINDOW_S
+
+    def test_minimum_window_still_applies_above_threshold(self):
+        assert compute_window(SHORT_AUDIO_S) >= MIN_WINDOW_S
 
     def test_typical_dictation_gets_margin(self):
         assert compute_window(4.7) == 8    # ceil(4.7)=5 + 3

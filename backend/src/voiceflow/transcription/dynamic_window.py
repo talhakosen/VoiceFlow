@@ -42,6 +42,12 @@ CTX_PER_S = 50              # encoder conv2 stride 2 → 50 audio token/sn
 MARGIN_S = 3
 # Alt sınır: çok kısa pencerede model "bitir" sinyalini yakalayamıyor.
 MIN_WINDOW_S = 6
+# Bu sürenin altındaki ses tam pencereyle çözülür. Ölçüm (2026-10-02, 1085
+# gerçek dikte): 2-4sn seste kısa pencere kelimelerin %96'sını değiştirdi
+# ("Test, deneme" → "Test döneme"), 10/15/20sn pencere de kurtarmadı.
+# 4sn üstünde fark küçük ve yön karışık; 6sn+ seste kısa pencere tam
+# pencereden İYİ (tam pencere son cümleyi düşürebiliyor).
+SHORT_AUDIO_S = 4.0
 
 # mlx-whisper modül seviyesinde global sabitler kullanıyor ve model nesnesi
 # ModelHolder'da cache'leniyor — pencere değişimi süreç geneli bir mutasyon.
@@ -52,7 +58,7 @@ _lock = threading.Lock()
 
 def compute_window(duration_s: float) -> int:
     """Ses uzunluğuna göre encoder penceresi (saniye)."""
-    if duration_s <= 0:
+    if duration_s < SHORT_AUDIO_S:  # 0/negatif de buraya düşer
         return FULL_WINDOW_S
     return max(MIN_WINDOW_S, min(FULL_WINDOW_S, math.ceil(duration_s) + MARGIN_S))
 
