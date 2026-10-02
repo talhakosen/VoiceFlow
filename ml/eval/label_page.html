@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dikte Eval Seti</title>
+<style>
+  :root {
+    --bg: #f6f6f4; --card: #ffffff; --text: #1d1d1b; --muted: #6b6b66;
+    --line: #e2e2dd; --accent: #2f6fdb; --accent-text: #ffffff;
+    --ok: #2e7d4f; --warn: #a15c07; --field: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --card: #20201f; --text: #ececea; --muted: #9b9b96;
+      --line: #33332f; --accent: #6c9cf0; --accent-text: #0f1626;
+      --ok: #6fc794; --warn: #e3a54f; --field: #1a1a19;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 10px 0 22px; }
+  .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  details ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+  details li { margin: 4px 0; }
+  .meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; }
+  .chip.ok { color: var(--ok); border-color: var(--ok); }
+  .chip.skip { color: var(--warn); border-color: var(--warn); }
+  audio { width: 100%; margin-bottom: 8px; }
+  .speed { display: flex; gap: 6px; font-size: 13px; color: var(--muted); align-items: center; margin-bottom: 14px; }
+  .speed button { padding: 2px 9px; font-size: 12px; }
+  textarea { width: 100%; min-height: 110px; resize: vertical; padding: 12px; border-radius: 8px;
+             border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; font-size: 16px; }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+           background: var(--card); color: var(--text); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); margin-left: auto; }
+  button.active { border-color: var(--accent); color: var(--accent); }
+  kbd { font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; opacity: .8; }
+  .done { text-align: center; padding: 40px 18px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  @media (max-width: 520px) { button.primary { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Dikte Eval Seti</h1>
+  <div class="sub" id="progressText">Yükleniyor…</div>
+  <div class="bar"><div id="progressBar"></div></div>
+
+  <div class="card">
+    <details>
+      <summary>Yazım kuralları</summary>
+      <ul>
+        <li><b>Ne söylediysen o:</b> dolgular dahil (şey, yani, ee) — temizliği ayrıca ölçüyoruz.</li>
+        <li><b>Teknik terimler doğru yazılışıyla:</b> AppViewModel, deploy, Supabase.</li>
+        <li><b>Noktalama ve büyük/küçük harf önemsiz</b> — ölçümde yok sayılıyor, uğraşma.</li>
+        <li><b>Anlaşılmıyorsa</b> (gürültü, yarım kayıt) → <i>Atla</i>.</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="card" id="clipCard">
+    <div class="meta" id="meta"></div>
+    <audio id="player" controls></audio>
+    <div class="speed">Hız:
+      <button data-rate="0.75">0.75×</button>
+      <button data-rate="1" class="active">1×</button>
+      <button data-rate="1.25">1.25×</button>
+    </div>
+    <textarea id="text" spellcheck="false"></textarea>
+    <div class="actions">
+      <button id="prevBtn">← Önceki</button>
+      <button id="skipBtn">Atla — anlaşılmıyor</button>
+      <button id="saveBtn" class="primary">Kaydet ve sonraki <kbd>⌘↵</kbd></button>
+    </div>
+    <div class="hint"><kbd>Esc</kbd> baştan dinle · <kbd>⌘↵</kbd> kaydet ve geç · her kayıt anında dosyaya yazılır</div>
+  </div>
+
+  <div class="card done" id="doneCard" hidden>
+    <h2 style="margin-top:0">Tamamlandı</h2>
+    <p>Tüm kayıtlar etiketlendi. Ölçüm: <code>ml/eval/run_eval.py</code></p>
+    <button id="reviewBtn">Baştan gözden geçir</button>
+  </div>
+</main>
+
+<script>
+let clips = [], refs = {}, idx = 0, rate = 1;
+const $ = (id) => document.getElementById(id);
+
+async function load() {
+  const r = await fetch("/api/clips"); const d = await r.json();
+  clips = d.clips; refs = d.refs;
+  const first = clips.findIndex(c => !refs[c.id]);
+  first === -1 ? showDone() : show(first);
+}
+
+function progress() {
+  const n = clips.filter(c => refs[c.id]).length;
+  $("progressText").textContent = `${n} / ${clips.length} etiketlendi`;
+  $("progressBar").style.width = `${(100 * n / clips.length).toFixed(1)}%`;
+}
+
+function show(i) {
+  idx = Math.max(0, Math.min(i, clips.length - 1));
+  const c = clips[idx], ref = refs[c.id];
+  $("doneCard").hidden = true; $("clipCard").hidden = false;
+  const chip = ref ? (ref.status === "skip" ? '<span class="chip skip">Atlandı</span>' : '<span class="chip ok">Kaydedildi</span>') : "";
+  $("meta").innerHTML = `<b>#${idx + 1}</b> / ${clips.length}<span class="chip">${c.bucket}</span><span>${c.duration.toFixed(1)} sn</span>${chip}`;
+  $("text").value = ref && ref.status === "ok" ? ref.reference : c.prefill;
+  const p = $("player"); p.src = `/audio/${encodeURIComponent(c.file)}`; p.playbackRate = rate;
+  p.play().catch(() => {});
+  $("text").focus();
+  progress();
+}
+
+function showDone() {
+  $("clipCard").hidden = true; $("doneCard").hidden = false; progress();
+}
+
+async function submit(status) {
+  const c = clips[idx], text = $("text").value.trim();
+  if (status === "ok" && !text) { $("text").focus(); return; }
+  const body = { id: c.id, status, reference: status === "ok" ? text : "", edited: text !== c.prefill.trim() };
+  const r = await fetch("/api/label", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) { alert("Kaydedilemedi — sunucu çalışıyor mu?"); return; }
+  refs[c.id] = body;
+  const next = clips.findIndex((x, j) => j > idx && !refs[x.id]);
+  if (next !== -1) show(next);
+  else if (clips.every(x => refs[x.id])) showDone();
+  else show(idx + 1);
+}
+
+$("saveBtn").onclick = () => submit("ok");
+$("skipBtn").onclick = () => submit("skip");
+$("prevBtn").onclick = () => show(idx - 1);
+$("reviewBtn").onclick = () => show(0);
+document.querySelectorAll(".speed button").forEach(b => b.onclick = () => {
+  rate = parseFloat(b.dataset.rate); $("player").playbackRate = rate;
+  document.querySelectorAll(".speed button").forEach(x => x.classList.toggle("active", x === b));
+});
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); submit("ok"); }
+  else if (e.key === "Escape") { const p = $("player"); p.currentTime = 0; p.play(); }
+});
+load();
+</script>
+</body>
+</html>
