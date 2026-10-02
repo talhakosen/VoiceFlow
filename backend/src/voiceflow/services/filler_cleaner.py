@@ -3,7 +3,7 @@
 Runs after dictionary substitution, before LLM correction.
 Engineering mode: skipped entirely (technical terms preserved as-is).
 
-Pipeline order: Whisper → Dictionary → FillerCleaner → Snippets → LLM
+Pipeline order: Whisper → Dictionary → FillerCleaner → LLM
 """
 
 import re

@@ -56,11 +56,6 @@ MODE_SUFFIXES: dict[str, str] = {
         "Preserve exact technical terms, class names, function names, variable names, API names, "
         "file paths, and CLI commands. Do not paraphrase or translate identifiers."
     ),
-    "office": (
-        "\n\nMode: Office/Business. "
-        "Use formal register. Expand informal abbreviations (mrhb→merhaba, tşk→teşekkürler). "
-        "Ensure professional tone suitable for business correspondence."
-    ),
 }
 
 # ── Tone overrides (based on active app bundle ID) ────────────────────────────
@@ -136,18 +131,16 @@ def build_system_prompt(
     active_app: str | None = None,
     window_title: str | None = None,
     selected_text: str | None = None,
-    context: list[str] | None = None,
     output_format_suffix: str = "",
 ) -> str:
     """Assemble the full system prompt for a correction request.
 
     Args:
         base_prompt: Corrector-specific base instruction text.
-        mode: Active mode — "general" | "engineering" | "office".
+        mode: Active mode — "general" | "engineering".
         active_app: Bundle ID of the active macOS app (tone override).
         window_title: Active window title — untrusted metadata.
         selected_text: Selected text in active app — untrusted metadata.
-        context: RAG context chunks from the knowledge base.
         output_format_suffix: Extra suffix for output format (LLM corrector only).
     """
     prompt = base_prompt + MODE_SUFFIXES.get(mode, "")
@@ -175,10 +168,6 @@ def build_system_prompt(
             + "\n".join(context_lines)
         )
 
-    # RAG context
-    if context:
-        context_block = "\n".join(f"- {chunk[:200]}" for chunk in context)
-        prompt += f"\n\nRelevant context from company knowledge base:\n{context_block}"
 
     return prompt
 
@@ -266,7 +255,7 @@ class BaseCorrectorConfig:
     """Fields shared by all corrector configs."""
 
     enabled: bool = False
-    mode: str = "general"       # "general" | "engineering" | "office"
+    mode: str = "general"       # "general" | "engineering"
     output_format: str = "prose"
     max_tokens: int = 512
 

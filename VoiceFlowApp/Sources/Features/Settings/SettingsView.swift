@@ -25,8 +25,7 @@ extension View {
 enum MainContentSection: String, Identifiable {
     case home        = "Ana Ekran"
     case dictionary  = "Sözlük"
-    case snippets    = "Şablonlar"
-    case knowledge   = "Bilgi Tabanı"
+    case knowledge   = "Proje Terimleri"
     case recording   = "Kayıt"
 
     var id: String { rawValue }
@@ -35,13 +34,12 @@ enum MainContentSection: String, Identifiable {
         switch self {
         case .home:       return "house"
         case .dictionary: return VFIcon.dictionary
-        case .snippets:   return VFIcon.snippets
         case .knowledge:  return VFIcon.knowledgeBase
         case .recording:  return VFIcon.recording
         }
     }
 
-    static let allCases: [MainContentSection] = [.home, .dictionary, .snippets, .knowledge, .recording]
+    static let allCases: [MainContentSection] = [.home, .dictionary, .knowledge, .recording]
 }
 
 // MARK: - Settings Dialog Section (Ayrı dialog nav)
@@ -69,8 +67,7 @@ enum SettingsDialogSection: String, Identifiable {
 enum SettingsSection: String, Identifiable {
     case general       = "Genel"
     case dictionary    = "Sözlük"
-    case snippets      = "Şablonlar"
-    case knowledgeBase = "Bilgi Tabanı"
+    case knowledgeBase = "Proje Terimleri"
     case recording     = "Kayıt"
     case account       = "Hesap"
     case about         = "Hakkında"
@@ -81,7 +78,6 @@ enum SettingsSection: String, Identifiable {
         switch self {
         case .general:       return "square.grid.2x2"
         case .dictionary:    return VFIcon.dictionary
-        case .snippets:      return VFIcon.snippets
         case .knowledgeBase: return VFIcon.knowledgeBase
         case .recording:     return VFIcon.recording
         case .account:       return VFIcon.account
@@ -89,7 +85,7 @@ enum SettingsSection: String, Identifiable {
         }
     }
 
-    static let mainNav: [SettingsSection]   = [.general, .dictionary, .snippets, .knowledgeBase, .recording]
+    static let mainNav: [SettingsSection]   = [.general, .dictionary, .knowledgeBase, .recording]
     static let bottomNav: [SettingsSection] = [.account, .about]
 }
 
@@ -240,8 +236,6 @@ struct MainContentView: View {
                             HomeSection(store: store)
                         case .dictionary:
                             DictionarySection(store: store.scope(state: \.settings, action: \.settings))
-                        case .snippets:
-                            SnippetsSection(store: store.scope(state: \.settings, action: \.settings))
                         case .knowledge:
                             KnowledgeBaseSection(store: store.scope(state: \.settings, action: \.settings))
                         case .recording:

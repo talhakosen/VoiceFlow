@@ -36,14 +36,11 @@ class TranscriptionResponse(BaseModel):
     text: str
     raw_text: str | None = None
     corrected: bool = False
-    snippet_used: bool = False
     language: str | None = None
     duration: float | None = None
     processing_ms: int | None = None
     id: int | None = None
-    it_wav_path: str | None = None
     pending_wav_path: str | None = None
-    symbol_refs: list[str] | None = None
     notice: str | None = None  # kullanıcıya gösterilecek uyarı (ör. mikrofon izni yok)
 
 
@@ -52,7 +49,7 @@ class ConfigRequest(BaseModel):
     language: str | None = None
     task: str | None = None
     correction_enabled: bool | None = None
-    mode: Literal["general", "engineering", "office"] | None = None
+    mode: Literal["general", "engineering"] | None = None
     output_format: Literal["prose", "code_comment", "pr_description", "jira_ticket"] | None = None
     input_device: str | None = None  # mikrofon ADI; "" = sistem varsayılanı
 
@@ -92,19 +89,15 @@ async def stop_recording(
     x_active_app: str | None = Header(default=None, alias="X-Active-App"),
     x_window_title: str | None = Header(default=None, alias="X-Window-Title"),
     x_selected_text: str | None = Header(default=None, alias="X-Selected-Text"),
-    x_cmd_intervals: str | None = Header(default=None, alias="X-Cmd-Intervals"),
-    x_it_dataset_index: str | None = Header(default=None, alias="X-IT-Dataset-Index"),
     x_training_mode: str | None = Header(default=None, alias="X-Training-Mode"),
 ):
-    from .parsers import parse_cmd_intervals, parse_it_dataset_index, should_save_pending_wav
+    from .parsers import should_save_pending_wav
     # JWT sets request.state; fall back to X-User-ID header for local mode compat
     state_user_id = getattr(request.state, "user_id", None)
     user_id = state_user_id or x_user_id or None
     tenant_id = getattr(request.state, "tenant_id", "default") or "default"
 
-    cmd_intervals = parse_cmd_intervals(x_cmd_intervals)
-    it_dataset_idx = parse_it_dataset_index(x_it_dataset_index)
-    save_pending_wav = should_save_pending_wav(x_training_mode, it_dataset_idx)
+    save_pending_wav = should_save_pending_wav(x_training_mode)
 
     try:
         result = await svc.stop(
@@ -113,8 +106,6 @@ async def stop_recording(
             active_app=x_active_app or None,
             window_title=x_window_title or None,
             selected_text=x_selected_text or None,
-            cmd_intervals=cmd_intervals,
-            it_dataset_index=it_dataset_idx,
             save_pending_wav=save_pending_wav,
         )
     except ValueError as e:
@@ -292,87 +283,6 @@ async def delete_dict_entry(
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e))
     return {"status": "deleted", "id": entry_id}
-
-
-# ------------------------------------------------------------------
-# Snippets (Katman 1)
-# ------------------------------------------------------------------
-
-class SnippetRequest(BaseModel):
-    trigger_phrase: str
-    expansion: str
-    scope: str = "personal"
-
-
-@router.get("/snippets")
-async def get_snippets_route(
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    from ..services.dictionary_service import list_snippets
-    return await list_snippets(user_id=_user_id(request, x_user_id))
-
-
-@router.post("/snippets")
-async def add_snippet_route(
-    body: SnippetRequest,
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    from ..services.dictionary_service import create_snippet
-    try:
-        return await create_snippet(
-            trigger_phrase=body.trigger_phrase,
-            expansion=body.expansion,
-            user_id=_user_id(request, x_user_id),
-            scope=body.scope,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@router.delete("/snippets/{snippet_id}")
-async def delete_snippet_route(
-    snippet_id: int,
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    from ..services.dictionary_service import remove_snippet
-    try:
-        await remove_snippet(snippet_id=snippet_id, user_id=_user_id(request, x_user_id))
-    except LookupError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    return {"status": "deleted", "id": snippet_id}
-
-
-@router.post("/snippets/pack/{pack_name}")
-async def load_snippet_pack_route(
-    pack_name: str,
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    """Load a pre-built snippet pack (office / engineering). Idempotent."""
-    from ..services.dictionary_service import load_snippet_pack
-    try:
-        return await load_snippet_pack(pack_name=pack_name, user_id=_user_id(request, x_user_id))
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.delete("/snippets/pack/{pack_name}")
-async def clear_snippet_pack_route(
-    pack_name: str,
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    """Remove all entries from a snippet pack."""
-    from ..services.dictionary_service import clear_snippet_pack
-    try:
-        return await clear_snippet_pack(pack_name=pack_name, user_id=_user_id(request, x_user_id))
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
 
 
 # ------------------------------------------------------------------

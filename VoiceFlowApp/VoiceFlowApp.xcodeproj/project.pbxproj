@@ -18,9 +18,7 @@
 		8EE71C3FB124DF2CA4CA63E1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2021EE246F139A902BD82D3 /* AppDelegate.swift */; };
 		A509D24643D5E7A057B7BB30 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450FCA0C0301B340112E74B /* HistoryView.swift */; };
 		F0A1B2C3D4E5F6A7B8C9D0E1 /* TrainingPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* TrainingPillView.swift */; };
-		B3C4D5E6F7A8B9C0D1E2F3A4 /* ITDatasetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5E6F7A8B9C0D1E2F3A4B5 /* ITDatasetView.swift */; };
 		E6F7A8B9C0D1E2F3A4B5C6D7 /* ModeIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E6F7A8B9C0D1E2F3A4B5C6 /* ModeIndicatorView.swift */; };
-		AA11BB22CC33DD44EE55FF66 /* SymbolPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE55FF6600AA /* SymbolPickerView.swift */; };
 		4B5C6D7E8F9A0B1C2D3E4F5A /* SafeHostingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* SafeHostingView.swift */; };
 		B04BAD74A7956463FAD0EC58 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8FFB7AD6817577CB09BEA299 /* AppIcon.icns */; };
 		D8B5AEFFC8A3258BA1F60904 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7810B10AF5DA5CBA970200 /* MenuBarController.swift */; };
@@ -32,11 +30,9 @@
 		CF3A1B2E8E4F5A6C7D8E9F0B /* VFDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3A1B2D8E4F5A6C7D8E9F0A /* VFDesignSystem.swift */; };
 		F2080C60E275605DC45DE3F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E9D82935A7EAB8402805560 /* Assets.xcassets */; };
 		CCFE011000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000001 /* SettingsView.swift */; };
-		CCFE011000000003 /* ContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000003 /* ContextView.swift */; };
 		CCFE011000000004 /* GeneralSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000004 /* GeneralSection.swift */; };
 		CCFE011000000005 /* RecordingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000005 /* RecordingSection.swift */; };
 		CCFE011000000006 /* DictionarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000006 /* DictionarySection.swift */; };
-		CCFE011000000007 /* SnippetsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000007 /* SnippetsSection.swift */; };
 		CCFE011000000008 /* KnowledgeBaseSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000008 /* KnowledgeBaseSection.swift */; };
 		CCFE011000000009 /* AccountSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000009 /* AccountSection.swift */; };
 		CCFE011000000010 /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFE001000000010 /* AboutSection.swift */; };
@@ -65,10 +61,8 @@
 		CCRE021FR000006 /* RecordingFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingFeature.swift; sourceTree = "<group>"; };
 		0450FCA0C0301B340112E74B /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* TrainingPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingPillView.swift; sourceTree = "<group>"; };
-		C4D5E6F7A8B9C0D1E2F3A4B5 /* ITDatasetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITDatasetView.swift; sourceTree = "<group>"; };
 		CCTR021FR000001 /* TrainingFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingFeature.swift; sourceTree = "<group>"; };
 		D5E6F7A8B9C0D1E2F3A4B5C6 /* ModeIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeIndicatorView.swift; sourceTree = "<group>"; };
-		BB22CC33DD44EE55FF6600AA /* SymbolPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolPickerView.swift; sourceTree = "<group>"; };
 		3A4B5C6D7E8F9A0B1C2D3E4F /* SafeHostingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeHostingView.swift; sourceTree = "<group>"; };
 		2E9D82935A7EAB8402805560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
@@ -85,11 +79,9 @@
 		E2021EE246F139A902BD82D3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E568131A7375839168682889 /* VoiceFlowApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceFlowApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCFE001000000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		CCFE001000000003 /* ContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextView.swift; sourceTree = "<group>"; };
 		CCFE001000000004 /* GeneralSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSection.swift; sourceTree = "<group>"; };
 		CCFE001000000005 /* RecordingSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSection.swift; sourceTree = "<group>"; };
 		CCFE001000000006 /* DictionarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionarySection.swift; sourceTree = "<group>"; };
-		CCFE001000000007 /* SnippetsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetsSection.swift; sourceTree = "<group>"; };
 		CCFE001000000008 /* KnowledgeBaseSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeBaseSection.swift; sourceTree = "<group>"; };
 		CCFE001000000009 /* AccountSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSection.swift; sourceTree = "<group>"; };
 		CCFE001000000010 /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
@@ -165,7 +157,6 @@
 			children = (
 				CCRE021FR000006 /* RecordingFeature.swift */,
 				D5E6F7A8B9C0D1E2F3A4B5C6 /* ModeIndicatorView.swift */,
-				BB22CC33DD44EE55FF6600AA /* SymbolPickerView.swift */,
 				CCRE021000000004 /* RecordingOverlayWindow.swift */,
 				2EC8E90CB93672AD0DD68008 /* HotkeyManager.swift */,
 				A1F3C92B7E04D856F2190C3E /* HotkeyStateMachine.swift */,
@@ -204,7 +195,6 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* TrainingPillView.swift */,
-				C4D5E6F7A8B9C0D1E2F3A4B5 /* ITDatasetView.swift */,
 				CCTR021FR000001 /* TrainingFeature.swift */,
 			);
 			path = Training;
@@ -215,7 +205,6 @@
 			children = (
 				CCFE001000000001 /* SettingsView.swift */,
 				CCSF001FR000001 /* SettingsFeature.swift */,
-				CCFE001000000003 /* ContextView.swift */,
 				CCFE023000000001 /* Sections */,
 			);
 			path = Settings;
@@ -227,7 +216,6 @@
 				CCFE001000000004 /* GeneralSection.swift */,
 				CCFE001000000005 /* RecordingSection.swift */,
 				CCFE001000000006 /* DictionarySection.swift */,
-				CCFE001000000007 /* SnippetsSection.swift */,
 				CCFE001000000008 /* KnowledgeBaseSection.swift */,
 				CCFE001000000009 /* AccountSection.swift */,
 				CCFE001000000010 /* AboutSection.swift */,
@@ -387,16 +375,12 @@
 				E525F85F34936AB92BF64280 /* PasteService.swift in Sources */,
 				E12FDB73F1C394CA6D87B99A /* VoiceFlowApp.swift in Sources */,
 				F0A1B2C3D4E5F6A7B8C9D0E1 /* TrainingPillView.swift in Sources */,
-				B3C4D5E6F7A8B9C0D1E2F3A4 /* ITDatasetView.swift in Sources */,
 				E6F7A8B9C0D1E2F3A4B5C6D7 /* ModeIndicatorView.swift in Sources */,
-				AA11BB22CC33DD44EE55FF66 /* SymbolPickerView.swift in Sources */,
 				4B5C6D7E8F9A0B1C2D3E4F5A /* SafeHostingView.swift in Sources */,
 				CCFE011000000001 /* SettingsView.swift in Sources */,
-				CCFE011000000003 /* ContextView.swift in Sources */,
 				CCFE011000000004 /* GeneralSection.swift in Sources */,
 				CCFE011000000005 /* RecordingSection.swift in Sources */,
 				CCFE011000000006 /* DictionarySection.swift in Sources */,
-				CCFE011000000007 /* SnippetsSection.swift in Sources */,
 				CCFE011000000008 /* KnowledgeBaseSection.swift in Sources */,
 				CCFE011000000009 /* AccountSection.swift in Sources */,
 				CCFE011000000010 /* AboutSection.swift in Sources */,

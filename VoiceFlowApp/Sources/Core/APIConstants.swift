@@ -16,17 +16,9 @@ enum APIEndpoint {
     static let context         = "context"
     static let dictionary      = "dictionary"
     static let dictionaryLearn = "dictionary/learn"
-    static let snippets        = "snippets"
-    static let snippetPack     = "snippets/pack"
-    static let itDataset         = "it-dataset"
-    static let itDatasetNext     = "it-dataset/next"
-    static let itDatasetRandom   = "it-dataset/random"
-    static let itDatasetRecorded = "it-dataset/recorded"
-    static let itDatasetRecord   = "it-dataset/record"
     static let savCorrection     = "training/save-correction"
     static let pendingWav        = "training/pending-wav"
     static let feedback          = "feedback"
-    static let contextProjects   = "context/projects"
 
     // Auth (rootURL/auth/*)
     static let authLogin    = "login"
@@ -46,8 +38,6 @@ enum APIHeader {
     static let activeApp      = "X-Active-App"
     static let windowTitle    = "X-Window-Title"
     static let selectedText   = "X-Selected-Text"
-    static let cmdIntervals   = "X-Cmd-Intervals"
-    static let itDatasetIndex = "X-IT-Dataset-Index"
     static let trainingMode   = "X-Training-Mode"
 }
 

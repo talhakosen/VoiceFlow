@@ -12,7 +12,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
     private let store: StoreOf<AppFeature>
     private var settingsWindow: NSWindow?
     private var settingsDialogWindow: NSWindow?
-    private var itDatasetWindowController = ITDatasetWindowController()
     private var lastKnownRole: String = ""
     private var updateTimer: Timer?
 
@@ -169,7 +168,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         // ── Tools ────────────────────────────────────────────────────────
-        menu.addItem(action("Ses Eğitimi…", sel: #selector(openITDataset), key: ""))
         menu.addItem(action("Öğrendiklerini Güncelle", sel: #selector(learnDictionary), key: ""))
 
         let role = store.auth.currentUser?.role ?? ""
@@ -318,10 +316,6 @@ class MenuBarController: NSObject, NSMenuDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
         settingsDialogWindow = window
-    }
-
-    @objc private func openITDataset() {
-        itDatasetWindowController.open(store: store)
     }
 
     @objc private func openAdminPanel() {

@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 import AppKit
 
-// MARK: - Knowledge Base
+// MARK: - Project Terms (smart dictionary from a code folder)
 
 struct KnowledgeBaseSection: View {
     let store: StoreOf<SettingsFeature>
@@ -23,45 +23,24 @@ struct KnowledgeBaseSection: View {
         VStack(alignment: .leading, spacing: 28) {
             Spacer().frame(height: 4)
 
-            // İndekslenen projeler
-            SettingsCardSection(title: "İndekslenen Projeler") {
-                if state.indexedProjects.isEmpty {
-                    HStack(spacing: 10) {
-                        Image(systemName: VFIcon.circle).foregroundStyle(.tertiary)
-                        Text("Henüz proje eklenmedi").foregroundStyle(.secondary).font(.system(size: 13))
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
-                } else {
-                    ForEach(Array(state.indexedProjects.enumerated()), id: \.element.id) { idx, project in
-                        let isLast = idx == state.indexedProjects.count - 1
-                        VStack(spacing: 0) {
-                            HStack(spacing: 10) {
-                                Image(systemName: VFIcon.checkFill).foregroundStyle(VFColor.success)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(project.name).font(.system(size: 13, weight: .medium, design: .monospaced))
-                                    Text("\(project.symbolCount) sembol")
-                                        .font(.caption).foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 11)
-                            if !isLast { Divider().padding(.leading, 16) }
-                        }
-                    }
-                    Divider().padding(.leading, 16)
-                    HStack {
-                        Text("\(state.contextChunkCount) sözcük · \(state.indexedProjects.reduce(0) { $0 + $1.symbolCount }) sembol toplam")
-                            .font(.caption).foregroundStyle(.secondary)
-                        Spacer()
+            // Öğrenilen proje terimleri
+            SettingsCardSection(title: "Proje Terimleri") {
+                HStack(spacing: 10) {
+                    Image(systemName: state.contextChunkCount > 0 ? VFIcon.checkFill : VFIcon.circle)
+                        .foregroundStyle(state.contextChunkCount > 0 ? VFColor.success : Color.secondary)
+                    Text(state.contextChunkCount > 0
+                         ? "\(state.contextChunkCount) terim tanınıyor"
+                         : "Henüz proje eklenmedi")
+                        .font(.system(size: 13))
+                        .foregroundStyle(state.contextChunkCount > 0 ? .primary : .secondary)
+                    Spacer()
+                    if state.contextChunkCount > 0 {
                         Button("Temizle") { store.send(.clearContext) }
                             .buttonStyle(.plain).foregroundStyle(VFColor.destructive).font(.caption)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
             }
 
             // Klasör ekle
@@ -100,7 +79,7 @@ struct KnowledgeBaseSection: View {
                 .padding(.vertical, 14)
             }
 
-            InfoNote(icon: "info.circle", text: "Kod tabanı taranır; class/struct/func isimleri otomatik sözlüğe eklenir. Mühendislik modunda @sembol enjeksiyonu aktiftir.", color: .secondary)
+            InfoNote(icon: "info.circle", text: "Kod tabanı taranır; class/struct/func isimlerinin söyleniş biçimleri sözlüğe eklenir (örn. \"apvyumodel\" → AppViewModel).", color: .secondary)
 
             Spacer()
         }

@@ -6,9 +6,7 @@ struct SettingsFeature {
     @ObservableState
     struct State {
         var dictionaryEntries: [DictionaryEntry] = []
-        var snippetEntries: [SnippetEntry] = []
         var contextChunkCount: Int = 0
-        var indexedProjects: [IndexedProject] = []
         var isIndexing: Bool = false
         var contextIndexingError: String? = nil
         var userName: String = ""
@@ -34,17 +32,9 @@ struct SettingsFeature {
         case deleteDictionaryEntry(Int) // id
         case addWordCorrections(original: String, corrected: String)
 
-        // Snippets
-        case loadSnippets
-        case snippetsLoaded([SnippetEntry])
-        case addSnippet(trigger: String, expansion: String)
-        case deleteSnippet(Int) // id
-        case loadSnippetPack(String)   // "office" or "engineering"
-        case clearSnippetPack(String)
 
         // Context
         case loadContextStatus
-        case contextProjectsLoaded(ContextProjects)
         case contextStatusLoaded(Int)
         case ingestContext(folderPath: String)
         case contextIngested(Int)
@@ -107,66 +97,14 @@ struct SettingsFeature {
                     }
                 }
 
-            // MARK: - Snippets
-
-            case .loadSnippets:
-                return .run { send in
-                    if let entries = try? await backend.getSnippets() {
-                        await send(.snippetsLoaded(entries))
-                    }
-                }
-
-            case let .snippetsLoaded(entries):
-                state.snippetEntries = entries
-                return .none
-
-            case let .addSnippet(trigger, expansion):
-                return .run { send in
-                    try? await backend.addSnippet(trigger, expansion, "personal")
-                    if let entries = try? await backend.getSnippets() {
-                        await send(.snippetsLoaded(entries))
-                    }
-                }
-
-            case let .deleteSnippet(id):
-                return .run { send in
-                    try? await backend.deleteSnippet(id)
-                    if let entries = try? await backend.getSnippets() {
-                        await send(.snippetsLoaded(entries))
-                    }
-                }
-
-            case let .loadSnippetPack(packName):
-                return .run { send in
-                    try? await backend.loadSnippetPack(packName)
-                    if let entries = try? await backend.getSnippets() {
-                        await send(.snippetsLoaded(entries))
-                    }
-                }
-
-            case let .clearSnippetPack(packName):
-                return .run { send in
-                    try? await backend.clearSnippetPack(packName)
-                    if let entries = try? await backend.getSnippets() {
-                        await send(.snippetsLoaded(entries))
-                    }
-                }
-
             // MARK: - Context
 
             case .loadContextStatus:
                 return .run { send in
-                    if let projects = try? await backend.getContextProjects() {
-                        await send(.contextProjectsLoaded(projects))
-                    } else if let status = try? await backend.getContextStatus() {
+                    if let status = try? await backend.getContextStatus() {
                         await send(.contextStatusLoaded(status.count))
                     }
                 }
-
-            case let .contextProjectsLoaded(projects):
-                state.contextChunkCount = projects.smartWordCount
-                state.indexedProjects = projects.projects
-                return .none
 
             case let .contextStatusLoaded(count):
                 state.contextChunkCount = count
@@ -178,25 +116,21 @@ struct SettingsFeature {
                 return .run { send in
                     do {
                         try await backend.ingestContext(folderPath)
-                        // Poll for completion (up to 30 iterations × 2s = 60s)
+                        // Tarama arka planda — terim sayısı iki ölçümde sabitlenince bitti say
+                        // (en fazla 30 × 2sn = 60sn)
                         var previousCount = -1
                         for _ in 0..<30 {
                             try? await Task.sleep(nanoseconds: 2_000_000_000)
-                            if let projects = try? await backend.getContextProjects() {
-                                let total = projects.totalSymbols
-                                if total > 0 && total == previousCount {
-                                    await send(.contextIngested(projects.smartWordCount))
+                            if let status = try? await backend.getContextStatus() {
+                                if status.count > 0 && status.count == previousCount {
+                                    await send(.contextIngested(status.count))
                                     return
                                 }
-                                previousCount = total
+                                previousCount = status.count
                             }
                         }
-                        // Fallback: return whatever count we have
-                        if let projects = try? await backend.getContextProjects() {
-                            await send(.contextIngested(projects.smartWordCount))
-                        } else {
-                            await send(.contextIngested(0))
-                        }
+                        let count = (try? await backend.getContextStatus())?.count ?? 0
+                        await send(.contextIngested(count))
                     } catch {
                         await send(.contextIngestFailed(error.localizedDescription))
                     }
@@ -220,7 +154,6 @@ struct SettingsFeature {
 
             case .contextCleared:
                 state.contextChunkCount = 0
-                state.indexedProjects = []
                 return .none
 
             // MARK: - User profile

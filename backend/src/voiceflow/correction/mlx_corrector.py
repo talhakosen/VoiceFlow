@@ -72,7 +72,6 @@ class MLXCorrector:
         active_app: str | None,
         window_title: str | None,
         selected_text: str | None,
-        context: list[str] | None,
     ) -> str:
         """Build the system prompt for this correction request.
 
@@ -91,7 +90,6 @@ class MLXCorrector:
             active_app=active_app,
             window_title=window_title,
             selected_text=selected_text,
-            context=context,
             output_format_suffix=_OUTPUT_FORMAT_SUFFIXES.get(self.config.output_format, ""),
         )
 
@@ -213,7 +211,6 @@ class MLXCorrector:
         self,
         text: str,
         language: str | None = None,  # noqa: ARG002 — reserved for future lang-routing
-        context: list[str] | None = None,
         active_app: str | None = None,
         window_title: str | None = None,
         selected_text: str | None = None,
@@ -233,7 +230,7 @@ class MLXCorrector:
 
         try:
             messages = build_messages(
-                self._build_system_prompt(active_app, window_title, selected_text, context),
+                self._build_system_prompt(active_app, window_title, selected_text),
                 text,
             )
             formatted = self._tokenizer.apply_chat_template(

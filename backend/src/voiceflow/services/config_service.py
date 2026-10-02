@@ -6,7 +6,6 @@ Routes delegate here; no HTTP concerns live in this module.
 import asyncio
 import gc
 import logging
-import time
 from dataclasses import dataclass
 from typing import Literal
 
@@ -21,7 +20,7 @@ class ConfigRequest:
     language: str | None = None
     task: str | None = None
     correction_enabled: bool | None = None
-    mode: Literal["general", "engineering", "office"] | None = None
+    mode: Literal["general", "engineering"] | None = None
     output_format: Literal["prose", "code_comment", "pr_description", "jira_ticket"] | None = None
     input_device: str | None = None
 
@@ -84,9 +83,6 @@ async def apply_config(
         else:
             corrector.config.update(mode=config.mode)
 
-        if config.mode == "engineering":
-            await _maybe_reindex(app_state, user_id)
-
     # ── Output format ───────────────────────────────────────────────
     if config.output_format is not None:
         corrector.config.update(output_format=config.output_format)
@@ -146,26 +142,3 @@ async def apply_config(
         output_format=getattr(corrector.config, "output_format", "prose"),
         input_device=svc.current_device_name(),
     )
-
-
-async def _maybe_reindex(app_state, user_id: str) -> None:
-    """Trigger symbol re-index if last index is stale (>5 min)."""
-    last_paths = getattr(app_state, "last_index_paths", {})
-    entry = last_paths.get(user_id) or last_paths.get("default")
-    if not entry or (time.time() - entry["indexed_at"]) <= 300:
-        return
-
-    async def _reindex(path: str, uid: str) -> None:
-        try:
-            from ..symbol import build_symbol_index, generate_project_notes
-            sym_count = await build_symbol_index(path, uid)
-            logger.info("Auto re-index (engineering mode): %d symbols", sym_count)
-            if sym_count > 0:
-                await generate_project_notes(path, uid)
-            if not hasattr(app_state, "last_index_paths"):
-                app_state.last_index_paths = {}
-            app_state.last_index_paths[uid] = {"path": path, "indexed_at": time.time()}
-        except Exception as exc:
-            logger.warning("Auto re-index failed: %s", exc)
-
-    asyncio.create_task(_reindex(entry["path"], user_id))

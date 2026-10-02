@@ -4,14 +4,11 @@ struct TranscriptionResult: Codable {
     let text: String
     let rawText: String?
     let corrected: Bool?
-    let snippetUsed: Bool?
     let language: String?
     let duration: Double?
     let processingMs: Int?
     let id: Int?
-    let itWavPath: String?
     let pendingWavPath: String?
-    let symbolRefs: [String]?
     /// Backend'den gelen kullanıcı uyarısı (ör. mikrofon izni yok).
     let notice: String?
 
@@ -19,14 +16,11 @@ struct TranscriptionResult: Codable {
         case text
         case rawText = "raw_text"
         case corrected
-        case snippetUsed = "snippet_used"
         case language
         case duration
         case processingMs = "processing_ms"
         case id
-        case itWavPath = "it_wav_path"
         case pendingWavPath = "pending_wav_path"
-        case symbolRefs = "symbol_refs"
         case notice
     }
 }
@@ -97,30 +91,6 @@ struct ContextStatus: Decodable {
     }
 }
 
-struct IndexedProject: Decodable, Identifiable {
-    var id: String { path }
-    let path: String
-    let name: String
-    let symbolCount: Int
-
-    enum CodingKeys: String, CodingKey {
-        case path, name
-        case symbolCount = "symbol_count"
-    }
-}
-
-struct ContextProjects: Decodable {
-    let projects: [IndexedProject]
-    let smartWordCount: Int
-    let totalSymbols: Int
-
-    enum CodingKeys: String, CodingKey {
-        case projects
-        case smartWordCount = "smart_word_count"
-        case totalSymbols   = "total_symbols"
-    }
-}
-
 struct DictionaryEntry: Codable, Identifiable {
     let id: Int
     let trigger: String
@@ -138,27 +108,6 @@ struct DictionaryEntry: Codable, Identifiable {
 
 struct DictionaryResponse: Decodable {
     let items: [DictionaryEntry]
-    let count: Int
-}
-
-struct SnippetEntry: Codable, Identifiable {
-    let id: Int
-    let triggerPhrase: String
-    let expansion: String
-    let scope: String
-    let userId: String?
-    let tenantId: String?
-
-    enum CodingKeys: String, CodingKey {
-        case id, expansion, scope
-        case triggerPhrase = "trigger_phrase"
-        case userId        = "user_id"
-        case tenantId      = "tenant_id"
-    }
-}
-
-struct SnippetResponse: Decodable {
-    let items: [SnippetEntry]
     let count: Int
 }
 
@@ -192,7 +141,7 @@ struct HealthResponse: Decodable {
 
 protocol BackendServiceProtocol: Actor {
     func startRecording() async throws
-    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, cmdIntervals: [(Double, Double)]?, itDatasetIndex: Int?, trainingMode: Bool) async throws -> TranscriptionResult
+    func stopRecording(activeAppBundleID: String?, windowTitle: String?, selectedText: String?, trainingMode: Bool) async throws -> TranscriptionResult
     func saveUserCorrection(wavPath: String, whisperText: String, correctedText: String) async throws
     func deletePendingWav(wavPath: String) async throws
     func forceStop() async throws
@@ -205,18 +154,12 @@ protocol BackendServiceProtocol: Actor {
     func getHistory(limit: Int) async throws -> [HistoryItem]
     func clearHistory() async throws
     func getContextStatus() async throws -> ContextStatus
-    func getContextProjects() async throws -> ContextProjects
     func ingestContext(path: String) async throws
     func clearContext() async throws
     func getDictionary() async throws -> [DictionaryEntry]
     func addDictionaryEntry(trigger: String, replacement: String, scope: String) async throws -> DictionaryEntry
     func deleteDictionaryEntry(id: Int) async throws
     func learnDictionary() async throws -> Int
-    func getSnippets() async throws -> [SnippetEntry]
-    func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry
-    func deleteSnippet(id: Int) async throws
-    func loadSnippetPack(packName: String) async throws
-    func clearSnippetPack(packName: String) async throws
 
     // Auth
     func login(email: String, password: String) async throws -> AuthTokens
@@ -226,13 +169,6 @@ protocol BackendServiceProtocol: Actor {
 
     // Training Mode (Katman 4)
     func submitFeedback(rawWhisper: String, modelOutput: String, userAction: String, userEdit: String?) async throws
-
-    // IT Dataset (Engineering Whisper)
-    func getITDatasetNext(offset: Int, trainingSet: String) async throws -> ITDatasetResponse
-    func getITDatasetRandom(trainingSet: String) async throws -> ITDatasetResponse
-    func getITDatasetRecorded(trainingSet: String) async throws -> [ITDatasetResponse]
-    func saveITDatasetPair(index: Int, whisperOutput: String) async throws
-    func deleteITDatasetPair(wavPath: String) async throws
 }
 
 // MARK: - Concrete implementation
@@ -348,7 +284,7 @@ actor BackendService: BackendServiceProtocol {
         }
     }
 
-    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, cmdIntervals: [(Double, Double)]? = nil, itDatasetIndex: Int? = nil, trainingMode: Bool = false) async throws -> TranscriptionResult {
+    func stopRecording(activeAppBundleID: String? = nil, windowTitle: String? = nil, selectedText: String? = nil, trainingMode: Bool = false) async throws -> TranscriptionResult {
         var request = makeRequest(path: APIEndpoint.stop, method: "POST")
         if let bundleID = activeAppBundleID {
             request.setValue(bundleID, forHTTPHeaderField: APIHeader.activeApp)
@@ -358,13 +294,6 @@ actor BackendService: BackendServiceProtocol {
         }
         if let selected = selectedText {
             request.setValue(selected, forHTTPHeaderField: APIHeader.selectedText)
-        }
-        if let intervals = cmdIntervals, !intervals.isEmpty {
-            let header = intervals.map { "\(String(format: "%.2f", $0.0))-\(String(format: "%.2f", $0.1))" }.joined(separator: ",")
-            request.setValue(header, forHTTPHeaderField: APIHeader.cmdIntervals)
-        }
-        if let idx = itDatasetIndex {
-            request.setValue(String(idx), forHTTPHeaderField: APIHeader.itDatasetIndex)
         }
         if trainingMode {
             request.setValue("1", forHTTPHeaderField: APIHeader.trainingMode)
@@ -509,14 +438,6 @@ actor BackendService: BackendServiceProtocol {
         return try JSONDecoder().decode(ContextStatus.self, from: data)
     }
 
-    func getContextProjects() async throws -> ContextProjects {
-        let request = makeRequest(path: APIEndpoint.contextProjects)
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode(ContextProjects.self, from: data)
-    }
 
     func ingestContext(path: String) async throws {
         var request = makeRequest(path: APIEndpoint.contextIngest, method: "POST")
@@ -570,52 +491,6 @@ actor BackendService: BackendServiceProtocol {
 
     func deleteDictionaryEntry(id: Int) async throws {
         let request = makeRequest(path: "\(APIEndpoint.dictionary)/\(id)", method: "DELETE")
-        let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-    }
-
-    func getSnippets() async throws -> [SnippetEntry] {
-        let request = makeRequest(path: APIEndpoint.snippets)
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode(SnippetResponse.self, from: data).items
-    }
-
-    func addSnippet(triggerPhrase: String, expansion: String, scope: String) async throws -> SnippetEntry {
-        var request = makeRequest(path: APIEndpoint.snippets, method: "POST")
-        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
-        request.httpBody = try JSONSerialization.data(withJSONObject: [
-            "trigger_phrase": triggerPhrase, "expansion": expansion, "scope": scope
-        ])
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode(SnippetEntry.self, from: data)
-    }
-
-    func deleteSnippet(id: Int) async throws {
-        let request = makeRequest(path: "\(APIEndpoint.snippets)/\(id)", method: "DELETE")
-        let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-    }
-
-    func loadSnippetPack(packName: String) async throws {
-        let request = makeRequest(path: "\(APIEndpoint.snippetPack)/\(packName)", method: "POST")
-        let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-    }
-
-    func clearSnippetPack(packName: String) async throws {
-        let request = makeRequest(path: "\(APIEndpoint.snippetPack)/\(packName)", method: "DELETE")
         let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw BackendError.requestFailed
@@ -722,77 +597,5 @@ struct RefreshTokens: Decodable {
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
         case tokenType   = "token_type"
-    }
-}
-
-// MARK: - IT Dataset
-
-struct ITRecordingItem: Decodable {
-    let whisper: String
-    let wavPath: String
-
-    enum CodingKeys: String, CodingKey {
-        case whisper
-        case wavPath = "wav_path"
-    }
-}
-
-struct ITDatasetResponse: Decodable {
-    let index: Int
-    let total: Int
-    let sentence: String
-    let persona: String?
-    let scenario: String?
-    let recordings: [ITRecordingItem]?
-}
-
-extension BackendService {
-    func getITDatasetNext(offset: Int = 0, trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "\(APIEndpoint.itDatasetNext)?offset=\(offset)&training_set=\(trainingSet)")
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
-    }
-
-    func getITDatasetRandom(trainingSet: String = "it_dataset") async throws -> ITDatasetResponse {
-        let request = makeRequest(path: "\(APIEndpoint.itDatasetRandom)?training_set=\(trainingSet)")
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode(ITDatasetResponse.self, from: data)
-    }
-
-    func getITDatasetRecorded(trainingSet: String = "it_dataset") async throws -> [ITDatasetResponse] {
-        let request = makeRequest(path: "\(APIEndpoint.itDatasetRecorded)?training_set=\(trainingSet)")
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-        return try JSONDecoder().decode([ITDatasetResponse].self, from: data)
-    }
-
-    func saveITDatasetPair(index: Int, whisperOutput: String) async throws {
-        var request = makeRequest(path: APIEndpoint.itDatasetRecord, method: "POST")
-        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
-        let body: [String: Any] = ["index": index, "whisper_output": whisperOutput]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
-    }
-
-    func deleteITDatasetPair(wavPath: String) async throws {
-        var request = makeRequest(path: APIEndpoint.itDatasetRecord, method: "DELETE")
-        request.setValue(APIValue.contentTypeJSON, forHTTPHeaderField: APIHeader.contentType)
-        let body: [String: String] = ["wav_path": wavPath]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.requestFailed
-        }
     }
 }

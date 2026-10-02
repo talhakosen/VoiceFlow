@@ -50,8 +50,7 @@ def test_stop_no_context_headers_passes():
 
     async def _run():
         with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
-             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-             patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
+             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
             return await svc.stop(user_id=None, tenant_id="default")
 
     result = asyncio.run(_run())
@@ -69,8 +68,7 @@ def test_stop_with_context_headers_passes():
 
     async def _run():
         with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
-             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-             patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
+             patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
             return await svc.stop(
                 user_id=None,
                 tenant_id="default",
@@ -175,8 +173,7 @@ def test_quiet_but_valid_audio_is_transcribed():
     svc._audio.stop = MagicMock(return_value=quiet)
 
     with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
-         patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-         patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
+         patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
         result = asyncio.run(svc.stop(user_id=None, tenant_id="default"))
 
     # Pipeline cümle başını büyütüyor — önemli olan metnin elenmemesi

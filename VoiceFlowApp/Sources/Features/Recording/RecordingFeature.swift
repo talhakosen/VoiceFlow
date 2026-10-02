@@ -126,7 +126,7 @@ struct RecordingFeature {
                     BackendService.debugLog("RecordingFeature: calling stopRecording...")
                     do {
                         let result = try await backend.stopRecording(
-                            nil, nil, nil, nil, nil, trainingMode
+                            nil, nil, nil, trainingMode
                         )
                         BackendService.debugLog("RecordingFeature: got result='\(result.text)'")
                         await MainActor.run { NSSound(named: AppConstants.soundStop)?.play() }
@@ -197,15 +197,8 @@ struct RecordingFeature {
 
             case let .selectAppMode(mode):
                 state.currentAppMode = mode
-                // Mode defaults: Engineering → always off; Office → on; General → off
-                switch mode {
-                case .engineering:
-                    state.isCorrectionEnabled = false
-                case .office:
-                    state.isCorrectionEnabled = true
-                case .general:
-                    state.isCorrectionEnabled = false
-                }
+                // Mod değişince LLM düzeltme kapanır; Genel modda kullanıcı açabilir
+                state.isCorrectionEnabled = false
                 userDefaults.setString(mode.rawValue, AppSettings.appMode)
                 userDefaults.setBool(state.isCorrectionEnabled, AppSettings.correctionEnabled)
                 let lang = state.currentLanguageMode

@@ -41,12 +41,10 @@ def isolated_db(tmp_path, monkeypatch):
     import voiceflow.db.dictionary_storage as _ds
     import voiceflow.db.user_storage as _us
     import voiceflow.db.audit_storage as _as
-    import voiceflow.db.training_storage as _trs
-    import voiceflow.db.symbol_storage as _ss
     import voiceflow.db.token_storage as _tks
     import voiceflow.db.migrations as _mg
 
-    for mod in (_base, _ts, _cs, _ds, _us, _as, _trs, _ss, _tks, _mg):
+    for mod in (_base, _ts, _cs, _ds, _us, _as, _tks, _mg):
         monkeypatch.setattr(mod, "DB_PATH", db_str, raising=False)
 
     # Run migrations to create all tables

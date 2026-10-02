@@ -76,19 +76,18 @@ class HotkeyManager {
         sm.setProcessing(processing)
     }
 
-    /// Returns true if event was consumed (⌥1/2/3 mode switch).
+    /// Returns true if event was consumed (⌥1/2 mode switch).
     @discardableResult
     private func handleModeKey(_ event: NSEvent) -> Bool {
         guard event.modifierFlags.contains(.option),
               !event.modifierFlags.contains(.command),
               !event.modifierFlags.contains(.control) else { return false }
-        let modes = AppMode.allCases  // [general, engineering, office]
-        // keyCodes: 1→18, 2→19, 3→20
+        let modes = AppMode.allCases  // [general, engineering]
+        // keyCodes: 1→18, 2→19
         let index: Int
         switch event.keyCode {
         case 18: index = 0
         case 19: index = 1
-        case 20: index = 2
         default: return false
         }
         guard index < modes.count else { return false }

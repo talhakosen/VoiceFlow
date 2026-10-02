@@ -1,11 +1,11 @@
-"""ContextService — smart dictionary + symbol index business logic."""
+"""ContextService — project terms (smart dictionary) business logic."""
 
 import asyncio
 import logging
 import time
 from pathlib import Path
 
-from ..db import get_context_status, get_context_projects, clear_smart_dictionary
+from ..db import get_context_status, clear_smart_dictionary
 
 logger = logging.getLogger(__name__)
 
@@ -51,48 +51,19 @@ async def start_ingest(
             logger.info("Smart dictionary: %d entries added for user %s", added, user_id)
         except Exception as exc:
             logger.warning("Smart dictionary failed: %s", exc)
-        try:
-            from ..symbol import build_symbol_index, generate_project_notes
-            sym_count = await build_symbol_index(path_str, user_id)
-            logger.info("Symbol index: %d symbols for user %s", sym_count, user_id)
-            if sym_count > 0:
-                notes_path = await generate_project_notes(path_str, user_id)
-                if notes_path:
-                    logger.info("Project notes generated: %s", notes_path)
-        except Exception as exc:
-            logger.warning("Symbol index failed: %s", exc)
-
     asyncio.create_task(_run())
     return {"status": "started", "path": path_str, "message": "Smart dictionary scan in background"}
 
 
 async def get_status(user_id: str, last_index_paths: dict) -> dict:
-    """Return smart dictionary + symbol index status for a user."""
+    """Return smart dictionary status for a user."""
     stats = await get_context_status(user_id)
     entry = last_index_paths.get(user_id) or last_index_paths.get("default")
     return {
         "count": stats["smart_count"],
         "is_ready": True,
         "is_empty": stats["smart_count"] == 0,
-        "symbol_count": stats["symbol_count"],
-        "last_indexed_at": stats["last_indexed_at"],
         "last_index_path": entry["path"] if entry else None,
-    }
-
-
-async def get_projects(user_id: str) -> dict:
-    """Return indexed projects with smart dictionary + symbol counts."""
-    data = await get_context_projects(user_id)
-    symbol_rows = data["symbol_rows"]
-    smart_total = data["smart_total"]
-    projects = [
-        {"path": path, "name": Path(path).name, "symbol_count": sym_count}
-        for path, sym_count in symbol_rows.items()
-    ]
-    return {
-        "projects": projects,
-        "smart_word_count": smart_total,
-        "total_symbols": sum(p["symbol_count"] for p in projects),
     }
 
 

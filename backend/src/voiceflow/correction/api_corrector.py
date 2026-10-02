@@ -51,7 +51,6 @@ class APICorrector:
         active_app: str | None,
         window_title: str | None,
         selected_text: str | None,
-        context: list[str] | None,
     ) -> str:
         base = _SYSTEM_PROMPTS.get(self.config.mode, _SYSTEM_PROMPTS["general"])
         return build_system_prompt(
@@ -60,7 +59,6 @@ class APICorrector:
             active_app=active_app,
             window_title=window_title,
             selected_text=selected_text,
-            context=context,
         )
 
     def _extract_corrected(self, response_json: dict) -> str | None:
@@ -96,7 +94,6 @@ class APICorrector:
         self,
         text: str,
         language: str | None = None,
-        context: list[str] | None = None,
         active_app: str | None = None,
         window_title: str | None = None,
         selected_text: str | None = None,
@@ -114,7 +111,7 @@ class APICorrector:
             return text
 
         messages = build_messages(
-            self._build_system_prompt(active_app, window_title, selected_text, context),
+            self._build_system_prompt(active_app, window_title, selected_text),
             text,
         )
 
@@ -150,7 +147,6 @@ class APICorrector:
         self,
         text: str,
         language: str | None = None,
-        context: list[str] | None = None,
         active_app: str | None = None,
         window_title: str | None = None,
         selected_text: str | None = None,
@@ -168,7 +164,7 @@ class APICorrector:
             return text
 
         messages = build_messages(
-            self._build_system_prompt(active_app, window_title, selected_text, context),
+            self._build_system_prompt(active_app, window_title, selected_text),
             text,
         )
 

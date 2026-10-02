@@ -8,8 +8,6 @@ struct BackendClient {
         _ activeAppBundleID: String?,
         _ windowTitle: String?,
         _ selectedText: String?,
-        _ cmdIntervals: [(Double, Double)]?,
-        _ itDatasetIndex: Int?,
         _ trainingMode: Bool
     ) async throws -> TranscriptionResult
     var forceStop: () async throws -> Void
@@ -37,7 +35,6 @@ struct BackendClient {
 
     // MARK: - Context
     var getContextStatus: () async throws -> ContextStatus
-    var getContextProjects: () async throws -> ContextProjects
     var ingestContext: (_ path: String) async throws -> Void
     var clearContext: () async throws -> Void
 
@@ -50,17 +47,6 @@ struct BackendClient {
     ) async throws -> DictionaryEntry
     var deleteDictionaryEntry: (_ id: Int) async throws -> Void
     var learnDictionary: () async throws -> Int
-
-    // MARK: - Snippets
-    var getSnippets: () async throws -> [SnippetEntry]
-    var addSnippet: (
-        _ triggerPhrase: String,
-        _ expansion: String,
-        _ scope: String
-    ) async throws -> SnippetEntry
-    var deleteSnippet: (_ id: Int) async throws -> Void
-    var loadSnippetPack: (_ packName: String) async throws -> Void
-    var clearSnippetPack: (_ packName: String) async throws -> Void
 
     // MARK: - Auth
     var login: (_ email: String, _ password: String) async throws -> AuthTokens
@@ -81,13 +67,6 @@ struct BackendClient {
         _ correctedText: String
     ) async throws -> Void
     var deletePendingWav: (_ wavPath: String) async throws -> Void
-
-    // MARK: - IT Dataset
-    var getITDatasetNext: (_ offset: Int, _ trainingSet: String) async throws -> ITDatasetResponse
-    var getITDatasetRandom: (_ trainingSet: String) async throws -> ITDatasetResponse
-    var getITDatasetRecorded: (_ trainingSet: String) async throws -> [ITDatasetResponse]
-    var saveITDatasetPair: (_ index: Int, _ whisperOutput: String) async throws -> Void
-    var deleteITDatasetPair: (_ wavPath: String) async throws -> Void
 }
 
 extension BackendClient: DependencyKey {
@@ -97,13 +76,11 @@ extension BackendClient: DependencyKey {
             startRecording: {
                 try await service.startRecording()
             },
-            stopRecording: { bundleID, windowTitle, selectedText, cmdIntervals, itDatasetIndex, trainingMode in
+            stopRecording: { bundleID, windowTitle, selectedText, trainingMode in
                 try await service.stopRecording(
                     activeAppBundleID: bundleID,
                     windowTitle: windowTitle,
                     selectedText: selectedText,
-                    cmdIntervals: cmdIntervals,
-                    itDatasetIndex: itDatasetIndex,
                     trainingMode: trainingMode
                 )
             },
@@ -142,9 +119,6 @@ extension BackendClient: DependencyKey {
             getContextStatus: {
                 try await service.getContextStatus()
             },
-            getContextProjects: {
-                try await service.getContextProjects()
-            },
             ingestContext: { path in
                 try await service.ingestContext(path: path)
             },
@@ -162,21 +136,6 @@ extension BackendClient: DependencyKey {
             },
             learnDictionary: {
                 try await service.learnDictionary()
-            },
-            getSnippets: {
-                try await service.getSnippets()
-            },
-            addSnippet: { triggerPhrase, expansion, scope in
-                try await service.addSnippet(triggerPhrase: triggerPhrase, expansion: expansion, scope: scope)
-            },
-            deleteSnippet: { id in
-                try await service.deleteSnippet(id: id)
-            },
-            loadSnippetPack: { packName in
-                try await service.loadSnippetPack(packName: packName)
-            },
-            clearSnippetPack: { packName in
-                try await service.clearSnippetPack(packName: packName)
             },
             login: { email, password in
                 try await service.login(email: email, password: password)
@@ -207,40 +166,22 @@ extension BackendClient: DependencyKey {
             },
             deletePendingWav: { wavPath in
                 try await service.deletePendingWav(wavPath: wavPath)
-            },
-            getITDatasetNext: { offset, trainingSet in
-                try await service.getITDatasetNext(offset: offset, trainingSet: trainingSet)
-            },
-            getITDatasetRandom: { trainingSet in
-                try await service.getITDatasetRandom(trainingSet: trainingSet)
-            },
-            getITDatasetRecorded: { trainingSet in
-                try await service.getITDatasetRecorded(trainingSet: trainingSet)
-            },
-            saveITDatasetPair: { index, whisperOutput in
-                try await service.saveITDatasetPair(index: index, whisperOutput: whisperOutput)
-            },
-            deleteITDatasetPair: { wavPath in
-                try await service.deleteITDatasetPair(wavPath: wavPath)
             }
         )
     }()
 
     static let testValue = BackendClient(
         startRecording: {},
-        stopRecording: { _, _, _, _, _, _ in
+        stopRecording: { _, _, _, _ in
             TranscriptionResult(
                 text: "",
                 rawText: nil,
                 corrected: nil,
-                snippetUsed: nil,
                 language: nil,
                 duration: nil,
                 processingMs: nil,
                 id: nil,
-                itWavPath: nil,
                 pendingWavPath: nil,
-                symbolRefs: nil,
                 notice: nil
             )
         },
@@ -266,9 +207,6 @@ extension BackendClient: DependencyKey {
         getContextStatus: {
             ContextStatus(count: 0, isReady: true, isEmpty: true)
         },
-        getContextProjects: {
-            ContextProjects(projects: [], smartWordCount: 0, totalSymbols: 0)
-        },
         ingestContext: { _ in },
         clearContext: {},
         getDictionary: { [] },
@@ -277,13 +215,6 @@ extension BackendClient: DependencyKey {
         },
         deleteDictionaryEntry: { _ in },
         learnDictionary: { 0 },
-        getSnippets: { [] },
-        addSnippet: { triggerPhrase, expansion, scope in
-            SnippetEntry(id: 0, triggerPhrase: triggerPhrase, expansion: expansion, scope: scope, userId: nil, tenantId: nil)
-        },
-        deleteSnippet: { _ in },
-        loadSnippetPack: { _ in },
-        clearSnippetPack: { _ in },
         login: { _, _ in
             AuthTokens(accessToken: "", refreshToken: "", tokenType: "bearer")
         },
@@ -296,16 +227,7 @@ extension BackendClient: DependencyKey {
         },
         submitFeedback: { _, _, _, _ in },
         saveUserCorrection: { _, _, _ in },
-        deletePendingWav: { _ in },
-        getITDatasetNext: { _, _ in
-            ITDatasetResponse(index: 0, total: 0, sentence: "", persona: nil, scenario: nil, recordings: nil)
-        },
-        getITDatasetRandom: { _ in
-            ITDatasetResponse(index: 0, total: 0, sentence: "", persona: nil, scenario: nil, recordings: nil)
-        },
-        getITDatasetRecorded: { _ in [] },
-        saveITDatasetPair: { _, _ in },
-        deleteITDatasetPair: { _ in }
+        deletePendingWav: { _ in }
     )
 }
 

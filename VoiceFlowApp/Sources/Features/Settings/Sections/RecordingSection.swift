@@ -19,7 +19,7 @@ struct RecordingSection: View {
             SectionBanner(
                 gradient: VFColor.bannerRecFull,
                 title: "Kayıt ve Mod Ayarları",
-                subtitle: "Genel, Mühendislik veya Ofis modunu seçin; her mod farklı optimize edilir.",
+                subtitle: "Genel veya Mühendislik modunu seçin; her mod farklı optimize edilir.",
                 iconName: "mic"
             )
 
@@ -163,7 +163,6 @@ struct RecordingSection: View {
         switch mode {
         case .general:     return "Genel amaçlı; günlük yazışmalar ve notlar için"
         case .engineering: return "Teknik terimler korunur, LLM düzeltme kapalı"
-        case .office:      return "Resmi yazışmalar; düzeltme varsayılan olarak açık"
         }
     }
 

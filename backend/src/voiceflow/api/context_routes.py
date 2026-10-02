@@ -1,4 +1,4 @@
-"""Context Engine routes — /context/* and /symbol/* endpoints."""
+"""Project terms routes — /context/* endpoints (smart dictionary from a code folder)."""
 
 import logging
 
@@ -51,35 +51,12 @@ async def context_status(
     request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-ID"),
 ):
-    """Return smart dictionary + symbol index status."""
+    """Return smart dictionary status."""
     from ..services.context_service import get_status
     return await get_status(
         user_id=_user_id(request, x_user_id),
         last_index_paths=_last_index_paths(request),
     )
-
-
-@context_router.get("/context/projects")
-async def context_projects(
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-):
-    """Return indexed projects with smart dictionary + symbol counts."""
-    from ..services.context_service import get_projects
-    return await get_projects(user_id=_user_id(request, x_user_id))
-
-
-@context_router.get("/symbol/lookup")
-async def symbol_lookup(
-    q: str,
-    request: Request,
-    x_user_id: str | None = Header(default=None, alias="X-User-ID"),
-    limit: int = 5,
-):
-    """Fuzzy symbol lookup. Returns file_path:line_number matches."""
-    from ..symbol import lookup_symbol
-    results = await lookup_symbol(query=q, user_id=_user_id(request, x_user_id), limit=limit)
-    return {"query": q, "results": results}
 
 
 @context_router.delete("/context")

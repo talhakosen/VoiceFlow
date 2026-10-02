@@ -158,7 +158,7 @@ class WhisperTranscriber:
         Args:
             audio: Audio data as numpy array (float32, mono)
             sample_rate: Sample rate of audio (default 16000)
-            mode: Active mode ("general" | "engineering" | "office"). Engineering mode
+            mode: Active mode ("general" | "engineering"). Engineering mode
                   uses the IT-specific fine-tuned model when configured.
 
         Returns:

@@ -69,8 +69,7 @@ private struct WelcomeStep: View {
                 }
                 HStack(spacing: VFSpacing.xxl) {
                     Label("Kişisel Sözlük", systemImage: VFIcon.dictionary)
-                    Label("Sesli Şablonlar", systemImage: VFIcon.snippets)
-                    Label("Bilgi Tabanı",   systemImage: VFIcon.knowledgeBase)
+                    Label("Proje Terimleri", systemImage: VFIcon.knowledgeBase)
                 }
                 .font(VFFont.caption2)
                 .foregroundStyle(.secondary)
@@ -99,7 +98,6 @@ private struct ModeSelectionStep: View {
     private let modes: [(id: String, title: String, description: String, icon: String)] = [
         ("general",     "Genel",        "Günlük Türkçe dikte — karakter düzeltmeli",        "text.bubble"),
         ("engineering", "Mühendislik", "Teknik terimler korunur, kod isimleri değişmez",    "chevron.left.forwardslash.chevron.right"),
-        ("office",      "Ofis",        "Resmi dil, kısaltma açma, iş yazışması tonu",       "envelope"),
     ]
 
     var body: some View {

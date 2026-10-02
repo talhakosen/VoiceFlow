@@ -9,18 +9,16 @@ from __future__ import annotations
 import asyncio
 import functools
 import logging
-import re
 import time
 
 import numpy as np
 
 from ..audio import AudioCapture, AudioConfig
 from ..core.interfaces import AbstractCorrector, AbstractTranscriber, TranscriptionResult
-from ..db import save_transcription, get_dictionary, get_snippets, dictionary_version
+from ..db import save_transcription, get_dictionary, dictionary_version
 from ..services.dictionary import _apply_aho_corasick, _apply_regex_fallback, _build_automaton, _HAS_AC
-from ..services.snippets import apply_snippets
 from ..services.filler_cleaner import clean_fillers
-from .segmenter import _mlx_executor, _SAMPLE_RATE, transcribe_segmented
+from .segmenter import _mlx_executor, _SAMPLE_RATE
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +90,6 @@ class RecordingService:
         active_app: str | None = None,
         window_title: str | None = None,
         selected_text: str | None = None,
-        cmd_intervals: list[tuple[float, float]] | None = None,
-        it_dataset_index: int | None = None,
         save_pending_wav: bool = False,
     ) -> dict:
         """Stop recording, transcribe, optionally correct, persist to DB.
@@ -151,52 +147,15 @@ class RecordingService:
         active_mode = self._corrector.config.mode
 
         t_whisper = time.perf_counter()
-        if cmd_intervals:
-            merged_text, language, duration = await transcribe_segmented(
-                audio_data, cmd_intervals, self._transcriber, user_id, loop
-            )
-            result = TranscriptionResult(text=merged_text, language=language, duration=duration)
-        else:
-            transcribe_fn = functools.partial(self._transcriber.transcribe, audio_data, mode=active_mode)
-            result = await loop.run_in_executor(self._executor, transcribe_fn)
+        transcribe_fn = functools.partial(self._transcriber.transcribe, audio_data, mode=active_mode)
+        result = await loop.run_in_executor(self._executor, transcribe_fn)
         timings["whisper_ms"] = (time.perf_counter() - t_whisper) * 1000
         logger.info("Whisper: %.3fs → '%s'", timings["whisper_ms"] / 1000, result.text[:80])
 
         raw_text = result.text
 
-        from ..core.config import IT_DATASET_DIR, USER_CORRECTIONS_DIR
-        from ..services.training_data_service import save_it_recording, save_pending_wav as _save_pending_wav
-
-        # IT Dataset: save WAV + recording to SQLite
-        _it_wav_path: str | None = None
-        if it_dataset_index is not None and len(audio_data) > 0:
-            _it_wav_path = await save_it_recording(
-                audio_data=audio_data,
-                it_dataset_index=it_dataset_index,
-                raw_text=raw_text,
-                wav_dir=IT_DATASET_DIR,
-                sample_rate=_SAMPLE_RATE,
-            )
-
-        # IT Dataset mode: skip all post-processing, return raw Whisper output
-        if it_dataset_index is not None:
-            processing_ms = int((time.perf_counter() - t_start) * 1000)
-            row_id = await save_transcription(
-                text=raw_text, raw_text=raw_text, corrected=False,
-                language=result.language, duration=result.duration,
-                mode=active_mode, user_id=user_id, tenant_id=tenant_id,
-                processing_ms=processing_ms,
-                whisper_model=self._transcriber.config.model_name,
-            )
-            return {
-                "text": raw_text, "raw_text": raw_text, "corrected": False,
-                "snippet_used": False, "language": result.language,
-                "duration": result.duration, "processing_ms": processing_ms,
-                "id": row_id, "it_wav_path": _it_wav_path,
-            }
-
         t_pipeline = time.perf_counter()
-        result.text, was_corrected, snippet_used, symbol_refs, corrections = await self._apply_text_pipeline(
+        result.text, was_corrected, corrections = await self._apply_text_pipeline(
             result, active_mode, user_id, active_app, window_title, selected_text, loop, timings,
         )
         timings["pipeline_ms"] = (time.perf_counter() - t_pipeline) * 1000
@@ -227,8 +186,12 @@ class RecordingService:
             corrections=corrections if corrections else None,
         )
 
+        # Eğitim modu (Ayarlar > Kayıt, varsayılan KAPALI): ses, düzeltme
+        # baloncuğunda etiketlenmek üzere diske yazılır.
         _pending_wav_path: str | None = None
         if save_pending_wav and len(audio_data) > 0:
+            from ..core.config import USER_CORRECTIONS_DIR
+            from ..services.training_data_service import save_pending_wav as _save_pending_wav
             _pending_wav_path = await _save_pending_wav(
                 audio_data=audio_data,
                 raw_text=raw_text,
@@ -236,19 +199,15 @@ class RecordingService:
                 sample_rate=_SAMPLE_RATE,
             )
 
-        logger.info("snippet_used=%s user_id=%s", snippet_used, user_id)
         return {
             "text": result.text,
             "raw_text": raw_text,
             "corrected": was_corrected,
-            "snippet_used": snippet_used,
             "language": result.language,
             "duration": result.duration,
             "processing_ms": processing_ms,
             "id": row_id,
-            "it_wav_path": _it_wav_path,
             "pending_wav_path": _pending_wav_path,
-            "symbol_refs": symbol_refs or None,
             "corrections": corrections if corrections else None,
         }
 
@@ -262,36 +221,30 @@ class RecordingService:
         selected_text: str | None,
         loop,
         timings: dict[str, float] | None = None,
-    ) -> tuple[str, bool, bool, list[str], dict]:
+    ) -> tuple[str, bool, dict]:
         """Apply the full text post-processing pipeline.
 
-        Returns: (final_text, was_corrected, snippet_used, symbol_refs, corrections)
+        Returns: (final_text, was_corrected, corrections)
 
         `corrections` dict structure (keys present only when non-empty):
           {
             "dict":    {"original_token": "replacement", ...},
-            "snippet": {"trigger_phrase": "expansion"},
-            "symbol":  {"symbol_name": "file.swift:42"},
             "llm":     {"in": "text_before_llm", "out": "text_after_llm"}
           }
 
         Pipeline order:
           1. Dictionary substitution (Aho-Corasick / regex fallback)
-          2. Snippet expansion
-          3. Filler word removal (general/office only)
-          4. Engineering symbol injection (engineering only)
-          5. LLM correction (if enabled)
+          2. Filler word removal (general only — engineering keeps text as spoken)
+          3. LLM correction (if enabled)
         """
         was_corrected = False
-        snippet_used = False
-        symbol_refs: list[str] = []
         corrections: dict = {}
         if timings is None:
             timings = {}
 
         t_text = time.perf_counter()
 
-        # 1. Dictionary + snippets
+        # 1. Dictionary
         if result.text and user_id:
             entries = await get_dictionary(user_id=user_id, include_smart=True)
             if entries:
@@ -314,50 +267,14 @@ class RecordingService:
                 if dict_subs:
                     corrections["dict"] = dict_subs
 
-            snippets = await get_snippets(user_id=user_id)
-            if snippets:
-                expanded, snippet_subs = apply_snippets(result.text, snippets)
-                if expanded != result.text:
-                    snippet_used = True
-                    if snippet_subs:
-                        corrections["snippet"] = snippet_subs
-                result.text = expanded
-
-        # 2. Filler word removal — deterministic, general/office only
+        # 2. Filler word removal — deterministic, general only
         if result.text and active_mode != "engineering":
             result.text = clean_fillers(result.text)
 
-        # 3. Engineering symbol injection
-        if active_mode == "engineering" and result.text and user_id:
-            from ..symbol import inject_symbol_refs as _inject
-            injected = await _inject(result.text, user_id)
-            if injected != result.text:
-                symbol_map: dict[str, str] = {}
-
-                def _fmt_sym(m: re.Match) -> str:
-                    full_path, name = m.group(1), m.group(2)
-                    path_only = full_path.rsplit(":", 1)[0]
-                    symbol_refs.append(f"{name} → {full_path}")
-                    symbol_map[name] = full_path
-                    return f"@{path_only}"
-
-                result.text = re.sub(r'@([\w/.]+\.\w+:\d+)\s+(\w+)', _fmt_sym, injected)
-                _seen_paths = {s.split(" → ", 1)[1].rsplit(":", 1)[0] for s in symbol_refs}
-                for _m in re.finditer(r'@([\w/.]+)', result.text):
-                    _path = _m.group(1)
-                    if _path not in _seen_paths:
-                        _seen_paths.add(_path)
-                        _basename = _path.rstrip("/").rsplit("/", 1)[-1] or _path
-                        symbol_refs.append(f"{_basename} → {_path}")
-                        symbol_map[_basename] = _path
-                if symbol_map:
-                    corrections["symbol"] = symbol_map
-                logger.info("Engineering symbols detected: %s", symbol_refs)
-
-        # Deterministic text processing done (dict/snippet/filler/symbol + DB reads)
+        # Deterministic text processing done (dict/filler + DB reads)
         timings["text_proc_ms"] = (time.perf_counter() - t_text) * 1000
 
-        # 4. LLM correction
+        # 3. LLM correction
         if self._corrector.config.enabled and result.text:
             # Was the model already resident? If not, this call pays a cold load.
             llm_was_loaded = getattr(self._corrector, "_model", "n/a") is not None
@@ -365,13 +282,13 @@ class RecordingService:
             text_before_llm = result.text
             if hasattr(self._corrector, "correct_async"):
                 corrected = await self._corrector.correct_async(
-                    result.text, result.language, None, active_app,
+                    result.text, result.language, active_app,
                     window_title=window_title, selected_text=selected_text,
                 )
             else:
                 _correct_fn = functools.partial(
                     self._corrector.correct,
-                    result.text, result.language, None, active_app,
+                    result.text, result.language, active_app,
                     window_title=window_title, selected_text=selected_text,
                 )
                 corrected = await loop.run_in_executor(self._executor, _correct_fn)
@@ -390,7 +307,7 @@ class RecordingService:
                 logger.info("Corrected: '%s' → '%s'", result.text[:60], corrected[:60])
             result.text = corrected
 
-        return result.text, was_corrected, snippet_used, symbol_refs, corrections
+        return result.text, was_corrected, corrections
 
     # ------------------------------------------------------------------
     # Background dictionary learning

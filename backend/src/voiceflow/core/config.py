@@ -115,8 +115,6 @@ LOG_BACKUP_COUNT: int = _get_int("logging", "backup_count", 5)
 
 # ── ML Dataset Paths ──────────────────────────────────────────────────────────
 
-_it_dataset_raw      = _get("ml", "it_dataset_dir",      "ml/whisper/datasets/it_dataset/recordings")
 _user_corrections_raw = _get("ml", "user_corrections_dir", "ml/whisper/datasets/user_corrections/pending")
 
-IT_DATASET_DIR:       Path = _resolve_path(_it_dataset_raw) or (_REPO_ROOT / "ml" / "whisper" / "datasets" / "it_dataset" / "recordings")
 USER_CORRECTIONS_DIR: Path = _resolve_path(_user_corrections_raw) or (_REPO_ROOT / "ml" / "whisper" / "datasets" / "user_corrections" / "pending")

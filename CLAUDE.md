@@ -31,7 +31,7 @@ open /Applications/VoiceFlow.app
 
 | Katman | Versiyon | Odak |
 |---|---|---|
-| **1** | v0.3 | UI/UX (menu sadeleştirme + 2-panel Settings + pill overlay), Dictionary, Snippets |
+| **1** | v0.3 | UI/UX (menu sadeleştirme + 2-panel Settings + pill overlay), Dictionary |
 | **2** | v0.4 | JWT auth, tenant izolasyon, admin web UI |
 | **3** | v0.5+ | Style/ton, gamification, Docker, RunPod, DMG |
 
@@ -59,10 +59,10 @@ src/types/index.ts      ← NavLink, Feature, Stat, Testimonial vb.
 api/routes.py          ← HTTP only: validate → Depends(get_service) → response
 api/auth.py            ← API key middleware (Katman 2'de JWT'ye yükselecek)
 services/recording.py  ← RecordingService: ALL pipeline logic (start/stop/transcribe/correct/save)
-core/interfaces.py     ← AbstractTranscriber, AbstractCorrector, AbstractRetriever (ABCs)
+core/interfaces.py     ← AbstractTranscriber, AbstractCorrector (ABCs)
 transcription/         ← WhisperTranscriber (MLX) or FasterWhisperTranscriber (NVIDIA)
 correction/            ← LLMCorrector (mlx-lm) or OllamaCorrector (httpx)
-context/               ← ChromaRetriever (RAG, Phase 2)
+indexing/              ← kod klasöründen proje terimleri (smart sözlük)
 db/storage.py          ← aiosqlite SQLite CRUD (~/.voiceflow/voiceflow.db)
 ```
 
@@ -92,22 +92,22 @@ POST /api/config              → {language?, task?, correction_enabled?, mode?,
 GET  /api/devices             → audio input devices
 GET  /api/history             → SQLite history [?limit=&offset=&user_id=]
 DELETE /api/history           → clear all history
-POST /api/context/ingest      → index folder into ChromaDB (async)
+POST /api/context/ingest      → kod klasöründen proje terimleri çıkar (async, smart sözlük)
 GET  /api/context/status      → {count, is_ready, is_empty}
-DELETE /api/context           → clear knowledge base
+DELETE /api/context           → proje terimlerini temizle
 ```
 
-Modes: `general` | `engineering` | `office` — different LLM system prompts.
+Modes: `general` | `engineering` — different LLM system prompts.
+
+**Kaldırıldı (2026-10-02, kullanılmıyordu):** Ofis modu, Snippet'ler, RAG/ChromaDB, @dosya referansı (sembol indeksi + Cmd segmentleri), Ses Eğitimi (IT cümle okuma). DB tabloları (`snippets`, `symbol_index*`, `training_*`) veri kaybı olmasın diye duruyor; kod kullanmıyor. Ürün yönü: geliştiricilerin AI asistanlarına sesle talimat vermesi.
 
 ## Key Config
 
 - Whisper (local): `mlx-community/whisper-small-mlx`
 - LLM (local): `mlx-community/Qwen3-4B-Instruct-2507-4bit` (~2.2GB, adapter'sız) — `config.yaml: llm.mlx_model`
-- Embeddings (RAG): `all-MiniLM-L6-v2` (CPU, ~22MB, lazy loaded)
 - Python venv: `backend/.venv` (python3.14)
 - MLX executor: `ThreadPoolExecutor(max_workers=1)` in RecordingService — Metal GPU not thread-safe
 - SQLite: `voiceflow.db` (repo root) — `DB_PATH` ile configure edilir (`config.yaml`)
-- ChromaDB: `~/.voiceflow/chroma/` (tenant=company_id)
 
 ## Critical Dev Notes
 
@@ -123,8 +123,8 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **Dinamik Whisper penceresi**: Whisper girdiyi hep 30sn'ye pad'ler → 4sn dikte de 30sn'lik hesabı öder. `transcription/dynamic_window.py` pencereyi `ceil(süre)+3sn`'ye kısaltır (min 6, max 30) → M4'te **~3x** (1.5sn ses: 1908→389ms). İki zorunlu koruma: `without_timestamps=True` (yoksa seek döngüsü SONSUZA kilitleniyor, >3.5dk ölçüldü) + 2sn'den az marjda cümle tekrarı → `has_repeated_span()` yakalarsa 30sn ile retry. Kapatmak için `config.yaml → whisper.dynamic_window: false`.
 - **CoreML/WhisperKit ELENDİ (2026-09-30, ölçüldü)**: Kısa diktede 2.5x yavaş (3.2sn ses: MLX 311ms, WhisperKit 765ms), aynı boyut (1.5 GB), ilk yükleme 933 sn. Sebep: dinamik pencere taşınamıyor — CoreML'de girdi şekli derleme anında sabitlenir, dönüştürücüde encoder penceresi seçeneği yok. Fine-tune'umuz CoreML'e sorunsuz geçiyor ve Türkçe doğruluğu koruyor (iOS'a geçilirse yol açık). Argmax'ın PSNR testi bizim checkpoint'te deterministik DEĞİL (9.3–138 arası savruluyor), ona bakarak karar verme. Detay + tekrar denemek için: `docs/ml/coreml-whisperkit-degerlendirme.md`.
 - **Mode capture**: `RecordingService.stop()`'ta `active_mode = corrector.config.mode` ilk önce yakala — concurrent `/api/config` race condition önler.
-- **ChromaDB lazy**: `_build_retriever()` sadece `ChromaRetriever()` döner, `is_empty()` çağırma — MiniLM startup'ta indirilmez.
-- **NSPanel pattern**: Settings, History, Knowledge Base hepsi NSPanel floating window. SwiftUI `Settings {}` scene selector debug'da güvenilmez.
+- **Eğitim modu (Ayarlar > Kayıt, varsayılan KAPALI)**: açıkken her diktenin sesi `ml/whisper/datasets/user_corrections/pending/`'e yazılır ve düzeltme baloncuğu çıkar. Diske birikir (2026-10-02'de 1084 dosya / 819 MB) — KVKK açısından da açık rıza gerektirir.
+- **NSPanel pattern**: Settings ve History NSPanel floating window. SwiftUI `Settings {}` scene selector debug'da güvenilmez.
 - **DerivedData**: Her build öncesi sil yoksa eski binary çalışır.
 - **Backend path hardcoded değil**: `AppConstants.backendPathCandidates` + marker doğrulaması (`src/voiceflow/main.py`). Repo taşınırsa listeye ekle ya da `defaults write com.voiceflow.app backendPathOverride /yeni/path/backend`. Yanlış cwd → `Process.run()` sessizce fırlatır, backend hiç açılmaz.
 - **Servis butonları süreci yönetir**: `.restartBackend`/`.hardReset` → `backendProcessClient` (BackendProcessManager.shared). Sadece `/api/force-stop` atmak yetmez — backend ölüyse HTTP'nin kurtaracağı bir şey yok.
@@ -133,7 +133,7 @@ Modes: `general` | `engineering` | `office` — different LLM system prompts.
 - **Swift binary güncelleme**: `cp -Rf` /Applications'ı güncellemez — `sudo cp -Rf` zorunlu.
 - **Docker yok (local)**: Katman 3'e ertelendi. Local geliştirmede Docker kullanma.
 - **HF_TOKEN**: Model indirme hızı için gerekli — env var olarak ver.
-- **venv bozulursa**: `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev,context]"`
+- **venv bozulursa**: `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
 - **BACKEND_MODE=server kullanma (Mac'te)**: faster-whisper + JWT_SECRET zorunlu hale gelir. Mac'te sadece Ollama corrector istiyorsan `LLM_BACKEND=ollama` + `LLM_ENDPOINT` yeterli.
 - **RunPod Ollama**: SECURE cloud kullan (Community'de Docker Hub timeout). Pod restart sonrası `OLLAMA_HOST=0.0.0.0 ollama serve > ollama.log 2>&1 &` tekrar çalıştır.
 - **RunPod fine-tuning GPU util**: batch=2 + default optimizer → %7 GPU (CPU darboğazı). Kullan: `batch=8, grad_accum=2, optim="adamw_8bit", packing=True, dataloader_pin_memory=True`. Detay: `docs/ml/runpod-finetuning.md`.

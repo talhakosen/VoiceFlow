@@ -86,13 +86,11 @@ enum LanguageMode: String, CaseIterable {
 enum AppMode: String, CaseIterable {
     case general     = "general"
     case engineering = "engineering"
-    case office      = "office"
 
     var displayName: String {
         switch self {
         case .general:     return "Genel"
         case .engineering: return "Mühendislik"
-        case .office:      return "Ofis"
         }
     }
 
@@ -100,7 +98,6 @@ enum AppMode: String, CaseIterable {
         switch self {
         case .general:     return "1"
         case .engineering: return "2"
-        case .office:      return "3"
         }
     }
 
@@ -108,7 +105,6 @@ enum AppMode: String, CaseIterable {
         switch self {
         case .general:     return "text.bubble"
         case .engineering: return "chevron.left.forwardslash.chevron.right"
-        case .office:      return "envelope"
         }
     }
 }

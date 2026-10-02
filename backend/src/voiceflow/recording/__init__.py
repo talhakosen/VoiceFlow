@@ -1,6 +1,6 @@
 """voiceflow.recording — Recording pipeline package.
 
-Same-level as correction/, transcription/, audio/, symbol/.
+Same-level as correction/, transcription/, audio/.
 """
 
 from .service import RecordingService

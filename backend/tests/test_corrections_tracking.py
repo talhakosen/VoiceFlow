@@ -1,6 +1,6 @@
 """Unit tests for pipeline corrections tracking.
 
-Tests verify that substitutions made by dictionary, snippet, symbol, and LLM
+Tests verify that substitutions made by dictionary and LLM
 correction steps are correctly captured in the `corrections` dict, which is
 persisted to `transcriptions.corrections` (JSON) for eval.
 """
@@ -17,10 +17,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 def entry(trigger: str, replacement: str) -> dict:
     return {"trigger": trigger, "replacement": replacement, "scope": "personal"}
-
-
-def snippet(trigger: str, expansion: str) -> dict:
-    return {"trigger_phrase": trigger, "expansion": expansion, "scope": "personal"}
 
 
 # ---------------------------------------------------------------------------
@@ -96,47 +92,7 @@ class TestDictSubstitutionTracking:
 
 
 # ---------------------------------------------------------------------------
-# 2. Snippet substitution tracking
-# ---------------------------------------------------------------------------
-
-class TestSnippetSubstitutionTracking:
-    def test_exact_match_returns_tuple(self):
-        from voiceflow.services.snippets import apply_snippets
-        snippets = [snippet("aç parantez", "(")]
-        text, subs = apply_snippets("aç parantez", snippets)
-        assert text == "("
-        assert subs == {"aç parantez": "("}
-
-    def test_case_insensitive_match(self):
-        from voiceflow.services.snippets import apply_snippets
-        snippets = [snippet("Aç Parantez", "(")]
-        text, subs = apply_snippets("aç parantez", snippets)
-        assert text == "("
-        assert subs is not None
-
-    def test_no_match_returns_none_subs(self):
-        from voiceflow.services.snippets import apply_snippets
-        snippets = [snippet("aç parantez", "(")]
-        text, subs = apply_snippets("farklı bir metin", snippets)
-        assert text == "farklı bir metin"
-        assert subs is None
-
-    def test_empty_snippets_returns_none_subs(self):
-        from voiceflow.services.snippets import apply_snippets
-        text, subs = apply_snippets("herhangi metin", [])
-        assert text == "herhangi metin"
-        assert subs is None
-
-    def test_trailing_punctuation_stripped_before_match(self):
-        from voiceflow.services.snippets import apply_snippets
-        snippets = [snippet("tamam", "OK")]
-        text, subs = apply_snippets("tamam.", snippets)
-        assert text == "OK"
-        assert subs == {"tamam": "OK"}
-
-
-# ---------------------------------------------------------------------------
-# 3. save_transcription — corrections JSON persistence
+# 2. save_transcription — corrections persisted as JSON
 # ---------------------------------------------------------------------------
 
 class TestSaveTranscriptionCorrections:
@@ -147,7 +103,7 @@ class TestSaveTranscriptionCorrections:
 
         corrections = {
             "dict": {"visspar": "Whisper"},
-            "snippet": {"aç parantez": "("},
+            "llm": {"in": "a", "out": "b"},
         }
 
         async def _run():
@@ -173,7 +129,7 @@ class TestSaveTranscriptionCorrections:
                 inserted_corrections = call_args[0][1][-1]  # last param in VALUES tuple
                 parsed = json.loads(inserted_corrections)
                 assert parsed["dict"] == {"visspar": "Whisper"}
-                assert parsed["snippet"] == {"aç parantez": "("}
+                assert parsed["llm"] == {"in": "a", "out": "b"}
 
         asyncio.run(_run())
 
@@ -225,9 +181,8 @@ class TestPipelineCorrectionsIntegration:
 
         async def _run():
             result = TranscriptionResult(text="visspar kullandım", language="tr", duration=1.0)
-            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=dict_entries), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
-                text, was_corrected, snippet_used, symbol_refs, corrections = await svc._apply_text_pipeline(
+            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=dict_entries):
+                text, was_corrected, corrections = await svc._apply_text_pipeline(
                     result, "general", "user-1", None, None, None, asyncio.get_event_loop()
                 )
             return text, corrections
@@ -237,34 +192,13 @@ class TestPipelineCorrectionsIntegration:
         assert "dict" in corrections
         assert corrections["dict"].get("visspar") == "Whisper"
 
-    def test_snippet_corrections_in_result(self):
-        svc, TranscriptionResult = self._make_service()
-
-        snippets = [snippet("aç parantez", "(")]
-
-        async def _run():
-            result = TranscriptionResult(text="aç parantez", language="tr", duration=1.0)
-            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=snippets):
-                text, was_corrected, snippet_used, symbol_refs, corrections = await svc._apply_text_pipeline(
-                    result, "general", "user-1", None, None, None, asyncio.get_event_loop()
-                )
-            return text, snippet_used, corrections
-
-        text, snippet_used, corrections = asyncio.run(_run())
-        assert text == "("
-        assert snippet_used is True
-        assert "snippet" in corrections
-        assert corrections["snippet"] == {"aç parantez": "("}
-
     def test_no_substitutions_empty_corrections(self):
         svc, TranscriptionResult = self._make_service()
 
         async def _run():
             result = TranscriptionResult(text="normal metin", language="tr", duration=1.0)
-            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
-                _, _, _, _, corrections = await svc._apply_text_pipeline(
+            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
+                _, _, corrections = await svc._apply_text_pipeline(
                     result, "general", "user-1", None, None, None, asyncio.get_event_loop()
                 )
             return corrections
@@ -279,9 +213,8 @@ class TestPipelineCorrectionsIntegration:
         async def _run():
             result = TranscriptionResult(text="bugun hava guzel", language="tr", duration=1.0)
             svc._corrector.correct_async = AsyncMock(return_value="Bugün hava güzel.")
-            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
-                text, was_corrected, _, _, corrections = await svc._apply_text_pipeline(
+            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
+                text, was_corrected, corrections = await svc._apply_text_pipeline(
                     result, "general", "user-1", None, None, None, asyncio.get_event_loop()
                 )
             return text, was_corrected, corrections
@@ -300,9 +233,8 @@ class TestPipelineCorrectionsIntegration:
         async def _run():
             result = TranscriptionResult(text="Bugün hava güzel.", language="tr", duration=1.0)
             svc._corrector.correct_async = AsyncMock(return_value="Bugün hava güzel.")
-            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
-                _, was_corrected, _, _, corrections = await svc._apply_text_pipeline(
+            with patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
+                _, was_corrected, corrections = await svc._apply_text_pipeline(
                     result, "general", "user-1", None, None, None, asyncio.get_event_loop()
                 )
             return was_corrected, corrections
@@ -335,8 +267,7 @@ class TestPipelineCorrectionsIntegration:
 
         async def _run():
             with patch("voiceflow.recording.service.save_transcription", new_callable=AsyncMock, return_value=1), \
-                 patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]), \
-                 patch("voiceflow.recording.service.get_snippets", new_callable=AsyncMock, return_value=[]):
+                 patch("voiceflow.recording.service.get_dictionary", new_callable=AsyncMock, return_value=[]):
                 return await svc.stop(user_id="u1", tenant_id="default")
 
         result = asyncio.run(_run())

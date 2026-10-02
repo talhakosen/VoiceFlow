@@ -15,13 +15,11 @@ enum VFColor {
     // MARK: Mode
     static let modeGeneral:     Color = .blue
     static let modeEngineering: Color = .green
-    static let modeOffice:      Color = .orange
 
     static func forMode(_ mode: AppMode) -> Color {
         switch mode {
         case .general:     return modeGeneral
         case .engineering: return modeEngineering
-        case .office:      return modeOffice
         }
     }
 
@@ -162,7 +160,6 @@ enum VFIcon {
     static let recording:     String = "mic"
     static let micFill:       String = "mic.fill"
     static let dictionary:    String = "character.book.closed"
-    static let snippets:      String = "text.badge.plus"
     static let knowledgeBase: String = "books.vertical"
     static let account:       String = "person.circle"
     static let about:         String = "info.circle"
@@ -175,12 +172,10 @@ enum VFIcon {
     // MARK: Modes — outline (menu, settings)
     static let modeGeneral:     String = "text.bubble"
     static let modeEngineering: String = "chevron.left.forwardslash.chevron.right"
-    static let modeOffice:      String = "envelope"
 
     // MARK: Modes — filled (floating indicator)
     static let modeGeneralFilled:     String = "text.bubble.fill"
     static let modeEngineeringFilled: String = "chevron.left.forwardslash.chevron.right"
-    static let modeOfficeFilled:      String = "envelope.fill"
 
     // MARK: Actions
     static let add:          String = "plus"
@@ -218,7 +213,6 @@ enum VFLayout {
         static let context:    CGSize = CGSize(width: 460, height: 300)
         static let login:      CGSize = CGSize(width: 380, height: 320)
         static let onboarding: CGSize = CGSize(width: 480, height: 360)
-        static let itDataset:  CGSize = CGSize(width: 520, height: 600)
     }
 
     enum Overlay {
@@ -277,7 +271,6 @@ extension AppMode {
         switch self {
         case .general:     return VFIcon.modeGeneralFilled
         case .engineering: return VFIcon.modeEngineeringFilled
-        case .office:      return VFIcon.modeOfficeFilled
         }
     }
 }

@@ -46,7 +46,6 @@ class RunPodPassthroughCorrector(AbstractCorrector):
         self,
         text: str,
         language: str | None = None,
-        context: list[str] | None = None,
         active_app: str | None = None,
         **kwargs,
     ) -> str:
@@ -61,9 +60,8 @@ class RunPodPassthroughCorrector(AbstractCorrector):
         self,
         text: str,
         language: str | None = None,
-        context: list[str] | None = None,
         active_app: str | None = None,
         **kwargs,
     ) -> str:
         """Async version — same passthrough logic."""
-        return self.correct(text, language, context, active_app, **kwargs)
+        return self.correct(text, language, active_app, **kwargs)

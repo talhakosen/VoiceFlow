@@ -36,7 +36,7 @@ class AbstractCorrector(ABC):
     """Protocol for LLM text correction engines (MLX-LM, Ollama, etc.)"""
 
     @abstractmethod
-    def correct(self, text: str, language: str | None = None, context: list[str] | None = None, active_app: str | None = None) -> str:
+    def correct(self, text: str, language: str | None = None, active_app: str | None = None) -> str:
         """Synchronous correction. Used in MLX executor."""
 
     @abstractmethod

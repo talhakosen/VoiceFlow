@@ -58,10 +58,9 @@ struct AppFeature {
             case let .recording(.transcriptReceived(result)):
                 state.menuBar.hasLastResult = true
                 let trainingEnabled = state.recording.trainingModeEnabled
-                let snippetUsed = result.snippetUsed == true
-                BackendService.debugLog("AppFeature: transcriptReceived — trainingEnabled=\(trainingEnabled) snippetUsed=\(snippetUsed) text='\(result.text)'")
+                BackendService.debugLog("AppFeature: transcriptReceived — trainingEnabled=\(trainingEnabled) text='\(result.text)'")
                 // Fix 3: menuBar.isRecording removed — isRecording lives only in RecordingFeature
-                if trainingEnabled && !snippetUsed {
+                if trainingEnabled {
                     BackendService.debugLog("AppFeature: dispatching pillShown")
                     return .send(.training(.pillShown(originalText: result.text)))
                 }

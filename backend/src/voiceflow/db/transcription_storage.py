@@ -23,8 +23,6 @@ async def save_transcription(
     `corrections` JSON structure (all keys optional):
     {
       "dict":    {"original_token": "replacement", ...},
-      "snippet": {"trigger_phrase": "expansion"},
-      "symbol":  {"symbol_name": "file.swift:42"},
       "llm":     {"in": "text before LLM", "out": "text after LLM"}
     }
     """
